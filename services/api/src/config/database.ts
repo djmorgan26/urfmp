@@ -4,7 +4,8 @@ import { logger, logQuery } from './logger'
 let pool: Pool
 
 const dbConfig: PoolConfig = {
-  connectionString: process.env.DATABASE_URL || 'postgresql://urfmp:urfmp-dev-2024@localhost:5432/urfmp',
+  connectionString:
+    process.env.DATABASE_URL || 'postgresql://urfmp:urfmp-dev-2024@localhost:5432/urfmp',
   min: parseInt(process.env.DATABASE_POOL_MIN || '2'),
   max: parseInt(process.env.DATABASE_POOL_MAX || '10'),
   idleTimeoutMillis: 30000,
@@ -65,7 +66,7 @@ export const query = async (text: string, params: any[] = [], traceId?: string):
       query: text.replace(/\s+/g, ' ').trim(),
       params,
       duration,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       traceId,
     })
     throw error
@@ -93,7 +94,10 @@ export const transaction = async <T>(
     return result
   } catch (error) {
     await client.query('ROLLBACK')
-    logger.error('Transaction rolled back', { error: error.message, traceId })
+    logger.error('Transaction rolled back', {
+      error: error instanceof Error ? error.message : String(error),
+      traceId,
+    })
     throw error
   } finally {
     client.release()
@@ -125,7 +129,7 @@ export const checkDatabaseHealth = async (): Promise<{
     return {
       status: 'unhealthy',
       details: {
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         totalConnections: pool.totalCount,
         idleConnections: pool.idleCount,
         waitingConnections: pool.waitingCount,
@@ -162,7 +166,7 @@ export const createHypertable = async (
       tableName,
       timeColumn,
       chunkTimeInterval,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     })
     throw error
   }
@@ -190,7 +194,7 @@ export const createIndex = async (
       tableName,
       columns,
       options,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     })
     throw error
   }

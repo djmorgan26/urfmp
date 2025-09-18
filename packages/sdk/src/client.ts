@@ -5,10 +5,10 @@ import {
   RobotTelemetry,
   ApiResponse,
   WebSocketMessage,
-  WebSocketMessageType,
   RobotCommand,
   CommandResult,
 } from '@urfmp/types'
+import { WebSocketMessageType } from '@urfmp/types/websocket.ts'
 
 export interface URFMPConfig {
   apiKey: string

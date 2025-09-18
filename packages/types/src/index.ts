@@ -18,7 +18,8 @@ export * from './auth'
 // API types
 export type { ApiResponse, ApiError } from './api'
 
-export { SortOrder, ValidationError } from './api'
+export { SortOrder } from './api'
+export type { ValidationError } from './api'
 
 // WebSocket types
 export * from './websocket'

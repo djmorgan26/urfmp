@@ -3,7 +3,8 @@
  * The Stripe of Robotics
  */
 
-export { URFMP, URFMPConfig } from './client'
+export { URFMP } from './client'
+export type { URFMPConfig } from './client'
 export { RobotMonitor } from './monitor'
 export { TelemetryStream } from './telemetry'
 export * from '@urfmp/types'

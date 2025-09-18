@@ -8,8 +8,12 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
       '@urfmp/types': resolve(__dirname, '../packages/types/src'),
+      '@urfmp/types/websocket.ts': resolve(__dirname, '../packages/types/src/websocket.ts'),
       '@urfmp/sdk': resolve(__dirname, '../packages/sdk/src'),
     },
+  },
+  optimizeDeps: {
+    exclude: ['@urfmp/types', '@urfmp/sdk'],
   },
   server: {
     port: 3001,

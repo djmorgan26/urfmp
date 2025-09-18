@@ -345,6 +345,8 @@ export class DefaultVendorRegistry implements VendorRegistry {
 }
 
 // Re-export types for convenience
-export { RobotVendor, RobotCommand, RobotCapability, RobotStatus } from './robot'
-export { RobotTelemetry, TemperatureUnit } from './telemetry'
-export { EventSubscription } from './events'
+export { RobotVendor, RobotCapability, RobotStatus } from './robot'
+export type { RobotCommand } from './robot'
+export type { RobotTelemetry } from './telemetry'
+export { TemperatureUnit } from './telemetry'
+export type { EventSubscription } from './events'
