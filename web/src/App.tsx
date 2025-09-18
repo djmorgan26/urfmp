@@ -7,11 +7,13 @@ import { Analytics } from '@/pages/Analytics'
 import { Maintenance } from '@/pages/Maintenance'
 import { Settings } from '@/pages/Settings'
 import { URFMPProvider } from '@/hooks/useURFMP'
+import { ThemeProvider } from '@/contexts/ThemeContext'
 
 function App() {
   return (
-    <URFMPProvider>
-      <Layout>
+    <ThemeProvider>
+      <URFMPProvider>
+        <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/robots" element={<Robots />} />
@@ -20,8 +22,9 @@ function App() {
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
-      </Layout>
-    </URFMPProvider>
+        </Layout>
+      </URFMPProvider>
+    </ThemeProvider>
   )
 }
 

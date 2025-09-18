@@ -14,6 +14,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { useTheme } from '@/contexts/ThemeContext'
 
 interface ApiKey {
   id: string
@@ -50,6 +51,7 @@ export function Settings() {
   const [activeTab, setActiveTab] = useState('general')
   const [showCreateApiKey, setShowCreateApiKey] = useState(false)
   const [showApiKeys, setShowApiKeys] = useState<Record<string, boolean>>({})
+  const { theme, setTheme, isDark } = useTheme()
 
   const toggleApiKeyVisibility = (id: string) => {
     setShowApiKeys((prev) => ({ ...prev, [id]: !prev[id] }))
@@ -137,11 +139,22 @@ export function Settings() {
                   </select>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="dark-mode" className="rounded" />
-                  <label htmlFor="dark-mode" className="text-sm">
-                    Enable dark mode
-                  </label>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium">Theme</label>
+                    <p className="text-xs text-muted-foreground">
+                      Choose your preferred theme or follow system preference
+                    </p>
+                  </div>
+                  <select
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="system">System</option>
+                  </select>
                 </div>
 
                 <div className="flex items-center space-x-2">

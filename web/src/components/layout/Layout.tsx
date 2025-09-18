@@ -10,8 +10,11 @@ import {
   Search,
   ChevronDown,
   Zap,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useURFMP } from '@/hooks/useURFMP'
+import { useTheme } from '@/contexts/ThemeContext'
 import { cn } from '@/utils/cn'
 
 interface LayoutProps {
@@ -28,6 +31,7 @@ const navigation = [
 
 export function Layout({ children }: LayoutProps) {
   const { isConnected, robots, error } = useURFMP()
+  const { theme, setTheme, isDark } = useTheme()
   const location = useLocation()
 
   const activeRobots = robots.filter((r) => r.status === 'running' || r.status === 'online').length
@@ -90,6 +94,15 @@ export function Layout({ children }: LayoutProps) {
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
                 2
               </span>
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              className="p-2 rounded-md hover:bg-accent"
+              title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+            >
+              {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
             {/* User Menu */}
