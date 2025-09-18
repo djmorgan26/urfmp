@@ -27,7 +27,7 @@ import {
 } from 'recharts'
 import { useURFMP } from '@/hooks/useURFMP'
 import { cn } from '@/utils/cn'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, parseISO } from 'date-fns'
 
 const mockTelemetryData = [
   { time: '00:00', temperature: 42, current: 2.1, voltage: 48.2, position: [120, 45, 230] },
@@ -164,7 +164,7 @@ export function RobotDetail() {
 
           {robot.lastSeen && (
             <p className="text-sm text-muted-foreground mb-4">
-              Last seen {formatDistanceToNow(robot.lastSeen, { addSuffix: true })}
+              Last seen {formatDistanceToNow(typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen, { addSuffix: true })}
             </p>
           )}
 
