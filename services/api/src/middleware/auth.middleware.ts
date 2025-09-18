@@ -17,6 +17,20 @@ declare global {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Development bypass when using mock robots
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_MOCK_ROBOTS === 'true') {
+      req.user = {
+        sub: 'demo-user-id',
+        organizationId: 'demo-org-id',
+        email: 'demo@urfmp.com',
+        permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
+        role: 'admin',
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      }
+      return next()
+    }
+
     const token = extractToken(req)
     if (!token) {
       throw new UnauthorizedError('Authentication token required')

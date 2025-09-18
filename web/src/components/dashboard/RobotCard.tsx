@@ -40,7 +40,7 @@ export function RobotCard({ robot }: RobotCardProps) {
   const { sendCommand } = useURFMP()
   const [isLoading, setIsLoading] = useState(false)
 
-  const status = statusConfig[robot.status] || statusConfig.offline
+  const status = statusConfig[robot.status as keyof typeof statusConfig] || statusConfig.offline
   const StatusIcon = status.icon
 
   const handleCommand = async (commandType: string) => {

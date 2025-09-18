@@ -91,7 +91,7 @@ export function RobotDetail() {
     )
   }
 
-  const status = statusConfig[robot.status] || statusConfig.offline
+  const status = statusConfig[robot.status as keyof typeof statusConfig] || statusConfig.offline
   const StatusIcon = status.icon
 
   return (

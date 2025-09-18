@@ -49,13 +49,13 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       setIsConnected(true)
 
       // Set up event handlers
-      client.on('robot:status', (data) => {
+      client.on('robot:status', (data: any) => {
         console.log('Robot status update:', data)
         updateRobotStatus(data.robotId, data.status)
         toast.info(`Robot ${data.robotName || data.robotId} status: ${data.status}`)
       })
 
-      client.on('robot:alert', (data) => {
+      client.on('robot:alert', (data: any) => {
         console.log('Robot alert:', data)
         if (data.severity === 'critical') {
           toast.error(`Critical Alert: ${data.message}`)
@@ -66,7 +66,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         }
       })
 
-      client.on('robot:telemetry', (data) => {
+      client.on('robot:telemetry', (data: any) => {
         // Handle real-time telemetry updates
         updateRobotTelemetry(data.robotId, data)
       })
