@@ -21,7 +21,8 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
-*.env
+.env.*
+!.env.example
 
 # IDE
 .vscode/*
@@ -33,7 +34,6 @@ out/
 *.swp
 *.swo
 *.swn
-.DS_Store
 
 # Testing
 coverage/
@@ -41,18 +41,31 @@ coverage/
 test-results/
 playwright-report/
 playwright/.cache/
+*.lcov
 
 # Logs
 logs/
+logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # Database
 *.sqlite
 *.sqlite3
 *.db
+
+# Cache
+.cache/
+.parcel-cache
+.npm
+.eslintcache
+.stylelintcache
 
 # Python
 __pycache__/
@@ -93,7 +106,7 @@ tmp/
 temp/
 *.tmp
 *.temp
-.cache/
+.temp
 
 # MacOS
 .DS_Store
@@ -111,3 +124,39 @@ $RECYCLE.BIN/
 *~
 .directory
 .Trash-*
+
+# Yarn
+.yarn-integrity
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Build tools
+.grunt
+bower_components
+web_modules/
+.lock-wscript
+build/Release
+jspm_packages/
+*.tgz
+.node_repl_history
+
+# Framework specific
+.nuxt
+.svelte-kit/
+.vuepress/dist
+**/.vitepress/dist
+**/.vitepress/cache
+.docusaurus
+.serverless/
+.fusebox/
+.dynamodb/
+.firebase/
+.tern-port
+.vscode-test
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
