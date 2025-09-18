@@ -24,6 +24,21 @@ out/
 .env.*
 !.env.example
 
+# Security & Secrets
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets.json
+secrets.yaml
+secrets.yml
+*secret*
+*password*
+*credentials*
+api-keys.json
+jwt-secret.txt
+
 # IDE
 .vscode/*
 !.vscode/extensions.json

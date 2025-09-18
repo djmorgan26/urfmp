@@ -16,9 +16,9 @@ export * from './user'
 export * from './auth'
 
 // API types
-export type { ApiResponse, ApiError } from './api'
+export type { ApiResponse, ApiError, HealthCheck, ServiceHealth } from './api'
 
-export { SortOrder } from './api'
+export { SortOrder, HealthStatus } from './api'
 export type { ValidationError } from './api'
 
 // WebSocket types
@@ -32,3 +32,7 @@ export * from './vendor'
 
 // Maintenance types
 export * from './maintenance'
+
+// Brand configuration
+export type { BrandConfig } from './config/brand'
+export { defaultBrandConfig, getBrandConfig } from './config/brand'

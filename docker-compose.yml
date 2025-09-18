@@ -146,6 +146,12 @@ services:
     environment:
       NODE_ENV: development
       VITE_API_URL: http://localhost:3000
+      VITE_COMPANY_NAME: ${VITE_COMPANY_NAME:-URFMP}
+      VITE_PRODUCT_NAME: ${VITE_PRODUCT_NAME:-URFMP}
+      VITE_COMPANY_NAME_SHORT: ${VITE_COMPANY_NAME_SHORT:-URFMP}
+      VITE_PRODUCT_FULL_NAME: ${VITE_PRODUCT_FULL_NAME:-Universal Robot Fleet Management Platform}
+      VITE_TAGLINE: ${VITE_TAGLINE:-The Stripe of Robotics}
+      VITE_DESCRIPTION: ${VITE_DESCRIPTION:-Monitor any robot in 7 lines of code}
     depends_on:
       - api
     volumes:

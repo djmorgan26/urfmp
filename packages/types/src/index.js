@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SortOrder = exports.VelocityUnit = exports.TorqueUnit = exports.TemperatureUnit = exports.ForceUnit = exports.AngleUnit = void 0;
+exports.getBrandConfig = exports.defaultBrandConfig = exports.HealthStatus = exports.SortOrder = exports.VelocityUnit = exports.TorqueUnit = exports.TemperatureUnit = exports.ForceUnit = exports.AngleUnit = void 0;
 // Robot types
 __exportStar(require("./robot"), exports);
 var telemetry_1 = require("./telemetry");
@@ -31,6 +31,7 @@ __exportStar(require("./user"), exports);
 __exportStar(require("./auth"), exports);
 var api_1 = require("./api");
 Object.defineProperty(exports, "SortOrder", { enumerable: true, get: function () { return api_1.SortOrder; } });
+Object.defineProperty(exports, "HealthStatus", { enumerable: true, get: function () { return api_1.HealthStatus; } });
 // WebSocket types
 __exportStar(require("./websocket"), exports);
 // Event types
@@ -39,4 +40,7 @@ __exportStar(require("./events"), exports);
 __exportStar(require("./vendor"), exports);
 // Maintenance types
 __exportStar(require("./maintenance"), exports);
+var brand_1 = require("./config/brand");
+Object.defineProperty(exports, "defaultBrandConfig", { enumerable: true, get: function () { return brand_1.defaultBrandConfig; } });
+Object.defineProperty(exports, "getBrandConfig", { enumerable: true, get: function () { return brand_1.getBrandConfig; } });
 //# sourceMappingURL=index.js.map

@@ -21,12 +21,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Brand configuration
+const brandConfig = {
+  productName: process.env.PRODUCT_NAME || 'URFMP',
+  productFullName: process.env.PRODUCT_FULL_NAME || 'Universal Robot Fleet Management Platform',
+  tagline: process.env.TAGLINE || 'The Stripe of Robotics'
+};
+
 // Mock API endpoints
 app.get('/', (req, res) => {
   res.json({
-    name: 'URFMP API (Mock)',
+    name: `${brandConfig.productName} API (Mock)`,
     version: '1.0.0',
-    description: 'Universal Robot Fleet Management Platform - Mock Server',
+    description: `${brandConfig.productFullName} - Mock Server`,
+    tagline: brandConfig.tagline,
     docs: '/docs',
     health: '/health',
   });
