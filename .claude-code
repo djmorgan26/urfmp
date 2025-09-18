@@ -1,0 +1,174 @@
+# Claude Code Instructions for URFMP
+
+You are building the Universal Robot Fleet Management Platform (URFMP) - "The Stripe of Robotics".
+
+## Core Context
+
+- **Vision**: Developer-first platform for managing robot fleets across any vendor
+- **Goal**: 7 lines of code to monitor any robot, anywhere
+- **Philosophy**: We're not building a monitoring tool, we're building the operating system for robotics
+
+## Technical Stack
+
+**Frontend**: React (TypeScript), TailwindCSS, Recharts, WebSocket
+**Backend**: Node.js + Express, PostgreSQL (TimescaleDB), Redis, RabbitMQ  
+**Infrastructure**: AWS ECS, CloudWatch, S3, Lambda, Terraform
+**ML/Analytics**: Python microservices, Kafka, ClickHouse, TensorFlow
+
+## Development Principles
+
+1. **Developer-first**: APIs must be delightful. SDK setup in <5 minutes
+2. **Security-first**: Zero-trust, JWT scopes, encrypted telemetry
+3. **Observability**: Structured logs, metrics, traces everywhere
+4. **Ship fast**: Small, testable increments over big features
+5. **Type safety**: TypeScript for JS, Pydantic for Python
+
+## Code Standards
+
+### TypeScript/Node.js
+```typescript
+// Always use strong typing
+interface RobotTelemetry {
+  robot_id: string;
+  ts: string; // ISO8601
+  status: 'active' | 'idle' | 'maintenance' | 'error';
+  position?: { lat: number; lon: number; frame?: string };
+  battery_level?: number; // 0-100
+  metrics?: Record<string, number | string>;
+}
+
+// Consistent error handling
+class RobotNotFoundError extends Error {
+  code = 'ROBOT_NOT_FOUND';
+  statusCode = 404;
+}
+```
+
+### Python/ML Services
+```python
+from pydantic import BaseModel
+from typing import Optional, Literal
+
+class MaintenancePrediction(BaseModel):
+    robot_id: str
+    risk: Literal['LOW', 'MEDIUM', 'HIGH']
+    component: str
+    confidence: float  # 0.0-1.0
+    days_to_failure: Optional[int]
+    recommended_action: str
+```
+
+### API Design
+- REST for CRUD operations
+- WebSocket/SSE for real-time telemetry
+- Consistent error format: `{code, message, details}`
+- Always paginated: `{data, pagination: {cursor, limit}}`
+
+## Universal Adapter Pattern
+
+Every robot vendor adapter MUST implement:
+```typescript
+interface IRobotVendorAdapter {
+  connect(): Promise<void>;
+  disconnect(): Promise<void>;
+  getId(): string;
+  getStatus(): Promise<VendorStatus>;
+  streamTelemetry(onData: (t: Telemetry) => void): Subscription;
+  sendCommand?(cmd: Command): Promise<CommandResult>;
+}
+```
+
+## Database Schema Core
+
+```sql
+-- Hypertable for time-series
+CREATE TABLE robot_telemetry (
+  robot_id UUID REFERENCES robots(id),
+  timestamp TIMESTAMPTZ,
+  status VARCHAR(50),
+  position JSONB,
+  battery_level NUMERIC,
+  metrics JSONB,
+  PRIMARY KEY (robot_id, timestamp)
+) PARTITION BY RANGE (timestamp);
+
+SELECT create_hypertable('robot_telemetry', 'timestamp');
+```
+
+## Security Requirements
+
+- JWT with short-lived tokens (15 min) + refresh tokens
+- API keys with scopes: `read:telemetry`, `write:commands`, `admin:fleet`
+- Rate limiting per org: Tier-based (100/1000/10000 req/min)
+- Audit trail for all mutations
+
+## Testing Standards
+
+- Unit tests for all business logic (>80% coverage)
+- Integration tests for adapters using fixtures
+- E2E test: onboard → connect → telemetry → alert
+- Performance: API p95 <200ms, dashboard load <2s
+
+## File Structure Conventions
+
+```
+/services/api/src/
+  /controllers/     # Request handlers
+  /services/        # Business logic  
+  /repositories/    # Data access
+  /middleware/      # Auth, logging, etc
+  /utils/          # Helpers
+  /types/          # TypeScript definitions
+```
+
+## Common Commands
+
+```bash
+# Development
+npm run dev           # Start all services
+npm run test:watch    # Run tests in watch mode
+
+# Database
+npm run db:migrate    # Run migrations
+npm run db:seed       # Seed test data
+
+# Production
+npm run build        # Build all services
+npm run start:prod   # Start production
+```
+
+## Priority Implementation Order
+
+1. **Core API** with auth + robot CRUD
+2. **Universal Robot adapter** (most common)
+3. **WebSocket telemetry** streaming
+4. **Basic React dashboard** with real-time view
+5. **Alert engine** with rules
+6. **SDK** with 7-line quickstart
+7. **ML pipeline** for predictions
+
+## Success Metrics
+
+- Time to first API call: <5 minutes
+- SDK lines of code: ≤7 for basic monitoring  
+- API response: p95 <200ms
+- Uptime: 99.99% SLA
+- Developer retention: 90% at 30 days
+
+## Key Decisions Made
+
+- **TimescaleDB** over vanilla PostgreSQL for time-series
+- **WebSocket** over SSE for bi-directional robot control
+- **Kafka → ClickHouse** for high-volume analytics
+- **TypeScript everywhere** for type safety
+- **Monorepo** with workspaces for code sharing
+
+## Remember
+
+Every feature should ask: "Does this help us become the essential infrastructure layer for robotics?"
+
+When in doubt:
+- Choose developer experience over internal convenience
+- Ship smaller increments faster
+- Make it work, make it right, make it fast (in that order)
+- Document as you build, not after

@@ -1,0 +1,41 @@
+{
+  "name": "@urfmp/adapter-universal-robots",
+  "version": "1.0.0",
+  "description": "Universal Robots adapter for URFMP - UR3, UR5, UR10, UR16, UR20",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "universal-robots",
+    "ur3",
+    "ur5",
+    "ur10",
+    "ur16",
+    "ur20",
+    "robotics",
+    "adapter",
+    "urfmp"
+  ],
+  "author": "URFMP Team",
+  "license": "MIT",
+  "dependencies": {
+    "@urfmp/types": "file:../../packages/types",
+    "axios": "^1.6.0",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.10",
+    "typescript": "^5.3.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.10"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
