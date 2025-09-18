@@ -2,8 +2,8 @@
   "name": "@urfmp/sdk",
   "version": "1.0.0",
   "description": "URFMP SDK - Monitor any robot in 7 lines of code",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",

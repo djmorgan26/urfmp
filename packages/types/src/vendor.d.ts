@@ -241,7 +241,9 @@ export declare class DefaultVendorRegistry implements VendorRegistry {
     list(): IRobotVendorAdapter[];
     isSupported(vendor: RobotVendor): boolean;
 }
-export { RobotVendor, RobotCommand, RobotCapability, RobotStatus } from './robot';
-export { RobotTelemetry, TemperatureUnit } from './telemetry';
-export { EventSubscription } from './events';
+export { RobotVendor, RobotCapability, RobotStatus } from './robot';
+export type { RobotCommand } from './robot';
+export type { RobotTelemetry } from './telemetry';
+export { TemperatureUnit } from './telemetry';
+export type { EventSubscription } from './events';
 //# sourceMappingURL=vendor.d.ts.map

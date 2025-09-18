@@ -14,7 +14,7 @@ import {
 import { Robot, RobotStatus } from '@urfmp/types'
 import { useURFMP } from '@/hooks/useURFMP'
 import { cn } from '@/utils/cn'
-import { formatDistanceToNow } from 'date-fns'
+import { formatDistanceToNow, parseISO } from 'date-fns'
 
 interface RobotCardProps {
   robot: Robot
@@ -94,7 +94,7 @@ export function RobotCard({ robot }: RobotCardProps) {
       {/* Last Seen */}
       {robot.lastSeen && (
         <p className="text-xs text-muted-foreground mb-3">
-          Last seen {formatDistanceToNow(robot.lastSeen, { addSuffix: true })}
+          Last seen {formatDistanceToNow(typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen, { addSuffix: true })}
         </p>
       )}
 

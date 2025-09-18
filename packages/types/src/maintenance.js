@@ -1,0 +1,158 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ReportFormat = exports.ChartType = exports.ReportPeriod = exports.ReportType = exports.RecommendedAction = exports.TrendDirection = exports.PredictionSeverity = exports.PredictionType = exports.RobotComponent = exports.RecurrenceFrequency = exports.MaintenanceStatus = exports.MaintenancePriority = exports.MaintenanceType = void 0;
+var MaintenanceType;
+(function (MaintenanceType) {
+    MaintenanceType["PREVENTIVE"] = "preventive";
+    MaintenanceType["CORRECTIVE"] = "corrective";
+    MaintenanceType["PREDICTIVE"] = "predictive";
+    MaintenanceType["CONDITION_BASED"] = "condition_based";
+    MaintenanceType["EMERGENCY"] = "emergency";
+    MaintenanceType["CALIBRATION"] = "calibration";
+    MaintenanceType["INSPECTION"] = "inspection";
+    MaintenanceType["CLEANING"] = "cleaning";
+    MaintenanceType["LUBRICATION"] = "lubrication";
+    MaintenanceType["REPLACEMENT"] = "replacement";
+    MaintenanceType["UPGRADE"] = "upgrade";
+    MaintenanceType["CUSTOM"] = "custom";
+})(MaintenanceType || (exports.MaintenanceType = MaintenanceType = {}));
+var MaintenancePriority;
+(function (MaintenancePriority) {
+    MaintenancePriority["CRITICAL"] = "critical";
+    MaintenancePriority["HIGH"] = "high";
+    MaintenancePriority["MEDIUM"] = "medium";
+    MaintenancePriority["LOW"] = "low";
+})(MaintenancePriority || (exports.MaintenancePriority = MaintenancePriority = {}));
+var MaintenanceStatus;
+(function (MaintenanceStatus) {
+    MaintenanceStatus["SCHEDULED"] = "scheduled";
+    MaintenanceStatus["PENDING"] = "pending";
+    MaintenanceStatus["IN_PROGRESS"] = "in_progress";
+    MaintenanceStatus["COMPLETED"] = "completed";
+    MaintenanceStatus["CANCELLED"] = "cancelled";
+    MaintenanceStatus["OVERDUE"] = "overdue";
+    MaintenanceStatus["ON_HOLD"] = "on_hold";
+    MaintenanceStatus["REQUIRES_APPROVAL"] = "requires_approval";
+})(MaintenanceStatus || (exports.MaintenanceStatus = MaintenanceStatus = {}));
+var RecurrenceFrequency;
+(function (RecurrenceFrequency) {
+    RecurrenceFrequency["DAILY"] = "daily";
+    RecurrenceFrequency["WEEKLY"] = "weekly";
+    RecurrenceFrequency["MONTHLY"] = "monthly";
+    RecurrenceFrequency["QUARTERLY"] = "quarterly";
+    RecurrenceFrequency["YEARLY"] = "yearly";
+    RecurrenceFrequency["HOURS"] = "hours";
+    RecurrenceFrequency["CYCLES"] = "cycles";
+    RecurrenceFrequency["DISTANCE"] = "distance";
+    RecurrenceFrequency["CUSTOM"] = "custom";
+})(RecurrenceFrequency || (exports.RecurrenceFrequency = RecurrenceFrequency = {}));
+var RobotComponent;
+(function (RobotComponent) {
+    RobotComponent["MOTOR_JOINT_1"] = "motor_joint_1";
+    RobotComponent["MOTOR_JOINT_2"] = "motor_joint_2";
+    RobotComponent["MOTOR_JOINT_3"] = "motor_joint_3";
+    RobotComponent["MOTOR_JOINT_4"] = "motor_joint_4";
+    RobotComponent["MOTOR_JOINT_5"] = "motor_joint_5";
+    RobotComponent["MOTOR_JOINT_6"] = "motor_joint_6";
+    RobotComponent["MOTOR_JOINT_7"] = "motor_joint_7";
+    RobotComponent["GEARBOX_1"] = "gearbox_1";
+    RobotComponent["GEARBOX_2"] = "gearbox_2";
+    RobotComponent["GEARBOX_3"] = "gearbox_3";
+    RobotComponent["GEARBOX_4"] = "gearbox_4";
+    RobotComponent["GEARBOX_5"] = "gearbox_5";
+    RobotComponent["GEARBOX_6"] = "gearbox_6";
+    RobotComponent["BEARING_1"] = "bearing_1";
+    RobotComponent["BEARING_2"] = "bearing_2";
+    RobotComponent["BEARING_3"] = "bearing_3";
+    RobotComponent["BEARING_4"] = "bearing_4";
+    RobotComponent["BEARING_5"] = "bearing_5";
+    RobotComponent["BEARING_6"] = "bearing_6";
+    RobotComponent["CONTROLLER"] = "controller";
+    RobotComponent["POWER_SUPPLY"] = "power_supply";
+    RobotComponent["BRAKE_SYSTEM"] = "brake_system";
+    RobotComponent["COOLING_SYSTEM"] = "cooling_system";
+    RobotComponent["PNEUMATIC_SYSTEM"] = "pneumatic_system";
+    RobotComponent["HYDRAULIC_SYSTEM"] = "hydraulic_system";
+    RobotComponent["TOOL_CHANGER"] = "tool_changer";
+    RobotComponent["END_EFFECTOR"] = "end_effector";
+    RobotComponent["CABLES"] = "cables";
+    RobotComponent["SENSORS"] = "sensors";
+    RobotComponent["SAFETY_SYSTEM"] = "safety_system";
+    RobotComponent["CUSTOM"] = "custom";
+})(RobotComponent || (exports.RobotComponent = RobotComponent = {}));
+var PredictionType;
+(function (PredictionType) {
+    PredictionType["WEAR"] = "wear";
+    PredictionType["FATIGUE"] = "fatigue";
+    PredictionType["OVERHEATING"] = "overheating";
+    PredictionType["VIBRATION"] = "vibration";
+    PredictionType["PERFORMANCE_DEGRADATION"] = "performance_degradation";
+    PredictionType["CALIBRATION_DRIFT"] = "calibration_drift";
+    PredictionType["LUBRICATION"] = "lubrication";
+    PredictionType["CONTAMINATION"] = "contamination";
+    PredictionType["ELECTRICAL_FAULT"] = "electrical_fault";
+    PredictionType["MECHANICAL_FAULT"] = "mechanical_fault";
+})(PredictionType || (exports.PredictionType = PredictionType = {}));
+var PredictionSeverity;
+(function (PredictionSeverity) {
+    PredictionSeverity["CRITICAL"] = "critical";
+    PredictionSeverity["HIGH"] = "high";
+    PredictionSeverity["MEDIUM"] = "medium";
+    PredictionSeverity["LOW"] = "low";
+})(PredictionSeverity || (exports.PredictionSeverity = PredictionSeverity = {}));
+var TrendDirection;
+(function (TrendDirection) {
+    TrendDirection["INCREASING"] = "increasing";
+    TrendDirection["DECREASING"] = "decreasing";
+    TrendDirection["STABLE"] = "stable";
+    TrendDirection["VOLATILE"] = "volatile";
+})(TrendDirection || (exports.TrendDirection = TrendDirection = {}));
+var RecommendedAction;
+(function (RecommendedAction) {
+    RecommendedAction["INSPECT"] = "inspect";
+    RecommendedAction["REPLACE"] = "replace";
+    RecommendedAction["REPAIR"] = "repair";
+    RecommendedAction["CALIBRATE"] = "calibrate";
+    RecommendedAction["LUBRICATE"] = "lubricate";
+    RecommendedAction["CLEAN"] = "clean";
+    RecommendedAction["ADJUST"] = "adjust";
+    RecommendedAction["MONITOR"] = "monitor";
+    RecommendedAction["SCHEDULE_MAINTENANCE"] = "schedule_maintenance";
+    RecommendedAction["IMMEDIATE_SHUTDOWN"] = "immediate_shutdown";
+})(RecommendedAction || (exports.RecommendedAction = RecommendedAction = {}));
+var ReportType;
+(function (ReportType) {
+    ReportType["SUMMARY"] = "summary";
+    ReportType["DETAILED"] = "detailed";
+    ReportType["PREDICTIVE"] = "predictive";
+    ReportType["COST_ANALYSIS"] = "cost_analysis";
+    ReportType["PERFORMANCE"] = "performance";
+    ReportType["COMPLIANCE"] = "compliance";
+})(ReportType || (exports.ReportType = ReportType = {}));
+var ReportPeriod;
+(function (ReportPeriod) {
+    ReportPeriod["DAILY"] = "daily";
+    ReportPeriod["WEEKLY"] = "weekly";
+    ReportPeriod["MONTHLY"] = "monthly";
+    ReportPeriod["QUARTERLY"] = "quarterly";
+    ReportPeriod["YEARLY"] = "yearly";
+    ReportPeriod["CUSTOM"] = "custom";
+})(ReportPeriod || (exports.ReportPeriod = ReportPeriod = {}));
+var ChartType;
+(function (ChartType) {
+    ChartType["LINE"] = "line";
+    ChartType["BAR"] = "bar";
+    ChartType["PIE"] = "pie";
+    ChartType["SCATTER"] = "scatter";
+    ChartType["AREA"] = "area";
+    ChartType["HISTOGRAM"] = "histogram";
+})(ChartType || (exports.ChartType = ChartType = {}));
+var ReportFormat;
+(function (ReportFormat) {
+    ReportFormat["PDF"] = "pdf";
+    ReportFormat["XLSX"] = "xlsx";
+    ReportFormat["CSV"] = "csv";
+    ReportFormat["JSON"] = "json";
+    ReportFormat["HTML"] = "html";
+})(ReportFormat || (exports.ReportFormat = ReportFormat = {}));
+//# sourceMappingURL=maintenance.js.map

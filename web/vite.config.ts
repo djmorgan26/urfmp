@@ -7,10 +7,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@urfmp/types': resolve(__dirname, '../packages/types/src'),
-      '@urfmp/types/websocket.ts': resolve(__dirname, '../packages/types/src/websocket.ts'),
-      '@urfmp/sdk': resolve(__dirname, '../packages/sdk/src'),
+      '@urfmp/types': resolve(__dirname, '../packages/types/src/index.ts'),
+      '@urfmp/sdk': resolve(__dirname, '../packages/sdk/src/index.ts'),
     },
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
   optimizeDeps: {
     exclude: ['@urfmp/types', '@urfmp/sdk'],

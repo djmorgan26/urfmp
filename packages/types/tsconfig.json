@@ -7,8 +7,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
-    "module": "esnext",
-    "moduleResolution": "bundler"
+    "module": "commonjs",
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

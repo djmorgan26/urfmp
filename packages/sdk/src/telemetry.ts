@@ -1,5 +1,4 @@
 import { URFMP } from './client'
-import { RobotTelemetry } from '@urfmp/types'
 
 export class TelemetryStream {
   private client: URFMP

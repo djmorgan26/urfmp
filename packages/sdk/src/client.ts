@@ -1,5 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
-import WebSocket from 'ws'
+import axios, { AxiosInstance } from 'axios'
+
+// Use native WebSocket in browser, ws package in Node.js
+const WebSocketImpl = typeof window !== 'undefined' ? window.WebSocket : require('ws')
 import {
   Robot,
   RobotTelemetry,
@@ -7,8 +9,8 @@ import {
   WebSocketMessage,
   RobotCommand,
   CommandResult,
+  WebSocketMessageType,
 } from '@urfmp/types'
-import { WebSocketMessageType } from '@urfmp/types/websocket.ts'
 
 export interface URFMPConfig {
   apiKey: string
@@ -21,7 +23,7 @@ export interface URFMPConfig {
 export class URFMP {
   private client: AxiosInstance
   private config: URFMPConfig
-  private websocket?: WebSocket
+  private websocket?: any // WebSocket (browser) or ws (Node.js)
   private eventHandlers: Map<string, Function[]> = new Map()
 
   constructor(config: URFMPConfig) {
@@ -39,7 +41,7 @@ export class URFMP {
       headers: {
         'X-API-Key': this.config.apiKey,
         'Content-Type': 'application/json',
-        'User-Agent': `@urfmp/sdk/1.0.0`,
+        ...(typeof window === 'undefined' && { 'User-Agent': `@urfmp/sdk/1.0.0` }),
       },
     })
 
@@ -79,7 +81,7 @@ export class URFMP {
     })
 
     // Line 6: Get real-time dashboard URL
-    const dashboardUrl = `${this.config.baseUrl.replace('api.', '')}/robots/${robot.id}`
+    const dashboardUrl = `${this.config.baseUrl?.replace('api.', '') || 'http://localhost:3001'}/robots/${robot.id}`
     console.log(`🚀 Robot monitoring active! Dashboard: ${dashboardUrl}`)
 
     // Line 7: Return control objects
@@ -140,45 +142,74 @@ export class URFMP {
   async connectWebSocket(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.websocket = new WebSocket(`${this.config.websocketUrl}?token=${this.config.apiKey}`)
+        this.websocket = new WebSocketImpl(`${this.config.websocketUrl}?token=${this.config.apiKey}`)
 
-        this.websocket.on('open', () => {
-          console.log('🔗 Connected to URFMP real-time events')
-          resolve()
-        })
-
-        this.websocket.on('message', (data) => {
-          try {
-            const message: WebSocketMessage = JSON.parse(data.toString())
-            this.handleWebSocketMessage(message)
-          } catch (error) {
-            console.error('Failed to parse WebSocket message:', error)
+        // Handle both browser WebSocket and Node.js ws package
+        if (typeof window !== 'undefined') {
+          // Browser WebSocket API
+          this.websocket.onopen = () => {
+            console.log('🔗 Connected to URFMP real-time events')
+            resolve()
           }
-        })
 
-        this.websocket.on('error', (error) => {
-          console.error('WebSocket error:', error)
-          reject(error)
-        })
+          this.websocket.onmessage = (event: any) => {
+            try {
+              const message: WebSocketMessage = JSON.parse(event.data)
+              this.handleWebSocketMessage(message)
+            } catch (error) {
+              console.error('Failed to parse WebSocket message:', error)
+            }
+          }
 
-        this.websocket.on('close', () => {
-          console.log('🔌 Disconnected from URFMP')
-          // Auto-reconnect logic could go here
-        })
+          this.websocket.onerror = (error: any) => {
+            console.error('WebSocket error:', error)
+            reject(error)
+          }
+
+          this.websocket.onclose = () => {
+            console.log('🔌 Disconnected from URFMP')
+            // Auto-reconnect logic could go here
+          }
+        } else {
+          // Node.js ws package API
+          this.websocket.on('open', () => {
+            console.log('🔗 Connected to URFMP real-time events')
+            resolve()
+          })
+
+          this.websocket.on('message', (data: any) => {
+            try {
+              const message: WebSocketMessage = JSON.parse(data.toString())
+              this.handleWebSocketMessage(message)
+            } catch (error) {
+              console.error('Failed to parse WebSocket message:', error)
+            }
+          })
+
+          this.websocket.on('error', (error: any) => {
+            console.error('WebSocket error:', error)
+            reject(error)
+          })
+
+          this.websocket.on('close', () => {
+            console.log('🔌 Disconnected from URFMP')
+            // Auto-reconnect logic could go here
+          })
+        }
       } catch (error) {
         reject(error)
       }
     })
   }
 
-  on(event: string, handler: Function): void {
+  on(event: string, handler: (data?: any) => void): void {
     if (!this.eventHandlers.has(event)) {
       this.eventHandlers.set(event, [])
     }
     this.eventHandlers.get(event)!.push(handler)
   }
 
-  off(event: string, handler?: Function): void {
+  off(event: string, handler?: (data?: any) => void): void {
     if (!handler) {
       this.eventHandlers.delete(event)
       return
@@ -194,7 +225,7 @@ export class URFMP {
   }
 
   subscribe(channel: string): void {
-    if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
+    if (this.websocket && this.websocket.readyState === 1) { // WebSocket.OPEN = 1
       this.websocket.send(
         JSON.stringify({
           type: WebSocketMessageType.SUBSCRIPTION,
