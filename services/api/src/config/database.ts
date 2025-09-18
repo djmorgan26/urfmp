@@ -4,7 +4,7 @@ import { logger, logQuery } from './logger'
 let pool: Pool
 
 const dbConfig: PoolConfig = {
-  connectionString: process.env.DATABASE_URL || 'postgresql://urfmp:david@localhost:5432/urfmp',
+  connectionString: process.env.DATABASE_URL || 'postgresql://urfmp:urfmp-dev-2024@localhost:5432/urfmp',
   min: parseInt(process.env.DATABASE_POOL_MIN || '2'),
   max: parseInt(process.env.DATABASE_POOL_MAX || '10'),
   idleTimeoutMillis: 30000,
