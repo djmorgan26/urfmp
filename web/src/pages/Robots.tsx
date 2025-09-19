@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Plus, Search, Filter } from 'lucide-react'
 import { useURFMP } from '@/hooks/useURFMP'
 import { RobotCard } from '@/components/dashboard/RobotCard'
+import { AddRobotModal } from '@/components/robots/AddRobotModal'
 
 export function Robots() {
-  const { robots, isLoading } = useURFMP()
+  const { robots, isLoading, refreshRobots } = useURFMP()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
   const filteredRobots = robots.filter((robot) => {
     const matchesSearch =
@@ -34,7 +36,10 @@ export function Robots() {
           <p className="text-muted-foreground mt-1">Manage and monitor your robot fleet</p>
         </div>
 
-        <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+        >
           <Plus className="h-4 w-4" />
           <span>Add Robot</span>
         </button>
@@ -88,6 +93,13 @@ export function Robots() {
           </div>
         </div>
       )}
+
+      {/* Add Robot Modal */}
+      <AddRobotModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={refreshRobots}
+      />
     </div>
   )
 }

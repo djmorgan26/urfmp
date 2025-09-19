@@ -93,17 +93,14 @@ export class URFMP {
     name: string
     vendor: string
     model: string
-    host: string
-    port?: number
     serialNumber?: string
+    firmwareVersion?: string
+    location?: Record<string, any>
+    configuration?: Record<string, any>
   }): Promise<Robot> {
     const response = await this.client.post<ApiResponse<Robot>>('/api/v1/robots', {
       ...robotData,
       serialNumber: robotData.serialNumber || `${robotData.vendor}-${Date.now()}`,
-      configuration: {
-        host: robotData.host,
-        port: robotData.port || 80,
-      },
     })
 
     return response.data.data!
@@ -116,6 +113,20 @@ export class URFMP {
 
   async getRobot(robotId: string): Promise<Robot> {
     const response = await this.client.get<ApiResponse<Robot>>(`/api/v1/robots/${robotId}`)
+    return response.data.data!
+  }
+
+  async updateRobot(robotId: string, robotData: {
+    name?: string
+    vendor?: string
+    model?: string
+    serialNumber?: string
+    firmwareVersion?: string
+    status?: string
+    location?: Record<string, any>
+    configuration?: Record<string, any>
+  }): Promise<Robot> {
+    const response = await this.client.put<ApiResponse<Robot>>(`/api/v1/robots/${robotId}`, robotData)
     return response.data.data!
   }
 

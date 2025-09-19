@@ -13,6 +13,7 @@ import {
   Settings,
   Download,
   RefreshCw,
+  Edit,
 } from 'lucide-react'
 import {
   LineChart,
@@ -28,6 +29,7 @@ import {
 import { useURFMP } from '@/hooks/useURFMP'
 import { cn } from '@/utils/cn'
 import { formatDistanceToNow, parseISO } from 'date-fns'
+import { EditRobotModal } from '@/components/robots/EditRobotModal'
 
 const mockTelemetryData = [
   { time: '00:00', temperature: 42, current: 2.1, voltage: 48.2, position: [120, 45, 230] },
@@ -55,9 +57,10 @@ const statusConfig = {
 
 export function RobotDetail() {
   const { id } = useParams<{ id: string }>()
-  const { robots, sendCommand } = useURFMP()
+  const { robots, sendCommand, refreshRobots } = useURFMP()
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTimeRange, setSelectedTimeRange] = useState('1h')
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const robot = robots.find((r) => r.id === id)
 
@@ -118,6 +121,14 @@ export function RobotDetail() {
         </div>
 
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setIsEditModalOpen(true)}
+            className="flex items-center space-x-2 px-3 py-2 border border-input rounded-md hover:bg-muted"
+          >
+            <Edit className="h-4 w-4" />
+            <span>Edit Robot</span>
+          </button>
+
           <select
             value={selectedTimeRange}
             onChange={(e) => setSelectedTimeRange(e.target.value)}
@@ -133,7 +144,10 @@ export function RobotDetail() {
             <Download className="h-4 w-4" />
           </button>
 
-          <button className="p-2 rounded-md border border-input hover:bg-muted">
+          <button
+            onClick={refreshRobots}
+            className="p-2 rounded-md border border-input hover:bg-muted"
+          >
             <RefreshCw className="h-4 w-4" />
           </button>
         </div>
@@ -170,16 +184,16 @@ export function RobotDetail() {
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">IP Address</span>
-              <span>{robot.ipAddress}</span>
+              <span className="text-muted-foreground">Serial Number</span>
+              <span>{robot.serialNumber || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Software Version</span>
-              <span>5.12.0</span>
+              <span className="text-muted-foreground">Firmware Version</span>
+              <span>{robot.firmwareVersion || 'N/A'}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Uptime</span>
-              <span>24h 15m</span>
+              <span className="text-muted-foreground">Location</span>
+              <span>{robot.location?.facility && robot.location?.cell ? `${robot.location.facility} - ${robot.location.cell}` : 'Not specified'}</span>
             </div>
           </div>
         </div>
@@ -228,30 +242,30 @@ export function RobotDetail() {
           </div>
         </div>
 
-        {/* Current Values */}
+        {/* Robot Specifications */}
         <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Current Values</h3>
+          <h3 className="text-lg font-semibold mb-4">Specifications</h3>
 
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Temperature</span>
-              <span className="font-medium">46°C</span>
+              <span className="text-muted-foreground">Max Payload</span>
+              <span className="font-medium">{robot.configuration?.maxPayload ? `${robot.configuration.maxPayload} kg` : 'N/A'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Current</span>
-              <span className="font-medium">2.1 A</span>
+              <span className="text-muted-foreground">Reach</span>
+              <span className="font-medium">{robot.configuration?.reach ? `${robot.configuration.reach} mm` : 'N/A'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Voltage</span>
-              <span className="font-medium">48.2 V</span>
+              <span className="text-muted-foreground">Joints</span>
+              <span className="font-medium">{robot.configuration?.joints || 'N/A'}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Speed</span>
-              <span className="font-medium">15%</span>
+              <span className="text-muted-foreground">Created</span>
+              <span className="font-medium">{formatDistanceToNow(parseISO(robot.createdAt), { addSuffix: true })}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Load</span>
-              <span className="font-medium">45%</span>
+              <span className="text-muted-foreground">Last Updated</span>
+              <span className="font-medium">{formatDistanceToNow(parseISO(robot.updatedAt), { addSuffix: true })}</span>
             </div>
           </div>
         </div>
@@ -311,32 +325,63 @@ export function RobotDetail() {
         </div>
       </div>
 
-      {/* Program Information */}
+      {/* Robot Information */}
       <div className="bg-card rounded-lg border border-border p-6">
-        <h3 className="text-lg font-semibold mb-4">Current Program</h3>
+        <h3 className="text-lg font-semibold mb-4">Robot Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Program Name</p>
-            <p className="font-medium">pick_and_place_v2.urp</p>
+            <p className="text-sm text-muted-foreground mb-1">Robot ID</p>
+            <p className="font-medium font-mono text-xs break-all">{robot.id}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Cycle Time</p>
-            <p className="font-medium">45.2 seconds</p>
+            <p className="text-sm text-muted-foreground mb-1">Organization</p>
+            <p className="font-medium font-mono text-xs break-all">{robot.organizationId}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground mb-1">Cycles Completed</p>
-            <p className="font-medium">1,247</p>
+            <p className="text-sm text-muted-foreground mb-1">Status</p>
+            <div className="flex items-center space-x-2">
+              <StatusIcon className={cn('h-4 w-4', status.color)} />
+              <span className={cn('font-medium', status.color)}>{status.label}</span>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 p-4 bg-muted rounded-md">
-          <p className="text-sm text-muted-foreground mb-2">Program Status</p>
-          <p className="text-sm">
-            Currently executing waypoint 3 of 8 in main loop. Next action: Move to pick position.
-          </p>
-        </div>
+        {robot.location && (
+          <div className="mt-6 p-4 bg-muted rounded-md">
+            <p className="text-sm text-muted-foreground mb-2">Location Details</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-muted-foreground">Facility:</span>
+                <span className="ml-2 font-medium">{robot.location.facility || 'Not specified'}</span>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Cell/Station:</span>
+                <span className="ml-2 font-medium">{robot.location.cell || 'Not specified'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {robot.configuration && (
+          <div className="mt-4 p-4 bg-muted rounded-md">
+            <p className="text-sm text-muted-foreground mb-2">Configuration Details</p>
+            <div className="text-sm">
+              <pre className="text-xs">{JSON.stringify(robot.configuration, null, 2)}</pre>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Edit Robot Modal */}
+      {robot && (
+        <EditRobotModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={refreshRobots}
+          robot={robot}
+        />
+      )}
     </div>
   )
 }
