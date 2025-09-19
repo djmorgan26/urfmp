@@ -276,7 +276,14 @@ export function Maintenance() {
 
                       <div className="flex items-center space-x-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{format(typeof task.scheduledDate === 'string' ? parseISO(task.scheduledDate) : task.scheduledDate, 'MMM dd, yyyy')}</span>
+                        <span>
+                          {format(
+                            typeof task.scheduledDate === 'string'
+                              ? parseISO(task.scheduledDate)
+                              : task.scheduledDate,
+                            'MMM dd, yyyy'
+                          )}
+                        </span>
                       </div>
 
                       <div className="flex items-center space-x-2">
@@ -324,7 +331,14 @@ export function Maintenance() {
                   <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
                     <div className="flex items-center space-x-2 text-red-700 text-sm">
                       <AlertTriangle className="h-4 w-4" />
-                      <span>This task is overdue by {formatDistanceToNow(typeof task.scheduledDate === 'string' ? parseISO(task.scheduledDate) : task.scheduledDate)}</span>
+                      <span>
+                        This task is overdue by{' '}
+                        {formatDistanceToNow(
+                          typeof task.scheduledDate === 'string'
+                            ? parseISO(task.scheduledDate)
+                            : task.scheduledDate
+                        )}
+                      </span>
                     </div>
                   </div>
                 )}
@@ -369,7 +383,13 @@ export function Maintenance() {
             const date = new Date()
             date.setDate(date.getDate() - date.getDay() + i)
             const hasTask = mockMaintenanceTasks.some(
-              (task) => format(typeof task.scheduledDate === 'string' ? parseISO(task.scheduledDate) : task.scheduledDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+              (task) =>
+                format(
+                  typeof task.scheduledDate === 'string'
+                    ? parseISO(task.scheduledDate)
+                    : task.scheduledDate,
+                  'yyyy-MM-dd'
+                ) === format(date, 'yyyy-MM-dd')
             )
 
             return (

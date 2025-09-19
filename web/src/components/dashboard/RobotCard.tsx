@@ -94,7 +94,11 @@ export function RobotCard({ robot }: RobotCardProps) {
       {/* Last Seen */}
       {robot.lastSeen && (
         <p className="text-xs text-muted-foreground mb-3">
-          Last seen {formatDistanceToNow(typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen, { addSuffix: true })}
+          Last seen{' '}
+          {formatDistanceToNow(
+            typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
+            { addSuffix: true }
+          )}
         </p>
       )}
 

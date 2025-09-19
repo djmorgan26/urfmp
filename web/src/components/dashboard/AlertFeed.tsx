@@ -77,7 +77,12 @@ export function AlertFeed({ alerts }: AlertFeedProps) {
                 <div className="mb-1 flex items-center justify-between">
                   <p className="truncate text-sm font-medium text-foreground">{alert.robot}</p>
                   <span className="flex-shrink-0 text-xs text-muted-foreground">
-                    {formatDistanceToNow(typeof alert.timestamp === 'string' ? parseISO(alert.timestamp) : alert.timestamp, { addSuffix: true })}
+                    {formatDistanceToNow(
+                      typeof alert.timestamp === 'string'
+                        ? parseISO(alert.timestamp)
+                        : alert.timestamp,
+                      { addSuffix: true }
+                    )}
                   </span>
                 </div>
 

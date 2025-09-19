@@ -184,237 +184,262 @@ export function RobotDetail() {
       {activeTab === 'overview' && (
         <>
           {/* Status and Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Status Card */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Current Status</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Status Card */}
+            <div className="bg-card rounded-lg border border-border p-6">
+              <h3 className="text-lg font-semibold mb-4">Current Status</h3>
 
-          <div className="flex items-center space-x-3 mb-4">
-            <div
-              className={cn('h-10 w-10 rounded-full flex items-center justify-center', status.bg)}
-            >
-              <StatusIcon className={cn('h-5 w-5', status.color)} />
-            </div>
-            <div>
-              <p className={cn('font-medium', status.color)}>{status.label}</p>
-              {robot.status === 'running' && (
-                <div className="flex items-center space-x-2 mt-1">
-                  <div className="h-2 w-2 rounded-full bg-green-500 pulse-dot" />
-                  <span className="text-xs text-muted-foreground">Active</span>
+              <div className="flex items-center space-x-3 mb-4">
+                <div
+                  className={cn(
+                    'h-10 w-10 rounded-full flex items-center justify-center',
+                    status.bg
+                  )}
+                >
+                  <StatusIcon className={cn('h-5 w-5', status.color)} />
                 </div>
+                <div>
+                  <p className={cn('font-medium', status.color)}>{status.label}</p>
+                  {robot.status === 'running' && (
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="h-2 w-2 rounded-full bg-green-500 pulse-dot" />
+                      <span className="text-xs text-muted-foreground">Active</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {robot.lastSeen && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  Last seen{' '}
+                  {formatDistanceToNow(
+                    typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
+                    { addSuffix: true }
+                  )}
+                </p>
               )}
-            </div>
-          </div>
 
-          {robot.lastSeen && (
-            <p className="text-sm text-muted-foreground mb-4">
-              Last seen {formatDistanceToNow(typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen, { addSuffix: true })}
-            </p>
-          )}
-
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Serial Number</span>
-              <span>{robot.serialNumber || 'N/A'}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Firmware Version</span>
-              <span>{robot.firmwareVersion || 'N/A'}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Location</span>
-              <span>{robot.location?.facility && robot.location?.cell ? `${robot.location.facility} - ${robot.location.cell}` : 'Not specified'}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Controls */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Quick Controls</h3>
-
-          <div className="space-y-3">
-            {robot.status === 'idle' || robot.status === 'stopped' ? (
-              <button
-                onClick={() => handleCommand('START')}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-              >
-                <Play className="h-4 w-4" />
-                <span>Start Robot</span>
-              </button>
-            ) : robot.status === 'running' ? (
-              <button
-                onClick={() => handleCommand('STOP')}
-                disabled={isLoading}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-              >
-                <Square className="h-4 w-4" />
-                <span>Stop Robot</span>
-              </button>
-            ) : null}
-
-            <button
-              onClick={() => handleCommand('EMERGENCY_STOP')}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              <span>Emergency Stop</span>
-            </button>
-
-            <button
-              disabled={isLoading}
-              className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-md hover:bg-muted disabled:opacity-50"
-            >
-              <Settings className="h-4 w-4" />
-              <span>Configure</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Robot Specifications */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Specifications</h3>
-
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Max Payload</span>
-              <span className="font-medium">{robot.configuration?.maxPayload ? `${robot.configuration.maxPayload} kg` : 'N/A'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Reach</span>
-              <span className="font-medium">{robot.configuration?.reach ? `${robot.configuration.reach} mm` : 'N/A'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Joints</span>
-              <span className="font-medium">{robot.configuration?.joints || 'N/A'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Created</span>
-              <span className="font-medium">{formatDistanceToNow(parseISO(robot.createdAt), { addSuffix: true })}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Last Updated</span>
-              <span className="font-medium">{formatDistanceToNow(parseISO(robot.updatedAt), { addSuffix: true })}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Telemetry Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Temperature Chart */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Temperature</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={mockTelemetryData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="temperature"
-                stroke="#EF4444"
-                fill="#EF4444"
-                fillOpacity={0.1}
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Current & Voltage Chart */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Power Consumption</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={mockTelemetryData}>
-              <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="time" />
-              <YAxis yAxisId="left" />
-              <YAxis yAxisId="right" orientation="right" />
-              <Tooltip />
-              <Line
-                yAxisId="left"
-                type="monotone"
-                dataKey="current"
-                stroke="#3B82F6"
-                strokeWidth={2}
-                dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
-              />
-              <Line
-                yAxisId="right"
-                type="monotone"
-                dataKey="voltage"
-                stroke="#10B981"
-                strokeWidth={2}
-                dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Robot Information */}
-      <div className="bg-card rounded-lg border border-border p-6">
-        <h3 className="text-lg font-semibold mb-4">Robot Information</h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Robot ID</p>
-            <p className="font-medium font-mono text-xs break-all">{robot.id}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Organization</p>
-            <p className="font-medium font-mono text-xs break-all">{robot.organizationId}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Status</p>
-            <div className="flex items-center space-x-2">
-              <StatusIcon className={cn('h-4 w-4', status.color)} />
-              <span className={cn('font-medium', status.color)}>{status.label}</span>
-            </div>
-          </div>
-        </div>
-
-        {robot.location && (
-          <div className="mt-6 p-4 bg-muted rounded-md">
-            <p className="text-sm text-muted-foreground mb-2">Location Details</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-muted-foreground">Facility:</span>
-                <span className="ml-2 font-medium">{robot.location.facility || 'Not specified'}</span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Serial Number</span>
+                  <span>{robot.serialNumber || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Firmware Version</span>
+                  <span>{robot.firmwareVersion || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Location</span>
+                  <span>
+                    {robot.location?.facility && robot.location?.cell
+                      ? `${robot.location.facility} - ${robot.location.cell}`
+                      : 'Not specified'}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-muted-foreground">Cell/Station:</span>
-                <span className="ml-2 font-medium">{robot.location.cell || 'Not specified'}</span>
+            </div>
+
+            {/* Quick Controls */}
+            <div className="bg-card rounded-lg border border-border p-6">
+              <h3 className="text-lg font-semibold mb-4">Quick Controls</h3>
+
+              <div className="space-y-3">
+                {robot.status === 'idle' || robot.status === 'stopped' ? (
+                  <button
+                    onClick={() => handleCommand('START')}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
+                  >
+                    <Play className="h-4 w-4" />
+                    <span>Start Robot</span>
+                  </button>
+                ) : robot.status === 'running' ? (
+                  <button
+                    onClick={() => handleCommand('STOP')}
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                  >
+                    <Square className="h-4 w-4" />
+                    <span>Stop Robot</span>
+                  </button>
+                ) : null}
+
+                <button
+                  onClick={() => handleCommand('EMERGENCY_STOP')}
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                >
+                  <AlertTriangle className="h-4 w-4" />
+                  <span>Emergency Stop</span>
+                </button>
+
+                <button
+                  disabled={isLoading}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-md hover:bg-muted disabled:opacity-50"
+                >
+                  <Settings className="h-4 w-4" />
+                  <span>Configure</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Robot Specifications */}
+            <div className="bg-card rounded-lg border border-border p-6">
+              <h3 className="text-lg font-semibold mb-4">Specifications</h3>
+
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Max Payload</span>
+                  <span className="font-medium">
+                    {robot.configuration?.maxPayload
+                      ? `${robot.configuration.maxPayload} kg`
+                      : 'N/A'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Reach</span>
+                  <span className="font-medium">
+                    {robot.configuration?.reach ? `${robot.configuration.reach} mm` : 'N/A'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Joints</span>
+                  <span className="font-medium">{robot.configuration?.joints || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Created</span>
+                  <span className="font-medium">
+                    {formatDistanceToNow(parseISO(robot.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Updated</span>
+                  <span className="font-medium">
+                    {formatDistanceToNow(parseISO(robot.updatedAt), { addSuffix: true })}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        )}
 
-        {robot.configuration && (
-          <div className="mt-4 p-4 bg-muted rounded-md">
-            <p className="text-sm text-muted-foreground mb-2">Configuration Details</p>
-            <div className="text-sm">
-              <pre className="text-xs">{JSON.stringify(robot.configuration, null, 2)}</pre>
+          {/* Telemetry Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Temperature Chart */}
+            <div className="bg-card rounded-lg border border-border p-6">
+              <h3 className="text-lg font-semibold mb-4">Temperature</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={mockTelemetryData}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="temperature"
+                    stroke="#EF4444"
+                    fill="#EF4444"
+                    fillOpacity={0.1}
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Current & Voltage Chart */}
+            <div className="bg-card rounded-lg border border-border p-6">
+              <h3 className="text-lg font-semibold mb-4">Power Consumption</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={mockTelemetryData}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis dataKey="time" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="current"
+                    stroke="#3B82F6"
+                    strokeWidth={2}
+                    dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="voltage"
+                    stroke="#10B981"
+                    strokeWidth={2}
+                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
-        )}
-      </div>
+
+          {/* Robot Information */}
+          <div className="bg-card rounded-lg border border-border p-6">
+            <h3 className="text-lg font-semibold mb-4">Robot Information</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Robot ID</p>
+                <p className="font-medium font-mono text-xs break-all">{robot.id}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Organization</p>
+                <p className="font-medium font-mono text-xs break-all">{robot.organizationId}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Status</p>
+                <div className="flex items-center space-x-2">
+                  <StatusIcon className={cn('h-4 w-4', status.color)} />
+                  <span className={cn('font-medium', status.color)}>{status.label}</span>
+                </div>
+              </div>
+            </div>
+
+            {robot.location && (
+              <div className="mt-6 p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-2">Location Details</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Facility:</span>
+                    <span className="ml-2 font-medium">
+                      {robot.location.facility || 'Not specified'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Cell/Station:</span>
+                    <span className="ml-2 font-medium">
+                      {robot.location.cell || 'Not specified'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {robot.configuration && (
+              <div className="mt-4 p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-2">Configuration Details</p>
+                <div className="text-sm">
+                  <pre className="text-xs">{JSON.stringify(robot.configuration, null, 2)}</pre>
+                </div>
+              </div>
+            )}
+          </div>
         </>
       )}
 
       {/* Telemetry Tab */}
-      {activeTab === 'telemetry' && (
-        <TelemetryDashboard robotId={robot.id} />
-      )}
+      {activeTab === 'telemetry' && <TelemetryDashboard robotId={robot.id} />}
 
       {/* Commands Tab */}
       {activeTab === 'commands' && (
         <div className="bg-card rounded-lg border border-border p-6">
           <h3 className="text-lg font-semibold mb-4">Robot Commands</h3>
-          <p className="text-muted-foreground">Command history and execution interface coming soon...</p>
+          <p className="text-muted-foreground">
+            Command history and execution interface coming soon...
+          </p>
         </div>
       )}
 

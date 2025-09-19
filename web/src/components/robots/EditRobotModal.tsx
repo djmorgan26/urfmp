@@ -97,15 +97,15 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
   const handleInputChange = (field: string, value: any) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.')
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof EditRobotFormData] as any,
-          [child]: value
-        }
+          ...(prev[parent as keyof EditRobotFormData] as any),
+          [child]: value,
+        },
       }))
     } else {
-      setFormData(prev => ({ ...prev, [field]: value }))
+      setFormData((prev) => ({ ...prev, [field]: value }))
     }
   }
 
@@ -252,7 +252,9 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
                   min="0"
                   step="0.1"
                   value={formData.configuration.maxPayload}
-                  onChange={(e) => handleInputChange('configuration.maxPayload', Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange('configuration.maxPayload', Number(e.target.value))
+                  }
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
@@ -275,7 +277,9 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
                   min="1"
                   max="20"
                   value={formData.configuration.joints}
-                  onChange={(e) => handleInputChange('configuration.joints', Number(e.target.value))}
+                  onChange={(e) =>
+                    handleInputChange('configuration.joints', Number(e.target.value))
+                  }
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>

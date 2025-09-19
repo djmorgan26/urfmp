@@ -1,25 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Sphere, Html } from '@react-three/drei'
+import { OrbitControls, Html } from '@react-three/drei'
 import { useURFMP } from '@/hooks/useURFMP'
 import { useTheme } from '@/contexts/ThemeContext'
 import { cn } from '@/utils/cn'
-import { Robot, GPSPosition } from '@urfmp/types'
+import { Robot } from '@urfmp/types'
 import * as THREE from 'three'
-import {
-  MapPin,
-  Navigation,
-  Satellite,
-  Target,
-  Route,
-  Layers,
-  RotateCcw,
-  ZoomIn,
-  ZoomOut,
-  Home,
-  Settings,
-  Globe,
-} from 'lucide-react'
+import { Satellite, Target, Home } from 'lucide-react'
+
+interface GPSPosition {
+  latitude: number
+  longitude: number
+  altitude?: number
+  accuracy?: {
+    horizontal: number
+    vertical: number
+  }
+  speed?: number
+  heading?: number
+}
 
 interface RobotMap3DProps {
   robots: Robot[]
@@ -72,7 +71,7 @@ const getRobotColor = (status: string): string => {
 function Earth({ isDark }: { isDark: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null!)
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     meshRef.current.rotation.y += delta * 0.1
   })
 
@@ -95,7 +94,7 @@ function RobotMarker({
   position,
   isSelected,
   onClick,
-  isDark
+  isDark,
 }: {
   robot: Robot
   position: THREE.Vector3
@@ -118,11 +117,7 @@ function RobotMarker({
     <group position={position}>
       <mesh ref={meshRef} onClick={onClick}>
         <sphereGeometry args={[0.2, 16, 16]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.3}
-        />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
       </mesh>
       <Html
         position={[0, 0.5, 0]}
@@ -135,7 +130,7 @@ function RobotMarker({
           fontSize: '12px',
           fontWeight: 'bold',
           pointerEvents: 'none',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
         }}
       >
         {robot.name}
@@ -154,7 +149,6 @@ export function RobotMap3D({
 }: RobotMap3DProps) {
   const { urfmp } = useURFMP()
   const { isDark } = useTheme()
-  const viewerRef = useRef<any>(null)
   const [robotGPSData, setRobotGPSData] = useState<Map<string, RobotGPSData[]>>(new Map())
   const [isFollowingRobot, setIsFollowingRobot] = useState(false)
   const [showLabels, setShowLabels] = useState(true)
@@ -172,7 +166,7 @@ export function RobotMap3D({
         { lat: 40.7589, lng: -73.9851, name: 'Times Square' },
         { lat: 40.7505, lng: -73.9934, name: 'Empire State' },
         { lat: 40.7614, lng: -73.9776, name: 'Central Park' },
-        { lat: 40.7128, lng: -74.0060, name: 'Downtown' },
+        { lat: 40.7128, lng: -74.006, name: 'Downtown' },
         { lat: 40.7282, lng: -73.7949, name: 'JFK Airport' },
         { lat: 40.6892, lng: -74.0445, name: 'Statue of Liberty' },
       ]
@@ -198,12 +192,12 @@ export function RobotMap3D({
                 altitude: Math.random() * 50 + 10, // 10-60m altitude
                 accuracy: {
                   horizontal: Math.random() * 5 + 2, // 2-7m accuracy
-                  vertical: Math.random() * 10 + 5
+                  vertical: Math.random() * 10 + 5,
                 },
                 speed: Math.random() * 2 + 0.5, // 0.5-2.5 m/s
-                heading: Math.random() * 360
+                heading: Math.random() * 360,
               },
-              timestamp: new Date(Date.now() - (9 - i) * 60000) // Last 10 minutes
+              timestamp: new Date(Date.now() - (9 - i) * 60000), // Last 10 minutes
             })
           }
 
@@ -222,10 +216,10 @@ export function RobotMap3D({
         const newGPSData: RobotGPSData = {
           robotId: data.robotId,
           position: data.telemetry.data.gpsPosition,
-          timestamp: new Date(data.telemetry.timestamp)
+          timestamp: new Date(data.telemetry.timestamp),
         }
 
-        setRobotGPSData(prev => {
+        setRobotGPSData((prev) => {
           const updated = new Map(prev)
           const existingData = updated.get(data.robotId) || []
 
@@ -239,12 +233,12 @@ export function RobotMap3D({
     }
 
     // Subscribe to real-time telemetry updates
-    robots.forEach(robot => {
+    robots.forEach((robot) => {
       urfmp.on(`robot:${robot.id}:telemetry_update`, handleTelemetryUpdate)
     })
 
     return () => {
-      robots.forEach(robot => {
+      robots.forEach((robot) => {
         urfmp.off(`robot:${robot.id}:telemetry_update`, handleTelemetryUpdate)
       })
     }
@@ -252,57 +246,25 @@ export function RobotMap3D({
 
   // Camera controls
   const handleHomeView = () => {
-    if (!viewerRef.current) return
-
-    // Fit view to show all robots
-    const positions = Array.from(robotGPSData.values())
-      .flat()
-      .map(data =>
-        Cartesian3.fromDegrees(
-          data.position.longitude,
-          data.position.latitude,
-          data.position.altitude || 0
-        )
-      )
-
-    if (positions.length > 0) {
-      viewerRef.current.camera.setView({
-        destination: Cartesian3.fromDegrees(-74.0, 40.7, 1000), // Default to NYC area
-      })
-    }
+    // Reset to default 3D view - this would require ref to camera controls
+    console.log('Reset to home view')
   }
 
   const handleFollowRobot = () => {
-    if (!selectedRobotId || !viewerRef.current) return
+    if (!selectedRobotId) return
 
     const gpsData = robotGPSData.get(selectedRobotId)
     if (!gpsData || gpsData.length === 0) return
 
-    const latestPosition = gpsData[gpsData.length - 1]
-    const position = Cartesian3.fromDegrees(
-      latestPosition.position.longitude,
-      latestPosition.position.latitude,
-      latestPosition.position.altitude || 0
-    )
-
-    viewerRef.current.camera.setView({
-      destination: position,
-      orientation: {
-        heading: 0,
-        pitch: -Math.PI / 4, // 45 degrees down
-        roll: 0,
-      },
-    })
-
+    // This would focus the camera on the selected robot
+    console.log('Following robot:', selectedRobotId)
     setIsFollowingRobot(!isFollowingRobot)
   }
 
   return (
-    <div className={cn(
-      'relative w-full h-full',
-      isDark ? 'bg-gray-900' : 'bg-gray-100',
-      className
-    )}>
+    <div
+      className={cn('relative w-full h-full', isDark ? 'bg-gray-900' : 'bg-gray-100', className)}
+    >
       {/* 3D Canvas */}
       <Canvas
         camera={{ position: [0, 0, 15], fov: 60 }}
@@ -317,7 +279,7 @@ export function RobotMap3D({
         <Earth isDark={isDark} />
 
         {/* Robot Markers */}
-        {robots.map(robot => {
+        {robots.map((robot) => {
           const gpsData = robotGPSData.get(robot.id)
           if (!gpsData || gpsData.length === 0) return null
 
@@ -353,20 +315,20 @@ export function RobotMap3D({
       </Canvas>
 
       {/* Map Controls */}
-      <div className={cn(
-        'absolute top-4 right-4 rounded-lg shadow-lg p-2 space-y-2',
-        isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
-      )}>
+      <div
+        className={cn(
+          'absolute top-4 right-4 rounded-lg shadow-lg p-2 space-y-2',
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        )}
+      >
         {/* 3D View Info */}
         <div className="flex flex-col gap-1">
-          <label className={cn(
-            'text-xs font-medium',
-            isDark ? 'text-gray-300' : 'text-gray-700'
-          )}>3D Globe View</label>
-          <span className={cn(
-            'text-xs',
-            isDark ? 'text-gray-400' : 'text-gray-600'
-          )}>Interactive Earth visualization</span>
+          <label className={cn('text-xs font-medium', isDark ? 'text-gray-300' : 'text-gray-700')}>
+            3D Globe View
+          </label>
+          <span className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
+            Interactive Earth visualization
+          </span>
         </div>
 
         {/* View Controls */}
@@ -405,10 +367,12 @@ export function RobotMap3D({
         </div>
 
         {/* Display Options */}
-        <div className={cn(
-          'flex flex-col gap-1 border-t pt-2',
-          isDark ? 'border-gray-600' : 'border-gray-200'
-        )}>
+        <div
+          className={cn(
+            'flex flex-col gap-1 border-t pt-2',
+            isDark ? 'border-gray-600' : 'border-gray-200'
+          )}
+        >
           <label className="flex items-center gap-1">
             <input
               type="checkbox"
@@ -416,10 +380,9 @@ export function RobotMap3D({
               onChange={(e) => setShowLabels(e.target.checked)}
               className="w-3 h-3"
             />
-            <span className={cn(
-              'text-xs',
-              isDark ? 'text-gray-300' : 'text-gray-700'
-            )}>Labels</span>
+            <span className={cn('text-xs', isDark ? 'text-gray-300' : 'text-gray-700')}>
+              Labels
+            </span>
           </label>
 
           <label className="flex items-center gap-1">
@@ -429,23 +392,14 @@ export function RobotMap3D({
               onChange={(e) => setShowTrails(e.target.checked)}
               className="w-3 h-3"
             />
-            <span className={cn(
-              'text-xs',
-              isDark ? 'text-gray-300' : 'text-gray-700'
-            )}>Trails</span>
+            <span className={cn('text-xs', isDark ? 'text-gray-300' : 'text-gray-700')}>
+              Trails
+            </span>
           </label>
 
           <label className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              checked={showPaths}
-              onChange={() => {}}
-              className="w-3 h-3"
-            />
-            <span className={cn(
-              'text-xs',
-              isDark ? 'text-gray-300' : 'text-gray-700'
-            )}>Paths</span>
+            <input type="checkbox" checked={showPaths} onChange={() => {}} className="w-3 h-3" />
+            <span className={cn('text-xs', isDark ? 'text-gray-300' : 'text-gray-700')}>Paths</span>
           </label>
 
           <label className="flex items-center gap-1">
@@ -455,22 +409,21 @@ export function RobotMap3D({
               onChange={() => {}}
               className="w-3 h-3"
             />
-            <span className={cn(
-              'text-xs',
-              isDark ? 'text-gray-300' : 'text-gray-700'
-            )}>Zones</span>
+            <span className={cn('text-xs', isDark ? 'text-gray-300' : 'text-gray-700')}>Zones</span>
           </label>
         </div>
       </div>
 
       {/* Robot Info Panel */}
       {selectedRobotId && (
-        <div className={cn(
-          'absolute bottom-4 left-4 rounded-lg shadow-lg p-4 max-w-sm',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
-        )}>
+        <div
+          className={cn(
+            'absolute bottom-4 left-4 rounded-lg shadow-lg p-4 max-w-sm',
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+          )}
+        >
           {(() => {
-            const robot = robots.find(r => r.id === selectedRobotId)
+            const robot = robots.find((r) => r.id === selectedRobotId)
             const gpsData = robotGPSData.get(selectedRobotId)
             const latestGPS = gpsData?.[gpsData.length - 1]
 
@@ -478,54 +431,60 @@ export function RobotMap3D({
 
             return (
               <div className="space-y-2">
-                <h3 className={cn(
-                  'font-bold text-lg',
-                  isDark ? 'text-gray-100' : 'text-gray-900'
-                )}>{robot.name}</h3>
+                <h3 className={cn('font-bold text-lg', isDark ? 'text-gray-100' : 'text-gray-900')}>
+                  {robot.name}
+                </h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className={cn(
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    )}>Status:</span>
-                    <span className={cn(
-                      'ml-1 font-medium',
-                      robot.status === 'online' ? 'text-green-500' :
-                      robot.status === 'error' ? 'text-red-500' :
-                      isDark ? 'text-gray-300' : 'text-gray-700'
-                    )}>
+                    <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Status:</span>
+                    <span
+                      className={cn(
+                        'ml-1 font-medium',
+                        robot.status === 'online'
+                          ? 'text-green-500'
+                          : robot.status === 'error'
+                            ? 'text-red-500'
+                            : isDark
+                              ? 'text-gray-300'
+                              : 'text-gray-700'
+                      )}
+                    >
                       {robot.status}
                     </span>
                   </div>
                   <div>
-                    <span className={cn(
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    )}>Model:</span>
-                    <span className={cn(
-                      'ml-1',
-                      isDark ? 'text-gray-300' : 'text-gray-700'
-                    )}>{robot.model}</span>
+                    <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Model:</span>
+                    <span className={cn('ml-1', isDark ? 'text-gray-300' : 'text-gray-700')}>
+                      {robot.model}
+                    </span>
                   </div>
                   <div className="col-span-2">
-                    <span className={cn(
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    )}>Position:</span>
-                    <div className={cn(
-                      'text-xs font-mono',
-                      isDark ? 'text-gray-300' : 'text-gray-700'
-                    )}>
-                      {latestGPS.position.latitude.toFixed(6)}°, {latestGPS.position.longitude.toFixed(6)}°
-                      {latestGPS.position.altitude && <span> • {latestGPS.position.altitude.toFixed(1)}m</span>}
+                    <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
+                      Position:
+                    </span>
+                    <div
+                      className={cn(
+                        'text-xs font-mono',
+                        isDark ? 'text-gray-300' : 'text-gray-700'
+                      )}
+                    >
+                      {latestGPS.position.latitude.toFixed(6)}°,{' '}
+                      {latestGPS.position.longitude.toFixed(6)}°
+                      {latestGPS.position.altitude && (
+                        <span> • {latestGPS.position.altitude.toFixed(1)}m</span>
+                      )}
                     </div>
                   </div>
                   {latestGPS.position.accuracy && (
                     <div className="col-span-2">
-                      <span className={cn(
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      )}>GPS Accuracy:</span>
-                      <span className={cn(
-                        'ml-1 text-xs',
-                        isDark ? 'text-gray-300' : 'text-gray-700'
-                      )}>{latestGPS.position.accuracy.horizontal.toFixed(1)}m</span>
+                      <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
+                        GPS Accuracy:
+                      </span>
+                      <span
+                        className={cn('ml-1 text-xs', isDark ? 'text-gray-300' : 'text-gray-700')}
+                      >
+                        {latestGPS.position.accuracy.horizontal.toFixed(1)}m
+                      </span>
                     </div>
                   )}
                 </div>
@@ -537,19 +496,22 @@ export function RobotMap3D({
 
       {/* Loading State */}
       {robotGPSData.size === 0 && (
-        <div className={cn(
-          'absolute inset-0 flex items-center justify-center',
-          isDark ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'
-        )}>
+        <div
+          className={cn(
+            'absolute inset-0 flex items-center justify-center',
+            isDark ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'
+          )}
+        >
           <div className="text-center">
-            <Satellite className={cn(
-              'w-8 h-8 mx-auto mb-2 animate-pulse',
-              isDark ? 'text-blue-400' : 'text-blue-500'
-            )} />
-            <p className={cn(
-              'text-sm',
-              isDark ? 'text-gray-300' : 'text-gray-600'
-            )}>Loading robot GPS data...</p>
+            <Satellite
+              className={cn(
+                'w-8 h-8 mx-auto mb-2 animate-pulse',
+                isDark ? 'text-blue-400' : 'text-blue-500'
+              )}
+            />
+            <p className={cn('text-sm', isDark ? 'text-gray-300' : 'text-gray-600')}>
+              Loading robot GPS data...
+            </p>
           </div>
         </div>
       )}

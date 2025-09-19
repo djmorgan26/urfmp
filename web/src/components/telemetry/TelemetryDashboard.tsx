@@ -227,24 +227,32 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
   const getTimeRangeDate = (range: string): Date => {
     const now = new Date()
     switch (range) {
-      case '1h': return new Date(now.getTime() - 60 * 60 * 1000)
-      case '6h': return new Date(now.getTime() - 6 * 60 * 60 * 1000)
-      case '24h': return new Date(now.getTime() - 24 * 60 * 60 * 1000)
-      case '7d': return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-      case '30d': return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-      default: return new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      case '1h':
+        return new Date(now.getTime() - 60 * 60 * 1000)
+      case '6h':
+        return new Date(now.getTime() - 6 * 60 * 60 * 1000)
+      case '24h':
+        return new Date(now.getTime() - 24 * 60 * 60 * 1000)
+      case '7d':
+        return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+      case '30d':
+        return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+      default:
+        return new Date(now.getTime() - 24 * 60 * 60 * 1000)
     }
   }
 
   const formatChartData = (metricName: string) => {
     return telemetryData
-      .map(item => {
+      .map((item) => {
         const value = getMetricValue(item, metricName)
-        return value !== null ? {
-          timestamp: item.timestamp,
-          value,
-          time: new Date(item.timestamp).toLocaleTimeString(),
-        } : null
+        return value !== null
+          ? {
+              timestamp: item.timestamp,
+              value,
+              time: new Date(item.timestamp).toLocaleTimeString(),
+            }
+          : null
       })
       .filter(Boolean)
       .slice(-50) // Last 50 data points for performance
@@ -267,7 +275,7 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
             onChange={(e) => setSelectedTimeRange(e.target.value)}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            {timeRangeOptions.map(option => (
+            {timeRangeOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -279,7 +287,7 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
             onChange={(e) => setSelectedAggregation(e.target.value)}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
-            {aggregationOptions.map(option => (
+            {aggregationOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -309,12 +317,19 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
               <div className="flex items-center justify-between mb-2">
                 <Icon className={cn('h-5 w-5', metric.color)} />
                 {metric.trend !== undefined && (
-                  <div className={cn(
-                    'flex items-center text-xs',
-                    metric.trend > 0 ? 'text-green-600' : metric.trend < 0 ? 'text-red-600' : 'text-gray-600'
-                  )}>
+                  <div
+                    className={cn(
+                      'flex items-center text-xs',
+                      metric.trend > 0
+                        ? 'text-green-600'
+                        : metric.trend < 0
+                          ? 'text-red-600'
+                          : 'text-gray-600'
+                    )}
+                  >
                     <TrendingUp className="h-3 w-3 mr-1" />
-                    {metric.trend > 0 ? '+' : ''}{metric.trend.toFixed(1)}%
+                    {metric.trend > 0 ? '+' : ''}
+                    {metric.trend.toFixed(1)}%
                   </div>
                 )}
               </div>
@@ -322,7 +337,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
                 <h3 className="text-sm font-medium text-muted-foreground">{metric.title}</h3>
                 <div className="flex items-baseline space-x-1">
                   <span className="text-2xl font-bold">{metric.value}</span>
-                  {metric.unit && <span className="text-sm text-muted-foreground">{metric.unit}</span>}
+                  {metric.unit && (
+                    <span className="text-sm text-muted-foreground">{metric.unit}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -441,11 +458,8 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
             <div className="md:col-span-2">
               <p className="text-sm text-muted-foreground mb-2">Metric Types</p>
               <div className="flex flex-wrap gap-2">
-                {availableMetrics.slice(0, 10).map(metric => (
-                  <span
-                    key={metric}
-                    className="px-2 py-1 bg-muted rounded-md text-xs font-medium"
-                  >
+                {availableMetrics.slice(0, 10).map((metric) => (
+                  <span key={metric} className="px-2 py-1 bg-muted rounded-md text-xs font-medium">
                     {metric}
                   </span>
                 ))}

@@ -15,14 +15,14 @@ function App() {
     <ThemeProvider>
       <URFMPProvider>
         <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/robots" element={<Robots />} />
-          <Route path="/robots/:id" element={<RobotDetail />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/maintenance" element={<Maintenance />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/robots" element={<Robots />} />
+            <Route path="/robots/:id" element={<RobotDetail />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
         </Layout>
       </URFMPProvider>
     </ThemeProvider>
