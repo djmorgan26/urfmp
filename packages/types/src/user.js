@@ -21,6 +21,7 @@ var Permission;
     Permission["ROBOT_CONTROL"] = "robot.control";
     // Telemetry and data
     Permission["TELEMETRY_VIEW"] = "telemetry.view";
+    Permission["TELEMETRY_WRITE"] = "telemetry.write";
     Permission["TELEMETRY_EXPORT"] = "telemetry.export";
     Permission["ANALYTICS_VIEW"] = "analytics.view";
     Permission["ANALYTICS_CREATE"] = "analytics.create";

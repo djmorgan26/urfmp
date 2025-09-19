@@ -1,0 +1,558 @@
+import { useState, useEffect, useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls, Sphere, Html } from '@react-three/drei'
+import { useURFMP } from '@/hooks/useURFMP'
+import { useTheme } from '@/contexts/ThemeContext'
+import { cn } from '@/utils/cn'
+import { Robot, GPSPosition } from '@urfmp/types'
+import * as THREE from 'three'
+import {
+  MapPin,
+  Navigation,
+  Satellite,
+  Target,
+  Route,
+  Layers,
+  RotateCcw,
+  ZoomIn,
+  ZoomOut,
+  Home,
+  Settings,
+  Globe,
+} from 'lucide-react'
+
+interface RobotMap3DProps {
+  robots: Robot[]
+  selectedRobotId?: string
+  onRobotSelect?: (robotId: string) => void
+  showPaths?: boolean
+  showGeofences?: boolean
+  className?: string
+}
+
+interface RobotGPSData {
+  robotId: string
+  position: GPSPosition
+  timestamp: Date
+}
+
+// Convert GPS coordinates to 3D position on sphere
+const gpsTo3D = (lat: number, lng: number, radius: number = 5) => {
+  const phi = (90 - lat) * (Math.PI / 180) // latitude to spherical coordinate
+  const theta = (lng + 180) * (Math.PI / 180) // longitude to spherical coordinate
+
+  const x = -(radius * Math.sin(phi) * Math.cos(theta))
+  const z = radius * Math.sin(phi) * Math.sin(theta)
+  const y = radius * Math.cos(phi)
+
+  return new THREE.Vector3(x, y, z)
+}
+
+// Get robot color based on status
+const getRobotColor = (status: string): string => {
+  switch (status) {
+    case 'online':
+    case 'running':
+      return '#10b981' // green
+    case 'idle':
+      return '#f59e0b' // yellow
+    case 'offline':
+      return '#6b7280' // gray
+    case 'error':
+    case 'emergency_stop':
+      return '#ef4444' // red
+    case 'charging':
+      return '#3b82f6' // blue
+    default:
+      return '#ffffff' // white
+  }
+}
+
+// 3D Earth component
+function Earth({ isDark }: { isDark: boolean }) {
+  const meshRef = useRef<THREE.Mesh>(null!)
+
+  useFrame((state, delta) => {
+    meshRef.current.rotation.y += delta * 0.1
+  })
+
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[5, 64, 64]} />
+      <meshStandardMaterial
+        color={isDark ? '#1f2937' : '#3b82f6'}
+        wireframe={false}
+        transparent
+        opacity={0.8}
+      />
+    </mesh>
+  )
+}
+
+// Robot marker component
+function RobotMarker({
+  robot,
+  position,
+  isSelected,
+  onClick,
+  isDark
+}: {
+  robot: Robot
+  position: THREE.Vector3
+  isSelected: boolean
+  onClick: () => void
+  isDark: boolean
+}) {
+  const meshRef = useRef<THREE.Mesh>(null!)
+  const color = getRobotColor(robot.status)
+
+  useFrame((state) => {
+    if (isSelected && meshRef.current) {
+      meshRef.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 3) * 0.2)
+    } else if (meshRef.current) {
+      meshRef.current.scale.setScalar(1)
+    }
+  })
+
+  return (
+    <group position={position}>
+      <mesh ref={meshRef} onClick={onClick}>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      <Html
+        position={[0, 0.5, 0]}
+        center
+        style={{
+          color: isDark ? '#ffffff' : '#000000',
+          background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)',
+          padding: '2px 6px',
+          borderRadius: '4px',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {robot.name}
+      </Html>
+    </group>
+  )
+}
+
+export function RobotMap3D({
+  robots,
+  selectedRobotId,
+  onRobotSelect,
+  showPaths = true,
+  showGeofences = true,
+  className,
+}: RobotMap3DProps) {
+  const { urfmp } = useURFMP()
+  const { isDark } = useTheme()
+  const viewerRef = useRef<any>(null)
+  const [robotGPSData, setRobotGPSData] = useState<Map<string, RobotGPSData[]>>(new Map())
+  const [isFollowingRobot, setIsFollowingRobot] = useState(false)
+  const [showLabels, setShowLabels] = useState(true)
+  const [showTrails, setShowTrails] = useState(true)
+
+  // Initialize robot GPS data collection with mock data
+  useEffect(() => {
+    if (!urfmp) return
+
+    const loadRobotGPSData = async () => {
+      const gpsDataMap = new Map<string, RobotGPSData[]>()
+
+      // Base locations around NYC for demo
+      const baseLocations = [
+        { lat: 40.7589, lng: -73.9851, name: 'Times Square' },
+        { lat: 40.7505, lng: -73.9934, name: 'Empire State' },
+        { lat: 40.7614, lng: -73.9776, name: 'Central Park' },
+        { lat: 40.7128, lng: -74.0060, name: 'Downtown' },
+        { lat: 40.7282, lng: -73.7949, name: 'JFK Airport' },
+        { lat: 40.6892, lng: -74.0445, name: 'Statue of Liberty' },
+      ]
+
+      for (const robot of robots) {
+        // Generate mock GPS data for demonstration
+        const mockGPSData: RobotGPSData[] = []
+
+        if (robot.status === 'online' || robot.status === 'running') {
+          // Assign a base location to each robot
+          const baseLocation = baseLocations[robots.indexOf(robot) % baseLocations.length]
+
+          // Generate a path with small variations around the base location
+          for (let i = 0; i < 10; i++) {
+            const latOffset = (Math.random() - 0.5) * 0.01 // ~1km variation
+            const lngOffset = (Math.random() - 0.5) * 0.01
+
+            mockGPSData.push({
+              robotId: robot.id,
+              position: {
+                latitude: baseLocation.lat + latOffset,
+                longitude: baseLocation.lng + lngOffset,
+                altitude: Math.random() * 50 + 10, // 10-60m altitude
+                accuracy: {
+                  horizontal: Math.random() * 5 + 2, // 2-7m accuracy
+                  vertical: Math.random() * 10 + 5
+                },
+                speed: Math.random() * 2 + 0.5, // 0.5-2.5 m/s
+                heading: Math.random() * 360
+              },
+              timestamp: new Date(Date.now() - (9 - i) * 60000) // Last 10 minutes
+            })
+          }
+
+          gpsDataMap.set(robot.id, mockGPSData)
+        }
+      }
+
+      setRobotGPSData(gpsDataMap)
+    }
+
+    loadRobotGPSData()
+
+    // Set up real-time GPS updates via WebSocket
+    const handleTelemetryUpdate = (data: any) => {
+      if (data.telemetry?.data?.gpsPosition) {
+        const newGPSData: RobotGPSData = {
+          robotId: data.robotId,
+          position: data.telemetry.data.gpsPosition,
+          timestamp: new Date(data.telemetry.timestamp)
+        }
+
+        setRobotGPSData(prev => {
+          const updated = new Map(prev)
+          const existingData = updated.get(data.robotId) || []
+
+          // Keep only last 100 points for performance
+          const newData = [...existingData, newGPSData].slice(-100)
+          updated.set(data.robotId, newData)
+
+          return updated
+        })
+      }
+    }
+
+    // Subscribe to real-time telemetry updates
+    robots.forEach(robot => {
+      urfmp.on(`robot:${robot.id}:telemetry_update`, handleTelemetryUpdate)
+    })
+
+    return () => {
+      robots.forEach(robot => {
+        urfmp.off(`robot:${robot.id}:telemetry_update`, handleTelemetryUpdate)
+      })
+    }
+  }, [urfmp, robots])
+
+  // Camera controls
+  const handleHomeView = () => {
+    if (!viewerRef.current) return
+
+    // Fit view to show all robots
+    const positions = Array.from(robotGPSData.values())
+      .flat()
+      .map(data =>
+        Cartesian3.fromDegrees(
+          data.position.longitude,
+          data.position.latitude,
+          data.position.altitude || 0
+        )
+      )
+
+    if (positions.length > 0) {
+      viewerRef.current.camera.setView({
+        destination: Cartesian3.fromDegrees(-74.0, 40.7, 1000), // Default to NYC area
+      })
+    }
+  }
+
+  const handleFollowRobot = () => {
+    if (!selectedRobotId || !viewerRef.current) return
+
+    const gpsData = robotGPSData.get(selectedRobotId)
+    if (!gpsData || gpsData.length === 0) return
+
+    const latestPosition = gpsData[gpsData.length - 1]
+    const position = Cartesian3.fromDegrees(
+      latestPosition.position.longitude,
+      latestPosition.position.latitude,
+      latestPosition.position.altitude || 0
+    )
+
+    viewerRef.current.camera.setView({
+      destination: position,
+      orientation: {
+        heading: 0,
+        pitch: -Math.PI / 4, // 45 degrees down
+        roll: 0,
+      },
+    })
+
+    setIsFollowingRobot(!isFollowingRobot)
+  }
+
+  return (
+    <div className={cn(
+      'relative w-full h-full',
+      isDark ? 'bg-gray-900' : 'bg-gray-100',
+      className
+    )}>
+      {/* 3D Canvas */}
+      <Canvas
+        camera={{ position: [0, 0, 15], fov: 60 }}
+        style={{ background: isDark ? '#111827' : '#f3f4f6' }}
+      >
+        {/* Lighting */}
+        <ambientLight intensity={0.4} />
+        <pointLight position={[10, 10, 10]} intensity={1} />
+        <pointLight position={[-10, -10, -10]} intensity={0.5} />
+
+        {/* Earth */}
+        <Earth isDark={isDark} />
+
+        {/* Robot Markers */}
+        {robots.map(robot => {
+          const gpsData = robotGPSData.get(robot.id)
+          if (!gpsData || gpsData.length === 0) return null
+
+          const latestPosition = gpsData[gpsData.length - 1]
+          const position3D = gpsTo3D(
+            latestPosition.position.latitude,
+            latestPosition.position.longitude
+          )
+
+          return (
+            <RobotMarker
+              key={robot.id}
+              robot={robot}
+              position={position3D}
+              isSelected={selectedRobotId === robot.id}
+              onClick={() => onRobotSelect?.(robot.id)}
+              isDark={isDark}
+            />
+          )
+        })}
+
+        {/* Controls */}
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+          zoomSpeed={0.6}
+          panSpeed={0.8}
+          rotateSpeed={0.4}
+          minDistance={8}
+          maxDistance={50}
+        />
+      </Canvas>
+
+      {/* Map Controls */}
+      <div className={cn(
+        'absolute top-4 right-4 rounded-lg shadow-lg p-2 space-y-2',
+        isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+      )}>
+        {/* 3D View Info */}
+        <div className="flex flex-col gap-1">
+          <label className={cn(
+            'text-xs font-medium',
+            isDark ? 'text-gray-300' : 'text-gray-700'
+          )}>3D Globe View</label>
+          <span className={cn(
+            'text-xs',
+            isDark ? 'text-gray-400' : 'text-gray-600'
+          )}>Interactive Earth visualization</span>
+        </div>
+
+        {/* View Controls */}
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={handleHomeView}
+            className={cn(
+              'flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors',
+              isDark
+                ? 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-blue-500 text-white hover:bg-blue-600'
+            )}
+          >
+            <Home className="w-3 h-3" />
+            Reset View
+          </button>
+
+          {selectedRobotId && (
+            <button
+              onClick={handleFollowRobot}
+              className={cn(
+                'flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors',
+                isFollowingRobot
+                  ? isDark
+                    ? 'bg-green-600 text-white hover:bg-green-500'
+                    : 'bg-green-500 text-white hover:bg-green-600'
+                  : isDark
+                    ? 'bg-gray-600 text-white hover:bg-gray-500'
+                    : 'bg-gray-500 text-white hover:bg-gray-600'
+              )}
+            >
+              <Target className="w-3 h-3" />
+              Follow
+            </button>
+          )}
+        </div>
+
+        {/* Display Options */}
+        <div className={cn(
+          'flex flex-col gap-1 border-t pt-2',
+          isDark ? 'border-gray-600' : 'border-gray-200'
+        )}>
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={showLabels}
+              onChange={(e) => setShowLabels(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span className={cn(
+              'text-xs',
+              isDark ? 'text-gray-300' : 'text-gray-700'
+            )}>Labels</span>
+          </label>
+
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={showTrails}
+              onChange={(e) => setShowTrails(e.target.checked)}
+              className="w-3 h-3"
+            />
+            <span className={cn(
+              'text-xs',
+              isDark ? 'text-gray-300' : 'text-gray-700'
+            )}>Trails</span>
+          </label>
+
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={showPaths}
+              onChange={() => {}}
+              className="w-3 h-3"
+            />
+            <span className={cn(
+              'text-xs',
+              isDark ? 'text-gray-300' : 'text-gray-700'
+            )}>Paths</span>
+          </label>
+
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={showGeofences}
+              onChange={() => {}}
+              className="w-3 h-3"
+            />
+            <span className={cn(
+              'text-xs',
+              isDark ? 'text-gray-300' : 'text-gray-700'
+            )}>Zones</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Robot Info Panel */}
+      {selectedRobotId && (
+        <div className={cn(
+          'absolute bottom-4 left-4 rounded-lg shadow-lg p-4 max-w-sm',
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+        )}>
+          {(() => {
+            const robot = robots.find(r => r.id === selectedRobotId)
+            const gpsData = robotGPSData.get(selectedRobotId)
+            const latestGPS = gpsData?.[gpsData.length - 1]
+
+            if (!robot || !latestGPS) return null
+
+            return (
+              <div className="space-y-2">
+                <h3 className={cn(
+                  'font-bold text-lg',
+                  isDark ? 'text-gray-100' : 'text-gray-900'
+                )}>{robot.name}</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className={cn(
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    )}>Status:</span>
+                    <span className={cn(
+                      'ml-1 font-medium',
+                      robot.status === 'online' ? 'text-green-500' :
+                      robot.status === 'error' ? 'text-red-500' :
+                      isDark ? 'text-gray-300' : 'text-gray-700'
+                    )}>
+                      {robot.status}
+                    </span>
+                  </div>
+                  <div>
+                    <span className={cn(
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    )}>Model:</span>
+                    <span className={cn(
+                      'ml-1',
+                      isDark ? 'text-gray-300' : 'text-gray-700'
+                    )}>{robot.model}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className={cn(
+                      isDark ? 'text-gray-400' : 'text-gray-600'
+                    )}>Position:</span>
+                    <div className={cn(
+                      'text-xs font-mono',
+                      isDark ? 'text-gray-300' : 'text-gray-700'
+                    )}>
+                      {latestGPS.position.latitude.toFixed(6)}°, {latestGPS.position.longitude.toFixed(6)}°
+                      {latestGPS.position.altitude && <span> • {latestGPS.position.altitude.toFixed(1)}m</span>}
+                    </div>
+                  </div>
+                  {latestGPS.position.accuracy && (
+                    <div className="col-span-2">
+                      <span className={cn(
+                        isDark ? 'text-gray-400' : 'text-gray-600'
+                      )}>GPS Accuracy:</span>
+                      <span className={cn(
+                        'ml-1 text-xs',
+                        isDark ? 'text-gray-300' : 'text-gray-700'
+                      )}>{latestGPS.position.accuracy.horizontal.toFixed(1)}m</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      )}
+
+      {/* Loading State */}
+      {robotGPSData.size === 0 && (
+        <div className={cn(
+          'absolute inset-0 flex items-center justify-center',
+          isDark ? 'bg-gray-900 bg-opacity-90' : 'bg-white bg-opacity-90'
+        )}>
+          <div className="text-center">
+            <Satellite className={cn(
+              'w-8 h-8 mx-auto mb-2 animate-pulse',
+              isDark ? 'text-blue-400' : 'text-blue-500'
+            )} />
+            <p className={cn(
+              'text-sm',
+              isDark ? 'text-gray-300' : 'text-gray-600'
+            )}>Loading robot GPS data...</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

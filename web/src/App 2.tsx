@@ -19,7 +19,6 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/robots" element={<Robots />} />
           <Route path="/robots/:id" element={<RobotDetail />} />
-          <Route path="/map" element={<RobotMapPage />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/maintenance" element={<Maintenance />} />
           <Route path="/settings" element={<Settings />} />

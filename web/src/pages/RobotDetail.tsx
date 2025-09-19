@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -30,6 +30,7 @@ import { useURFMP } from '@/hooks/useURFMP'
 import { cn } from '@/utils/cn'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 import { EditRobotModal } from '@/components/robots/EditRobotModal'
+import { TelemetryDashboard } from '@/components/telemetry/TelemetryDashboard'
 
 const mockTelemetryData = [
   { time: '00:00', temperature: 42, current: 2.1, voltage: 48.2, position: [120, 45, 230] },
@@ -61,6 +62,7 @@ export function RobotDetail() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedTimeRange, setSelectedTimeRange] = useState('1h')
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState('overview')
 
   const robot = robots.find((r) => r.id === id)
 
@@ -153,7 +155,35 @@ export function RobotDetail() {
         </div>
       </div>
 
-      {/* Status and Controls */}
+      {/* Tabs Navigation */}
+      <div className="border-b border-border">
+        <nav className="flex space-x-8">
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'telemetry', label: 'Telemetry' },
+            { id: 'commands', label: 'Commands' },
+            { id: 'history', label: 'History' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'py-4 px-1 border-b-2 font-medium text-sm',
+                activeTab === tab.id
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'overview' && (
+        <>
+          {/* Status and Controls */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Status Card */}
         <div className="bg-card rounded-lg border border-border p-6">
@@ -372,6 +402,29 @@ export function RobotDetail() {
           </div>
         )}
       </div>
+        </>
+      )}
+
+      {/* Telemetry Tab */}
+      {activeTab === 'telemetry' && (
+        <TelemetryDashboard robotId={robot.id} />
+      )}
+
+      {/* Commands Tab */}
+      {activeTab === 'commands' && (
+        <div className="bg-card rounded-lg border border-border p-6">
+          <h3 className="text-lg font-semibold mb-4">Robot Commands</h3>
+          <p className="text-muted-foreground">Command history and execution interface coming soon...</p>
+        </div>
+      )}
+
+      {/* History Tab */}
+      {activeTab === 'history' && (
+        <div className="bg-card rounded-lg border border-border p-6">
+          <h3 className="text-lg font-semibold mb-4">Robot History</h3>
+          <p className="text-muted-foreground">Historical data and audit logs coming soon...</p>
+        </div>
+      )}
 
       {/* Edit Robot Modal */}
       {robot && (

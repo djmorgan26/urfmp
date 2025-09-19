@@ -1,9 +1,10 @@
 import { Router } from 'express'
 import { asyncHandler } from '../middleware/error.middleware'
 import { requirePermission } from '../middleware/auth.middleware'
-import { Permission, ApiResponse, Robot } from '@urfmp/types'
+import { Permission, ApiResponse, Robot, RobotCommand, CommandResult } from '@urfmp/types'
 import { robotService, CreateRobotRequest, UpdateRobotRequest, RobotFilters } from '../services/robot.service'
 import { logger } from '../config/logger'
+import { getWebSocketService } from '../services/websocket.service'
 
 const router = Router()
 
@@ -295,6 +296,129 @@ router.delete(
     logger.info('Robot deleted via API', {
       robotId,
       organizationId,
+      userId: req.user!.sub,
+      traceId: req.traceId,
+    })
+
+    res.json(response)
+  })
+)
+
+/**
+ * @swagger
+ * /api/v1/robots/{id}/commands:
+ *   post:
+ *     summary: Send command to robot
+ *     tags: [Robots]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 enum: [START, STOP, PAUSE, RESUME, EMERGENCY_STOP, RESET, HOME]
+ *               priority:
+ *                 type: string
+ *                 enum: [LOW, NORMAL, HIGH, EMERGENCY]
+ *               parameters:
+ *                 type: object
+ *     responses:
+ *       200:
+ *         description: Command sent successfully
+ */
+router.post(
+  '/:id/commands',
+  requirePermission(Permission.ROBOT_UPDATE),
+  asyncHandler(async (req, res) => {
+    const robotId = req.params.id
+    const organizationId = req.user!.org
+    const command: Partial<RobotCommand> = req.body
+
+    // Verify robot exists and belongs to organization
+    const robot = await robotService.getRobotById(robotId, organizationId)
+    if (!robot) {
+      const response: ApiResponse = {
+        success: false,
+        error: {
+          code: 'NOT_FOUND',
+          message: 'Robot not found',
+          traceId: req.traceId,
+          timestamp: new Date(),
+        },
+      }
+      return res.status(404).json(response)
+    }
+
+    // Create command with metadata
+    const commandWithMetadata: RobotCommand = {
+      id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type: command.type || 'CUSTOM',
+      priority: command.priority || 'NORMAL',
+      parameters: command.parameters || {},
+      status: 'PENDING',
+      createdAt: new Date(),
+      createdBy: req.user!.sub,
+      robotId,
+      organizationId,
+    }
+
+    // In a real implementation, this would be queued and processed
+    // For now, we'll simulate immediate execution
+    const result: CommandResult = {
+      commandId: commandWithMetadata.id,
+      success: true,
+      result: {
+        status: 'EXECUTED',
+        message: `Command ${command.type} executed successfully`,
+        executedAt: new Date(),
+      },
+      executionTime: Math.random() * 1000 + 100, // 100-1100ms
+    }
+
+    // Broadcast command via WebSocket
+    try {
+      const wsService = getWebSocketService()
+      wsService.broadcastToChannel(`robot:${robotId}`, {
+        event: 'robot:command_executed',
+        robotId,
+        organizationId,
+        command: commandWithMetadata,
+        result,
+        timestamp: new Date()
+      })
+    } catch (error) {
+      logger.warn('Failed to broadcast robot command', {
+        robotId,
+        error: error.message
+      })
+    }
+
+    const response: ApiResponse<CommandResult> = {
+      success: true,
+      data: result,
+      metadata: {
+        requestId: req.traceId,
+        timestamp: new Date(),
+        version: '1.0.0',
+      },
+    }
+
+    logger.info('Robot command executed', {
+      robotId,
+      organizationId,
+      command: command.type,
+      commandId: commandWithMetadata.id,
       userId: req.user!.sub,
       traceId: req.traceId,
     })

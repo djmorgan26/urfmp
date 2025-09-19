@@ -1,8 +1,8 @@
 export * from './robot';
 export type { Robot, RobotCommand, RobotStatus, RobotVendor, RobotCapability, RobotLocation, RobotConfiguration } from './robot';
 export { CommandPriority, CommandStatus, RobotCommandType } from './robot';
-export type { TelemetryData, RobotTelemetry, TelemetryMetadata } from './telemetry';
-export { AngleUnit, ForceUnit, TemperatureUnit, TorqueUnit, VelocityUnit } from './telemetry';
+export type { TelemetryData, RobotTelemetry, TelemetryMetadata, GPSPosition, NavigationData, Waypoint, GeofenceZone, FleetCoordination } from './telemetry';
+export { AngleUnit, ForceUnit, TemperatureUnit, TorqueUnit, VelocityUnit, GPSFixType, WaypointType, GeofenceType, PathPlanningStatus } from './telemetry';
 export * from './organization';
 export * from './user';
 export * from './auth';

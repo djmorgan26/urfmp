@@ -130,13 +130,61 @@ export class URFMP {
     return response.data.data!
   }
 
-  async sendTelemetry(robotId: string, data: any): Promise<void> {
-    await this.client.post(`/api/v1/telemetry/${robotId}`, data)
+  async sendTelemetry(robotId: string, data: any): Promise<RobotTelemetry> {
+    const response = await this.client.post<ApiResponse<RobotTelemetry>>(`/api/v1/telemetry/${robotId}`, { data })
+    return response.data.data!
   }
 
-  async getLatestTelemetry(robotId: string): Promise<RobotTelemetry> {
-    const response = await this.client.get<ApiResponse<RobotTelemetry>>(
+  async getLatestTelemetry(robotId: string): Promise<RobotTelemetry | null> {
+    const response = await this.client.get<ApiResponse<RobotTelemetry | null>>(
       `/api/v1/telemetry/${robotId}/latest`
+    )
+    return response.data.data!
+  }
+
+  async getTelemetryHistory(robotId: string, options: {
+    metric?: string
+    from?: Date
+    to?: Date
+    limit?: number
+  } = {}): Promise<RobotTelemetry[]> {
+    const params = new URLSearchParams()
+    if (options.metric) params.append('metric', options.metric)
+    if (options.from) params.append('from', options.from.toISOString())
+    if (options.to) params.append('to', options.to.toISOString())
+    if (options.limit) params.append('limit', options.limit.toString())
+
+    const response = await this.client.get<ApiResponse<RobotTelemetry[]>>(
+      `/api/v1/telemetry/${robotId}/history?${params.toString()}`
+    )
+    return response.data.data!
+  }
+
+  async getTelemetryMetrics(robotId: string): Promise<string[]> {
+    const response = await this.client.get<ApiResponse<string[]>>(
+      `/api/v1/telemetry/${robotId}/metrics`
+    )
+    return response.data.data!
+  }
+
+  async getAggregatedTelemetry(options: {
+    robotId?: string
+    metric: string
+    aggregation: 'avg' | 'min' | 'max' | 'sum' | 'count'
+    timeWindow: '1m' | '5m' | '15m' | '1h' | '1d'
+    from?: Date
+    to?: Date
+  }): Promise<any[]> {
+    const params = new URLSearchParams()
+    if (options.robotId) params.append('robotId', options.robotId)
+    params.append('metric', options.metric)
+    params.append('aggregation', options.aggregation)
+    params.append('timeWindow', options.timeWindow)
+    if (options.from) params.append('from', options.from.toISOString())
+    if (options.to) params.append('to', options.to.toISOString())
+
+    const response = await this.client.get<ApiResponse<any[]>>(
+      `/api/v1/telemetry/aggregated?${params.toString()}`
     )
     return response.data.data!
   }

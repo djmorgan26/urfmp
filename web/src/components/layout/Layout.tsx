@@ -12,6 +12,7 @@ import {
   Zap,
   Sun,
   Moon,
+  MapPin,
 } from 'lucide-react'
 import { useURFMP } from '@/hooks/useURFMP'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -24,6 +25,7 @@ interface LayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Activity },
   { name: 'Robots', href: '/robots', icon: Bot },
+  { name: 'GPS Map', href: '/map', icon: MapPin },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Maintenance', href: '/maintenance', icon: Wrench },
   { name: 'Settings', href: '/settings', icon: Settings },

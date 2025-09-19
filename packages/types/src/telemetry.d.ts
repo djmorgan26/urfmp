@@ -7,6 +7,7 @@ export interface RobotTelemetry {
 }
 export interface TelemetryData {
     position?: Position;
+    gpsPosition?: GPSPosition;
     jointAngles?: JointAngles;
     velocity?: Velocity;
     acceleration?: Acceleration;
@@ -19,6 +20,7 @@ export interface TelemetryData {
     programState?: ProgramState;
     toolData?: ToolData;
     safety?: SafetyData;
+    navigation?: NavigationData;
     custom?: Record<string, any>;
 }
 export interface Position {
@@ -306,5 +308,173 @@ export declare enum AggregationType {
     PERCENTILE_50 = "p50",
     PERCENTILE_95 = "p95",
     PERCENTILE_99 = "p99"
+}
+export interface GPSPosition {
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    heading?: number;
+    speed?: number;
+    accuracy?: GPSAccuracy;
+    timestamp: Date;
+    satelliteCount?: number;
+    hdop?: number;
+    fix?: GPSFixType;
+}
+export interface GPSAccuracy {
+    horizontal: number;
+    vertical?: number;
+    speed?: number;
+    heading?: number;
+}
+export declare enum GPSFixType {
+    NO_FIX = "no_fix",
+    GPS_2D = "2d",
+    GPS_3D = "3d",
+    DGPS = "dgps",
+    RTK_FLOAT = "rtk_float",
+    RTK_FIXED = "rtk_fixed"
+}
+export interface NavigationData {
+    waypoints?: Waypoint[];
+    currentWaypoint?: number;
+    targetPosition?: GPSPosition;
+    pathDeviation?: number;
+    estimatedTimeToTarget?: number;
+    missionProgress?: number;
+    obstacleDetected?: boolean;
+    pathPlanningStatus?: PathPlanningStatus;
+}
+export interface Waypoint {
+    id: string;
+    position: GPSPosition;
+    type: WaypointType;
+    radius?: number;
+    speed?: number;
+    actions?: WaypointAction[];
+    visited?: boolean;
+    visitedAt?: Date;
+}
+export declare enum WaypointType {
+    NORMAL = "normal",
+    START = "start",
+    END = "end",
+    CHECKPOINT = "checkpoint",
+    CHARGING_STATION = "charging_station",
+    WORK_ZONE = "work_zone",
+    SAFETY_ZONE = "safety_zone",
+    NO_GO_ZONE = "no_go_zone"
+}
+export interface WaypointAction {
+    type: WaypointActionType;
+    parameters?: Record<string, any>;
+    duration?: number;
+}
+export declare enum WaypointActionType {
+    STOP = "stop",
+    WAIT = "wait",
+    WORK = "work",
+    CHARGE = "charge",
+    TAKE_PHOTO = "take_photo",
+    COLLECT_SAMPLE = "collect_sample",
+    DEPLOY_TOOL = "deploy_tool",
+    CUSTOM = "custom"
+}
+export declare enum PathPlanningStatus {
+    IDLE = "idle",
+    PLANNING = "planning",
+    EXECUTING = "executing",
+    PAUSED = "paused",
+    COMPLETED = "completed",
+    FAILED = "failed",
+    EMERGENCY_STOP = "emergency_stop"
+}
+export interface GeofenceZone {
+    id: string;
+    name: string;
+    type: GeofenceType;
+    coordinates: GPSPosition[];
+    active: boolean;
+    actions: GeofenceAction[];
+    metadata?: Record<string, any>;
+}
+export declare enum GeofenceType {
+    INCLUSION = "inclusion",// Robot must stay inside
+    EXCLUSION = "exclusion",// Robot must stay outside
+    WARNING = "warning",// Trigger warning when entered
+    WORK_ZONE = "work_zone",// Designated work area
+    CHARGING_ZONE = "charging_zone",
+    SAFETY_ZONE = "safety_zone"
+}
+export interface GeofenceAction {
+    trigger: GeofenceTrigger;
+    action: GeofenceActionType;
+    parameters?: Record<string, any>;
+}
+export declare enum GeofenceTrigger {
+    ENTER = "enter",
+    EXIT = "exit",
+    DWELL = "dwell"
+}
+export declare enum GeofenceActionType {
+    ALERT = "alert",
+    STOP = "stop",
+    RETURN_TO_BASE = "return_to_base",
+    REDUCE_SPEED = "reduce_speed",
+    LOG_EVENT = "log_event",
+    CUSTOM = "custom"
+}
+export interface FleetCoordination {
+    fleetId: string;
+    robotId: string;
+    formation?: Formation;
+    communicationStatus: CommunicationStatus;
+    lastHeartbeat: Date;
+    sharedResources?: SharedResource[];
+}
+export interface Formation {
+    type: FormationType;
+    role: FormationRole;
+    relativePosition?: RelativePosition;
+    leader?: string;
+    followers?: string[];
+}
+export declare enum FormationType {
+    LINE = "line",
+    COLUMN = "column",
+    WEDGE = "wedge",
+    BOX = "box",
+    CUSTOM = "custom"
+}
+export declare enum FormationRole {
+    LEADER = "leader",
+    FOLLOWER = "follower",
+    SCOUT = "scout",
+    SUPPORT = "support"
+}
+export interface RelativePosition {
+    distance: number;
+    bearing: number;
+    elevation?: number;
+}
+export declare enum CommunicationStatus {
+    CONNECTED = "connected",
+    WEAK_SIGNAL = "weak_signal",
+    INTERMITTENT = "intermittent",
+    DISCONNECTED = "disconnected"
+}
+export interface SharedResource {
+    type: ResourceType;
+    id: string;
+    available: boolean;
+    reservedBy?: string;
+    reservedUntil?: Date;
+}
+export declare enum ResourceType {
+    CHARGING_STATION = "charging_station",
+    TOOL = "tool",
+    WORKSPACE = "workspace",
+    NETWORK_BANDWIDTH = "network_bandwidth",
+    PROCESSING_POWER = "processing_power"
 }
 //# sourceMappingURL=telemetry.d.ts.map

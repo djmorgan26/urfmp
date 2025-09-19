@@ -1,6 +1,7 @@
 import { query } from '../config/database'
 import { cache } from '../config/redis'
 import { logger } from '../config/logger'
+import { getWebSocketService } from './websocket.service'
 import { Robot, PaginationOptions, PaginationResult } from '@urfmp/types'
 import { ValidationError, NotFoundError } from '../middleware/error.middleware'
 
@@ -368,6 +369,27 @@ export class RobotService {
 
     // Invalidate cache
     await cache.del(`robot:${robotId}`)
+
+    // Broadcast robot update via WebSocket if status changed
+    if (updateData.status && updateData.status !== existingRobot.status) {
+      try {
+        const wsService = getWebSocketService()
+        wsService.broadcastToChannel(`robot:${robotId}`, {
+          event: 'robot:status_changed',
+          robotId,
+          organizationId,
+          oldStatus: existingRobot.status,
+          newStatus: updateData.status,
+          robot,
+          timestamp: new Date()
+        })
+      } catch (error) {
+        logger.warn('Failed to broadcast robot status change', {
+          robotId,
+          error: error.message
+        })
+      }
+    }
 
     logger.info('Robot updated', {
       robotId,

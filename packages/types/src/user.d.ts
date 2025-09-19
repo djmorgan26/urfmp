@@ -28,6 +28,7 @@ export declare enum Permission {
     ROBOT_DELETE = "robot.delete",
     ROBOT_CONTROL = "robot.control",
     TELEMETRY_VIEW = "telemetry.view",
+    TELEMETRY_WRITE = "telemetry.write",
     TELEMETRY_EXPORT = "telemetry.export",
     ANALYTICS_VIEW = "analytics.view",
     ANALYTICS_CREATE = "analytics.create",

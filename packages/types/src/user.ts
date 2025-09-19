@@ -33,6 +33,7 @@ export enum Permission {
 
   // Telemetry and data
   TELEMETRY_VIEW = 'telemetry.view',
+  TELEMETRY_WRITE = 'telemetry.write',
   TELEMETRY_EXPORT = 'telemetry.export',
   ANALYTICS_VIEW = 'analytics.view',
   ANALYTICS_CREATE = 'analytics.create',
