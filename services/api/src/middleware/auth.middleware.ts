@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
 import { AuthPayload, Permission } from '@urfmp/types'
 import { UnauthorizedError, ForbiddenError } from './error.middleware'
 import { logger } from '../config/logger'
 import { query } from '../config/database'
 import { cache } from '../config/redis'
+import { authService } from '../services/auth.service'
 
 // Extend Request interface to include user
 declare global {
@@ -15,18 +15,21 @@ declare global {
   }
 }
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     // Development bypass when using mock robots
     if (process.env.NODE_ENV === 'development' && process.env.DEV_MOCK_ROBOTS === 'true') {
       req.user = {
-        sub: 'demo-user-id',
-        organizationId: 'demo-org-id',
+        sub: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+        org: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
         email: 'demo@urfmp.com',
         permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
         role: 'admin',
+        scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
+        aud: 'urfmp-api',
+        iss: 'urfmp',
       }
       return next()
     }
@@ -36,8 +39,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       throw new UnauthorizedError('Authentication token required')
     }
 
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as AuthPayload
+    // Verify JWT token using AuthService
+    const decoded = authService.verifyAccessToken(token)
 
     // Check if user still exists and is active
     const user = await getUserById(decoded.sub)
@@ -45,14 +48,21 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       throw new UnauthorizedError('User not found or inactive')
     }
 
-    // Attach user to request
+    // Check if token is blacklisted (for logout functionality)
+    const isBlacklisted = await cache.get(`blacklisted_token:${token}`)
+    if (isBlacklisted) {
+      throw new UnauthorizedError('Token has been revoked')
+    }
+
+    // Attach user to request with updated data from database
     req.user = {
       ...decoded,
-      ...user,
+      permissions: user.permissions || decoded.permissions,
+      role: user.role || decoded.role,
     }
 
     next()
-  } catch (error) {
+  } catch (error: any) {
     if (error.name === 'JsonWebTokenError') {
       next(new UnauthorizedError('Invalid authentication token'))
     } else if (error.name === 'TokenExpiredError') {
@@ -64,7 +74,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 }
 
 // API Key authentication middleware
-export const apiKeyMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const apiKeyMiddleware = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     const apiKey = req.headers['x-api-key'] as string
     if (!apiKey) {
@@ -105,6 +115,94 @@ export const apiKeyMiddleware = async (req: Request, res: Response, next: NextFu
   }
 }
 
+// Required authentication (supports both JWT tokens and API keys)
+export const requiredAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Development bypass when using mock robots
+    if (process.env.NODE_ENV === 'development' && process.env.DEV_MOCK_ROBOTS === 'true') {
+      req.user = {
+        sub: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+        org: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+        email: 'demo@urfmp.com',
+        permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
+        role: 'admin',
+        scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        aud: 'urfmp-api',
+        iss: 'urfmp',
+      }
+      return next()
+    }
+
+    const token = extractToken(req)
+    const apiKey = req.headers['x-api-key'] as string
+
+    if (token) {
+      try {
+        const decoded = authService.verifyAccessToken(token)
+        const user = await getUserById(decoded.sub)
+
+        if (!user) {
+          throw new UnauthorizedError('User not found or inactive')
+        }
+
+        // Check if token is blacklisted
+        const isBlacklisted = await cache.get(`blacklisted_token:${token}`)
+        if (isBlacklisted) {
+          throw new UnauthorizedError('Token has been revoked')
+        }
+
+        req.user = {
+          ...decoded,
+          permissions: user.permissions || decoded.permissions,
+          role: user.role || decoded.role,
+        }
+        return next()
+      } catch (error: any) {
+        if (error.name === 'JsonWebTokenError') {
+          throw new UnauthorizedError('Invalid authentication token')
+        } else if (error.name === 'TokenExpiredError') {
+          throw new UnauthorizedError('Authentication token expired')
+        } else {
+          throw error
+        }
+      }
+    } else if (apiKey) {
+      const keyData = await getApiKey(apiKey)
+      if (!keyData || !keyData.isActive) {
+        throw new UnauthorizedError('Invalid or inactive API key')
+      }
+
+      // Check expiration
+      if (keyData.expiresAt && new Date() > new Date(keyData.expiresAt)) {
+        throw new UnauthorizedError('API key expired')
+      }
+
+      req.user = {
+        sub: keyData.userId,
+        org: keyData.organizationId,
+        email: keyData.userEmail,
+        role: 'api',
+        permissions: keyData.scope,
+        scope: keyData.scope,
+        iat: Math.floor(Date.now() / 1000),
+        exp: keyData.expiresAt ? Math.floor(new Date(keyData.expiresAt).getTime() / 1000) : 0,
+        aud: 'urfmp-api',
+        iss: 'urfmp',
+      }
+
+      // Update last used timestamp
+      await updateApiKeyLastUsed(keyData.id)
+      return next()
+    } else {
+      throw new UnauthorizedError('Authentication required: provide Bearer token or X-API-Key header')
+    }
+  } catch (error) {
+    next(error)
+  }
+}
+
 // Optional authentication (allows both authenticated and anonymous access)
 export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -112,10 +210,22 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
     const apiKey = req.headers['x-api-key'] as string
 
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as AuthPayload
-      const user = await getUserById(decoded.sub)
-      if (user) {
-        req.user = { ...decoded, ...user }
+      try {
+        const decoded = authService.verifyAccessToken(token)
+        const user = await getUserById(decoded.sub)
+
+        // Check if token is blacklisted
+        const isBlacklisted = await cache.get(`blacklisted_token:${token}`)
+
+        if (user && !isBlacklisted) {
+          req.user = {
+            ...decoded,
+            permissions: user.permissions || decoded.permissions,
+            role: user.role || decoded.role,
+          }
+        }
+      } catch (error) {
+        // Token is invalid, continue without authentication
       }
     } else if (apiKey) {
       const keyData = await getApiKey(apiKey)

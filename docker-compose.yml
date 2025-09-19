@@ -119,6 +119,9 @@ services:
       DATABASE_URL: postgresql://urfmp:urfmp-dev-2024@postgres:5432/urfmp
       REDIS_URL: redis://redis:6379
       RABBITMQ_URL: amqp://urfmp:urfmp-dev-2024@rabbitmq:5672
+      DEV_MOCK_ROBOTS: false
+      JWT_SECRET: ${JWT_SECRET:-development-secret-key}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-development-refresh-secret-key}
     depends_on:
       - postgres
       - redis
@@ -146,6 +149,7 @@ services:
     environment:
       NODE_ENV: development
       VITE_API_URL: http://localhost:3000
+      VITE_URFMP_API_KEY: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
       VITE_COMPANY_NAME: ${VITE_COMPANY_NAME:-URFMP}
       VITE_PRODUCT_NAME: ${VITE_PRODUCT_NAME:-URFMP}
       VITE_COMPANY_NAME_SHORT: ${VITE_COMPANY_NAME_SHORT:-URFMP}

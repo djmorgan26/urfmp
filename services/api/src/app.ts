@@ -9,7 +9,7 @@ import { logger } from './config/logger'
 import { errorHandler } from './middleware/error.middleware'
 import { rateLimiter } from './middleware/rateLimit.middleware'
 import { requestLogger } from './middleware/requestLogger.middleware'
-import { authMiddleware } from './middleware/auth.middleware'
+import { requiredAuth } from './middleware/auth.middleware'
 
 // Import routes
 import authRoutes from './routes/auth.routes'
@@ -127,11 +127,11 @@ app.use('/health', healthRoutes)
 app.use('/api/v1/auth', authRoutes)
 
 // Protected routes (auth required)
-app.use('/api/v1/robots', authMiddleware, robotRoutes)
-app.use('/api/v1/telemetry', authMiddleware, telemetryRoutes)
-app.use('/api/v1/organizations', authMiddleware, organizationRoutes)
-app.use('/api/v1/users', authMiddleware, userRoutes)
-app.use('/api/v1/maintenance', authMiddleware, maintenanceRoutes)
+app.use('/api/v1/robots', requiredAuth, robotRoutes)
+app.use('/api/v1/telemetry', requiredAuth, telemetryRoutes)
+app.use('/api/v1/organizations', requiredAuth, organizationRoutes)
+app.use('/api/v1/users', requiredAuth, userRoutes)
+app.use('/api/v1/maintenance', requiredAuth, maintenanceRoutes)
 
 // API root
 app.get('/', (req, res) => {

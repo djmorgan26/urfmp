@@ -14,9 +14,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBrandConfig = exports.defaultBrandConfig = exports.HealthStatus = exports.SortOrder = exports.VelocityUnit = exports.TorqueUnit = exports.TemperatureUnit = exports.ForceUnit = exports.AngleUnit = void 0;
+exports.getBrandConfig = exports.defaultBrandConfig = exports.ChannelType = exports.RobotEventType = exports.WebSocketMessageType = exports.HealthStatus = exports.SortOrder = exports.VelocityUnit = exports.TorqueUnit = exports.TemperatureUnit = exports.ForceUnit = exports.AngleUnit = exports.RobotCommandType = exports.CommandStatus = exports.CommandPriority = void 0;
 // Robot types
 __exportStar(require("./robot"), exports);
+var robot_1 = require("./robot");
+Object.defineProperty(exports, "CommandPriority", { enumerable: true, get: function () { return robot_1.CommandPriority; } });
+Object.defineProperty(exports, "CommandStatus", { enumerable: true, get: function () { return robot_1.CommandStatus; } });
+Object.defineProperty(exports, "RobotCommandType", { enumerable: true, get: function () { return robot_1.RobotCommandType; } });
 var telemetry_1 = require("./telemetry");
 Object.defineProperty(exports, "AngleUnit", { enumerable: true, get: function () { return telemetry_1.AngleUnit; } });
 Object.defineProperty(exports, "ForceUnit", { enumerable: true, get: function () { return telemetry_1.ForceUnit; } });
@@ -34,6 +38,10 @@ Object.defineProperty(exports, "SortOrder", { enumerable: true, get: function ()
 Object.defineProperty(exports, "HealthStatus", { enumerable: true, get: function () { return api_1.HealthStatus; } });
 // WebSocket types
 __exportStar(require("./websocket"), exports);
+var websocket_1 = require("./websocket");
+Object.defineProperty(exports, "WebSocketMessageType", { enumerable: true, get: function () { return websocket_1.WebSocketMessageType; } });
+Object.defineProperty(exports, "RobotEventType", { enumerable: true, get: function () { return websocket_1.RobotEventType; } });
+Object.defineProperty(exports, "ChannelType", { enumerable: true, get: function () { return websocket_1.ChannelType; } });
 // Event types
 __exportStar(require("./events"), exports);
 // Vendor types

@@ -7,6 +7,7 @@ import { connectDatabase } from './config/database'
 import { connectRedis } from './config/redis'
 import { connectRabbitMQ } from './config/rabbitmq'
 import { initializeWebSocketServer } from './services/websocket.service'
+import { migrationService } from './migrations/migration.service'
 
 const PORT = process.env.API_PORT || 3000
 const NODE_ENV = process.env.NODE_ENV || 'development'
@@ -16,6 +17,10 @@ async function startServer() {
     // Initialize database connection
     await connectDatabase()
     logger.info('✅ Database connected successfully')
+
+    // Run database migrations (disabled temporarily)
+    // await migrationService.runMigrations()
+    // logger.info('✅ Database migrations completed')
 
     // Initialize Redis connection
     await connectRedis()

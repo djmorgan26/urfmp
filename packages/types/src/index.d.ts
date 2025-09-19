@@ -1,4 +1,6 @@
 export * from './robot';
+export type { Robot, RobotCommand, RobotStatus, RobotVendor, RobotCapability, RobotLocation, RobotConfiguration } from './robot';
+export { CommandPriority, CommandStatus, RobotCommandType } from './robot';
 export type { TelemetryData, RobotTelemetry, TelemetryMetadata } from './telemetry';
 export { AngleUnit, ForceUnit, TemperatureUnit, TorqueUnit, VelocityUnit } from './telemetry';
 export * from './organization';
@@ -8,8 +10,11 @@ export type { ApiResponse, ApiError, HealthCheck, ServiceHealth } from './api';
 export { SortOrder, HealthStatus } from './api';
 export type { ValidationError } from './api';
 export * from './websocket';
+export type { WebSocketMessage, WebSocketEvent, WebSocketConnection } from './websocket';
+export { WebSocketMessageType, RobotEventType, ChannelType } from './websocket';
 export * from './events';
 export * from './vendor';
+export type { CommandResult, IRobotVendorAdapter, VendorConnection } from './vendor';
 export * from './maintenance';
 export type { BrandConfig } from './config/brand';
 export { defaultBrandConfig, getBrandConfig } from './config/brand';
