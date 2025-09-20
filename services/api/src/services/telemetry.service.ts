@@ -515,22 +515,22 @@ export class TelemetryService {
 
   private getAggregationFunction(aggregation: AggregationType): string {
     switch (aggregation) {
-      case AggregationType.AVERAGE: return 'AVG'
-      case AggregationType.MINIMUM: return 'MIN'
-      case AggregationType.MAXIMUM: return 'MAX'
-      case AggregationType.SUM: return 'SUM'
-      case AggregationType.COUNT: return 'COUNT'
+      case 'avg': return 'AVG'
+      case 'min': return 'MIN'
+      case 'max': return 'MAX'
+      case 'sum': return 'SUM'
+      case 'count': return 'COUNT'
       default: return 'AVG'
     }
   }
 
   private getTimeWindowInterval(timeWindow: TimeWindow): string {
     switch (timeWindow) {
-      case TimeWindow.MINUTE: return '1 minute'
-      case TimeWindow.FIVE_MINUTES: return '5 minutes'
-      case TimeWindow.FIFTEEN_MINUTES: return '15 minutes'
-      case TimeWindow.HOUR: return '1 hour'
-      case TimeWindow.DAY: return '1 day'
+      case '1m': return '1 minute'
+      case '5m': return '5 minutes'
+      case '15m': return '15 minutes'
+      case '1h': return '1 hour'
+      case '1d': return '1 day'
       default: return '1 hour'
     }
   }
