@@ -120,8 +120,8 @@ export class TelemetryService {
   /**
    * Get telemetry data for a robot with optional filtering
    */
-  async getTelemetryData(query: TelemetryQuery): Promise<RobotTelemetry[]> {
-    const { robotId, organizationId, metric, from, to, limit = 1000 } = query
+  async getTelemetryData(telemetryQuery: TelemetryQuery): Promise<RobotTelemetry[]> {
+    const { robotId, organizationId, metric, from, to, limit = 1000 } = telemetryQuery
 
     // Verify robot belongs to organization
     const robotCheck = await this.verifyRobotAccess(robotId, organizationId)
