@@ -13,10 +13,11 @@ import {
   Sun,
   Moon,
   MapPin,
+  Shield,
 } from 'lucide-react'
-import { useURFMP } from '@/hooks/useURFMP'
-import { useTheme } from '@/contexts/ThemeContext'
-import { cn } from '@/utils/cn'
+import { useURFMP } from '../../hooks/useURFMP'
+import { useTheme } from '../../contexts/ThemeContext'
+import { cn } from '../../lib/utils'
 
 interface LayoutProps {
   children: ReactNode
@@ -28,6 +29,7 @@ const navigation = [
   { name: 'GPS Map', href: '/map', icon: MapPin },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+  { name: 'Geofencing', href: '/geofencing', icon: Shield },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

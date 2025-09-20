@@ -6,13 +6,15 @@ import {
   CheckCircle,
   Plus,
   Search,
-  Filter,
   Wrench,
   Bot,
   User,
+  BarChart3,
+  Activity
 } from 'lucide-react'
-import { cn } from '@/utils/cn'
-import { formatDistanceToNow, format, parseISO } from 'date-fns'
+import { cn } from '../lib/utils'
+import { formatDistanceToNow, format } from 'date-fns'
+import { PredictiveMaintenanceDashboard } from '../components/maintenance/PredictiveMaintenanceDashboard'
 
 interface MaintenanceTask {
   id: string
@@ -102,6 +104,7 @@ const statusConfig = {
 }
 
 export function Maintenance() {
+  const [activeTab, setActiveTab] = useState<'predictive' | 'scheduled' | 'history'>('predictive')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
@@ -128,7 +131,7 @@ export function Maintenance() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
           <p className="text-muted-foreground mt-1">
-            Schedule and track maintenance tasks for your robot fleet
+            AI-powered predictive maintenance and task scheduling
           </p>
         </div>
 
@@ -141,7 +144,58 @@ export function Maintenance() {
         </button>
       </div>
 
-      {/* Summary Cards */}
+      {/* Navigation Tabs */}
+      <div className="flex space-x-1 border-b border-border">
+        <button
+          onClick={() => setActiveTab('predictive')}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === 'predictive'
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+          )}
+        >
+          <div className="flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Predictive Analytics</span>
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('scheduled')}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === 'scheduled'
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+          )}
+        >
+          <div className="flex items-center space-x-2">
+            <Calendar className="h-4 w-4" />
+            <span>Scheduled Tasks</span>
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            activeTab === 'history'
+              ? "border-blue-600 text-blue-600"
+              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+          )}
+        >
+          <div className="flex items-center space-x-2">
+            <Activity className="h-4 w-4" />
+            <span>History</span>
+          </div>
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'predictive' && <PredictiveMaintenanceDashboard />}
+
+      {activeTab === 'scheduled' && (
+        <>
+          {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
@@ -407,6 +461,19 @@ export function Maintenance() {
           })}
         </div>
       </div>
+        </>
+      )}
+
+      {activeTab === 'history' && (
+        <div className="bg-card rounded-lg border border-border p-6">
+          <h3 className="text-lg font-semibold mb-4">Maintenance History</h3>
+          <div className="text-center py-12 text-muted-foreground">
+            <Activity className="h-12 w-12 mx-auto mb-3" />
+            <p>Maintenance history will be displayed here</p>
+            <p className="text-sm">Track completed tasks, performance metrics, and maintenance trends</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

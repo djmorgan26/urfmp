@@ -21,8 +21,6 @@ import {
   Activity,
   Clock,
   AlertTriangle,
-  Download,
-  Filter,
   Zap,
   RefreshCw,
   Users,
@@ -31,10 +29,19 @@ import {
 } from 'lucide-react'
 import { useAnalytics, TimeRange } from '../hooks/useAnalytics'
 import { cn } from '../lib/utils'
+import { DateRangePicker, DateRange } from '../components/analytics/DateRangePicker'
+import { AdvancedFilters, FilterGroup, ActiveFilter } from '../components/analytics/AdvancedFilters'
+import { ReportGenerator } from '../components/analytics/ReportGenerator'
 
 export function Analytics() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('30d')
   const [selectedMetric, setSelectedMetric] = useState('all')
+  const [dateRange, setDateRange] = useState<DateRange>({
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    to: new Date(),
+    label: 'Last 30 days'
+  })
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
   const {
     fleetMetrics,
     robotPerformance,
@@ -44,6 +51,72 @@ export function Analytics() {
     error,
     refresh,
   } = useAnalytics(selectedTimeRange)
+
+  // Define filter groups for advanced filtering
+  const filterGroups: FilterGroup[] = [
+    {
+      id: 'robot-status',
+      label: 'Robot Status',
+      type: 'multiselect',
+      options: [
+        { id: 'online', label: 'Online', value: 'online' },
+        { id: 'offline', label: 'Offline', value: 'offline' },
+        { id: 'error', label: 'Error', value: 'error' },
+        { id: 'idle', label: 'Idle', value: 'idle' },
+        { id: 'maintenance', label: 'Maintenance', value: 'maintenance' }
+      ]
+    },
+    {
+      id: 'efficiency-range',
+      label: 'Efficiency Range (%)',
+      type: 'range',
+      min: 0,
+      max: 100,
+      step: 1
+    },
+    {
+      id: 'power-consumption',
+      label: 'Power Consumption (W)',
+      type: 'range',
+      min: 0,
+      max: 1000,
+      step: 10
+    },
+    {
+      id: 'robot-type',
+      label: 'Robot Type',
+      type: 'multiselect',
+      options: [
+        { id: 'ur5e', label: 'UR5e', value: 'UR5e' },
+        { id: 'ur10e', label: 'UR10e', value: 'UR10e' },
+        { id: 'ur16e', label: 'UR16e', value: 'UR16e' },
+        { id: 'other', label: 'Other', value: 'other' }
+      ]
+    }
+  ]
+
+  // Apply filters to robot performance data
+  const filteredRobotPerformance = robotPerformance.filter(robot => {
+    return activeFilters.every(filter => {
+      switch (filter.groupId) {
+        case 'robot-status':
+          return filter.values.includes(robot.status)
+        case 'efficiency-range':
+          const [minEff, maxEff] = filter.values as number[]
+          return (!minEff || robot.efficiency >= minEff) && (!maxEff || robot.efficiency <= maxEff)
+        case 'power-consumption':
+          const [minPower, maxPower] = filter.values as number[]
+          return (!minPower || robot.powerConsumption >= minPower) && (!maxPower || robot.powerConsumption <= maxPower)
+        case 'robot-type':
+          const robotType = robot.robotName.includes('UR5e') ? 'UR5e' :
+                           robot.robotName.includes('UR10e') ? 'UR10e' :
+                           robot.robotName.includes('UR16e') ? 'UR16e' : 'other'
+          return filter.values.includes(robotType)
+        default:
+          return true
+      }
+    })
+  })
 
   return (
     <div className="space-y-6">
@@ -56,17 +129,19 @@ export function Analytics() {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <select
-            value={selectedTimeRange}
-            onChange={(e) => setSelectedTimeRange(e.target.value as TimeRange)}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="7d">Last 7 Days</option>
-            <option value="30d">Last 30 Days</option>
-            <option value="90d">Last 90 Days</option>
-            <option value="1y">Last Year</option>
-          </select>
+        <div className="flex items-center space-x-4 flex-wrap">
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) => {
+              setDateRange(range)
+              // Map to TimeRange for analytics hook
+              const days = Math.ceil((range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24))
+              if (days <= 7) setSelectedTimeRange('7d')
+              else if (days <= 30) setSelectedTimeRange('30d')
+              else if (days <= 90) setSelectedTimeRange('90d')
+              else setSelectedTimeRange('1y')
+            }}
+          />
 
           <select
             value={selectedMetric}
@@ -80,6 +155,12 @@ export function Analytics() {
             <option value="cycles">Cycle Count</option>
           </select>
 
+          <AdvancedFilters
+            filterGroups={filterGroups}
+            activeFilters={activeFilters}
+            onFiltersChange={setActiveFilters}
+          />
+
           <button
             onClick={refresh}
             disabled={isLoading}
@@ -92,10 +173,18 @@ export function Analytics() {
             <span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
           </button>
 
-          <button className="flex items-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted">
-            <Download className="h-4 w-4" />
-            <span>Export</span>
-          </button>
+          <ReportGenerator
+            analyticsData={{
+              fleetMetrics,
+              robotPerformance: filteredRobotPerformance,
+              fleetTrends,
+              errorDistribution,
+              isLoading,
+              error,
+              refresh
+            }}
+            timeRange={dateRange.label}
+          />
         </div>
       </div>
 
@@ -301,7 +390,7 @@ export function Analytics() {
           <h3 className="text-lg font-semibold mb-4">Robot Performance Comparison</h3>
 
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={robotPerformance}>
+            <BarChart data={filteredRobotPerformance}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="robotName" />
               <YAxis />
@@ -366,7 +455,7 @@ export function Analytics() {
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">Robot Health Scores</h4>
             <div className="space-y-3">
-              {robotPerformance.slice(0, 3).map((robot, index) => (
+              {filteredRobotPerformance.slice(0, 3).map((robot, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm">{robot.robotName}</span>
                   <div className="flex items-center space-x-2">
@@ -406,11 +495,13 @@ export function Analytics() {
       {/* Detailed Robot Performance Table */}
       <div className="bg-card rounded-lg border border-border p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Detailed Robot Performance</h3>
-          <button className="flex items-center space-x-2 px-3 py-2 border border-input rounded-md hover:bg-muted text-sm">
-            <Filter className="h-4 w-4" />
-            <span>Filter</span>
-          </button>
+          <div>
+            <h3 className="text-lg font-semibold">Detailed Robot Performance</h3>
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredRobotPerformance.length} of {robotPerformance.length} robots
+              {activeFilters.length > 0 && ` (${activeFilters.length} filters applied)`}
+            </p>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -427,7 +518,7 @@ export function Analytics() {
               </tr>
             </thead>
             <tbody>
-              {robotPerformance.map((robot, index) => (
+              {filteredRobotPerformance.map((robot, index) => (
                 <tr key={index} className="border-b border-border hover:bg-muted/50">
                   <td className="py-3 px-4 font-medium">{robot.robotName}</td>
                   <td className="py-3 px-4">{robot.cycles.toLocaleString()}</td>
