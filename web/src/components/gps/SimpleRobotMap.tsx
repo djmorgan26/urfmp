@@ -1,9 +1,24 @@
 import { useState, useEffect } from 'react'
-import { MapPin, Navigation, Satellite, Target, Route, Home, ZoomIn, ZoomOut } from 'lucide-react'
-import { useURFMP } from '@/hooks/useURFMP'
-import { useTheme } from '@/contexts/ThemeContext'
-import { cn } from '@/utils/cn'
-import { Robot, GPSPosition } from '@urfmp/types'
+import { MapPin, Navigation, Satellite, Home, ZoomIn, ZoomOut } from 'lucide-react'
+import { useURFMP } from '../../hooks/useURFMP'
+import { useTheme } from '../../contexts/ThemeContext'
+import { cn } from '../../lib/utils'
+import { Robot } from '@urfmp/types'
+
+interface GPSPosition {
+  latitude: number
+  longitude: number
+  altitude?: number
+  heading?: number
+  speed?: number
+  accuracy?: {
+    horizontal?: number
+    vertical?: number
+  }
+  timestamp?: Date
+  satelliteCount?: number
+  fix?: string
+}
 
 interface SimpleRobotMapProps {
   robots: Robot[]
