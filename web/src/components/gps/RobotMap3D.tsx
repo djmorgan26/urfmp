@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
-import { useURFMP } from '@/hooks/useURFMP'
-import { useTheme } from '@/contexts/ThemeContext'
-import { cn } from '@/utils/cn'
+import { useURFMP } from '../../hooks/useURFMP'
+import { useTheme } from '../../contexts/ThemeContext'
+import { cn } from '../../lib/utils'
 import { Robot } from '@urfmp/types'
 import * as THREE from 'three'
 import { Satellite, Target, Home } from 'lucide-react'
@@ -12,12 +12,21 @@ interface GPSPosition {
   latitude: number
   longitude: number
   altitude?: number
-  accuracy?: {
-    horizontal: number
-    vertical: number
-  }
-  speed?: number
   heading?: number
+  speed?: number
+  accuracy?: {
+    horizontal?: number
+    vertical?: number
+  }
+  timestamp?: Date
+  satelliteCount?: number
+  fix?: string
+}
+
+interface RobotGPSData {
+  robotId: string
+  position: GPSPosition
+  timestamp: Date
 }
 
 interface RobotMap3DProps {
