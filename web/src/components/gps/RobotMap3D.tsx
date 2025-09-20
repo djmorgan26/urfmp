@@ -70,19 +70,30 @@ const getRobotColor = (status: string): string => {
 // 3D Earth component
 function Earth({ isDark }: { isDark: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null!)
+  const [hovered, setHovered] = useState(false)
 
   useFrame((_state, delta) => {
-    meshRef.current.rotation.y += delta * 0.1
+    meshRef.current.rotation.y += delta * 0.05 // Slower rotation
+
+    // Subtle breathing effect
+    const scale = 1 + Math.sin(_state.clock.elapsedTime * 0.5) * 0.01
+    meshRef.current.scale.setScalar(scale)
   })
 
   return (
-    <mesh ref={meshRef}>
+    <mesh
+      ref={meshRef}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
       <sphereGeometry args={[5, 64, 64]} />
       <meshStandardMaterial
         color={isDark ? '#1f2937' : '#3b82f6'}
         wireframe={false}
         transparent
-        opacity={0.8}
+        opacity={hovered ? 0.9 : 0.8}
+        emissive={hovered ? (isDark ? '#0f172a' : '#1e40af') : '#000000'}
+        emissiveIntensity={hovered ? 0.1 : 0}
       />
     </mesh>
   )
@@ -103,11 +114,14 @@ function RobotMarker({
   isDark: boolean
 }) {
   const meshRef = useRef<THREE.Mesh>(null!)
+  const [hovered, setHovered] = useState(false)
   const color = getRobotColor(robot.status)
 
   useFrame((state) => {
     if (isSelected && meshRef.current) {
-      meshRef.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 3) * 0.2)
+      meshRef.current.scale.setScalar(1.2 + Math.sin(state.clock.elapsedTime * 3) * 0.2)
+    } else if (hovered && meshRef.current) {
+      meshRef.current.scale.setScalar(1.3)
     } else if (meshRef.current) {
       meshRef.current.scale.setScalar(1)
     }
@@ -115,26 +129,81 @@ function RobotMarker({
 
   return (
     <group position={position}>
-      <mesh ref={meshRef} onClick={onClick}>
-        <sphereGeometry args={[0.2, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.3} />
-      </mesh>
-      <Html
-        position={[0, 0.5, 0]}
-        center
-        style={{
-          color: isDark ? '#ffffff' : '#000000',
-          background: isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.8)',
-          padding: '2px 6px',
-          borderRadius: '4px',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          pointerEvents: 'none',
-          whiteSpace: 'nowrap',
-        }}
+      <mesh
+        ref={meshRef}
+        onClick={onClick}
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
       >
-        {robot.name}
-      </Html>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={isSelected ? 0.5 : hovered ? 0.4 : 0.3}
+        />
+      </mesh>
+
+      {/* Always show label for selected robot, show on hover for others */}
+      {(isSelected || hovered) && (
+        <Html
+          position={[0, 0.5, 0]}
+          center
+          style={{
+            color: isDark ? '#ffffff' : '#000000',
+            background: isDark ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            fontSize: '13px',
+            fontWeight: 'bold',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
+          }}
+        >
+          {robot.name}
+        </Html>
+      )}
+    </group>
+  )
+}
+
+// Robot trail component using individual spheres for trail points
+function RobotTrail({
+  gpsData,
+  robot,
+  isDark
+}: {
+  gpsData: RobotGPSData[]
+  robot: Robot
+  isDark: boolean
+}) {
+  if (!gpsData || gpsData.length < 2) return null
+
+  const color = getRobotColor(robot.status)
+
+  // Limit trail points for performance (show max 10 points)
+  const maxTrailPoints = 10
+  const trailData = gpsData.slice(Math.max(0, gpsData.length - maxTrailPoints), -1)
+
+  return (
+    <group>
+      {trailData.map((data, index) => {
+        const position = gpsTo3D(data.position.latitude, data.position.longitude)
+        const opacity = (index / trailData.length) * (isDark ? 0.6 : 0.4) + 0.1
+        const size = 0.03 + (index / trailData.length) * 0.02 // Gradually increase size
+
+        return (
+          <mesh key={`${robot.id}-trail-${index}`} position={position}>
+            <sphereGeometry args={[size, 6, 6]} />
+            <meshBasicMaterial
+              color={color}
+              transparent
+              opacity={opacity}
+            />
+          </mesh>
+        )
+      })}
     </group>
   )
 }
@@ -149,6 +218,7 @@ export function RobotMap3D({
 }: RobotMap3DProps) {
   const { urfmp } = useURFMP()
   const { isDark } = useTheme()
+  const controlsRef = useRef<any>(null)
   const [robotGPSData, setRobotGPSData] = useState<Map<string, RobotGPSData[]>>(new Map())
   const [isFollowingRobot, setIsFollowingRobot] = useState(false)
   const [showLabels, setShowLabels] = useState(true)
@@ -246,20 +316,63 @@ export function RobotMap3D({
 
   // Camera controls
   const handleHomeView = () => {
-    // Reset to default 3D view - this would require ref to camera controls
-    console.log('Reset to home view')
+    if (!controlsRef.current) return
+
+    // Reset to home view - show all robots
+    const positions = Array.from(robotGPSData.values()).flat()
+    if (positions.length > 0) {
+      // Calculate center point of all robots
+      const avgLat = positions.reduce((sum, p) => sum + p.position.latitude, 0) / positions.length
+      const avgLng = positions.reduce((sum, p) => sum + p.position.longitude, 0) / positions.length
+      const centerPoint = gpsTo3D(avgLat, avgLng)
+
+      // Set camera target to center of robots
+      controlsRef.current.target.copy(centerPoint)
+      controlsRef.current.update()
+    } else {
+      // Default to Earth center
+      controlsRef.current.target.set(0, 0, 0)
+      controlsRef.current.update()
+    }
+
+    setIsFollowingRobot(false)
   }
 
   const handleFollowRobot = () => {
-    if (!selectedRobotId) return
+    if (!selectedRobotId || !controlsRef.current) return
 
     const gpsData = robotGPSData.get(selectedRobotId)
     if (!gpsData || gpsData.length === 0) return
 
-    // This would focus the camera on the selected robot
-    console.log('Following robot:', selectedRobotId)
+    const latestPosition = gpsData[gpsData.length - 1]
+    const robotPosition = gpsTo3D(
+      latestPosition.position.latitude,
+      latestPosition.position.longitude
+    )
+
+    // Focus camera on the selected robot
+    controlsRef.current.target.copy(robotPosition)
+    controlsRef.current.update()
+
     setIsFollowingRobot(!isFollowingRobot)
   }
+
+  // Auto-follow selected robot when follow mode is enabled
+  useEffect(() => {
+    if (!isFollowingRobot || !selectedRobotId || !controlsRef.current) return
+
+    const gpsData = robotGPSData.get(selectedRobotId)
+    if (!gpsData || gpsData.length === 0) return
+
+    const latestPosition = gpsData[gpsData.length - 1]
+    const robotPosition = gpsTo3D(
+      latestPosition.position.latitude,
+      latestPosition.position.longitude
+    )
+
+    controlsRef.current.target.copy(robotPosition)
+    controlsRef.current.update()
+  }, [robotGPSData, selectedRobotId, isFollowingRobot])
 
   return (
     <div
@@ -277,6 +390,21 @@ export function RobotMap3D({
 
         {/* Earth */}
         <Earth isDark={isDark} />
+
+        {/* Robot Trails */}
+        {showTrails && robots.map((robot) => {
+          const gpsData = robotGPSData.get(robot.id)
+          if (!gpsData || gpsData.length === 0) return null
+
+          return (
+            <RobotTrail
+              key={`${robot.id}-trail`}
+              gpsData={gpsData}
+              robot={robot}
+              isDark={isDark}
+            />
+          )
+        })}
 
         {/* Robot Markers */}
         {robots.map((robot) => {
@@ -303,6 +431,7 @@ export function RobotMap3D({
 
         {/* Controls */}
         <OrbitControls
+          ref={controlsRef}
           enablePan={true}
           enableZoom={true}
           enableRotate={true}

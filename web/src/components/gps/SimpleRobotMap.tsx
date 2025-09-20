@@ -199,40 +199,84 @@ export function SimpleRobotMap({
         className
       )}
     >
-      {/* Map Background */}
+      {/* Enhanced Map Background */}
       <div
         className={cn(
           'absolute inset-0',
           isDark
-            ? 'bg-gradient-to-br from-gray-800 to-gray-900'
-            : 'bg-gradient-to-br from-blue-100 to-green-100'
+            ? 'bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800'
+            : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50'
         )}
       >
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-20">
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
           <svg width="100%" height="100%">
             <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor={isDark ? '#3b82f6' : '#06b6d4'} stopOpacity="0.8" />
+                <stop offset="70%" stopColor={isDark ? '#1e40af' : '#0891b2'} stopOpacity="0.3" />
+                <stop offset="100%" stopColor={isDark ? '#1e3a8a' : '#0e7490'} stopOpacity="0.1" />
+              </radialGradient>
+              <pattern id="modernGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <circle cx="20" cy="20" r="1" fill={isDark ? '#374151' : '#cbd5e1'} opacity="0.5" />
                 <path
-                  d="M 20 0 L 0 0 0 20"
+                  d="M 40 0 L 0 0 0 40"
                   fill="none"
                   stroke={isDark ? '#374151' : '#cbd5e1'}
-                  strokeWidth="1"
+                  strokeWidth="0.5"
+                  opacity="0.3"
                 />
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#modernGrid)" />
+            <circle
+              cx="50%"
+              cy="50%"
+              r="30%"
+              fill="url(#radarGradient)"
+              className="animate-pulse"
+            />
           </svg>
         </div>
 
-        {/* Map center indicator */}
+        {/* Radar-style center indicator */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div
-            className={cn(
-              'w-2 h-2 rounded-full opacity-50',
-              isDark ? 'bg-gray-300' : 'bg-gray-400'
-            )}
-          ></div>
+          <div className="relative">
+            {/* Pulsing outer ring */}
+            <div
+              className={cn(
+                'w-12 h-12 rounded-full border-2 opacity-30 animate-ping',
+                isDark ? 'border-blue-400' : 'border-cyan-500'
+              )}
+            ></div>
+            {/* Static inner ring */}
+            <div
+              className={cn(
+                'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border opacity-50',
+                isDark ? 'border-blue-300' : 'border-cyan-400'
+              )}
+            ></div>
+            {/* Center dot */}
+            <div
+              className={cn(
+                'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full',
+                isDark ? 'bg-blue-400' : 'bg-cyan-500'
+              )}
+            ></div>
+          </div>
+        </div>
+
+        {/* Coordinate overlay */}
+        <div className="absolute top-4 left-4 text-xs opacity-60 font-mono">
+          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
+            Lat: {mapCenter.lat.toFixed(4)}°
+          </div>
+          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
+            Lng: {mapCenter.lng.toFixed(4)}°
+          </div>
+          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
+            Zoom: {zoomLevel.toFixed(1)}x
+          </div>
         </div>
 
         {/* Robots on map */}
@@ -254,9 +298,19 @@ export function SimpleRobotMap({
 
           return (
             <div key={robotId}>
-              {/* Robot trail */}
+              {/* Enhanced Robot trail with gradient */}
               {gpsData.length > 1 && (
                 <svg className="absolute inset-0 pointer-events-none">
+                  <defs>
+                    <linearGradient id={`trailGradient-${robotId}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor={
+                        isSelected ? (isDark ? '#3b82f6' : '#1e40af') : isDark ? '#6b7280' : '#9ca3af'
+                      } stopOpacity="0.1" />
+                      <stop offset="100%" stopColor={
+                        isSelected ? (isDark ? '#60a5fa' : '#3b82f6') : isDark ? '#9ca3af' : '#6b7280'
+                      } stopOpacity="0.8" />
+                    </linearGradient>
+                  </defs>
                   <path
                     d={gpsData
                       .map((data, index) => {
@@ -265,38 +319,82 @@ export function SimpleRobotMap({
                       })
                       .join(' ')}
                     fill="none"
-                    stroke={
-                      isSelected ? (isDark ? '#60a5fa' : '#3b82f6') : isDark ? '#9ca3af' : '#6b7280'
-                    }
-                    strokeWidth="2"
-                    strokeOpacity="0.6"
-                    strokeDasharray="5,5"
+                    stroke={`url(#trailGradient-${robotId})`}
+                    strokeWidth={isSelected ? "3" : "2"}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={isSelected ? "animate-pulse" : ""}
                   />
+
+                  {/* Trail points for better visibility */}
+                  {gpsData.slice(0, -1).map((data, index) => {
+                    const c = gpsToMapCoords(data.position.latitude, data.position.longitude)
+                    const opacity = (index / gpsData.length) * 0.6 + 0.2
+                    return (
+                      <circle
+                        key={index}
+                        cx={c.x}
+                        cy={c.y}
+                        r="2"
+                        fill={isSelected ? (isDark ? '#60a5fa' : '#3b82f6') : isDark ? '#9ca3af' : '#6b7280'}
+                        opacity={opacity}
+                      />
+                    )
+                  })}
                 </svg>
               )}
 
-              {/* Robot marker */}
+              {/* Enhanced Robot marker */}
               <div
                 className={cn(
-                  'absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-200',
+                  'absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 group',
                   isSelected ? 'scale-125 z-20' : 'z-10 hover:scale-110'
                 )}
                 style={{ left: coords.x, top: coords.y }}
                 onClick={() => onRobotSelect?.(robotId)}
               >
+                {/* Outer glow ring for selected robot */}
+                {isSelected && (
+                  <div className={cn(
+                    'absolute inset-0 w-12 h-12 rounded-full animate-ping opacity-30 -top-2 -left-2',
+                    robot.status === 'online' ? (isDark ? 'bg-green-400' : 'bg-green-500') :
+                    robot.status === 'error' ? (isDark ? 'bg-red-400' : 'bg-red-500') :
+                    isDark ? 'bg-blue-400' : 'bg-blue-500'
+                  )}></div>
+                )}
+
                 <div
                   className={cn(
-                    'w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center',
-                    getRobotStatusColor(robot.status),
-                    isSelected && 'ring-2 ring-blue-500 ring-offset-2'
+                    'relative w-10 h-10 rounded-full border-2 shadow-xl flex items-center justify-center backdrop-blur-sm',
+                    'group-hover:shadow-2xl transition-all duration-300',
+                    robot.status === 'online' ? 'border-green-300 bg-green-500/90 shadow-green-500/30' :
+                    robot.status === 'error' ? 'border-red-300 bg-red-500/90 shadow-red-500/30' :
+                    robot.status === 'idle' ? 'border-yellow-300 bg-yellow-500/90 shadow-yellow-500/30' :
+                    'border-gray-300 bg-gray-500/90 shadow-gray-500/30',
+                    isSelected && 'ring-2 ring-offset-2 ring-blue-400'
                   )}
                 >
-                  <Navigation
-                    className="w-4 h-4"
-                    style={{
-                      transform: `rotate(${latestPosition.position.heading || 0}deg)`,
-                    }}
-                  />
+                  {/* Robot direction indicator */}
+                  <div className="relative">
+                    <Navigation
+                      className={cn(
+                        'w-5 h-5 text-white drop-shadow-sm transition-transform duration-300',
+                        'group-hover:scale-110'
+                      )}
+                      style={{
+                        transform: `rotate(${latestPosition.position.heading || 0}deg)`,
+                      }}
+                    />
+
+                    {/* Status indicator dot */}
+                    <div className={cn(
+                      'absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white',
+                      robot.status === 'online' ? 'bg-green-400 animate-pulse' :
+                      robot.status === 'error' ? 'bg-red-400 animate-bounce' :
+                      robot.status === 'idle' ? 'bg-yellow-400' :
+                      'bg-gray-400'
+                    )}></div>
+                  </div>
                 </div>
 
                 {/* Robot label */}
@@ -369,6 +467,31 @@ export function SimpleRobotMap({
         </div>
         <div className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
           Robots: {robotGPSData.size} with GPS
+        </div>
+      </div>
+
+      {/* Scale Indicator */}
+      <div
+        className={cn(
+          'absolute bottom-4 left-4 rounded-lg shadow-lg p-3 backdrop-blur-sm',
+          selectedRobotId ? 'bottom-32' : 'bottom-4',
+          isDark ? 'bg-gray-800/90 border border-gray-600' : 'bg-white/90 border border-gray-200'
+        )}
+      >
+        <div className={cn('text-xs font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700')}>
+          Scale
+        </div>
+        <div className="flex items-center gap-2">
+          <div className={cn(
+            'w-16 h-0.5',
+            isDark ? 'bg-gray-400' : 'bg-gray-600'
+          )}></div>
+          <span className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
+            {(100 / zoomLevel).toFixed(0)}m
+          </span>
+        </div>
+        <div className={cn('text-xs mt-1', isDark ? 'text-gray-500' : 'text-gray-500')}>
+          Approx. distance
         </div>
       </div>
 
