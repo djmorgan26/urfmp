@@ -31,7 +31,7 @@
     "resium": "^1.19.0-beta.1",
     "sonner": "^1.0.3",
     "tailwind-merge": "^1.14.0",
-    "three": "^0.148.0"
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

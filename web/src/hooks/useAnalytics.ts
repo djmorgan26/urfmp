@@ -197,24 +197,15 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     try {
       if (!urfmp) return []
 
-      // Use the real aggregation endpoint
-      const params = new URLSearchParams({
+      // Use the SDK's aggregation method
+      const result = await urfmp.getAggregatedTelemetry({
         metric,
-        aggregation,
-        timeWindow,
-        from: from.toISOString()
+        aggregation: aggregation as 'avg' | 'min' | 'max' | 'sum' | 'count',
+        timeWindow: timeWindow as '1m' | '5m' | '15m' | '1h' | '1d',
+        from
       })
 
-      const response = await fetch(`${urfmp.baseUrl}/api/v1/telemetry/aggregated?${params}`, {
-        headers: {
-          'X-API-Key': urfmp.apiKey
-        }
-      })
-
-      if (!response.ok) return []
-
-      const data = await response.json()
-      return data.success ? data.data : []
+      return result || []
     } catch (err) {
       console.warn(`Failed to fetch aggregated metric ${metric}:`, err)
       return []
