@@ -4,6 +4,7 @@ import { useURFMP } from '../../hooks/useURFMP'
 import { useTheme } from '../../contexts/ThemeContext'
 import { cn } from '../../lib/utils'
 import { Robot } from '@urfmp/types'
+import { Geofence } from '../../hooks/useGeofencing'
 
 interface GPSPosition {
   latitude: number
@@ -24,6 +25,7 @@ interface SimpleRobotMapProps {
   robots: Robot[]
   selectedRobotId?: string
   onRobotSelect?: (robotId: string) => void
+  geofences?: Geofence[]
   className?: string
 }
 
@@ -37,6 +39,7 @@ export function SimpleRobotMap({
   robots,
   selectedRobotId,
   onRobotSelect,
+  geofences = [],
   className,
 }: SimpleRobotMapProps) {
   const { urfmp } = useURFMP()
@@ -293,6 +296,134 @@ export function SimpleRobotMap({
             Zoom: {zoomLevel.toFixed(1)}x
           </div>
         </div>
+
+        {/* Geofences on map */}
+        {geofences.map((geofence) => {
+          if (!geofence.isActive) return null
+
+          if (geofence.type === 'circle' && geofence.coordinates.length > 0) {
+            const center = gpsToMapCoords(geofence.coordinates[0].latitude, geofence.coordinates[0].longitude)
+            const radiusPixels = (geofence.radius || 50) * zoomLevel / 10 // Convert meters to pixels based on zoom
+
+            return (
+              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
+                <svg className="absolute inset-0">
+                  <defs>
+                    <radialGradient id={`geofenceGradient-${geofence.id}`} cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor={geofence.color} stopOpacity={geofence.fillOpacity * 0.3} />
+                      <stop offset="100%" stopColor={geofence.color} stopOpacity={geofence.fillOpacity} />
+                    </radialGradient>
+                  </defs>
+                  <circle
+                    cx={center.x}
+                    cy={center.y}
+                    r={radiusPixels}
+                    fill={`url(#geofenceGradient-${geofence.id})`}
+                    stroke={geofence.color}
+                    strokeWidth={geofence.strokeWidth}
+                    strokeOpacity="0.8"
+                    className="animate-pulse"
+                  />
+                  {/* Geofence label */}
+                  <text
+                    x={center.x}
+                    y={center.y - radiusPixels - 10}
+                    textAnchor="middle"
+                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
+                  >
+                    {geofence.name}
+                  </text>
+                </svg>
+              </div>
+            )
+          }
+
+          if (geofence.type === 'polygon' && geofence.coordinates.length >= 3) {
+            const points = geofence.coordinates.map(coord =>
+              gpsToMapCoords(coord.latitude, coord.longitude)
+            )
+            const pathData = points.map((point, index) =>
+              `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
+            ).join(' ') + ' Z'
+
+            const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length
+            const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length
+
+            return (
+              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
+                <svg className="absolute inset-0">
+                  <defs>
+                    <pattern id={`geofencePattern-${geofence.id}`} patternUnits="userSpaceOnUse" width="20" height="20">
+                      <rect width="20" height="20" fill={geofence.color} opacity={geofence.fillOpacity * 0.3} />
+                      <path d="M 10,0 L 20,10 L 10,20 L 0,10 Z" fill={geofence.color} opacity={geofence.fillOpacity * 0.5} />
+                    </pattern>
+                  </defs>
+                  <path
+                    d={pathData}
+                    fill={`url(#geofencePattern-${geofence.id})`}
+                    stroke={geofence.color}
+                    strokeWidth={geofence.strokeWidth}
+                    strokeOpacity="0.9"
+                    strokeDasharray="5,3"
+                  />
+                  {/* Geofence label */}
+                  <text
+                    x={centerX}
+                    y={centerY}
+                    textAnchor="middle"
+                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
+                  >
+                    {geofence.name}
+                  </text>
+                </svg>
+              </div>
+            )
+          }
+
+          if (geofence.type === 'rectangle' && geofence.coordinates.length === 4) {
+            const coords = geofence.coordinates.map(coord =>
+              gpsToMapCoords(coord.latitude, coord.longitude)
+            )
+
+            const minX = Math.min(...coords.map(c => c.x))
+            const maxX = Math.max(...coords.map(c => c.x))
+            const minY = Math.min(...coords.map(c => c.y))
+            const maxY = Math.max(...coords.map(c => c.y))
+
+            const centerX = (minX + maxX) / 2
+            const centerY = (minY + maxY) / 2
+
+            return (
+              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
+                <svg className="absolute inset-0">
+                  <rect
+                    x={minX}
+                    y={minY}
+                    width={maxX - minX}
+                    height={maxY - minY}
+                    fill={geofence.color}
+                    fillOpacity={geofence.fillOpacity}
+                    stroke={geofence.color}
+                    strokeWidth={geofence.strokeWidth}
+                    strokeOpacity="0.8"
+                    strokeDasharray="8,4"
+                  />
+                  {/* Geofence label */}
+                  <text
+                    x={centerX}
+                    y={centerY}
+                    textAnchor="middle"
+                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
+                  >
+                    {geofence.name}
+                  </text>
+                </svg>
+              </div>
+            )
+          }
+
+          return null
+        })}
 
         {/* Robots on map */}
         {Array.from(robotGPSData.entries()).map(([robotId, gpsData]) => {

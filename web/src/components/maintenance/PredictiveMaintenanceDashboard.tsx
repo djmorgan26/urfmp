@@ -73,13 +73,13 @@ export function PredictiveMaintenanceDashboard() {
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return <XCircle className="h-4 w-4 text-red-700" />
+        return <XCircle className="h-4 w-4 text-red-700 dark:text-red-400" />
       case 'high':
-        return <AlertTriangle className="h-4 w-4 text-red-600" />
+        return <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
       case 'medium':
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />
+        return <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
       case 'low':
-        return <CheckCircle className="h-4 w-4 text-green-600" />
+        return <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
       default:
         return <Activity className="h-4 w-4" />
     }
@@ -89,7 +89,7 @@ export function PredictiveMaintenanceDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full" />
         <span className="ml-3 text-muted-foreground">Loading maintenance data...</span>
       </div>
     )
@@ -97,15 +97,15 @@ export function PredictiveMaintenanceDashboard() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-6">
         <div className="flex items-center">
-          <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-          <span className="text-red-800 font-medium">Error loading maintenance data</span>
+          <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
+          <span className="text-red-800 dark:text-red-400 font-medium">Error loading maintenance data</span>
         </div>
-        <p className="text-red-700 text-sm mt-1">{error}</p>
+        <p className="text-red-700 dark:text-red-300 text-sm mt-1">{error}</p>
         <button
           onClick={refresh}
-          className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          className="mt-3 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
         >
           Retry
         </button>
@@ -128,7 +128,7 @@ export function PredictiveMaintenanceDashboard() {
           <select
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value)}
-            className="px-3 py-2 border border-input rounded-md text-sm"
+            className="px-3 py-2 border border-input bg-background rounded-md text-sm"
           >
             <option value="all">All Severities</option>
             <option value="critical">Critical</option>
@@ -152,7 +152,7 @@ export function PredictiveMaintenanceDashboard() {
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-muted-foreground">Active Alerts</p>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
           </div>
           <p className="text-3xl font-bold">{alerts.length}</p>
           <p className="text-sm text-muted-foreground">
@@ -163,7 +163,7 @@ export function PredictiveMaintenanceDashboard() {
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-muted-foreground">Upcoming Tasks</p>
-            <Calendar className="h-4 w-4 text-blue-600" />
+            <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
           <p className="text-3xl font-bold">{upcomingMaintenance.length}</p>
           <p className="text-sm text-muted-foreground">Next 30 days</p>
@@ -172,7 +172,7 @@ export function PredictiveMaintenanceDashboard() {
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-muted-foreground">Fleet Health</p>
-            <Activity className="h-4 w-4 text-green-600" />
+            <Activity className="h-4 w-4 text-green-600 dark:text-green-400" />
           </div>
           <p className="text-3xl font-bold">
             {componentHealth.length > 0
@@ -185,7 +185,7 @@ export function PredictiveMaintenanceDashboard() {
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-muted-foreground">Cost Savings</p>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
           </div>
           <p className="text-3xl font-bold">
             ${insights.reduce((sum, insight) => sum + (insight.estimatedSavings || 0), 0).toLocaleString()}
@@ -284,10 +284,10 @@ export function PredictiveMaintenanceDashboard() {
                 <div className="flex items-center space-x-2">
                   <span className={cn(
                     "px-2 py-1 rounded-full text-xs font-medium",
-                    alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                    alert.severity === 'high' ? 'bg-red-50 text-red-700' :
-                    alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
+                    alert.severity === 'critical' ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400' :
+                    alert.severity === 'high' ? 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400' :
+                    alert.severity === 'medium' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
+                    'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
                   )}>
                     {alert.severity}
                   </span>
@@ -298,8 +298,8 @@ export function PredictiveMaintenanceDashboard() {
               </div>
 
               {alert.recommendation && (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-sm text-blue-800">
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                  <p className="text-sm text-blue-800 dark:text-blue-400">
                     <strong>Recommendation:</strong> {alert.recommendation}
                   </p>
                 </div>
@@ -309,7 +309,7 @@ export function PredictiveMaintenanceDashboard() {
 
           {filteredAlerts.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              <CheckCircle className="h-12 w-12 mx-auto mb-3 text-green-600" />
+              <CheckCircle className="h-12 w-12 mx-auto mb-3 text-green-600 dark:text-green-400" />
               <p>No maintenance alerts for the selected criteria</p>
             </div>
           )}
@@ -323,7 +323,7 @@ export function PredictiveMaintenanceDashboard() {
           {upcomingMaintenance.map((task) => (
             <div key={task.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
               <div className="flex items-center space-x-3">
-                <Calendar className="h-4 w-4 text-blue-600" />
+                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
                   <h4 className="font-medium">{task.title}</h4>
                   <p className="text-sm text-muted-foreground">
@@ -354,9 +354,9 @@ export function PredictiveMaintenanceDashboard() {
                 <h4 className="font-medium">{insight.title}</h4>
                 <span className={cn(
                   "px-2 py-1 rounded-full text-xs font-medium",
-                  insight.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                  insight.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-green-100 text-green-800'
+                  insight.priority === 'high' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-400' :
+                  insight.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
+                  'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
                 )}>
                   {insight.priority}
                 </span>

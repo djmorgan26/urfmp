@@ -25,6 +25,8 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lastRefresh, setLastRefresh] = useState<number>(0)
+  const [backoffDelay, setBackoffDelay] = useState<number>(5000)
 
   useEffect(() => {
     initializeURFMP()
@@ -87,11 +89,30 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       const urfmpClient = client || urfmp
       if (!urfmpClient) return
 
+      // Rate limiting with exponential backoff
+      const now = Date.now()
+      if (now - lastRefresh < backoffDelay) {
+        console.log(`Rate limiting: skipping robots refresh (backoff: ${backoffDelay}ms)`)
+        return
+      }
+
+      setLastRefresh(now)
       const robotList = await urfmpClient.getRobots()
       setRobots(robotList)
+      setError(null) // Clear any previous errors on success
+
+      // Reset backoff delay on success
+      setBackoffDelay(5000)
     } catch (err) {
       console.error('Failed to refresh robots:', err)
-      setError(err instanceof Error ? err.message : 'Failed to refresh robots')
+
+      // Handle 429 errors with exponential backoff
+      if (err instanceof Error && (err.message.includes('429') || err.message.includes('Too Many Requests'))) {
+        console.log('429 detected, increasing backoff delay')
+        setBackoffDelay(prev => Math.min(prev * 2, 60000)) // Max 1 minute backoff
+      } else {
+        setError(err instanceof Error ? err.message : 'Failed to refresh robots')
+      }
     }
   }
 

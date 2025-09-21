@@ -42,7 +42,7 @@ export function GeofencingDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full" />
         <span className="ml-3 text-muted-foreground">Loading geofencing data...</span>
       </div>
     )
@@ -50,15 +50,15 @@ export function GeofencingDashboard() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+      <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-6">
         <div className="flex items-center">
-          <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-          <span className="text-red-800 font-medium">Error loading geofencing data</span>
+          <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
+          <span className="text-red-800 dark:text-red-400 font-medium">Error loading geofencing data</span>
         </div>
-        <p className="text-red-700 text-sm mt-1">{error}</p>
+        <p className="text-red-700 dark:text-red-300 text-sm mt-1">{error}</p>
         <button
           onClick={refresh}
-          className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+          className="mt-3 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
         >
           Retry
         </button>
@@ -111,7 +111,7 @@ export function GeofencingDashboard() {
               <tab.icon className="h-4 w-4" />
               <span>{tab.label}</span>
               {tab.id === 'events' && unacknowledgedEvents > 0 && (
-                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="bg-red-500 dark:bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
                   {unacknowledgedEvents}
                 </span>
               )}

@@ -85,7 +85,7 @@ export function ReportGenerator({
           break
 
         case 'pdf':
-          content = await exportToPDF(exportData)
+          content = await exportToPDF(exportData, selectedTemplate?.id)
           filename = generateFilename(
             selectedTemplate?.id || 'custom',
             'pdf',

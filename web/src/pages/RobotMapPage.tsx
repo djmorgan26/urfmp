@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useURFMP } from '@/hooks/useURFMP'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useGeofencing } from '@/hooks/useGeofencing'
 import { Robot } from '@urfmp/types'
 import { SimpleRobotMap } from '@/components/gps/SimpleRobotMap'
 import { RobotMap3D } from '@/components/gps/RobotMap3D'
-import { Map, Globe, Settings, RefreshCw } from 'lucide-react'
+import { Map, Globe, Settings, RefreshCw, AlertTriangle, Shield } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 type MapView = '2d' | '3d'
@@ -12,11 +13,13 @@ type MapView = '2d' | '3d'
 export function RobotMapPage() {
   const { urfmp } = useURFMP()
   const { isDark } = useTheme()
+  const { geofences, events, acknowledgeEvent } = useGeofencing()
   const [robots, setRobots] = useState<Robot[]>([])
   const [selectedRobotId, setSelectedRobotId] = useState<string>()
   const [mapView, setMapView] = useState<MapView>('2d')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showGeofences, setShowGeofences] = useState(true)
 
   // Load robots
   useEffect(() => {
@@ -58,11 +61,11 @@ export function RobotMapPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-lg font-semibold mb-2">Error</div>
-          <div className="text-gray-600 mb-4">{error}</div>
+          <div className="text-red-500 dark:text-red-400 text-lg font-semibold mb-2">Error</div>
+          <div className="text-gray-600 dark:text-gray-400 mb-4">{error}</div>
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-500 flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
             Retry
@@ -127,6 +130,20 @@ export function RobotMapPage() {
             </button>
           </div>
 
+          {/* Geofence Toggle */}
+          <button
+            onClick={() => setShowGeofences(!showGeofences)}
+            className={cn(
+              'px-3 py-1 rounded flex items-center gap-2 text-sm font-medium transition-colors',
+              showGeofences
+                ? 'bg-blue-500 dark:bg-blue-600 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+            )}
+          >
+            <Shield className="w-4 h-4" />
+            Geofences
+          </button>
+
           {/* Refresh Button */}
           <button
             onClick={handleRefresh}
@@ -148,6 +165,7 @@ export function RobotMapPage() {
             robots={robots}
             selectedRobotId={selectedRobotId}
             onRobotSelect={setSelectedRobotId}
+            geofences={showGeofences ? geofences : []}
             className="w-full h-full"
           />
         ) : (
@@ -155,8 +173,9 @@ export function RobotMapPage() {
             robots={robots}
             selectedRobotId={selectedRobotId}
             onRobotSelect={setSelectedRobotId}
+            geofences={showGeofences ? geofences : []}
             showPaths={true}
-            showGeofences={true}
+            showGeofences={showGeofences}
             className="w-full h-full"
           />
         )}
@@ -235,6 +254,95 @@ export function RobotMapPage() {
             </div>
           )}
         </div>
+
+        {/* Geofence Events Panel */}
+        {events.length > 0 && (
+          <div
+            className={cn(
+              'absolute top-4 right-4 rounded-lg shadow-lg p-4 w-80 max-h-96 overflow-y-auto',
+              isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+            )}
+          >
+            <h3
+              className={cn(
+                'font-semibold mb-3 flex items-center gap-2',
+                isDark ? 'text-gray-200' : 'text-gray-900'
+              )}
+            >
+              <AlertTriangle className="w-4 h-4 text-orange-500" />
+              Recent Events ({events.filter(e => !e.acknowledged).length})
+            </h3>
+
+            <div className="space-y-2">
+              {events.slice(0, 5).map((event) => (
+                <div
+                  key={event.id}
+                  className={cn(
+                    'p-3 rounded-lg border',
+                    event.acknowledged
+                      ? isDark
+                        ? 'border-gray-600 bg-gray-700/30'
+                        : 'border-gray-300 bg-gray-50'
+                      : event.severity === 'critical'
+                        ? 'border-red-500 dark:border-red-700 bg-red-50 dark:bg-red-950/30'
+                        : event.severity === 'error'
+                          ? 'border-orange-500 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/30'
+                          : event.severity === 'warning'
+                            ? 'border-yellow-500 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-950/30'
+                            : 'border-blue-500 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30'
+                  )}
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <span
+                      className={cn(
+                        'text-sm font-medium',
+                        isDark ? 'text-gray-200' : 'text-gray-900'
+                      )}
+                    >
+                      {event.robotName}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-xs px-2 py-1 rounded',
+                        event.severity === 'critical'
+                          ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400'
+                          : event.severity === 'error'
+                            ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-400'
+                            : event.severity === 'warning'
+                              ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                              : 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400'
+                      )}
+                    >
+                      {event.severity}
+                    </span>
+                  </div>
+                  <p className={cn('text-sm mb-2', isDark ? 'text-gray-300' : 'text-gray-700')}>
+                    {event.message}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-500')}>
+                      {new Date(event.timestamp).toLocaleTimeString()}
+                    </span>
+                    {!event.acknowledged && (
+                      <button
+                        onClick={() => acknowledgeEvent(event.id, 'operator')}
+                        className="text-xs px-2 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors"
+                      >
+                        Acknowledge
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {events.length > 5 && (
+              <div className={cn('text-center mt-3', isDark ? 'text-gray-400' : 'text-gray-500')}>
+                <p className="text-xs">+{events.length - 5} more events</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

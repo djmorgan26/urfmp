@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useURFMP } from './useURFMP'
-import { GeofenceMonitor, monitorGeofenceViolations, violationsToEvents } from '../utils/geofenceDetection'
 
 export interface Coordinate {
   latitude: number
@@ -73,7 +72,7 @@ export interface GeofenceEvent {
   robotName: string
   ruleId: string
   ruleName: string
-  eventType: 'enter' | 'exit' | 'dwell' | 'speed_limit' | 'violation'
+  eventType: 'enter' | 'exit' | 'dwell' | 'violation'
   coordinates: Coordinate
   timestamp: Date
   severity: 'info' | 'warning' | 'error' | 'critical'
@@ -136,7 +135,6 @@ export function useGeofencing(): GeofencingData {
   const [events, setEvents] = useState<GeofenceEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const geofenceMonitorRef = useRef<GeofenceMonitor | null>(null)
 
   const fetchGeofencingData = async () => {
     if (!urfmp || robots.length === 0) return
@@ -150,28 +148,12 @@ export function useGeofencing(): GeofencingData {
       const mockWaypoints = generateMockWaypoints()
       const mockGeofences = generateMockGeofences()
       const mockPaths = generateMockPaths(mockWaypoints)
+      const mockEvents = generateMockEvents(mockGeofences, robots)
 
       setWaypoints(mockWaypoints)
       setGeofences(mockGeofences)
       setPaths(mockPaths)
-
-      // Initialize real-time geofence monitoring
-      if (!geofenceMonitorRef.current) {
-        geofenceMonitorRef.current = new GeofenceMonitor(handleViolationDetected)
-      }
-
-      // Start with existing violation history or mock events for demo
-      const existingViolations = geofenceMonitorRef.current.getViolationHistory()
-      if (existingViolations.length > 0) {
-        const robotNames = new Map(robots.map(r => [r.id, r.name]))
-        const geofenceNames = new Map(mockGeofences.map(g => [g.id, g.name]))
-        const violationEvents = violationsToEvents(existingViolations, robotNames, geofenceNames)
-        setEvents(violationEvents)
-      } else {
-        // Show mock events for demo purposes when no real violations exist
-        const mockEvents = generateMockEvents(mockGeofences, robots)
-        setEvents(mockEvents)
-      }
+      setEvents(mockEvents)
 
     } catch (err) {
       console.error('Failed to fetch geofencing data:', err)
@@ -242,28 +224,14 @@ export function useGeofencing(): GeofencingData {
   }
 
   const optimizePath = async (pathId: string) => {
-    const pathToOptimize = paths.find(p => p.id === pathId)
-    if (!pathToOptimize) return
-
-    // Get waypoints for this path
-    const pathWaypoints = waypoints.filter(w => pathToOptimize.waypoints.includes(w.id))
-
-    if (pathWaypoints.length < 2) return
-
-    // Import optimization function dynamically
-    const { optimizePath: optimizePathAlgorithm } = await import('../utils/pathOptimization')
-
-    // Optimize the path
-    const optimizedResult = optimizePathAlgorithm(pathWaypoints)
-
+    // Mock path optimization
     setPaths(prev => prev.map(path =>
       path.id === pathId
         ? {
             ...path,
-            waypoints: optimizedResult.waypoints,
             isOptimized: true,
-            totalDistance: optimizedResult.totalDistance,
-            estimatedDuration: optimizedResult.estimatedDuration,
+            totalDistance: path.totalDistance * 0.9, // 10% improvement
+            estimatedDuration: path.estimatedDuration * 0.9,
             updatedAt: new Date()
           }
         : path
@@ -285,43 +253,7 @@ export function useGeofencing(): GeofencingData {
 
   const clearEvents = async () => {
     setEvents([])
-    geofenceMonitorRef.current?.clearHistory()
   }
-
-  const handleViolationDetected = (violations: any[]) => {
-    // Convert violations to events and add to current events
-    const robotNames = new Map(robots.map(r => [r.id, r.name]))
-    const geofenceNames = new Map(geofences.map(g => [g.id, g.name]))
-    const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
-
-    setEvents(prev => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
-  }
-
-  // Simulate robot position updates for demo purposes
-  useEffect(() => {
-    if (!geofenceMonitorRef.current || geofences.length === 0 || robots.length === 0) return
-
-    const interval = setInterval(() => {
-      // Simulate robot movement and check for violations
-      robots.forEach(robot => {
-        // Generate mock GPS position near the geofences for demonstration
-        const mockPosition = {
-          latitude: 40.7589 + (Math.random() - 0.5) * 0.003, // Small area around NYC coordinates
-          longitude: -73.9851 + (Math.random() - 0.5) * 0.003
-        }
-
-        geofenceMonitorRef.current?.updateRobotPosition(robot.id, mockPosition)
-      })
-
-      // Check for violations
-      const newViolations = geofenceMonitorRef.current?.checkViolations(geofences) || []
-      if (newViolations.length > 0) {
-        console.log('Geofence violations detected:', newViolations)
-      }
-    }, 5000) // Check every 5 seconds
-
-    return () => clearInterval(interval)
-  }, [geofences, robots])
 
   useEffect(() => {
     fetchGeofencingData()
@@ -494,63 +426,20 @@ function generateMockGeofences(): Geofence[] {
 }
 
 function generateMockPaths(waypoints: Waypoint[]): Path[] {
-  if (waypoints.length < 2) return []
-
-  // Calculate realistic distance using first two waypoints
-  const pathWaypoints = waypoints.slice(0, 3)
-  const totalDistance = calculateMockDistance(pathWaypoints)
-
   return [
     {
       id: 'path-assembly-cycle',
       name: 'Assembly Line Cycle',
       description: 'Standard pickup and delivery cycle for assembly line',
-      waypoints: pathWaypoints.map(wp => wp.id),
-      isOptimized: false,
-      totalDistance: Math.round(totalDistance),
-      estimatedDuration: Math.round(totalDistance / 1.5), // 1.5 m/s average speed
+      waypoints: waypoints.slice(0, 2).map(wp => wp.id),
+      isOptimized: true,
+      totalDistance: 150,
+      estimatedDuration: 480,
       status: 'active',
       createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
       updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
-    },
-    {
-      id: 'path-maintenance-round',
-      name: 'Maintenance Round',
-      description: 'Weekly maintenance inspection route',
-      waypoints: waypoints.length > 2 ? [waypoints[2].id, waypoints[0].id] : waypoints.map(wp => wp.id),
-      isOptimized: true,
-      totalDistance: waypoints.length > 2 ? Math.round(calculateMockDistance([waypoints[2], waypoints[0]])) : 100,
-      estimatedDuration: waypoints.length > 2 ? Math.round(calculateMockDistance([waypoints[2], waypoints[0]]) / 1.2) : 120,
-      status: 'draft',
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
     }
   ]
-}
-
-function calculateMockDistance(waypoints: Waypoint[]): number {
-  if (waypoints.length < 2) return 0
-
-  let totalDistance = 0
-  for (let i = 0; i < waypoints.length - 1; i++) {
-    const current = waypoints[i]
-    const next = waypoints[i + 1]
-
-    // Simple Euclidean distance approximation for nearby points
-    const lat1 = current.coordinates.latitude
-    const lon1 = current.coordinates.longitude
-    const lat2 = next.coordinates.latitude
-    const lon2 = next.coordinates.longitude
-
-    // Convert to meters (rough approximation)
-    const deltaLat = (lat2 - lat1) * 111000 // 1 degree ≈ 111km
-    const deltaLon = (lon2 - lon1) * 111000 * Math.cos(lat1 * Math.PI / 180)
-
-    const distance = Math.sqrt(deltaLat * deltaLat + deltaLon * deltaLon)
-    totalDistance += distance
-  }
-
-  return totalDistance
 }
 
 function generateMockEvents(geofences: Geofence[], robots: any[]): GeofenceEvent[] {

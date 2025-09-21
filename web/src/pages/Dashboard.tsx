@@ -1,21 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Activity,
   Bot,
   AlertTriangle,
-  TrendingUp,
   Zap,
-  Clock,
-  CheckCircle,
   XCircle,
 } from 'lucide-react'
 import {
   LineChart,
   Line,
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,65 +19,25 @@ import {
   Cell,
 } from 'recharts'
 import { useURFMP } from '@/hooks/useURFMP'
+import { useDashboard } from '@/hooks/useDashboard'
 import { RobotCard } from '@/components/dashboard/RobotCard'
 import { AlertFeed } from '@/components/dashboard/AlertFeed'
 import { MetricCard } from '@/components/dashboard/MetricCard'
-import { cn } from '@/utils/cn'
+import { RealTimeAlertPanel } from '@/components/alerts/RealTimeAlertPanel'
 
-const mockTelemetryData = [
-  { time: '00:00', temperature: 42, utilization: 85, errors: 0 },
-  { time: '04:00', temperature: 45, utilization: 78, errors: 1 },
-  { time: '08:00', temperature: 48, utilization: 92, errors: 0 },
-  { time: '12:00', temperature: 52, utilization: 88, errors: 2 },
-  { time: '16:00', temperature: 49, utilization: 95, errors: 1 },
-  { time: '20:00', temperature: 46, utilization: 82, errors: 0 },
-]
-
-const mockAlerts = [
-  {
-    id: '1',
-    type: 'warning',
-    robot: 'UR10e-001',
-    message: 'High temperature detected (52°C)',
-    timestamp: new Date(Date.now() - 10 * 60 * 1000),
-    severity: 'warning' as const,
-  },
-  {
-    id: '2',
-    type: 'error',
-    robot: 'UR5e-002',
-    message: 'Protective stop triggered',
-    timestamp: new Date(Date.now() - 25 * 60 * 1000),
-    severity: 'error' as const,
-  },
-  {
-    id: '3',
-    type: 'info',
-    robot: 'UR3e-003',
-    message: 'Maintenance scheduled for tomorrow',
-    timestamp: new Date(Date.now() - 45 * 60 * 1000),
-    severity: 'info' as const,
-  },
-]
-
-const statusColors = {
-  running: '#10B981',
-  idle: '#6B7280',
-  offline: '#EF4444',
-  maintenance: '#F59E0B',
-}
 
 export function Dashboard() {
-  const { robots, isLoading, refreshRobots } = useURFMP()
+  const { robots } = useURFMP()
+  const {
+    metrics,
+    telemetryData,
+    alerts,
+    robotStatusDistribution,
+    isLoading,
+    error,
+    refresh
+  } = useDashboard()
   const [selectedTimeRange, setSelectedTimeRange] = useState('24h')
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshRobots()
-    }, 30000) // Refresh every 30 seconds
-
-    return () => clearInterval(interval)
-  }, [refreshRobots])
 
   if (isLoading) {
     return (
@@ -97,33 +50,30 @@ export function Dashboard() {
     )
   }
 
-  const activeRobots = robots.filter((r) => r.status === 'running' || r.status === 'online').length
-  const totalRobots = robots.length
-  const errorRobots = robots.filter((r) => r.status === 'error').length
-  const offlineRobots = robots.filter((r) => r.status === 'offline').length
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <XCircle className="h-12 w-12 mx-auto mb-2 text-red-500" />
+          <p className="text-red-600 mb-2">Error loading dashboard data</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <button
+            onClick={refresh}
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
 
-  // Calculate fleet utilization (mock calculation)
-  const fleetUtilization = totalRobots > 0 ? (activeRobots / totalRobots) * 100 : 0
-
-  // Status distribution for pie chart
-  const statusData = [
-    {
-      name: 'Running',
-      value: robots.filter((r) => r.status === 'running').length,
-      color: statusColors.running,
-    },
-    {
-      name: 'Idle',
-      value: robots.filter((r) => r.status === 'idle').length,
-      color: statusColors.idle,
-    },
-    { name: 'Offline', value: offlineRobots, color: statusColors.offline },
-    {
-      name: 'Maintenance',
-      value: robots.filter((r) => r.status === 'maintenance').length,
-      color: statusColors.maintenance,
-    },
-  ].filter((item) => item.value > 0)
+  // Map robot status distribution for pie chart
+  const statusData = robotStatusDistribution.map(item => ({
+    name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+    value: item.count,
+    color: item.color,
+  })).filter((item) => item.value > 0)
 
   return (
     <div className="space-y-6">
@@ -148,7 +98,7 @@ export function Dashboard() {
             <option value="30d">Last 30 Days</option>
           </select>
           <button
-            onClick={refreshRobots}
+            onClick={refresh}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
           >
             Refresh
@@ -160,34 +110,34 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Total Robots"
-          value={totalRobots.toString()}
+          value={metrics.totalRobots.toString()}
           icon={Bot}
-          trend="+2 this week"
+          trend={`${metrics.onlineRobots} online`}
           color="blue"
         />
 
         <MetricCard
-          title="Active Now"
-          value={activeRobots.toString()}
-          icon={CheckCircle}
-          trend={`${fleetUtilization.toFixed(1)}% utilization`}
-          color="green"
+          title="Average Temperature"
+          value={`${metrics.avgTemperature}°C`}
+          icon={Activity}
+          trend={metrics.avgTemperature > 40 ? 'High temperature' : 'Normal range'}
+          color={metrics.avgTemperature > 40 ? 'red' : 'green'}
         />
 
         <MetricCard
-          title="Alerts"
-          value={mockAlerts.length.toString()}
+          title="Active Alerts"
+          value={metrics.alertCount.toString()}
           icon={AlertTriangle}
-          trend={errorRobots > 0 ? `${errorRobots} critical` : 'All clear'}
-          color={errorRobots > 0 ? 'red' : 'yellow'}
+          trend={metrics.alertCount > 0 ? `${metrics.alertCount} require attention` : 'All clear'}
+          color={metrics.alertCount > 0 ? 'red' : 'green'}
         />
 
         <MetricCard
-          title="Uptime"
-          value="99.2%"
-          icon={TrendingUp}
-          trend="+0.3% vs last month"
-          color="green"
+          title="Power Consumption"
+          value={`${metrics.powerConsumption}W`}
+          icon={Zap}
+          trend={`${metrics.operatingHours}h operating`}
+          color="blue"
         />
       </div>
 
@@ -210,7 +160,7 @@ export function Dashboard() {
           </div>
 
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={mockTelemetryData}>
+            <LineChart data={telemetryData}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="time" />
               <YAxis yAxisId="left" />
@@ -294,7 +244,7 @@ export function Dashboard() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Active Robots</h3>
             <span className="text-sm text-muted-foreground">
-              {activeRobots} of {totalRobots} robots
+              {metrics.onlineRobots} of {metrics.totalRobots} robots
             </span>
           </div>
 
@@ -315,11 +265,12 @@ export function Dashboard() {
           )}
         </div>
 
-        {/* Alert Feed */}
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Recent Alerts</h3>
-          <AlertFeed alerts={mockAlerts} />
-        </div>
+        {/* Real-time Alert System */}
+        <RealTimeAlertPanel
+          className="h-fit"
+          showFilters={false}
+          maxHeight="max-h-96"
+        />
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   Activity,
@@ -16,8 +16,11 @@ import {
   Shield,
 } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
+import { useRealTimeAlerts } from '../../hooks/useRealTimeAlerts'
 import { useTheme } from '../../contexts/ThemeContext'
 import { cn } from '../../lib/utils'
+import { AlertNotifications } from '../alerts/AlertNotifications'
+import { RealTimeAlertPanel } from '../alerts/RealTimeAlertPanel'
 
 interface LayoutProps {
   children: ReactNode
@@ -35,8 +38,10 @@ const navigation = [
 
 export function Layout({ children }: LayoutProps) {
   const { isConnected, robots, error } = useURFMP()
-  const { theme, setTheme, isDark } = useTheme()
+  const { alertStats } = useRealTimeAlerts()
+  const { setTheme, isDark } = useTheme()
   const location = useLocation()
+  const [showAlertPanel, setShowAlertPanel] = useState(false)
 
   const activeRobots = robots.filter((r) => r.status === 'running' || r.status === 'online').length
   const totalRobots = robots.length
@@ -93,12 +98,33 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             {/* Notifications */}
-            <button className="relative p-2 rounded-md hover:bg-accent">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-xs text-white flex items-center justify-center">
-                2
-              </span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowAlertPanel(!showAlertPanel)}
+                className={cn(
+                  'relative p-2 rounded-md transition-colors',
+                  showAlertPanel ? 'bg-accent' : 'hover:bg-accent'
+                )}
+                title="View real-time alerts"
+              >
+                <Bell className="h-5 w-5" />
+                {alertStats.unacknowledged > 0 && (
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 dark:bg-red-600 text-xs text-white flex items-center justify-center">
+                    {alertStats.unacknowledged > 9 ? '9+' : alertStats.unacknowledged}
+                  </span>
+                )}
+              </button>
+
+              {/* Alert Panel Dropdown */}
+              {showAlertPanel && (
+                <div className="absolute right-0 top-full mt-2 z-50">
+                  <RealTimeAlertPanel
+                    className="w-96 max-h-[70vh] shadow-lg"
+                    showFilters={true}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Theme Toggle */}
             <button
@@ -160,7 +186,14 @@ export function Layout({ children }: LayoutProps) {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Alerts</span>
-                    <span className="font-medium text-red-600">2</span>
+                    <span className={cn(
+                      'font-medium',
+                      alertStats.critical > 0 ? 'text-red-600 dark:text-red-400' :
+                      alertStats.error > 0 ? 'text-orange-600 dark:text-orange-400' :
+                      alertStats.warning > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'
+                    )}>
+                      {alertStats.total}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -181,6 +214,9 @@ export function Layout({ children }: LayoutProps) {
           <div className="p-6">{children}</div>
         </main>
       </div>
+
+      {/* Global Alert Notifications */}
+      <AlertNotifications />
     </div>
   )
 }

@@ -292,15 +292,15 @@ export function Analytics() {
             <h3 className="text-lg font-semibold">Fleet Performance Trend</h3>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <div className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400" />
                 <span>Utilization</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
+                <div className="w-3 h-3 rounded-full bg-green-500 dark:bg-green-400" />
                 <span>Efficiency</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500 dark:bg-yellow-400" />
                 <span>Daily Cycles</span>
               </div>
             </div>
@@ -434,14 +434,14 @@ export function Analytics() {
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">Upcoming Maintenance</h4>
             <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                 <div>
                   <p className="text-sm font-medium">UR10e-001</p>
                   <p className="text-xs text-muted-foreground">Scheduled maintenance in 2 days</p>
                 </div>
                 <Timer className="h-4 w-4 text-yellow-600" />
               </div>
-              <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
                 <div>
                   <p className="text-sm font-medium">UR5e-003</p>
                   <p className="text-xs text-muted-foreground">Joint wear detected</p>
@@ -479,11 +479,11 @@ export function Analytics() {
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-muted-foreground">AI Recommendations</h4>
             <div className="space-y-2 text-sm">
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <p className="font-medium">Optimize Power Usage</p>
                 <p className="text-xs text-muted-foreground">Reduce energy consumption by 15% during off-peak hours</p>
               </div>
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                 <p className="font-medium">Schedule Calibration</p>
                 <p className="text-xs text-muted-foreground">UR5e-002 precision may benefit from recalibration</p>
               </div>
@@ -527,7 +527,7 @@ export function Analytics() {
                       <span>{robot.efficiency}%</span>
                       <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-green-500 rounded-full"
+                          className="h-full bg-green-500 dark:bg-green-600 rounded-full"
                           style={{ width: `${robot.efficiency}%` }}
                         />
                       </div>
@@ -538,7 +538,7 @@ export function Analytics() {
                       <span>{robot.uptime}%</span>
                       <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-blue-500 rounded-full"
+                          className="h-full bg-blue-500 dark:bg-blue-600 rounded-full"
                           style={{ width: `${robot.uptime}%` }}
                         />
                       </div>
@@ -549,10 +549,10 @@ export function Analytics() {
                   <td className="py-3 px-4">
                     <span className={cn(
                       "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                      robot.status === 'online' ? 'bg-green-100 text-green-800' :
-                      robot.status === 'error' ? 'bg-red-100 text-red-800' :
-                      robot.status === 'idle' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
+                      robot.status === 'online' ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400' :
+                      robot.status === 'error' ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400' :
+                      robot.status === 'idle' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
+                      'bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-400'
                     )}>
                       {robot.status.charAt(0).toUpperCase() + robot.status.slice(1)}
                     </span>

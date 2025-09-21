@@ -100,152 +100,174 @@ export function exportToJSON(data: ExportData): string {
   return JSON.stringify(data, null, 2)
 }
 
-export async function exportToPDF(data: ExportData): Promise<Blob> {
-  // For now, we'll create a simple HTML-to-PDF conversion
-  // In a production environment, you'd use a library like jsPDF or puppeteer
-  const html = generatePDFHTML(data)
+export async function exportToPDF(data: ExportData, templateId?: string): Promise<Blob> {
+  // HTML-based PDF export (can be enhanced with proper PDF library later)
+  const template = templateId ? REPORT_TEMPLATES.find(t => t.id === templateId) : null
 
-  // Create a basic PDF using browser's print functionality
-  const printWindow = window.open('', '_blank')
-  if (!printWindow) {
-    throw new Error('Could not open print window')
-  }
-
-  printWindow.document.write(html)
-  printWindow.document.close()
-
-  // Return a placeholder blob for now
-  return new Blob([html], { type: 'text/html' })
-}
-
-function generatePDFHTML(data: ExportData): string {
-  return `
+  let htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
-      <title>URFMP Analytics Report - ${data.reportType}</title>
+      <title>URFMP Analytics Report</title>
       <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        .section { margin: 30px 0; }
-        .section h2 { color: #333; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+        h1 { color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+        h2 { color: #374151; margin-top: 30px; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f5f5f5; font-weight: bold; }
-        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0; }
-        .metric-card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
-        .metric-value { font-size: 24px; font-weight: bold; color: #2563eb; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f3f4f6; font-weight: bold; }
+        .metric { background-color: #f9fafb; padding: 15px; margin: 10px 0; border-radius: 5px; border-left: 4px solid #3b82f6; }
+        .section { margin: 30px 0; }
+        .footer { margin-top: 50px; font-size: 12px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 20px; }
       </style>
     </head>
     <body>
-      <div class="header">
-        <h1>URFMP Analytics Report</h1>
-        <p><strong>Report Type:</strong> ${data.reportType}</p>
-        <p><strong>Time Range:</strong> ${data.timeRange}</p>
-        <p><strong>Generated:</strong> ${new Date(data.generatedAt).toLocaleString()}</p>
+      <h1>URFMP Analytics Report</h1>
+      <div class="metric">
+        <strong>Generated:</strong> ${new Date(data.generatedAt).toLocaleString()}<br>
+        <strong>Time Range:</strong> ${data.timeRange}<br>
+        <strong>Report Type:</strong> ${data.reportType}
       </div>
+  `
 
-      <div class="section">
-        <h2>Fleet Metrics Overview</h2>
-        <div class="metric-grid">
-          <div class="metric-card">
-            <div class="metric-value">${data.fleetMetrics.totalCycles.toLocaleString()}</div>
-            <div>Total Cycles</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${data.fleetMetrics.avgEfficiency.toFixed(1)}%</div>
-            <div>Average Efficiency</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${data.fleetMetrics.avgUptime.toFixed(1)}%</div>
-            <div>Fleet Uptime</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${data.fleetMetrics.onlineRobots}/${data.fleetMetrics.totalRobots}</div>
-            <div>Robots Online</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${(data.fleetMetrics.totalPowerConsumption / 1000).toFixed(1)}kW</div>
-            <div>Power Consumption</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${data.fleetMetrics.errorRate.toFixed(1)}%</div>
-            <div>Error Rate</div>
-          </div>
-        </div>
-      </div>
+  if (template) {
+    htmlContent += generateTemplateHTML(data, template)
+  } else {
+    // Generate all sections
+    for (const t of REPORT_TEMPLATES) {
+      if (t.id === 'custom') continue
+      htmlContent += generateTemplateHTML(data, t)
+    }
+  }
 
-      <div class="section">
-        <h2>Robot Performance</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Robot Name</th>
-              <th>Cycles</th>
-              <th>Efficiency (%)</th>
-              <th>Uptime (%)</th>
-              <th>Power (W)</th>
-              <th>Operating Hours</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.robotPerformance.map(robot => `
-              <tr>
-                <td>${robot.robotName}</td>
-                <td>${robot.cycles.toLocaleString()}</td>
-                <td>${robot.efficiency}%</td>
-                <td>${robot.uptime}%</td>
-                <td>${robot.powerConsumption}W</td>
-                <td>${robot.operatingHours}h</td>
-                <td>${robot.status}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="section">
-        <h2>Error Distribution</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Error Type</th>
-              <th>Count</th>
-              <th>Percentage</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.errorDistribution.map(error => {
-              const total = data.errorDistribution.reduce((sum, e) => sum + e.count, 0)
-              const percentage = total > 0 ? ((error.count / total) * 100).toFixed(1) : '0.0'
-              return `
-                <tr>
-                  <td>${error.type}</td>
-                  <td>${error.count}</td>
-                  <td>${percentage}%</td>
-                </tr>
-              `
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="section">
-        <h2>Report Summary</h2>
-        <p>This report provides a comprehensive overview of your robot fleet's performance for the ${data.timeRange} period.</p>
-        <ul>
-          <li><strong>Fleet Efficiency:</strong> Your fleet is operating at ${data.fleetMetrics.avgEfficiency.toFixed(1)}% efficiency</li>
-          <li><strong>Uptime Performance:</strong> Fleet uptime is ${data.fleetMetrics.avgUptime.toFixed(1)}%</li>
-          <li><strong>Robot Status:</strong> ${data.fleetMetrics.onlineRobots} out of ${data.fleetMetrics.totalRobots} robots are currently online</li>
-          <li><strong>Power Usage:</strong> Total power consumption is ${(data.fleetMetrics.totalPowerConsumption / 1000).toFixed(1)}kW</li>
-        </ul>
+  htmlContent += `
+      <div class="footer">
+        Generated by URFMP - Universal Robot Fleet Management Platform
       </div>
     </body>
     </html>
   `
+
+  // Return as HTML blob that can be printed to PDF by browser
+  return new Blob([htmlContent], { type: 'text/html' })
 }
 
+function generateTemplateHTML(data: ExportData, template: ReportTemplate): string {
+  let htmlContent = `<div class="section"><h2>${template.name}</h2>`
+
+  for (const section of template.sections) {
+    switch (section) {
+      case 'fleet-metrics':
+        htmlContent += generateFleetMetricsHTML(data)
+        break
+      case 'robot-performance':
+        htmlContent += generateRobotPerformanceHTML(data)
+        break
+      case 'fleet-trends':
+        htmlContent += generateFleetTrendsHTML(data)
+        break
+      case 'error-distribution':
+        htmlContent += generateErrorDistributionHTML(data)
+        break
+      case 'power-trends':
+        htmlContent += generatePowerTrendsHTML(data)
+        break
+      case 'health-scores':
+        htmlContent += generateHealthScoresHTML(data)
+        break
+      case 'maintenance-alerts':
+        htmlContent += generateMaintenanceAlertsHTML(data)
+        break
+      case 'recommendations':
+        htmlContent += generateRecommendationsHTML(data)
+        break
+    }
+  }
+
+  htmlContent += '</div>'
+  return htmlContent
+}
+
+function generateFleetMetricsHTML(data: ExportData): string {
+  return `
+    <div class="section">
+      <h3>Fleet Metrics Overview</h3>
+      <table>
+        <tr><th>Metric</th><th>Value</th></tr>
+        <tr><td>Total Cycles</td><td>${data.fleetMetrics.totalCycles.toLocaleString()}</td></tr>
+        <tr><td>Average Efficiency</td><td>${data.fleetMetrics.avgEfficiency.toFixed(1)}%</td></tr>
+        <tr><td>Fleet Uptime</td><td>${data.fleetMetrics.avgUptime.toFixed(1)}%</td></tr>
+        <tr><td>Error Rate</td><td>${data.fleetMetrics.errorRate.toFixed(1)}%</td></tr>
+        <tr><td>Total Robots</td><td>${data.fleetMetrics.totalRobots}</td></tr>
+        <tr><td>Online Robots</td><td>${data.fleetMetrics.onlineRobots}</td></tr>
+        <tr><td>Power Consumption</td><td>${(data.fleetMetrics.totalPowerConsumption / 1000).toFixed(1)}kW</td></tr>
+        <tr><td>Operating Hours</td><td>${data.fleetMetrics.totalOperatingHours.toFixed(1)}h</td></tr>
+      </table>
+    </div>
+  `
+}
+
+function generateRobotPerformanceHTML(data: ExportData): string {
+  return `
+    <div class="section">
+      <h3>Robot Performance</h3>
+      <table>
+        <tr><th>Robot</th><th>Cycles</th><th>Efficiency</th><th>Uptime</th><th>Power</th><th>Hours</th><th>Status</th></tr>
+        ${data.robotPerformance.map(robot => `
+          <tr>
+            <td>${robot.robotName}</td>
+            <td>${robot.cycles.toLocaleString()}</td>
+            <td>${robot.efficiency}%</td>
+            <td>${robot.uptime}%</td>
+            <td>${robot.powerConsumption}W</td>
+            <td>${robot.operatingHours}h</td>
+            <td>${robot.status}</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+  `
+}
+
+function generateFleetTrendsHTML(data: ExportData): string {
+  return `<div class="section"><h3>Fleet Trends</h3><p>Trend data visualization would be displayed here in a full implementation.</p></div>`
+}
+
+function generateErrorDistributionHTML(data: ExportData): string {
+  return `
+    <div class="section">
+      <h3>Error Distribution</h3>
+      <table>
+        <tr><th>Error Type</th><th>Count</th><th>Percentage</th></tr>
+        ${data.errorDistribution.map(error => `
+          <tr>
+            <td>${error.errorType}</td>
+            <td>${error.count}</td>
+            <td>${error.percentage.toFixed(1)}%</td>
+          </tr>
+        `).join('')}
+      </table>
+    </div>
+  `
+}
+
+function generatePowerTrendsHTML(data: ExportData): string {
+  return `<div class="section"><h3>Power Trends</h3><p>Power consumption trends would be displayed here.</p></div>`
+}
+
+function generateHealthScoresHTML(data: ExportData): string {
+  return `<div class="section"><h3>Health Scores</h3><p>Robot health scoring data would be displayed here.</p></div>`
+}
+
+function generateMaintenanceAlertsHTML(data: ExportData): string {
+  return `<div class="section"><h3>Maintenance Alerts</h3><p>Active maintenance alerts and recommendations would be displayed here.</p></div>`
+}
+
+function generateRecommendationsHTML(data: ExportData): string {
+  return `<div class="section"><h3>AI Recommendations</h3><p>AI-generated fleet optimization recommendations would be displayed here.</p></div>`
+}
+
+// Utility functions for file export
 export function downloadFile(content: string | Blob, filename: string, type: string) {
   const blob = content instanceof Blob ? content : new Blob([content], { type })
   const url = URL.createObjectURL(blob)

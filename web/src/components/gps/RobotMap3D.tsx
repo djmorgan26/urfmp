@@ -5,6 +5,7 @@ import { useURFMP } from '../../hooks/useURFMP'
 import { useTheme } from '../../contexts/ThemeContext'
 import { cn } from '../../lib/utils'
 import { Robot } from '@urfmp/types'
+import { Geofence } from '../../hooks/useGeofencing'
 import * as THREE from 'three'
 import { Satellite, Target, Home } from 'lucide-react'
 
@@ -33,6 +34,7 @@ interface RobotMap3DProps {
   robots: Robot[]
   selectedRobotId?: string
   onRobotSelect?: (robotId: string) => void
+  geofences?: Geofence[]
   showPaths?: boolean
   showGeofences?: boolean
   className?: string
@@ -221,6 +223,7 @@ export function RobotMap3D({
   robots,
   selectedRobotId,
   onRobotSelect,
+  geofences = [],
   showPaths = true,
   showGeofences = true,
   className,
