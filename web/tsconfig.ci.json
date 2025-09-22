@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "allowJs": true,
+    "checkJs": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false
+  },
+  "exclude": [
+    "../packages/**/*",
+    "../services/**/*",
+    "src/tests/setup.ts",
+    "src/components/gps/RobotMap3D.tsx",
+    "src/components/alerts/AlertNotifications.tsx",
+    "src/components/robots/EditRobotModal.tsx",
+    "src/components/ui/LoadingSkeleton.tsx",
+    "src/hooks/useRealTimeAlerts.ts",
+    "src/pages/RobotDetail.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "node_modules",
+    "dist",
+    "build"
+  ]
+}

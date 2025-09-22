@@ -184,7 +184,7 @@ export function EditWaypointModal({
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...(prev[parent as keyof WaypointFormData] as any) || {},
+          ...((prev[parent as keyof WaypointFormData] as any) || {}),
           [child]: value,
         },
       }))
@@ -237,7 +237,7 @@ export function EditWaypointModal({
 
       console.log('Updating waypoint:', { id: waypoint?.id, ...formData })
       toast.success('Waypoint updated successfully!')
-      onSuccess?.(0)
+      onSuccess?.()
       onClose()
     } catch (error) {
       toast.error('Failed to update waypoint. Please try again.')

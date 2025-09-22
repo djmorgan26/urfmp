@@ -67,7 +67,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
     if (!formData.serialNumber.trim()) {
       newErrors.serialNumber = 'Serial number is required'
-    } else if (!/^[A-Z0-9\-]{6,20}$/i.test(formData.serialNumber)) {
+    } else if (!/^[A-Z0-9-]{6,20}$/i.test(formData.serialNumber)) {
       newErrors.serialNumber = 'Serial number must be 6-20 alphanumeric characters'
     }
 

@@ -169,6 +169,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
         return 'bottom-4 right-4'
       case 'bottom-left':
         return 'bottom-4 left-4'
+      case 'top-right':
       default:
         return 'top-4 right-4'
     }
@@ -266,7 +267,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
         )
       })}
 
-      <style jsx>{`
+      <style>{`
         @keyframes shrink {
           from {
             width: 100%;
@@ -280,11 +281,13 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
   )
 }
 
+type NotificationPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+
 // Global notification settings hook
 export function useAlertNotificationSettings() {
   const [settings, setSettings] = useState({
     enabled: true,
-    position: 'top-right' as const,
+    position: 'top-right' as NotificationPosition,
     maxNotifications: 5,
     autoHideDuration: 8000,
     showOnlyCritical: false,

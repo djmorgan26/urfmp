@@ -711,7 +711,9 @@ export function SimpleRobotMap({
           const pathCoordinates = path.waypoints
             .map((waypointId: string) => waypoints.find((wp: any) => wp.id === waypointId))
             .filter((wp: any) => wp && wp.coordinates)
-            .map((wp: any) => [wp.coordinates.latitude, wp.coordinates.longitude] as [number, number])
+            .map(
+              (wp: any) => [wp.coordinates.latitude, wp.coordinates.longitude] as [number, number]
+            )
 
           if (pathCoordinates.length < 2) return null
 

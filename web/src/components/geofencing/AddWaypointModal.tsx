@@ -131,7 +131,7 @@ export function AddWaypointModal({ isOpen, onClose, onSuccess }: AddWaypointModa
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...(prev[parent as keyof WaypointFormData] as any) || {},
+          ...((prev[parent as keyof WaypointFormData] as any) || {}),
           [child]: value,
         },
       }))
