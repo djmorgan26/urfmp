@@ -93,6 +93,11 @@ export function Settings() {
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
   const [showQRCode, setShowQRCode] = useState(false)
   const [twoFactorMethod, setTwoFactorMethod] = useState('app')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [emailAddress, setEmailAddress] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false)
+  const [pendingVerification, setPendingVerification] = useState(false)
 
   // IP restrictions state
   const [ipRestrictionsEnabled, setIpRestrictionsEnabled] = useState(false)
@@ -103,6 +108,17 @@ export function Settings() {
 
   const toggleApiKeyVisibility = (id: string) => {
     setShowApiKeys((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  // Validation functions
+  const validatePhoneNumber = (phone: string): boolean => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/
+    return phoneRegex.test(phone.replace(/\s+/g, ''))
+  }
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
   }
 
   // Save functions
@@ -138,15 +154,72 @@ export function Settings() {
 
   const enableTwoFactor = async () => {
     try {
-      setShowQRCode(true)
-      // Simulate API call to generate QR code
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setTwoFactorEnabled(true)
-      setShowQRCode(false)
-      toast.success('Two-factor authentication enabled successfully!')
+      // Validate inputs based on method
+      if (twoFactorMethod === 'sms') {
+        if (!phoneNumber.trim()) {
+          toast.error('Please enter a phone number for SMS verification')
+          return
+        }
+        if (!validatePhoneNumber(phoneNumber)) {
+          toast.error('Please enter a valid phone number with country code (e.g., +1234567890)')
+          return
+        }
+      }
+      if (twoFactorMethod === 'email') {
+        if (!emailAddress.trim()) {
+          toast.error('Please enter an email address for email verification')
+          return
+        }
+        if (!validateEmail(emailAddress)) {
+          toast.error('Please enter a valid email address')
+          return
+        }
+      }
+
+      if (twoFactorMethod === 'app') {
+        setShowQRCode(true)
+        // Simulate API call to generate QR code
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setShowQRCode(false)
+        setPendingVerification(true)
+        toast.success('Scan the QR code with your authenticator app, then enter the verification code')
+      } else if (twoFactorMethod === 'sms') {
+        // Simulate sending SMS verification code
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setPendingVerification(true)
+        toast.success(`Verification code sent to ${phoneNumber}`)
+      } else if (twoFactorMethod === 'email') {
+        // Simulate sending email verification code
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        setPendingVerification(true)
+        toast.success(`Verification code sent to ${emailAddress}`)
+      }
     } catch (error) {
       setShowQRCode(false)
       toast.error('Failed to enable two-factor authentication. Please try again.')
+    }
+  }
+
+  const verifyTwoFactorCode = async () => {
+    if (!verificationCode.trim()) {
+      toast.error('Please enter the verification code')
+      return
+    }
+
+    try {
+      setIsVerifyingCode(true)
+      // Simulate API call to verify code
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Simulate successful verification
+      setTwoFactorEnabled(true)
+      setPendingVerification(false)
+      setVerificationCode('')
+      setIsVerifyingCode(false)
+      toast.success('Two-factor authentication enabled successfully!')
+    } catch (error) {
+      setIsVerifyingCode(false)
+      toast.error('Invalid verification code. Please try again.')
     }
   }
 
@@ -156,6 +229,10 @@ export function Settings() {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 500))
         setTwoFactorEnabled(false)
+        setPendingVerification(false)
+        setVerificationCode('')
+        setPhoneNumber('')
+        setEmailAddress('')
         toast.success('Two-factor authentication disabled.')
       } catch (error) {
         toast.error('Failed to disable two-factor authentication. Please try again.')
@@ -774,6 +851,87 @@ export function Settings() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Contact Information Inputs */}
+                      {!twoFactorEnabled && (
+                        <div className="space-y-4 mt-6">
+                          {twoFactorMethod === 'sms' && (
+                            <div>
+                              <label className="block text-sm font-medium mb-2">
+                                Phone Number
+                              </label>
+                              <input
+                                type="tel"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                placeholder="+1 (555) 123-4567"
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Include country code (e.g., +1 for US)
+                              </p>
+                            </div>
+                          )}
+
+                          {twoFactorMethod === 'email' && (
+                            <div>
+                              <label className="block text-sm font-medium mb-2">
+                                Email Address
+                              </label>
+                              <input
+                                type="email"
+                                value={emailAddress}
+                                onChange={(e) => setEmailAddress(e.target.value)}
+                                placeholder="your-email@example.com"
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                This can be different from your account email
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Verification Code Flow */}
+                      {pendingVerification && (
+                        <div className="space-y-4 mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                            Enter Verification Code
+                          </h4>
+                          <div>
+                            <label className="block text-sm font-medium mb-2">
+                              6-Digit Code
+                            </label>
+                            <input
+                              type="text"
+                              value={verificationCode}
+                              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              placeholder="123456"
+                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono text-center text-lg tracking-widest"
+                              maxLength={6}
+                            />
+                          </div>
+                          <div className="flex space-x-3">
+                            <button
+                              onClick={verifyTwoFactorCode}
+                              disabled={isVerifyingCode || verificationCode.length !== 6}
+                              className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white text-sm rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50"
+                            >
+                              {isVerifyingCode ? 'Verifying...' : 'Verify Code'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                setPendingVerification(false)
+                                setVerificationCode('')
+                              }}
+                              className="px-4 py-2 border border-border text-sm rounded-md hover:bg-muted"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

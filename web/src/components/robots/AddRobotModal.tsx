@@ -29,6 +29,7 @@ interface RobotFormData {
 export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps) {
   const { urfmp } = useURFMP()
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
   const [formData, setFormData] = useState<RobotFormData>({
     name: '',
     vendor: '',
@@ -46,8 +47,73 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
     },
   })
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {}
+
+    // Required field validation
+    if (!formData.name.trim()) {
+      newErrors.name = 'Robot name is required'
+    } else if (formData.name.length < 3) {
+      newErrors.name = 'Robot name must be at least 3 characters'
+    }
+
+    if (!formData.vendor.trim()) {
+      newErrors.vendor = 'Vendor is required'
+    }
+
+    if (!formData.model.trim()) {
+      newErrors.model = 'Model is required'
+    }
+
+    if (!formData.serialNumber.trim()) {
+      newErrors.serialNumber = 'Serial number is required'
+    } else if (!/^[A-Z0-9\-]{6,20}$/i.test(formData.serialNumber)) {
+      newErrors.serialNumber = 'Serial number must be 6-20 alphanumeric characters'
+    }
+
+    if (!formData.firmwareVersion.trim()) {
+      newErrors.firmwareVersion = 'Firmware version is required'
+    } else if (!/^\d+\.\d+(\.\d+)?$/.test(formData.firmwareVersion)) {
+      newErrors.firmwareVersion = 'Firmware version must be in format x.y.z'
+    }
+
+    if (!formData.location.facility.trim()) {
+      newErrors['location.facility'] = 'Facility is required'
+    }
+
+    if (!formData.location.cell.trim()) {
+      newErrors['location.cell'] = 'Cell is required'
+    }
+
+    // Configuration validation
+    if (formData.configuration.maxPayload <= 0) {
+      newErrors['configuration.maxPayload'] = 'Max payload must be greater than 0'
+    } else if (formData.configuration.maxPayload > 1000) {
+      newErrors['configuration.maxPayload'] = 'Max payload seems unrealistic (>1000kg)'
+    }
+
+    if (formData.configuration.reach <= 0) {
+      newErrors['configuration.reach'] = 'Reach must be greater than 0'
+    } else if (formData.configuration.reach > 10000) {
+      newErrors['configuration.reach'] = 'Reach seems unrealistic (>10m)'
+    }
+
+    if (formData.configuration.joints < 3 || formData.configuration.joints > 12) {
+      newErrors['configuration.joints'] = 'Joints must be between 3 and 12'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!validateForm()) {
+      toast.error('Please fix the validation errors')
+      return
+    }
+
     if (!urfmp) {
       toast.error('URFMP client not initialized')
       return
@@ -59,6 +125,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
       toast.success('Robot created successfully!')
       onSuccess()
       onClose()
+      setErrors({})
       setFormData({
         name: '',
         vendor: '',
@@ -84,6 +151,11 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
   }
 
   const handleInputChange = (field: string, value: any) => {
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }))
+    }
+
     if (field.includes('.')) {
       const [parent, child] = field.split('.')
       setFormData((prev) => ({
@@ -96,6 +168,23 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }))
     }
+  }
+
+  const getInputClassName = (fieldName: string) => {
+    const baseClass = "w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+    const errorClass = errors[fieldName]
+      ? "border-red-500 focus:ring-red-500"
+      : "border-input bg-background focus:ring-ring"
+    return `${baseClass} ${errorClass}`
+  }
+
+  const renderFieldError = (fieldName: string) => {
+    if (errors[fieldName]) {
+      return (
+        <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
+      )
+    }
+    return null
   }
 
   if (!isOpen) return null
@@ -129,9 +218,10 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
                   required
                   value={formData.name}
                   onChange={(e) => handleInputChange('name', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={getInputClassName('name')}
                   placeholder="e.g., Production Line Robot #1"
                 />
+                {renderFieldError('name')}
               </div>
 
               <div>
