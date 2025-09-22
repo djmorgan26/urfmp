@@ -9,7 +9,7 @@ import {
   exportToJSON,
   exportToPDF,
   downloadFile,
-  generateFilename
+  generateFilename,
 } from '../../utils/export'
 import { AnalyticsData } from '../../hooks/useAnalytics'
 
@@ -22,7 +22,7 @@ export interface ReportGeneratorProps {
 export function ReportGenerator({
   analyticsData,
   timeRange,
-  className = ''
+  className = '',
 }: ReportGeneratorProps) {
   const { isDark } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
@@ -51,7 +51,7 @@ export function ReportGenerator({
         errorDistribution: analyticsData.errorDistribution,
         generatedAt: new Date().toISOString(),
         timeRange,
-        reportType: 'Comprehensive Report'
+        reportType: 'Comprehensive Report',
       }
 
       console.log('Generating report with data:', exportData)
@@ -68,7 +68,9 @@ export function ReportGenerator({
       setIsOpen(false)
     } catch (error) {
       console.error('Failed to generate report:', error)
-      toast.error(`Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(
+        `Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     } finally {
       setIsGenerating(false)
     }
@@ -85,7 +87,7 @@ export function ReportGenerator({
         errorDistribution: analyticsData.errorDistribution,
         generatedAt: new Date().toISOString(),
         timeRange,
-        reportType: 'Quick Export'
+        reportType: 'Quick Export',
       }
 
       let content: string
@@ -93,11 +95,19 @@ export function ReportGenerator({
 
       if (format === 'csv') {
         content = exportToCSV(exportData)
-        filename = generateFilename('quick-export', 'csv', timeRange.replace(' ', '-').toLowerCase())
+        filename = generateFilename(
+          'quick-export',
+          'csv',
+          timeRange.replace(' ', '-').toLowerCase()
+        )
         downloadFile(content, filename, 'text/csv')
       } else {
         content = exportToJSON(exportData)
-        filename = generateFilename('quick-export', 'json', timeRange.replace(' ', '-').toLowerCase())
+        filename = generateFilename(
+          'quick-export',
+          'json',
+          timeRange.replace(' ', '-').toLowerCase()
+        )
         downloadFile(content, filename, 'application/json')
       }
     } catch (error) {
@@ -107,7 +117,6 @@ export function ReportGenerator({
       setIsGenerating(false)
     }
   }
-
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -130,9 +139,7 @@ export function ReportGenerator({
         <div
           className={cn(
             'absolute top-full right-0 mt-1 w-48 rounded-md shadow-lg z-50 border',
-            isDark
-              ? 'bg-gray-800 border-gray-700'
-              : 'bg-white border-gray-200'
+            isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           )}
         >
           <div className="py-1">
@@ -145,9 +152,7 @@ export function ReportGenerator({
               disabled={isGenerating}
               className={cn(
                 'w-full flex items-center px-4 py-2 text-sm transition-colors disabled:opacity-50',
-                isDark
-                  ? 'text-gray-200 hover:bg-gray-700'
-                  : 'text-gray-900 hover:bg-gray-100'
+                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'
               )}
             >
               <Download className="h-4 w-4 mr-3" />
@@ -163,9 +168,7 @@ export function ReportGenerator({
               disabled={isGenerating}
               className={cn(
                 'w-full flex items-center px-4 py-2 text-sm transition-colors disabled:opacity-50',
-                isDark
-                  ? 'text-gray-200 hover:bg-gray-700'
-                  : 'text-gray-900 hover:bg-gray-100'
+                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'
               )}
             >
               <Download className="h-4 w-4 mr-3" />
@@ -184,9 +187,7 @@ export function ReportGenerator({
               disabled={isGenerating}
               className={cn(
                 'w-full flex items-center px-4 py-2 text-sm transition-colors disabled:opacity-50',
-                isDark
-                  ? 'text-gray-200 hover:bg-gray-700'
-                  : 'text-gray-900 hover:bg-gray-100'
+                isDark ? 'text-gray-200 hover:bg-gray-700' : 'text-gray-900 hover:bg-gray-100'
               )}
             >
               <FileText className="h-4 w-4 mr-3" />
@@ -195,7 +196,12 @@ export function ReportGenerator({
           </div>
 
           {isGenerating && (
-            <div className={cn('px-4 py-2 border-t text-xs', isDark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-600')}>
+            <div
+              className={cn(
+                'px-4 py-2 border-t text-xs',
+                isDark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-600'
+              )}
+            >
               <div className="flex items-center">
                 <div className="animate-spin h-3 w-3 border-2 border-current border-t-transparent rounded-full mr-2" />
                 Generating...

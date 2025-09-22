@@ -19,22 +19,36 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   const availableScopes = [
-    { id: 'read:robots', label: 'Read robot data', description: 'View robot status and information' },
-    { id: 'write:robots', label: 'Write robot data', description: 'Create and update robot information' },
+    {
+      id: 'read:robots',
+      label: 'Read robot data',
+      description: 'View robot status and information',
+    },
+    {
+      id: 'write:robots',
+      label: 'Write robot data',
+      description: 'Create and update robot information',
+    },
     { id: 'delete:robots', label: 'Delete robots', description: 'Remove robots from the system' },
     { id: 'read:telemetry', label: 'Read telemetry', description: 'Access robot telemetry data' },
     { id: 'write:telemetry', label: 'Write telemetry', description: 'Submit telemetry data' },
     { id: 'read:commands', label: 'Read commands', description: 'View robot command history' },
     { id: 'write:commands', label: 'Send commands', description: 'Send commands to robots' },
-    { id: 'read:maintenance', label: 'Read maintenance', description: 'View maintenance schedules and tasks' },
-    { id: 'write:maintenance', label: 'Write maintenance', description: 'Create and update maintenance tasks' },
+    {
+      id: 'read:maintenance',
+      label: 'Read maintenance',
+      description: 'View maintenance schedules and tasks',
+    },
+    {
+      id: 'write:maintenance',
+      label: 'Write maintenance',
+      description: 'Create and update maintenance tasks',
+    },
   ]
 
   const handleScopeToggle = (scopeId: string) => {
-    setSelectedScopes(prev =>
-      prev.includes(scopeId)
-        ? prev.filter(s => s !== scopeId)
-        : [...prev, scopeId]
+    setSelectedScopes((prev) =>
+      prev.includes(scopeId) ? prev.filter((s) => s !== scopeId) : [...prev, scopeId]
     )
   }
 
@@ -52,7 +66,7 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
     setIsGenerating(true)
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       // Generate a mock API key
       const timestamp = Date.now().toString(36)
@@ -97,10 +111,12 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
 
-        <div className={cn(
-          'relative w-full max-w-md rounded-lg p-6 shadow-lg',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-        )}>
+        <div
+          className={cn(
+            'relative w-full max-w-md rounded-lg p-6 shadow-lg',
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          )}
+        >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <Key className="h-5 w-5 text-primary" />
@@ -108,10 +124,7 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
                 {step === 'form' ? 'Create API Key' : 'API Key Generated'}
               </h2>
             </div>
-            <button
-              onClick={handleClose}
-              className="p-2 rounded-md hover:bg-muted"
-            >
+            <button onClick={handleClose} className="p-2 rounded-md hover:bg-muted">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -119,9 +132,7 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
           {step === 'form' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  API Key Name
-                </label>
+                <label className="block text-sm font-medium mb-2">API Key Name</label>
                 <input
                   type="text"
                   value={keyName}
@@ -132,9 +143,7 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-3">
-                  Scopes
-                </label>
+                <label className="block text-sm font-medium mb-3">Scopes</label>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {availableScopes.map((scope) => (
                     <div
@@ -184,15 +193,13 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
             <div className="space-y-4">
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  <strong>Important:</strong> This is the only time you'll see this API key.
-                  Make sure to copy and store it securely.
+                  <strong>Important:</strong> This is the only time you'll see this API key. Make
+                  sure to copy and store it securely.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Your API Key
-                </label>
+                <label className="block text-sm font-medium mb-2">Your API Key</label>
                 <div className="flex items-center space-x-2">
                   <div className="flex-1 p-2 bg-muted rounded-md font-mono text-sm break-all">
                     {generatedKey}
@@ -212,12 +219,10 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">
-                  Selected Scopes
-                </label>
+                <label className="block text-sm font-medium mb-2">Selected Scopes</label>
                 <div className="space-y-1">
                   {selectedScopes.map((scopeId) => {
-                    const scope = availableScopes.find(s => s.id === scopeId)
+                    const scope = availableScopes.find((s) => s.id === scopeId)
                     return (
                       <div key={scopeId} className="text-sm text-muted-foreground">
                         • {scope?.label}

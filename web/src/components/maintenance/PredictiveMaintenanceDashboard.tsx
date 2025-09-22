@@ -8,7 +8,7 @@ import {
   XCircle,
   AlertCircle,
   Settings,
-  Filter
+  Filter,
 } from 'lucide-react'
 import {
   BarChart,
@@ -20,54 +20,50 @@ import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
-  Cell
+  Cell,
 } from 'recharts'
 import { usePredictiveMaintenance } from '../../hooks/usePredictiveMaintenance'
 import { cn } from '../../lib/utils'
 
 export function PredictiveMaintenanceDashboard() {
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
-  const {
-    alerts,
-    schedule,
-    componentHealth,
-    insights,
-    isLoading,
-    error,
-    refresh
-  } = usePredictiveMaintenance()
+  const { alerts, schedule, componentHealth, insights, isLoading, error, refresh } =
+    usePredictiveMaintenance()
 
-  const filteredAlerts = alerts.filter(alert =>
-    selectedSeverity === 'all' || alert.severity === selectedSeverity
+  const filteredAlerts = alerts.filter(
+    (alert) => selectedSeverity === 'all' || alert.severity === selectedSeverity
   )
 
-  const alertsBySeverity = alerts.reduce((acc, alert) => {
-    acc[alert.severity] = (acc[alert.severity] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const alertsBySeverity = alerts.reduce(
+    (acc, alert) => {
+      acc[alert.severity] = (acc[alert.severity] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
   const upcomingMaintenance = schedule
-    .filter(item => item.status === 'scheduled' || item.status === 'overdue')
+    .filter((item) => item.status === 'scheduled' || item.status === 'overdue')
     .sort((a, b) => new Date(a.nextDue).getTime() - new Date(b.nextDue).getTime())
     .slice(0, 5)
 
-  const componentHealthData = componentHealth.map(comp => ({
+  const componentHealthData = componentHealth.map((comp) => ({
     name: comp.component,
     health: comp.healthScore,
-    robot: comp.robotName
+    robot: comp.robotName,
   }))
 
   const severityColors = {
     low: '#10B981',
     medium: '#F59E0B',
     high: '#EF4444',
-    critical: '#7C2D12'
+    critical: '#7C2D12',
   }
 
   const pieData = Object.entries(alertsBySeverity).map(([severity, count]) => ({
     name: severity,
     value: count,
-    color: severityColors[severity as keyof typeof severityColors]
+    color: severityColors[severity as keyof typeof severityColors],
   }))
 
   const getSeverityIcon = (severity: string) => {
@@ -85,7 +81,6 @@ export function PredictiveMaintenanceDashboard() {
     }
   }
 
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -100,7 +95,9 @@ export function PredictiveMaintenanceDashboard() {
       <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-6">
         <div className="flex items-center">
           <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
-          <span className="text-red-800 dark:text-red-400 font-medium">Error loading maintenance data</span>
+          <span className="text-red-800 dark:text-red-400 font-medium">
+            Error loading maintenance data
+          </span>
         </div>
         <p className="text-red-700 dark:text-red-300 text-sm mt-1">{error}</p>
         <button
@@ -119,9 +116,7 @@ export function PredictiveMaintenanceDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Predictive Maintenance</h2>
-          <p className="text-muted-foreground">
-            AI-powered maintenance insights and scheduling
-          </p>
+          <p className="text-muted-foreground">AI-powered maintenance insights and scheduling</p>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -156,7 +151,7 @@ export function PredictiveMaintenanceDashboard() {
           </div>
           <p className="text-3xl font-bold">{alerts.length}</p>
           <p className="text-sm text-muted-foreground">
-            {alerts.filter(a => a.severity === 'critical').length} critical
+            {alerts.filter((a) => a.severity === 'critical').length} critical
           </p>
         </div>
 
@@ -176,8 +171,12 @@ export function PredictiveMaintenanceDashboard() {
           </div>
           <p className="text-3xl font-bold">
             {componentHealth.length > 0
-              ? Math.round(componentHealth.reduce((sum, c) => sum + c.healthScore, 0) / componentHealth.length)
-              : 0}%
+              ? Math.round(
+                  componentHealth.reduce((sum, c) => sum + c.healthScore, 0) /
+                    componentHealth.length
+                )
+              : 0}
+            %
           </p>
           <p className="text-sm text-muted-foreground">Average score</p>
         </div>
@@ -188,7 +187,10 @@ export function PredictiveMaintenanceDashboard() {
             <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
           </div>
           <p className="text-3xl font-bold">
-            ${insights.reduce((sum, insight) => sum + (insight.estimatedSavings || 0), 0).toLocaleString()}
+            $
+            {insights
+              .reduce((sum, insight) => sum + (insight.estimatedSavings || 0), 0)
+              .toLocaleString()}
           </p>
           <p className="text-sm text-muted-foreground">Potential annual</p>
         </div>
@@ -223,7 +225,9 @@ export function PredictiveMaintenanceDashboard() {
             {pieData.map((item) => (
               <div key={item.name} className="flex items-center space-x-2 text-sm">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="capitalize">{item.name}: {item.value}</span>
+                <span className="capitalize">
+                  {item.name}: {item.value}
+                </span>
               </div>
             ))}
           </div>
@@ -238,11 +242,7 @@ export function PredictiveMaintenanceDashboard() {
               <XAxis dataKey="name" />
               <YAxis domain={[0, 100]} />
               <Tooltip />
-              <Bar
-                dataKey="health"
-                fill="#3B82F6"
-                radius={[4, 4, 0, 0]}
-              />
+              <Bar dataKey="health" fill="#3B82F6" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -262,7 +262,10 @@ export function PredictiveMaintenanceDashboard() {
 
         <div className="space-y-3">
           {filteredAlerts.map((alert) => (
-            <div key={alert.id} className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+            <div
+              key={alert.id}
+              className="border border-border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+            >
               <div className="flex items-start justify-between">
                 <div className="flex items-start space-x-3">
                   {getSeverityIcon(alert.severity)}
@@ -282,13 +285,18 @@ export function PredictiveMaintenanceDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className={cn(
-                    "px-2 py-1 rounded-full text-xs font-medium",
-                    alert.severity === 'critical' ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400' :
-                    alert.severity === 'high' ? 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400' :
-                    alert.severity === 'medium' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
-                    'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
-                  )}>
+                  <span
+                    className={cn(
+                      'px-2 py-1 rounded-full text-xs font-medium',
+                      alert.severity === 'critical'
+                        ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400'
+                        : alert.severity === 'high'
+                          ? 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400'
+                          : alert.severity === 'medium'
+                            ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                            : 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
+                    )}
+                  >
                     {alert.severity}
                   </span>
                   <button className="p-1 hover:bg-muted rounded">
@@ -321,7 +329,10 @@ export function PredictiveMaintenanceDashboard() {
         <h3 className="text-lg font-semibold mb-4">Upcoming Maintenance</h3>
         <div className="space-y-3">
           {upcomingMaintenance.map((task) => (
-            <div key={task.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+            <div
+              key={task.id}
+              className="flex items-center justify-between p-3 border border-border rounded-lg"
+            >
               <div className="flex items-center space-x-3">
                 <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
@@ -332,12 +343,8 @@ export function PredictiveMaintenanceDashboard() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium">
-                  {new Date(task.nextDue).toLocaleDateString()}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {task.estimatedDuration}h duration
-                </p>
+                <p className="text-sm font-medium">{new Date(task.nextDue).toLocaleDateString()}</p>
+                <p className="text-xs text-muted-foreground">{task.estimatedDuration}h duration</p>
               </div>
             </div>
           ))}
@@ -352,12 +359,16 @@ export function PredictiveMaintenanceDashboard() {
             <div key={index} className="border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-medium">{insight.title}</h4>
-                <span className={cn(
-                  "px-2 py-1 rounded-full text-xs font-medium",
-                  insight.priority === 'high' ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-400' :
-                  insight.priority === 'medium' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
-                  'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
-                )}>
+                <span
+                  className={cn(
+                    'px-2 py-1 rounded-full text-xs font-medium',
+                    insight.priority === 'high'
+                      ? 'bg-orange-100 dark:bg-orange-950/30 text-orange-800 dark:text-orange-400'
+                      : insight.priority === 'medium'
+                        ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                        : 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
+                  )}
+                >
                   {insight.priority}
                 </span>
               </div>

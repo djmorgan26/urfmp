@@ -1,5 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, Polygon, useMap, useMapEvents } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  Circle,
+  Polygon,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapPin, Satellite, Home, ZoomIn, ZoomOut } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
@@ -62,12 +72,18 @@ const createWaypointIcon = (waypoint: any) => {
   // Get waypoint color based on type
   const getWaypointColor = (type: string) => {
     switch (type) {
-      case 'pickup': return '#10b981' // green
-      case 'dropoff': return '#ef4444' // red
-      case 'charging': return '#f59e0b' // yellow
-      case 'maintenance': return '#8b5cf6' // purple
-      case 'checkpoint': return '#3b82f6' // blue
-      default: return '#6b7280' // gray
+      case 'pickup':
+        return '#10b981' // green
+      case 'dropoff':
+        return '#ef4444' // red
+      case 'charging':
+        return '#f59e0b' // yellow
+      case 'maintenance':
+        return '#8b5cf6' // purple
+      case 'checkpoint':
+        return '#3b82f6' // blue
+      default:
+        return '#6b7280' // gray
     }
   }
 
@@ -145,8 +161,8 @@ const createRobotIcon = (robot: Robot, isSelected: boolean) => {
   ctx.fill()
 
   // Draw status indicator dot
-  const statusColor = robot.status === 'online' ? '#10b981' :
-                     robot.status === 'error' ? '#ef4444' : '#6b7280'
+  const statusColor =
+    robot.status === 'online' ? '#10b981' : robot.status === 'error' ? '#ef4444' : '#6b7280'
   ctx.beginPath()
   ctx.arc(centerX + size * 0.3, centerY - size * 0.3, 4, 0, 2 * Math.PI)
   ctx.fillStyle = statusColor
@@ -208,7 +224,7 @@ const getLocationName = (lat: number, lng: number): string => {
 // Map controller component
 function MapController({
   robotGPSData,
-  selectedRobotId
+  selectedRobotId,
 }: {
   robotGPSData: Map<string, RobotGPSData[]>
   selectedRobotId?: string
@@ -221,7 +237,7 @@ function MapController({
       const allPositions = Array.from(robotGPSData.values()).flat()
       if (allPositions.length > 0) {
         const bounds = L.latLngBounds(
-          allPositions.map(p => [p.position.latitude, p.position.longitude])
+          allPositions.map((p) => [p.position.latitude, p.position.longitude])
         )
         map.fitBounds(bounds, { padding: [20, 20] })
       }
@@ -236,7 +252,7 @@ function MapController({
         const latest = gpsData[gpsData.length - 1]
         map.setView([latest.position.latitude, latest.position.longitude], 16, {
           animate: true,
-          duration: 1
+          duration: 1,
         })
       }
     }
@@ -399,7 +415,7 @@ export function SimpleRobotMap({
     const allPositions = Array.from(robotGPSData.values()).flat()
     if (allPositions.length > 0) {
       const bounds = L.latLngBounds(
-        allPositions.map(p => [p.position.latitude, p.position.longitude])
+        allPositions.map((p) => [p.position.latitude, p.position.longitude])
       )
       mapRef.current.fitBounds(bounds, { padding: [20, 20] })
     }
@@ -419,17 +435,10 @@ export function SimpleRobotMap({
         dragging={true}
       >
         {/* Tile Layer */}
-        <TileLayer
-          url={getTileLayerUrl()}
-          attribution={getTileLayerAttribution()}
-          maxZoom={19}
-        />
+        <TileLayer url={getTileLayerUrl()} attribution={getTileLayerAttribution()} maxZoom={19} />
 
         {/* Map Controller */}
-        <MapController
-          robotGPSData={robotGPSData}
-          selectedRobotId={selectedRobotId}
-        />
+        <MapController robotGPSData={robotGPSData} selectedRobotId={selectedRobotId} />
 
         {/* Map Click Handler */}
         <MapClickHandler onMapClick={() => onRobotSelect?.('')} />
@@ -450,7 +459,10 @@ export function SimpleRobotMap({
               {gpsData.length > 1 && (
                 <Polyline
                   key={`trail-${robotId}`}
-                  positions={gpsData.map(data => [data.position.latitude, data.position.longitude])}
+                  positions={gpsData.map((data) => [
+                    data.position.latitude,
+                    data.position.longitude,
+                  ])}
                   color={getRobotColor(robot.status)}
                   weight={isSelected ? 4 : 2}
                   opacity={isSelected ? 0.8 : 0.6}
@@ -479,16 +491,31 @@ export function SimpleRobotMap({
                     </div>
 
                     <div className="space-y-1 text-sm">
-                      <div><strong>Status:</strong> {robot.status}</div>
-                      <div><strong>Model:</strong> {robot.model}</div>
-                      <div><strong>Location:</strong> {getLocationName(latestPosition.position.latitude, latestPosition.position.longitude)}</div>
+                      <div>
+                        <strong>Status:</strong> {robot.status}
+                      </div>
+                      <div>
+                        <strong>Model:</strong> {robot.model}
+                      </div>
+                      <div>
+                        <strong>Location:</strong>{' '}
+                        {getLocationName(
+                          latestPosition.position.latitude,
+                          latestPosition.position.longitude
+                        )}
+                      </div>
 
                       {latestPosition.position.speed !== undefined && (
-                        <div><strong>Speed:</strong> {latestPosition.position.speed.toFixed(1)} m/s</div>
+                        <div>
+                          <strong>Speed:</strong> {latestPosition.position.speed.toFixed(1)} m/s
+                        </div>
                       )}
 
                       {latestPosition.position.accuracy && (
-                        <div><strong>GPS Accuracy:</strong> ±{latestPosition.position.accuracy.horizontal?.toFixed(1)}m</div>
+                        <div>
+                          <strong>GPS Accuracy:</strong> ±
+                          {latestPosition.position.accuracy.horizontal?.toFixed(1)}m
+                        </div>
                       )}
 
                       <div className="text-xs text-gray-500 mt-2">
@@ -508,17 +535,22 @@ export function SimpleRobotMap({
 
           const getGeofenceColor = (type: string) => {
             switch (type) {
-              case 'safety': return '#ef4444' // red
-              case 'work': return '#10b981' // green
-              case 'restricted': return '#f59e0b' // yellow
-              case 'charging': return '#3b82f6' // blue
-              default: return '#8b5cf6' // purple
+              case 'safety':
+                return '#ef4444' // red
+              case 'work':
+                return '#10b981' // green
+              case 'restricted':
+                return '#f59e0b' // yellow
+              case 'charging':
+                return '#3b82f6' // blue
+              default:
+                return '#8b5cf6' // purple
             }
           }
 
           const color = getGeofenceColor(geofence.type)
 
-          if (geofence.shape === 'circle' && geofence.coordinates.length > 0) {
+          if (geofence.type === 'circle' && geofence.coordinates.length > 0) {
             const center = geofence.coordinates[0]
             return (
               <Circle
@@ -530,15 +562,23 @@ export function SimpleRobotMap({
                   fillColor: color,
                   fillOpacity: 0.2,
                   weight: 2,
-                  opacity: 0.8
+                  opacity: 0.8,
                 }}
               >
                 <Popup>
                   <div className="text-sm">
-                    <strong>{geofence.name}</strong><br />
-                    {geofence.description && <span>{geofence.description}<br /></span>}
-                    Type: {geofence.type}<br />
-                    Shape: {geofence.shape}<br />
+                    <strong>{geofence.name}</strong>
+                    <br />
+                    {geofence.description && (
+                      <span>
+                        {geofence.description}
+                        <br />
+                      </span>
+                    )}
+                    Type: {geofence.type}
+                    <br />
+                    Shape: {geofence.type}
+                    <br />
                     Radius: {geofence.radius}m<br />
                     Rules: {geofence.rules?.length || 0}
                   </div>
@@ -547,8 +587,10 @@ export function SimpleRobotMap({
             )
           }
 
-          if (geofence.shape === 'polygon' && geofence.coordinates.length >= 3) {
-            const positions = geofence.coordinates.map(coord => [coord.latitude, coord.longitude] as [number, number])
+          if (geofence.type === 'polygon' && geofence.coordinates.length >= 3) {
+            const positions = geofence.coordinates.map(
+              (coord) => [coord.latitude, coord.longitude] as [number, number]
+            )
             return (
               <Polygon
                 key={geofence.id}
@@ -558,16 +600,25 @@ export function SimpleRobotMap({
                   fillColor: color,
                   fillOpacity: 0.2,
                   weight: 2,
-                  opacity: 0.8
+                  opacity: 0.8,
                 }}
               >
                 <Popup>
                   <div className="text-sm">
-                    <strong>{geofence.name}</strong><br />
-                    {geofence.description && <span>{geofence.description}<br /></span>}
-                    Type: {geofence.type}<br />
-                    Shape: {geofence.shape}<br />
-                    Points: {geofence.coordinates.length}<br />
+                    <strong>{geofence.name}</strong>
+                    <br />
+                    {geofence.description && (
+                      <span>
+                        {geofence.description}
+                        <br />
+                      </span>
+                    )}
+                    Type: {geofence.type}
+                    <br />
+                    Shape: {geofence.type}
+                    <br />
+                    Points: {geofence.coordinates.length}
+                    <br />
                     Rules: {geofence.rules?.length || 0}
                   </div>
                 </Popup>
@@ -575,13 +626,13 @@ export function SimpleRobotMap({
             )
           }
 
-          if (geofence.shape === 'rectangle' && geofence.coordinates.length >= 2) {
+          if (geofence.type === 'rectangle' && geofence.coordinates.length >= 2) {
             const [topLeft, bottomRight] = geofence.coordinates
             const positions = [
               [topLeft.latitude, topLeft.longitude],
               [topLeft.latitude, bottomRight.longitude],
               [bottomRight.latitude, bottomRight.longitude],
-              [bottomRight.latitude, topLeft.longitude]
+              [bottomRight.latitude, topLeft.longitude],
             ] as [number, number][]
 
             return (
@@ -593,15 +644,23 @@ export function SimpleRobotMap({
                   fillColor: color,
                   fillOpacity: 0.2,
                   weight: 2,
-                  opacity: 0.8
+                  opacity: 0.8,
                 }}
               >
                 <Popup>
                   <div className="text-sm">
-                    <strong>{geofence.name}</strong><br />
-                    {geofence.description && <span>{geofence.description}<br /></span>}
-                    Type: {geofence.type}<br />
-                    Shape: {geofence.shape}<br />
+                    <strong>{geofence.name}</strong>
+                    <br />
+                    {geofence.description && (
+                      <span>
+                        {geofence.description}
+                        <br />
+                      </span>
+                    )}
+                    Type: {geofence.type}
+                    <br />
+                    Shape: {geofence.type}
+                    <br />
                     Rules: {geofence.rules?.length || 0}
                   </div>
                 </Popup>
@@ -624,11 +683,19 @@ export function SimpleRobotMap({
             >
               <Popup>
                 <div className="text-sm">
-                  <strong>{waypoint.name}</strong><br />
-                  {waypoint.description && <span>{waypoint.description}<br /></span>}
-                  Type: {waypoint.type}<br />
+                  <strong>{waypoint.name}</strong>
+                  <br />
+                  {waypoint.description && (
+                    <span>
+                      {waypoint.description}
+                      <br />
+                    </span>
+                  )}
+                  Type: {waypoint.type}
+                  <br />
                   Radius: {waypoint.radius}m<br />
-                  Actions: {waypoint.actions?.length || 0}<br />
+                  Actions: {waypoint.actions?.length || 0}
+                  <br />
                   Status: {waypoint.isActive ? 'Active' : 'Inactive'}
                 </div>
               </Popup>
@@ -642,19 +709,24 @@ export function SimpleRobotMap({
 
           // Get waypoint coordinates for the path
           const pathCoordinates = path.waypoints
-            .map((waypointId: string) => waypoints.find(wp => wp.id === waypointId))
-            .filter(wp => wp && wp.coordinates)
-            .map(wp => [wp.coordinates.latitude, wp.coordinates.longitude] as [number, number])
+            .map((waypointId: string) => waypoints.find((wp: any) => wp.id === waypointId))
+            .filter((wp: any) => wp && wp.coordinates)
+            .map((wp: any) => [wp.coordinates.latitude, wp.coordinates.longitude] as [number, number])
 
           if (pathCoordinates.length < 2) return null
 
           const getPathColor = (status: string) => {
             switch (status) {
-              case 'active': return '#10b981' // green
-              case 'paused': return '#f59e0b' // yellow
-              case 'completed': return '#6b7280' // gray
-              case 'error': return '#ef4444' // red
-              default: return '#8b5cf6' // purple
+              case 'active':
+                return '#10b981' // green
+              case 'paused':
+                return '#f59e0b' // yellow
+              case 'completed':
+                return '#6b7280' // gray
+              case 'error':
+                return '#ef4444' // red
+              default:
+                return '#8b5cf6' // purple
             }
           }
 
@@ -666,18 +738,28 @@ export function SimpleRobotMap({
                 color: getPathColor(path.status),
                 weight: 4,
                 opacity: 0.8,
-                dashArray: path.status === 'paused' ? '10, 10' : undefined
+                dashArray: path.status === 'paused' ? '10, 10' : undefined,
               }}
             >
               <Popup>
                 <div className="text-sm">
-                  <strong>{path.name}</strong><br />
-                  {path.description && <span>{path.description}<br /></span>}
-                  Robot: {path.robotId}<br />
-                  Status: {path.status}<br />
-                  Waypoints: {path.waypoints.length}<br />
+                  <strong>{path.name}</strong>
+                  <br />
+                  {path.description && (
+                    <span>
+                      {path.description}
+                      <br />
+                    </span>
+                  )}
+                  Robot: {path.robotId}
+                  <br />
+                  Status: {path.status}
+                  <br />
+                  Waypoints: {path.waypoints.length}
+                  <br />
                   Distance: {path.totalDistance?.toFixed(0)}m<br />
-                  Est. Time: {path.estimatedTime ? `${Math.round(path.estimatedTime / 60)}min` : 'N/A'}
+                  Est. Time:{' '}
+                  {path.estimatedTime ? `${Math.round(path.estimatedTime / 60)}min` : 'N/A'}
                 </div>
               </Popup>
             </Polyline>
@@ -701,7 +783,9 @@ export function SimpleRobotMap({
                 'p-2 rounded text-xs font-medium transition-colors',
                 mapStyle === 'street'
                   ? 'bg-blue-500 text-white'
-                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  : isDark
+                    ? 'text-gray-300 hover:bg-gray-700'
+                    : 'text-gray-600 hover:bg-gray-100'
               )}
             >
               Street
@@ -712,7 +796,9 @@ export function SimpleRobotMap({
                 'p-2 rounded text-xs font-medium transition-colors',
                 mapStyle === 'satellite'
                   ? 'bg-blue-500 text-white'
-                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  : isDark
+                    ? 'text-gray-300 hover:bg-gray-700'
+                    : 'text-gray-600 hover:bg-gray-100'
               )}
             >
               Satellite
@@ -723,7 +809,9 @@ export function SimpleRobotMap({
                 'p-2 rounded text-xs font-medium transition-colors',
                 mapStyle === 'dark'
                   ? 'bg-blue-500 text-white'
-                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+                  : isDark
+                    ? 'text-gray-300 hover:bg-gray-700'
+                    : 'text-gray-600 hover:bg-gray-100'
               )}
             >
               {isDark ? 'Dark' : 'Light'}
@@ -810,7 +898,9 @@ export function SimpleRobotMap({
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: getRobotColor(robot.status) }}
                   />
-                  <h3 className={cn('font-bold text-lg', isDark ? 'text-gray-200' : 'text-gray-900')}>
+                  <h3
+                    className={cn('font-bold text-lg', isDark ? 'text-gray-200' : 'text-gray-900')}
+                  >
                     {robot.name}
                   </h3>
                 </div>
@@ -818,7 +908,9 @@ export function SimpleRobotMap({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Status:</span>
-                    <span className={cn('ml-1 font-medium', isDark ? 'text-gray-200' : 'text-gray-900')}>
+                    <span
+                      className={cn('ml-1 font-medium', isDark ? 'text-gray-200' : 'text-gray-900')}
+                    >
                       {robot.status}
                     </span>
                   </div>
@@ -831,14 +923,28 @@ export function SimpleRobotMap({
                 </div>
 
                 <div className="space-y-2">
-                  <div className={cn('text-sm font-medium', isDark ? 'text-blue-400' : 'text-blue-600')}>
+                  <div
+                    className={cn(
+                      'text-sm font-medium',
+                      isDark ? 'text-blue-400' : 'text-blue-600'
+                    )}
+                  >
                     📍 {getLocationName(latestGPS.position.latitude, latestGPS.position.longitude)}
                   </div>
 
-                  <div className={cn('text-xs font-mono p-2 rounded', isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-900')}>
-                    {latestGPS.position.latitude.toFixed(6)}°, {latestGPS.position.longitude.toFixed(6)}°
+                  <div
+                    className={cn(
+                      'text-xs font-mono p-2 rounded',
+                      isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-900'
+                    )}
+                  >
+                    {latestGPS.position.latitude.toFixed(6)}°,{' '}
+                    {latestGPS.position.longitude.toFixed(6)}°
                     {latestGPS.position.altitude && (
-                      <><br />Alt: {latestGPS.position.altitude.toFixed(1)}m</>
+                      <>
+                        <br />
+                        Alt: {latestGPS.position.altitude.toFixed(1)}m
+                      </>
                     )}
                   </div>
 

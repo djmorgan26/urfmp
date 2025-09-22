@@ -95,18 +95,45 @@ const actionTypes = [
 ]
 
 const priorityLevels = [
-  { id: 'low', name: 'Low', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' },
-  { id: 'medium', name: 'Medium', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' },
-  { id: 'high', name: 'High', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400' },
-  { id: 'critical', name: 'Critical', color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' },
+  {
+    id: 'low',
+    name: 'Low',
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+  },
+  {
+    id: 'medium',
+    name: 'Medium',
+    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+  },
+  {
+    id: 'high',
+    name: 'High',
+    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
+  },
+  {
+    id: 'critical',
+    name: 'Critical',
+    color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+  },
 ]
 
 const predefinedColors = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e',
-  '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#06b6d4',
+  '#3b82f6',
+  '#8b5cf6',
+  '#ec4899',
 ]
 
-export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: EditGeofenceModalProps) {
+export function EditGeofenceModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  geofence,
+}: EditGeofenceModalProps) {
   const { isDark } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -121,7 +148,7 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
     color: '#3b82f6',
     strokeWidth: 2,
     fillOpacity: 0.2,
-    robotIds: []
+    robotIds: [],
   })
 
   // Load geofence data when modal opens or geofence changes
@@ -131,17 +158,21 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
         name: geofence.name || '',
         description: geofence.description || '',
         type: geofence.type || 'circle',
-        coordinates: geofence.coordinates ? geofence.coordinates.map(coord => ({ ...coord })) : [{ latitude: 40.7589, longitude: -73.9851 }],
+        coordinates: geofence.coordinates
+          ? geofence.coordinates.map((coord) => ({ ...coord }))
+          : [{ latitude: 40.7589, longitude: -73.9851 }],
         radius: geofence.radius || 50,
-        rules: geofence.rules ? geofence.rules.map(rule => ({
-          ...rule,
-          actions: rule.actions ? rule.actions.map(action => ({ ...action })) : []
-        })) : [],
+        rules: geofence.rules
+          ? geofence.rules.map((rule) => ({
+              ...rule,
+              actions: rule.actions ? rule.actions.map((action) => ({ ...action })) : [],
+            }))
+          : [],
         isActive: geofence.isActive ?? true,
         color: geofence.color || '#3b82f6',
         strokeWidth: geofence.strokeWidth || 2,
         fillOpacity: geofence.fillOpacity || 0.2,
-        robotIds: geofence.robotIds ? [...geofence.robotIds] : []
+        robotIds: geofence.robotIds ? [...geofence.robotIds] : [],
       })
       setErrors({})
     }
@@ -177,7 +208,8 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
         newErrors[`coord_${index}_lat`] = `Point ${index + 1} latitude must be between -90 and 90`
       }
       if (coord.longitude < -180 || coord.longitude > 180) {
-        newErrors[`coord_${index}_lng`] = `Point ${index + 1} longitude must be between -180 and 180`
+        newErrors[`coord_${index}_lng`] =
+          `Point ${index + 1} longitude must be between -180 and 180`
       }
     })
 
@@ -187,34 +219,37 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
 
   const handleInputChange = (field: string, value: any) => {
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const addCoordinate = () => {
-    const lastCoord = formData.coordinates[formData.coordinates.length - 1] || { latitude: 40.7589, longitude: -73.9851 }
-    setFormData(prev => ({
+    const lastCoord = formData.coordinates[formData.coordinates.length - 1] || {
+      latitude: 40.7589,
+      longitude: -73.9851,
+    }
+    setFormData((prev) => ({
       ...prev,
-      coordinates: [...prev.coordinates, { ...lastCoord }]
+      coordinates: [...prev.coordinates, { ...lastCoord }],
     }))
   }
 
   const removeCoordinate = (index: number) => {
     if (formData.coordinates.length > 1) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        coordinates: prev.coordinates.filter((_, i) => i !== index)
+        coordinates: prev.coordinates.filter((_, i) => i !== index),
       }))
     }
   }
 
   const updateCoordinate = (index: number, field: 'latitude' | 'longitude', value: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       coordinates: prev.coordinates.map((coord, i) =>
         i === index ? { ...coord, [field]: value } : coord
-      )
+      ),
     }))
   }
 
@@ -224,27 +259,25 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
       name: '',
       trigger: 'enter' as const,
       actions: [],
-      isActive: true
+      isActive: true,
     }
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: [...prev.rules, newRule]
+      rules: [...prev.rules, newRule],
     }))
   }
 
   const removeRule = (ruleId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: prev.rules.filter(rule => rule.id !== ruleId)
+      rules: prev.rules.filter((rule) => rule.id !== ruleId),
     }))
   }
 
   const updateRule = (ruleId: string, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: prev.rules.map(rule =>
-        rule.id === ruleId ? { ...rule, [field]: value } : rule
-      )
+      rules: prev.rules.map((rule) => (rule.id === ruleId ? { ...rule, [field]: value } : rule)),
     }))
   }
 
@@ -253,42 +286,40 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
       id: `action_${Date.now()}`,
       type: 'alert' as const,
       parameters: {},
-      priority: 'medium' as const
+      priority: 'medium' as const,
     }
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: prev.rules.map(rule =>
-        rule.id === ruleId
-          ? { ...rule, actions: [...rule.actions, newAction] }
-          : rule
-      )
+      rules: prev.rules.map((rule) =>
+        rule.id === ruleId ? { ...rule, actions: [...rule.actions, newAction] } : rule
+      ),
     }))
   }
 
   const removeRuleAction = (ruleId: string, actionId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: prev.rules.map(rule =>
+      rules: prev.rules.map((rule) =>
         rule.id === ruleId
-          ? { ...rule, actions: rule.actions.filter(action => action.id !== actionId) }
+          ? { ...rule, actions: rule.actions.filter((action) => action.id !== actionId) }
           : rule
-      )
+      ),
     }))
   }
 
   const updateRuleAction = (ruleId: string, actionId: string, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      rules: prev.rules.map(rule =>
+      rules: prev.rules.map((rule) =>
         rule.id === ruleId
           ? {
               ...rule,
-              actions: rule.actions.map(action =>
+              actions: rule.actions.map((action) =>
                 action.id === actionId ? { ...action, [field]: value } : action
-              )
+              ),
             }
           : rule
-      )
+      ),
     }))
   }
 
@@ -303,7 +334,7 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
     setIsLoading(true)
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       console.log('Updating geofence:', { id: geofence?.id, ...formData })
       toast.success('Geofence updated successfully!')
@@ -317,18 +348,17 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
   }
 
   const getInputClassName = (fieldName: string) => {
-    const baseClass = "w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+    const baseClass =
+      'w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2'
     const errorClass = errors[fieldName]
-      ? "border-red-500 focus:ring-red-500"
-      : "border-input bg-background focus:ring-ring"
+      ? 'border-red-500 focus:ring-red-500'
+      : 'border-input bg-background focus:ring-ring'
     return `${baseClass} ${errorClass}`
   }
 
   const renderFieldError = (fieldName: string) => {
     if (errors[fieldName]) {
-      return (
-        <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
-      )
+      return <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
     }
     return null
   }
@@ -340,19 +370,18 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
-        <div className={cn(
-          'relative w-full max-w-5xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-        )}>
+        <div
+          className={cn(
+            'relative w-full max-w-5xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          )}
+        >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <Shield className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">Edit Geofence</h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-md hover:bg-muted"
-            >
+            <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -417,7 +446,12 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                       handleInputChange('type', type.id)
                       // Reset coordinates when changing type
                       if (type.id === 'circle') {
-                        setFormData(prev => ({ ...prev, coordinates: [prev.coordinates[0] || { latitude: 40.7589, longitude: -73.9851 }] }))
+                        setFormData((prev) => ({
+                          ...prev,
+                          coordinates: [
+                            prev.coordinates[0] || { latitude: 40.7589, longitude: -73.9851 },
+                          ],
+                        }))
                       }
                     }}
                   >
@@ -473,7 +507,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                           type="number"
                           step="0.000001"
                           value={coord.latitude || 0}
-                          onChange={(e) => updateCoordinate(index, 'latitude', parseFloat(e.target.value) || 0)}
+                          onChange={(e) =>
+                            updateCoordinate(index, 'latitude', parseFloat(e.target.value) || 0)
+                          }
                           className={getInputClassName(`coord_${index}_lat`)}
                           placeholder="40.7589"
                         />
@@ -485,7 +521,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                           type="number"
                           step="0.000001"
                           value={coord.longitude || 0}
-                          onChange={(e) => updateCoordinate(index, 'longitude', parseFloat(e.target.value) || 0)}
+                          onChange={(e) =>
+                            updateCoordinate(index, 'longitude', parseFloat(e.target.value) || 0)
+                          }
                           className={getInputClassName(`coord_${index}_lng`)}
                           placeholder="-73.9851"
                         />
@@ -532,7 +570,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                         onClick={() => handleInputChange('color', color)}
                         className={cn(
                           'w-8 h-8 rounded-full border-2 transition-transform hover:scale-110',
-                          formData.color === color ? 'border-gray-800 dark:border-gray-200' : 'border-gray-300'
+                          formData.color === color
+                            ? 'border-gray-800 dark:border-gray-200'
+                            : 'border-gray-300'
                         )}
                         style={{ backgroundColor: color }}
                       />
@@ -556,7 +596,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                     onChange={(e) => handleInputChange('strokeWidth', parseInt(e.target.value))}
                     className="w-full"
                   />
-                  <div className="text-xs text-muted-foreground mt-1">{formData.strokeWidth || 2}px</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {formData.strokeWidth || 2}px
+                  </div>
                 </div>
 
                 <div>
@@ -570,7 +612,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                     onChange={(e) => handleInputChange('fillOpacity', parseFloat(e.target.value))}
                     className="w-full"
                   />
-                  <div className="text-xs text-muted-foreground mt-1">{Math.round((formData.fillOpacity || 0.2) * 100)}%</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {Math.round((formData.fillOpacity || 0.2) * 100)}%
+                  </div>
                 </div>
               </div>
             </div>
@@ -593,7 +637,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                 <div className="text-center py-8 text-muted-foreground">
                   <Settings className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p className="text-sm">No rules configured</p>
-                  <p className="text-xs">Add rules to define what happens when robots interact with this geofence</p>
+                  <p className="text-xs">
+                    Add rules to define what happens when robots interact with this geofence
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -640,12 +686,19 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                         {/* Conditional fields based on trigger type */}
                         {rule.trigger === 'dwell' && (
                           <div>
-                            <label className="block text-sm font-medium mb-1">Min Duration (seconds)</label>
+                            <label className="block text-sm font-medium mb-1">
+                              Min Duration (seconds)
+                            </label>
                             <input
                               type="number"
                               min="1"
                               value={rule.condition?.minDuration || 60}
-                              onChange={(e) => updateRule(rule.id, 'condition', { ...rule.condition, minDuration: parseInt(e.target.value) || 60 })}
+                              onChange={(e) =>
+                                updateRule(rule.id, 'condition', {
+                                  ...rule.condition,
+                                  minDuration: parseInt(e.target.value) || 60,
+                                })
+                              }
                               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                               placeholder="60"
                             />
@@ -654,13 +707,20 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
 
                         {rule.trigger === 'speed_limit' && (
                           <div>
-                            <label className="block text-sm font-medium mb-1">Max Speed (m/s)</label>
+                            <label className="block text-sm font-medium mb-1">
+                              Max Speed (m/s)
+                            </label>
                             <input
                               type="number"
                               min="0.1"
                               step="0.1"
                               value={rule.condition?.maxSpeed || 2.0}
-                              onChange={(e) => updateRule(rule.id, 'condition', { ...rule.condition, maxSpeed: parseFloat(e.target.value) || 2.0 })}
+                              onChange={(e) =>
+                                updateRule(rule.id, 'condition', {
+                                  ...rule.condition,
+                                  maxSpeed: parseFloat(e.target.value) || 2.0,
+                                })
+                              }
                               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                               placeholder="2.0"
                             />
@@ -671,7 +731,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                       {/* Rule Actions */}
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">Actions ({rule.actions.length})</span>
+                          <span className="text-sm font-medium">
+                            Actions ({rule.actions.length})
+                          </span>
                           <button
                             type="button"
                             onClick={() => addRuleAction(rule.id)}
@@ -698,7 +760,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                               <div>
                                 <select
                                   value={action.type}
-                                  onChange={(e) => updateRuleAction(rule.id, action.id, 'type', e.target.value)}
+                                  onChange={(e) =>
+                                    updateRuleAction(rule.id, action.id, 'type', e.target.value)
+                                  }
                                   className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                                 >
                                   {actionTypes.map((type) => (
@@ -711,7 +775,9 @@ export function EditGeofenceModal({ isOpen, onClose, onSuccess, geofence }: Edit
                               <div>
                                 <select
                                   value={action.priority}
-                                  onChange={(e) => updateRuleAction(rule.id, action.id, 'priority', e.target.value)}
+                                  onChange={(e) =>
+                                    updateRuleAction(rule.id, action.id, 'priority', e.target.value)
+                                  }
                                   className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
                                 >
                                   {priorityLevels.map((priority) => (

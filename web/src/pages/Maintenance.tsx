@@ -10,7 +10,7 @@ import {
   Bot,
   User,
   BarChart3,
-  Activity
+  Activity,
 } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { formatDistanceToNow, format, parseISO } from 'date-fns'
@@ -150,10 +150,10 @@ export function Maintenance() {
         <button
           onClick={() => setActiveTab('predictive')}
           className={cn(
-            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
             activeTab === 'predictive'
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
           )}
         >
           <div className="flex items-center space-x-2">
@@ -164,10 +164,10 @@ export function Maintenance() {
         <button
           onClick={() => setActiveTab('scheduled')}
           className={cn(
-            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
             activeTab === 'scheduled'
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
           )}
         >
           <div className="flex items-center space-x-2">
@@ -178,10 +178,10 @@ export function Maintenance() {
         <button
           onClick={() => setActiveTab('history')}
           className={cn(
-            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
             activeTab === 'history'
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
           )}
         >
           <div className="flex items-center space-x-2">
@@ -197,271 +197,274 @@ export function Maintenance() {
       {activeTab === 'scheduled' && (
         <>
           {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
-            <Calendar className="h-4 w-4 text-blue-600" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-card rounded-lg border border-border p-6">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
+                <Calendar className="h-4 w-4 text-blue-600" />
+              </div>
+              <p className="text-3xl font-bold">{upcomingTasks}</p>
+              <p className="text-sm text-muted-foreground mt-1">Next in 2 days</p>
+            </div>
+
+            <div className="bg-card rounded-lg border border-border p-6">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-muted-foreground">In Progress</p>
+                <Clock className="h-4 w-4 text-yellow-600" />
+              </div>
+              <p className="text-3xl font-bold">{inProgressTasks}</p>
+              <p className="text-sm text-muted-foreground mt-1">Active now</p>
+            </div>
+
+            <div className="bg-card rounded-lg border border-border p-6">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-muted-foreground">Overdue</p>
+                <AlertTriangle className="h-4 w-4 text-red-600" />
+              </div>
+              <p className="text-3xl font-bold">{overdueTasks}</p>
+              <p className="text-sm text-muted-foreground mt-1">Requires attention</p>
+            </div>
+
+            <div className="bg-card rounded-lg border border-border p-6">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              </div>
+              <p className="text-3xl font-bold">12</p>
+              <p className="text-sm text-muted-foreground mt-1">This month</p>
+            </div>
           </div>
-          <p className="text-3xl font-bold">{upcomingTasks}</p>
-          <p className="text-sm text-muted-foreground mt-1">Next in 2 days</p>
-        </div>
 
-        <div className="bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">In Progress</p>
-            <Clock className="h-4 w-4 text-yellow-600" />
+          {/* Filters */}
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search maintenance tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="all">All Status</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+            </select>
+
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+            >
+              <option value="all">All Types</option>
+              <option value="preventive">Preventive</option>
+              <option value="corrective">Corrective</option>
+              <option value="emergency">Emergency</option>
+            </select>
           </div>
-          <p className="text-3xl font-bold">{inProgressTasks}</p>
-          <p className="text-sm text-muted-foreground mt-1">Active now</p>
-        </div>
 
-        <div className="bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Overdue</p>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          </div>
-          <p className="text-3xl font-bold">{overdueTasks}</p>
-          <p className="text-sm text-muted-foreground mt-1">Requires attention</p>
-        </div>
+          {/* Maintenance Tasks */}
+          <div className="space-y-4">
+            {filteredTasks.length > 0 ? (
+              filteredTasks.map((task) => {
+                const type = typeConfig[task.type]
+                const priority = priorityConfig[task.priority]
+                const status = statusConfig[task.status]
 
-        <div className="bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium text-muted-foreground">Completed</p>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </div>
-          <p className="text-3xl font-bold">12</p>
-          <p className="text-sm text-muted-foreground mt-1">This month</p>
-        </div>
-      </div>
+                return (
+                  <div
+                    key={task.id}
+                    className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-lg font-semibold">{task.title}</h3>
 
-      {/* Filters */}
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search maintenance tasks..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-        </div>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded-full text-xs font-medium',
+                              type.bg,
+                              type.color
+                            )}
+                          >
+                            {type.label}
+                          </span>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="all">All Status</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="overdue">Overdue</option>
-        </select>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded-full text-xs font-medium',
+                              priority.bg,
+                              priority.color
+                            )}
+                          >
+                            {priority.label}
+                          </span>
 
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-        >
-          <option value="all">All Types</option>
-          <option value="preventive">Preventive</option>
-          <option value="corrective">Corrective</option>
-          <option value="emergency">Emergency</option>
-        </select>
-      </div>
-
-      {/* Maintenance Tasks */}
-      <div className="space-y-4">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => {
-            const type = typeConfig[task.type]
-            const priority = priorityConfig[task.priority]
-            const status = statusConfig[task.status]
-
-            return (
-              <div
-                key={task.id}
-                className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold">{task.title}</h3>
-
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded-full text-xs font-medium',
-                          type.bg,
-                          type.color
-                        )}
-                      >
-                        {type.label}
-                      </span>
-
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded-full text-xs font-medium',
-                          priority.bg,
-                          priority.color
-                        )}
-                      >
-                        {priority.label}
-                      </span>
-
-                      <span
-                        className={cn(
-                          'px-2 py-1 rounded-full text-xs font-medium',
-                          status.bg,
-                          status.color
-                        )}
-                      >
-                        {status.label}
-                      </span>
-                    </div>
-
-                    <p className="text-muted-foreground text-sm mb-3">{task.description}</p>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Bot className="h-4 w-4 text-muted-foreground" />
-                        <span>{task.robot}</span>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>
-                          {format(
-                            typeof task.scheduledDate === 'string'
-                              ? parseISO(task.scheduledDate)
-                              : task.scheduledDate,
-                            'MMM dd, yyyy'
-                          )}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span>{task.estimatedDuration} min</span>
-                      </div>
-
-                      {task.assignedTo && (
-                        <div className="flex items-center space-x-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span>{task.assignedTo}</span>
+                          <span
+                            className={cn(
+                              'px-2 py-1 rounded-full text-xs font-medium',
+                              status.bg,
+                              status.color
+                            )}
+                          >
+                            {status.label}
+                          </span>
                         </div>
-                      )}
+
+                        <p className="text-muted-foreground text-sm mb-3">{task.description}</p>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Bot className="h-4 w-4 text-muted-foreground" />
+                            <span>{task.robot}</span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                            <span>
+                              {format(
+                                typeof task.scheduledDate === 'string'
+                                  ? parseISO(task.scheduledDate)
+                                  : task.scheduledDate,
+                                'MMM dd, yyyy'
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Clock className="h-4 w-4 text-muted-foreground" />
+                            <span>{task.estimatedDuration} min</span>
+                          </div>
+
+                          {task.assignedTo && (
+                            <div className="flex items-center space-x-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <span>{task.assignedTo}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {task.notes && (
+                          <div className="mt-3 p-3 bg-muted rounded-md">
+                            <p className="text-sm">
+                              <strong>Notes:</strong> {task.notes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-2 ml-4">
+                        {task.status === 'scheduled' && (
+                          <button className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700">
+                            Start
+                          </button>
+                        )}
+
+                        {task.status === 'in_progress' && (
+                          <button className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
+                            Complete
+                          </button>
+                        )}
+
+                        <button className="p-1.5 rounded-md border border-border hover:bg-muted">
+                          <Wrench className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
-                    {task.notes && (
-                      <div className="mt-3 p-3 bg-muted rounded-md">
-                        <p className="text-sm">
-                          <strong>Notes:</strong> {task.notes}
-                        </p>
+                    {task.status === 'overdue' && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                        <div className="flex items-center space-x-2 text-red-700 text-sm">
+                          <AlertTriangle className="h-4 w-4" />
+                          <span>
+                            This task is overdue by{' '}
+                            {formatDistanceToNow(
+                              typeof task.scheduledDate === 'string'
+                                ? parseISO(task.scheduledDate)
+                                : task.scheduledDate
+                            )}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  <div className="flex items-center space-x-2 ml-4">
-                    {task.status === 'scheduled' && (
-                      <button className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700">
-                        Start
-                      </button>
-                    )}
-
-                    {task.status === 'in_progress' && (
-                      <button className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
-                        Complete
-                      </button>
-                    )}
-
-                    <button className="p-1.5 rounded-md border border-border hover:bg-muted">
-                      <Wrench className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {task.status === 'overdue' && (
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                    <div className="flex items-center space-x-2 text-red-700 text-sm">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>
-                        This task is overdue by{' '}
-                        {formatDistanceToNow(
-                          typeof task.scheduledDate === 'string'
-                            ? parseISO(task.scheduledDate)
-                            : task.scheduledDate
-                        )}
-                      </span>
-                    </div>
-                  </div>
+                )
+              })
+            ) : (
+              <div className="text-center py-12">
+                <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <h3 className="text-lg font-semibold mb-2">No maintenance tasks found</h3>
+                <p className="text-muted-foreground mb-4">
+                  {searchQuery || statusFilter !== 'all' || typeFilter !== 'all'
+                    ? 'No tasks match your current filters'
+                    : 'Schedule your first maintenance task to get started'}
+                </p>
+                {!searchQuery && statusFilter === 'all' && typeFilter === 'all' && (
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                  >
+                    Schedule Maintenance
+                  </button>
                 )}
               </div>
-            )
-          })
-        ) : (
-          <div className="text-center py-12">
-            <Wrench className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">No maintenance tasks found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchQuery || statusFilter !== 'all' || typeFilter !== 'all'
-                ? 'No tasks match your current filters'
-                : 'Schedule your first maintenance task to get started'}
-            </p>
-            {!searchQuery && statusFilter === 'all' && typeFilter === 'all' && (
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-              >
-                Schedule Maintenance
-              </button>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Maintenance Calendar View */}
-      <div className="bg-card rounded-lg border border-border p-6">
-        <h3 className="text-lg font-semibold mb-4">Maintenance Calendar</h3>
+          {/* Maintenance Calendar View */}
+          <div className="bg-card rounded-lg border border-border p-6">
+            <h3 className="text-lg font-semibold mb-4">Maintenance Calendar</h3>
 
-        <div className="grid grid-cols-7 gap-2 mb-4">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-              {day}
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-sm font-medium text-muted-foreground py-2"
+                >
+                  {day}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 35 }, (_, i) => {
-            const date = new Date()
-            date.setDate(date.getDate() - date.getDay() + i)
-            const hasTask = mockMaintenanceTasks.some(
-              (task) =>
-                format(
-                  typeof task.scheduledDate === 'string'
-                    ? parseISO(task.scheduledDate)
-                    : task.scheduledDate,
-                  'yyyy-MM-dd'
-                ) === format(date, 'yyyy-MM-dd')
-            )
+            <div className="grid grid-cols-7 gap-2">
+              {Array.from({ length: 35 }, (_, i) => {
+                const date = new Date()
+                date.setDate(date.getDate() - date.getDay() + i)
+                const hasTask = mockMaintenanceTasks.some(
+                  (task) =>
+                    format(
+                      typeof task.scheduledDate === 'string'
+                        ? parseISO(task.scheduledDate)
+                        : task.scheduledDate,
+                      'yyyy-MM-dd'
+                    ) === format(date, 'yyyy-MM-dd')
+                )
 
-            return (
-              <div
-                key={i}
-                className={cn(
-                  'h-12 rounded-md border border-border flex items-center justify-center text-sm cursor-pointer hover:bg-muted',
-                  hasTask && 'bg-blue-100 border-blue-300'
-                )}
-              >
-                {date.getDate()}
-                {hasTask && <div className="w-2 h-2 bg-blue-600 rounded-full ml-1" />}
-              </div>
-            )
-          })}
-        </div>
-      </div>
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      'h-12 rounded-md border border-border flex items-center justify-center text-sm cursor-pointer hover:bg-muted',
+                      hasTask && 'bg-blue-100 border-blue-300'
+                    )}
+                  >
+                    {date.getDate()}
+                    {hasTask && <div className="w-2 h-2 bg-blue-600 rounded-full ml-1" />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </>
       )}
 
@@ -471,7 +474,9 @@ export function Maintenance() {
           <div className="text-center py-12 text-muted-foreground">
             <Activity className="h-12 w-12 mx-auto mb-3" />
             <p>Maintenance history will be displayed here</p>
-            <p className="text-sm">Track completed tasks, performance metrics, and maintenance trends</p>
+            <p className="text-sm">
+              Track completed tasks, performance metrics, and maintenance trends
+            </p>
           </div>
         </div>
       )}

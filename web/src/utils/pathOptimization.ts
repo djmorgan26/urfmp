@@ -17,15 +17,15 @@ export interface OptimizedPath {
  */
 export function calculateDistance(coord1: Coordinate, coord2: Coordinate): number {
   const R = 6371e3 // Earth's radius in meters
-  const φ1 = coord1.latitude * Math.PI / 180
-  const φ2 = coord2.latitude * Math.PI / 180
-  const Δφ = (coord2.latitude - coord1.latitude) * Math.PI / 180
-  const Δλ = (coord2.longitude - coord1.longitude) * Math.PI / 180
+  const φ1 = (coord1.latitude * Math.PI) / 180
+  const φ2 = (coord2.latitude * Math.PI) / 180
+  const Δφ = ((coord2.latitude - coord1.latitude) * Math.PI) / 180
+  const Δλ = ((coord2.longitude - coord1.longitude) * Math.PI) / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   return R * c // Distance in meters
 }
@@ -37,8 +37,8 @@ export function calculatePathDistance(waypoints: Waypoint[], path: string[]): nu
   let totalDistance = 0
 
   for (let i = 0; i < path.length - 1; i++) {
-    const current = waypoints.find(w => w.id === path[i])
-    const next = waypoints.find(w => w.id === path[i + 1])
+    const current = waypoints.find((w) => w.id === path[i])
+    const next = waypoints.find((w) => w.id === path[i + 1])
 
     if (current && next) {
       totalDistance += calculateDistance(current.coordinates, next.coordinates)
@@ -60,18 +60,21 @@ export function estimateDuration(distance: number, averageSpeed: number = 1.5): 
  * Nearest Neighbor Algorithm for TSP
  * Good for initial optimization, O(n²) complexity
  */
-export function nearestNeighborOptimization(waypoints: Waypoint[], startWaypointId?: string): OptimizedPath {
+export function nearestNeighborOptimization(
+  waypoints: Waypoint[],
+  startWaypointId?: string
+): OptimizedPath {
   if (waypoints.length < 2) {
     return {
-      waypoints: waypoints.map(w => w.id),
+      waypoints: waypoints.map((w) => w.id),
       totalDistance: 0,
       estimatedDuration: 0,
       optimization: {
         originalDistance: 0,
         optimizedDistance: 0,
         improvementPercentage: 0,
-        algorithm: 'Nearest Neighbor'
-      }
+        algorithm: 'Nearest Neighbor',
+      },
     }
   }
 
@@ -80,11 +83,14 @@ export function nearestNeighborOptimization(waypoints: Waypoint[], startWaypoint
 
   // Start from specified waypoint or first one
   let current = startWaypointId
-    ? waypoints.find(w => w.id === startWaypointId) || waypoints[0]
+    ? waypoints.find((w) => w.id === startWaypointId) || waypoints[0]
     : waypoints[0]
 
   path.push(current.id)
-  unvisited.splice(unvisited.findIndex(w => w.id === current.id), 1)
+  unvisited.splice(
+    unvisited.findIndex((w) => w.id === current.id),
+    1
+  )
 
   while (unvisited.length > 0) {
     let nearestIndex = 0
@@ -104,11 +110,13 @@ export function nearestNeighborOptimization(waypoints: Waypoint[], startWaypoint
     unvisited.splice(nearestIndex, 1)
   }
 
-  const originalDistance = calculatePathDistance(waypoints, waypoints.map(w => w.id))
+  const originalDistance = calculatePathDistance(
+    waypoints,
+    waypoints.map((w) => w.id)
+  )
   const optimizedDistance = calculatePathDistance(waypoints, path)
-  const improvementPercentage = originalDistance > 0
-    ? ((originalDistance - optimizedDistance) / originalDistance) * 100
-    : 0
+  const improvementPercentage =
+    originalDistance > 0 ? ((originalDistance - optimizedDistance) / originalDistance) * 100 : 0
 
   return {
     waypoints: path,
@@ -118,8 +126,8 @@ export function nearestNeighborOptimization(waypoints: Waypoint[], startWaypoint
       originalDistance: Math.round(originalDistance),
       optimizedDistance: Math.round(optimizedDistance),
       improvementPercentage: Math.round(improvementPercentage * 100) / 100,
-      algorithm: 'Nearest Neighbor'
-    }
+      algorithm: 'Nearest Neighbor',
+    },
   }
 }
 
@@ -146,7 +154,7 @@ export function twoOptOptimization(waypoints: Waypoint[], initialPath: string[])
         const newPath = [
           ...currentPath.slice(0, i),
           ...currentPath.slice(i, j).reverse(),
-          ...currentPath.slice(j)
+          ...currentPath.slice(j),
         ]
 
         const newDistance = calculatePathDistance(waypoints, newPath)
@@ -161,9 +169,8 @@ export function twoOptOptimization(waypoints: Waypoint[], initialPath: string[])
   }
 
   const originalDistance = calculatePathDistance(waypoints, initialPath)
-  const improvementPercentage = originalDistance > 0
-    ? ((originalDistance - currentDistance) / originalDistance) * 100
-    : 0
+  const improvementPercentage =
+    originalDistance > 0 ? ((originalDistance - currentDistance) / originalDistance) * 100 : 0
 
   return {
     waypoints: currentPath,
@@ -173,8 +180,8 @@ export function twoOptOptimization(waypoints: Waypoint[], initialPath: string[])
       originalDistance: Math.round(originalDistance),
       optimizedDistance: Math.round(currentDistance),
       improvementPercentage: Math.round(improvementPercentage * 100) / 100,
-      algorithm: `2-opt (${iterations} iterations)`
-    }
+      algorithm: `2-opt (${iterations} iterations)`,
+    },
   }
 }
 
@@ -189,10 +196,14 @@ export function hybridOptimization(waypoints: Waypoint[], startWaypointId?: stri
   // Then improve it with 2-opt
   const optimizedResult = twoOptOptimization(waypoints, nnResult.waypoints)
 
-  const originalDistance = calculatePathDistance(waypoints, waypoints.map(w => w.id))
-  const improvementPercentage = originalDistance > 0
-    ? ((originalDistance - optimizedResult.totalDistance) / originalDistance) * 100
-    : 0
+  const originalDistance = calculatePathDistance(
+    waypoints,
+    waypoints.map((w) => w.id)
+  )
+  const improvementPercentage =
+    originalDistance > 0
+      ? ((originalDistance - optimizedResult.totalDistance) / originalDistance) * 100
+      : 0
 
   return {
     ...optimizedResult,
@@ -200,8 +211,8 @@ export function hybridOptimization(waypoints: Waypoint[], startWaypointId?: stri
       originalDistance: Math.round(originalDistance),
       optimizedDistance: optimizedResult.totalDistance,
       improvementPercentage: Math.round(improvementPercentage * 100) / 100,
-      algorithm: 'Hybrid (Nearest Neighbor + 2-opt)'
-    }
+      algorithm: 'Hybrid (Nearest Neighbor + 2-opt)',
+    },
   }
 }
 
@@ -212,17 +223,20 @@ export function smartOptimization(waypoints: Waypoint[], startWaypointId?: strin
   // Group waypoints by type priority
   const priorityOrder = ['charging', 'maintenance', 'pickup', 'dropoff', 'checkpoint', 'custom']
 
-  const groupedWaypoints = priorityOrder.reduce((groups, type) => {
-    groups[type] = waypoints.filter(w => w.type === type)
-    return groups
-  }, {} as Record<string, Waypoint[]>)
+  const groupedWaypoints = priorityOrder.reduce(
+    (groups, type) => {
+      groups[type] = waypoints.filter((w) => w.type === type)
+      return groups
+    },
+    {} as Record<string, Waypoint[]>
+  )
 
   // Create a smart path that respects logical workflow
   const smartPath: string[] = []
 
   // Start point
   const startWaypoint = startWaypointId
-    ? waypoints.find(w => w.id === startWaypointId)
+    ? waypoints.find((w) => w.id === startWaypointId)
     : waypoints[0]
 
   if (startWaypoint) {
@@ -232,7 +246,7 @@ export function smartOptimization(waypoints: Waypoint[], startWaypointId?: strin
   // Add charging stations first if needed
   if (groupedWaypoints.charging.length > 0) {
     const chargingOptimized = nearestNeighborOptimization(groupedWaypoints.charging)
-    smartPath.push(...chargingOptimized.waypoints.filter(id => id !== startWaypoint?.id))
+    smartPath.push(...chargingOptimized.waypoints.filter((id) => id !== startWaypoint?.id))
   }
 
   // Then pickup -> dropoff pairs
@@ -264,7 +278,7 @@ export function smartOptimization(waypoints: Waypoint[], startWaypointId?: strin
   }
 
   // Add remaining waypoints
-  const remaining = waypoints.filter(w => !smartPath.includes(w.id))
+  const remaining = waypoints.filter((w) => !smartPath.includes(w.id))
   if (remaining.length > 0) {
     const remainingOptimized = nearestNeighborOptimization(remaining)
     smartPath.push(...remainingOptimized.waypoints)
@@ -273,10 +287,14 @@ export function smartOptimization(waypoints: Waypoint[], startWaypointId?: strin
   // Final 2-opt optimization
   const finalResult = twoOptOptimization(waypoints, smartPath)
 
-  const originalDistance = calculatePathDistance(waypoints, waypoints.map(w => w.id))
-  const improvementPercentage = originalDistance > 0
-    ? ((originalDistance - finalResult.totalDistance) / originalDistance) * 100
-    : 0
+  const originalDistance = calculatePathDistance(
+    waypoints,
+    waypoints.map((w) => w.id)
+  )
+  const improvementPercentage =
+    originalDistance > 0
+      ? ((originalDistance - finalResult.totalDistance) / originalDistance) * 100
+      : 0
 
   return {
     ...finalResult,
@@ -284,8 +302,8 @@ export function smartOptimization(waypoints: Waypoint[], startWaypointId?: strin
       originalDistance: Math.round(originalDistance),
       optimizedDistance: finalResult.totalDistance,
       improvementPercentage: Math.round(improvementPercentage * 100) / 100,
-      algorithm: 'Smart Workflow + 2-opt'
-    }
+      algorithm: 'Smart Workflow + 2-opt',
+    },
   }
 }
 
@@ -306,8 +324,8 @@ export function optimizePath(
         originalDistance: 0,
         optimizedDistance: 0,
         improvementPercentage: 0,
-        algorithm: 'No waypoints'
-      }
+        algorithm: 'No waypoints',
+      },
     }
   }
 
@@ -320,8 +338,8 @@ export function optimizePath(
         originalDistance: 0,
         optimizedDistance: 0,
         improvementPercentage: 0,
-        algorithm: 'Single waypoint'
-      }
+        algorithm: 'Single waypoint',
+      },
     }
   }
 
@@ -329,9 +347,10 @@ export function optimizePath(
     case 'nearest-neighbor':
       return nearestNeighborOptimization(waypoints, startWaypointId)
 
-    case '2-opt':
-      const initialPath = waypoints.map(w => w.id)
+    case '2-opt': {
+      const initialPath = waypoints.map((w) => w.id)
       return twoOptOptimization(waypoints, initialPath)
+    }
 
     case 'hybrid':
       return hybridOptimization(waypoints, startWaypointId)

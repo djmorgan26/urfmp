@@ -15,29 +15,29 @@ const severityConfig = {
     color: 'text-blue-600 dark:text-blue-400',
     bg: 'bg-blue-50 dark:bg-blue-950/30',
     border: 'border-blue-200 dark:border-blue-800',
-    accent: 'border-l-blue-500 dark:border-l-blue-400'
+    accent: 'border-l-blue-500 dark:border-l-blue-400',
   },
   warning: {
     icon: AlertTriangle,
     color: 'text-yellow-600 dark:text-yellow-400',
     bg: 'bg-yellow-50 dark:bg-yellow-950/30',
     border: 'border-yellow-200 dark:border-yellow-800',
-    accent: 'border-l-yellow-500 dark:border-l-yellow-400'
+    accent: 'border-l-yellow-500 dark:border-l-yellow-400',
   },
   error: {
     icon: AlertCircle,
     color: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-950/30',
     border: 'border-red-200 dark:border-red-800',
-    accent: 'border-l-red-500 dark:border-l-red-400'
+    accent: 'border-l-red-500 dark:border-l-red-400',
   },
   critical: {
     icon: AlertCircle,
     color: 'text-red-800 dark:text-red-300',
     bg: 'bg-red-100 dark:bg-red-950/50',
     border: 'border-red-400 dark:border-red-700',
-    accent: 'border-l-red-700 dark:border-l-red-600'
-  }
+    accent: 'border-l-red-700 dark:border-l-red-600',
+  },
 }
 
 export interface AlertNotificationsProps {
@@ -54,7 +54,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
     autoHideDuration = 8000,
     showOnlyCritical = false,
     enableSound = true,
-    enabled = true
+    enabled = true,
   } = settings
   const { alerts } = useRealTimeAlerts()
   const [notifications, setNotifications] = useState<AlertNotification[]>([])
@@ -62,7 +62,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
 
   // Process new alerts and create notifications
   useEffect(() => {
-    const newAlerts = alerts.filter(alert => {
+    const newAlerts = alerts.filter((alert) => {
       // Skip if we've already processed this alert
       if (lastProcessedAlert && alert.id <= lastProcessedAlert) return false
 
@@ -76,19 +76,22 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
     })
 
     if (newAlerts.length > 0) {
-      const newNotifications: AlertNotification[] = newAlerts.map(alert => ({
+      const newNotifications: AlertNotification[] = newAlerts.map((alert) => ({
         ...alert,
         isVisible: true,
-        showTimestamp: true
+        showTimestamp: true,
       }))
 
-      setNotifications(prev => {
+      setNotifications((prev) => {
         const updated = [...newNotifications, ...prev].slice(0, maxNotifications)
         return updated
       })
 
       // Play notification sound for critical alerts
-      if (enableSound && newAlerts.some(alert => alert.severity === 'critical' || alert.severity === 'error')) {
+      if (
+        enableSound &&
+        newAlerts.some((alert) => alert.severity === 'critical' || alert.severity === 'error')
+      ) {
         playNotificationSound()
       }
 
@@ -106,13 +109,16 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
         // Don't auto-hide critical alerts
         if (notification.severity === 'critical') return null
 
-        return setTimeout(() => {
-          hideNotification(notification.id)
-        }, autoHideDuration + (index * 500)) // Stagger hiding
+        return setTimeout(
+          () => {
+            hideNotification(notification.id)
+          },
+          autoHideDuration + index * 500
+        ) // Stagger hiding
       })
 
       return () => {
-        timers.forEach(timer => timer && clearTimeout(timer))
+        timers.forEach((timer) => timer && clearTimeout(timer))
       }
     }
   }, [notifications, autoHideDuration])
@@ -141,15 +147,13 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
   }
 
   const hideNotification = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId ? { ...notif, isVisible: false } : notif
-      )
+    setNotifications((prev) =>
+      prev.map((notif) => (notif.id === notificationId ? { ...notif, isVisible: false } : notif))
     )
 
     // Remove from DOM after animation
     setTimeout(() => {
-      setNotifications(prev => prev.filter(notif => notif.id !== notificationId))
+      setNotifications((prev) => prev.filter((notif) => notif.id !== notificationId))
     }, 300)
   }
 
@@ -190,8 +194,8 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
               notification.isVisible
                 ? 'translate-x-0 opacity-100'
                 : position.includes('right')
-                ? 'translate-x-full opacity-0'
-                : '-translate-x-full opacity-0'
+                  ? 'translate-x-full opacity-0'
+                  : '-translate-x-full opacity-0'
             )}
           >
             <div className="p-4">
@@ -204,9 +208,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h4 className="text-sm font-medium text-foreground">
-                      {notification.title}
-                    </h4>
+                    <h4 className="text-sm font-medium text-foreground">{notification.title}</h4>
                     <button
                       onClick={() => dismissNotification(notification.id)}
                       className="flex-shrink-0 p-1 hover:bg-white/50 dark:hover:bg-gray-700/50 rounded-full transition-colors"
@@ -215,9 +217,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
                     </button>
                   </div>
 
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {notification.message}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-2">{notification.message}</p>
 
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="font-medium">{notification.robotName}</span>
@@ -230,18 +230,22 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
 
                   {/* Severity indicator */}
                   <div className="mt-2 flex items-center space-x-2">
-                    <span className={cn(
-                      'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-                      notification.severity === 'critical' ? 'bg-red-700 dark:bg-red-800 text-white' :
-                      notification.severity === 'error' ? 'bg-red-500 dark:bg-red-600 text-white' :
-                      notification.severity === 'warning' ? 'bg-yellow-600 dark:bg-yellow-700 text-white' :
-                      'bg-blue-500 dark:bg-blue-600 text-white'
-                    )}>
-                      {notification.severity.charAt(0).toUpperCase() + notification.severity.slice(1)}
+                    <span
+                      className={cn(
+                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
+                        notification.severity === 'critical'
+                          ? 'bg-red-700 dark:bg-red-800 text-white'
+                          : notification.severity === 'error'
+                            ? 'bg-red-500 dark:bg-red-600 text-white'
+                            : notification.severity === 'warning'
+                              ? 'bg-yellow-600 dark:bg-yellow-700 text-white'
+                              : 'bg-blue-500 dark:bg-blue-600 text-white'
+                      )}
+                    >
+                      {notification.severity.charAt(0).toUpperCase() +
+                        notification.severity.slice(1)}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {notification.source}
-                    </span>
+                    <span className="text-xs text-muted-foreground">{notification.source}</span>
                   </div>
                 </div>
               </div>
@@ -252,7 +256,7 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
                   <div
                     className="h-full bg-gray-400 dark:bg-gray-500 transition-all duration-linear"
                     style={{
-                      animation: `shrink ${autoHideDuration}ms linear forwards`
+                      animation: `shrink ${autoHideDuration}ms linear forwards`,
                     }}
                   />
                 </div>
@@ -264,8 +268,12 @@ export function AlertNotifications(props: AlertNotificationsProps = {}) {
 
       <style jsx>{`
         @keyframes shrink {
-          from { width: 100%; }
-          to { width: 0%; }
+          from {
+            width: 100%;
+          }
+          to {
+            width: 0%;
+          }
         }
       `}</style>
     </div>
@@ -280,13 +288,16 @@ export function useAlertNotificationSettings() {
     maxNotifications: 5,
     autoHideDuration: 8000,
     showOnlyCritical: false,
-    enableSound: true
+    enableSound: true,
   })
 
   const updateSettings = (newSettings: Partial<typeof settings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }))
+    setSettings((prev) => ({ ...prev, ...newSettings }))
     // Persist to localStorage
-    localStorage.setItem('alertNotificationSettings', JSON.stringify({ ...settings, ...newSettings }))
+    localStorage.setItem(
+      'alertNotificationSettings',
+      JSON.stringify({ ...settings, ...newSettings })
+    )
   }
 
   // Load settings from localStorage on mount
@@ -295,7 +306,7 @@ export function useAlertNotificationSettings() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved)
-        setSettings(prev => ({ ...prev, ...parsed }))
+        setSettings((prev) => ({ ...prev, ...parsed }))
       } catch (error) {
         console.warn('Failed to load notification settings:', error)
       }

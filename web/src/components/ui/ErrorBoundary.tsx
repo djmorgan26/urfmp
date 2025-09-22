@@ -44,7 +44,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 Something went wrong
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
+                We encountered an unexpected error. Please try refreshing the page or contact
+                support if the problem persists.
               </p>
               {process.env.NODE_ENV === 'development' && this.state.error && (
                 <details className="mt-4 text-left">
@@ -81,10 +82,10 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  message = "Unable to load data. Please try again.",
+  title = 'Something went wrong',
+  message = 'Unable to load data. Please try again.',
   onRetry,
-  className
+  className,
 }: ErrorStateProps) {
   return (
     <div className={cn('flex items-center justify-center p-8', className)}>
@@ -93,12 +94,8 @@ export function ErrorState({
           <AlertTriangle className="h-8 w-8 text-red-500" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {title}
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {message}
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{message}</p>
         </div>
         {onRetry && (
           <button
@@ -139,11 +136,11 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = "No data available",
+  title = 'No data available',
   message = "There's nothing to show here yet.",
   action,
   icon,
-  className
+  className,
 }: EmptyStateProps) {
   return (
     <div className={cn('flex items-center justify-center p-8', className)}>
@@ -152,12 +149,8 @@ export function EmptyState({
           {icon || <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700" />}
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {title}
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {message}
-          </p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{message}</p>
         </div>
         {action}
       </div>

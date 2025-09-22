@@ -13,7 +13,7 @@ import {
   Navigation,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
 } from 'lucide-react'
 import { useGeofencing } from '../../hooks/useGeofencing'
 import { cn } from '../../lib/utils'
@@ -25,7 +25,9 @@ import { AddGeofenceModal } from './AddGeofenceModal'
 import { EditGeofenceModal } from './EditGeofenceModal'
 
 export function GeofencingDashboard() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'waypoints' | 'geofences' | 'paths' | 'events'>('overview')
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'waypoints' | 'geofences' | 'paths' | 'events'
+  >('overview')
   const [showAddWaypointModal, setShowAddWaypointModal] = useState(false)
   const [showEditWaypointModal, setShowEditWaypointModal] = useState(false)
   const [selectedWaypoint, setSelectedWaypoint] = useState<any>(null)
@@ -47,7 +49,7 @@ export function GeofencingDashboard() {
     deleteWaypoint,
     deleteGeofence,
     acknowledgeEvent,
-    clearEvents
+    clearEvents,
   } = useGeofencing()
 
   const handleEditWaypoint = (waypoint: any) => {
@@ -77,10 +79,10 @@ export function GeofencingDashboard() {
     refresh()
   }
 
-  const activeWaypoints = waypoints.filter(wp => wp.isActive).length
-  const activeGeofences = geofences.filter(gf => gf.isActive).length
-  const activePaths = paths.filter(p => p.status === 'active').length
-  const unacknowledgedEvents = events.filter(e => !e.acknowledged).length
+  const activeWaypoints = waypoints.filter((wp) => wp.isActive).length
+  const activeGeofences = geofences.filter((gf) => gf.isActive).length
+  const activePaths = paths.filter((p) => p.status === 'active').length
+  const unacknowledgedEvents = events.filter((e) => !e.acknowledged).length
 
   if (isLoading) {
     return (
@@ -96,7 +98,9 @@ export function GeofencingDashboard() {
       <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-6">
         <div className="flex items-center">
           <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
-          <span className="text-red-800 dark:text-red-400 font-medium">Error loading geofencing data</span>
+          <span className="text-red-800 dark:text-red-400 font-medium">
+            Error loading geofencing data
+          </span>
         </div>
         <p className="text-red-700 dark:text-red-300 text-sm mt-1">{error}</p>
         <button
@@ -138,16 +142,16 @@ export function GeofencingDashboard() {
           { id: 'waypoints', label: 'Waypoints', icon: Navigation },
           { id: 'geofences', label: 'Geofences', icon: Shield },
           { id: 'paths', label: 'Paths', icon: GitBranch },
-          { id: 'events', label: 'Events', icon: AlertTriangle }
-        ].map(tab => (
+          { id: 'events', label: 'Events', icon: AlertTriangle },
+        ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={cn(
-              "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
               activeTab === tab.id
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
             )}
           >
             <div className="flex items-center space-x-2">
@@ -209,20 +213,29 @@ export function GeofencingDashboard() {
           <div className="bg-card rounded-lg border border-border p-6">
             <h3 className="text-lg font-semibold mb-4">Recent Events</h3>
             <div className="space-y-3">
-              {events.slice(0, 5).map(event => (
-                <div key={event.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+              {events.slice(0, 5).map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between p-3 border border-border rounded-lg"
+                >
                   <div className="flex items-center space-x-3">
-                    <div className={cn(
-                      "w-2 h-2 rounded-full",
-                      event.severity === 'critical' ? 'bg-red-600' :
-                      event.severity === 'error' ? 'bg-red-500' :
-                      event.severity === 'warning' ? 'bg-yellow-500' :
-                      'bg-blue-500'
-                    )} />
+                    <div
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        event.severity === 'critical'
+                          ? 'bg-red-600'
+                          : event.severity === 'error'
+                            ? 'bg-red-500'
+                            : event.severity === 'warning'
+                              ? 'bg-yellow-500'
+                              : 'bg-blue-500'
+                      )}
+                    />
                     <div>
                       <p className="text-sm font-medium">{event.message}</p>
                       <p className="text-xs text-muted-foreground">
-                        {event.robotName} • {event.geofenceName} • {event.timestamp.toLocaleTimeString()}
+                        {event.robotName} • {event.geofenceName} •{' '}
+                        {event.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
@@ -263,23 +276,33 @@ export function GeofencingDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {waypoints.map(waypoint => (
+            {waypoints.map((waypoint) => (
               <div key={waypoint.id} className="bg-card rounded-lg border border-border p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <div className={cn(
-                      "w-3 h-3 rounded-full",
-                      waypoint.type === 'pickup' ? 'bg-blue-600' :
-                      waypoint.type === 'dropoff' ? 'bg-green-600' :
-                      waypoint.type === 'charging' ? 'bg-yellow-600' :
-                      waypoint.type === 'maintenance' ? 'bg-red-600' :
-                      'bg-gray-600'
-                    )} />
+                    <div
+                      className={cn(
+                        'w-3 h-3 rounded-full',
+                        waypoint.type === 'pickup'
+                          ? 'bg-blue-600'
+                          : waypoint.type === 'dropoff'
+                            ? 'bg-green-600'
+                            : waypoint.type === 'charging'
+                              ? 'bg-yellow-600'
+                              : waypoint.type === 'maintenance'
+                                ? 'bg-red-600'
+                                : 'bg-gray-600'
+                      )}
+                    />
                     <h4 className="font-medium">{waypoint.name}</h4>
                   </div>
                   <div className="flex items-center space-x-1">
                     <button className="p-1 hover:bg-muted rounded">
-                      {waypoint.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                      {waypoint.isActive ? (
+                        <Eye className="h-4 w-4" />
+                      ) : (
+                        <EyeOff className="h-4 w-4" />
+                      )}
                     </button>
                     <button
                       onClick={() => handleEditWaypoint(waypoint)}
@@ -314,7 +337,8 @@ export function GeofencingDashboard() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Coordinates:</span>
                     <span className="text-xs">
-                      {waypoint.coordinates.latitude.toFixed(4)}, {waypoint.coordinates.longitude.toFixed(4)}
+                      {waypoint.coordinates.latitude.toFixed(4)},{' '}
+                      {waypoint.coordinates.longitude.toFixed(4)}
                     </span>
                   </div>
                 </div>
@@ -339,7 +363,7 @@ export function GeofencingDashboard() {
           </div>
 
           <div className="space-y-4">
-            {geofences.map(geofence => (
+            {geofences.map((geofence) => (
               <div key={geofence.id} className="bg-card rounded-lg border border-border p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -349,10 +373,14 @@ export function GeofencingDashboard() {
                         style={{ backgroundColor: geofence.color, borderColor: geofence.color }}
                       />
                       <h4 className="font-medium">{geofence.name}</h4>
-                      <span className={cn(
-                        "px-2 py-1 rounded-full text-xs",
-                        geofence.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                      )}>
+                      <span
+                        className={cn(
+                          'px-2 py-1 rounded-full text-xs',
+                          geofence.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        )}
+                      >
                         {geofence.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
@@ -396,8 +424,11 @@ export function GeofencingDashboard() {
                 {geofence.rules.length > 0 && (
                   <div className="mt-4 space-y-2">
                     <h5 className="text-sm font-medium">Rules:</h5>
-                    {geofence.rules.map(rule => (
-                      <div key={rule.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                    {geofence.rules.map((rule) => (
+                      <div
+                        key={rule.id}
+                        className="flex items-center justify-between p-2 bg-muted rounded"
+                      >
                         <span className="text-sm">{rule.name}</span>
                         <div className="flex items-center space-x-2">
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
@@ -432,20 +463,25 @@ export function GeofencingDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {paths.map(path => (
+            {paths.map((path) => (
               <div key={path.id} className="bg-card rounded-lg border border-border p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h4 className="font-medium">{path.name}</h4>
                     <p className="text-sm text-muted-foreground">{path.description}</p>
                   </div>
-                  <span className={cn(
-                    "px-2 py-1 rounded-full text-xs",
-                    path.status === 'active' ? 'bg-green-100 text-green-800' :
-                    path.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                    path.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
-                  )}>
+                  <span
+                    className={cn(
+                      'px-2 py-1 rounded-full text-xs',
+                      path.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : path.status === 'completed'
+                          ? 'bg-blue-100 text-blue-800'
+                          : path.status === 'paused'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                    )}
+                  >
                     {path.status}
                   </span>
                 </div>
@@ -512,33 +548,47 @@ export function GeofencingDashboard() {
           </div>
 
           <div className="space-y-3">
-            {events.map(event => (
+            {events.map((event) => (
               <div key={event.id} className="bg-card rounded-lg border border-border p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
-                    <div className={cn(
-                      "w-3 h-3 rounded-full mt-2",
-                      event.severity === 'critical' ? 'bg-red-600' :
-                      event.severity === 'error' ? 'bg-red-500' :
-                      event.severity === 'warning' ? 'bg-yellow-500' :
-                      'bg-blue-500'
-                    )} />
+                    <div
+                      className={cn(
+                        'w-3 h-3 rounded-full mt-2',
+                        event.severity === 'critical'
+                          ? 'bg-red-600'
+                          : event.severity === 'error'
+                            ? 'bg-red-500'
+                            : event.severity === 'warning'
+                              ? 'bg-yellow-500'
+                              : 'bg-blue-500'
+                      )}
+                    />
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <h4 className="font-medium">{event.message}</h4>
-                        <span className={cn(
-                          "px-2 py-1 rounded-full text-xs",
-                          event.severity === 'critical' ? 'bg-red-100 text-red-800' :
-                          event.severity === 'error' ? 'bg-red-50 text-red-700' :
-                          event.severity === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-blue-100 text-blue-800'
-                        )}>
+                        <span
+                          className={cn(
+                            'px-2 py-1 rounded-full text-xs',
+                            event.severity === 'critical'
+                              ? 'bg-red-100 text-red-800'
+                              : event.severity === 'error'
+                                ? 'bg-red-50 text-red-700'
+                                : event.severity === 'warning'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-blue-100 text-blue-800'
+                          )}
+                        >
                           {event.severity}
                         </span>
                       </div>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        <p>Robot: {event.robotName} • Geofence: {event.geofenceName}</p>
-                        <p>Rule: {event.ruleName} • Type: {event.eventType}</p>
+                        <p>
+                          Robot: {event.robotName} • Geofence: {event.geofenceName}
+                        </p>
+                        <p>
+                          Rule: {event.ruleName} • Type: {event.eventType}
+                        </p>
                         <p>Time: {event.timestamp.toLocaleString()}</p>
                         {event.actionsTaken.length > 0 && (
                           <p>Actions: {event.actionsTaken.join(', ')}</p>

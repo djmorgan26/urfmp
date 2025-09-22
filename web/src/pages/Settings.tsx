@@ -73,7 +73,8 @@ export function Settings() {
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [editingUser, setEditingUser] = useState<any>(null)
   const { theme, setTheme } = useTheme()
-  const { settings: notificationSettings, updateSettings: updateNotificationSettings } = useAlertNotificationSettings()
+  const { settings: notificationSettings, updateSettings: updateNotificationSettings } =
+    useAlertNotificationSettings()
   const { userStats, refreshUsers } = useUserManagement()
 
   // General settings state
@@ -81,7 +82,7 @@ export function Settings() {
     organizationName: 'Acme Robotics',
     timeZone: 'UTC-8 (Pacific Time)',
     refreshRate: '5 seconds',
-    autoRefresh: true
+    autoRefresh: true,
   })
 
   // Database settings state
@@ -125,7 +126,7 @@ export function Settings() {
   const saveGeneralSettings = async () => {
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       toast.success('General settings saved successfully!')
     } catch (error) {
       toast.error('Failed to save general settings. Please try again.')
@@ -135,7 +136,7 @@ export function Settings() {
   const saveNotificationSettings = async () => {
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       toast.success('Notification preferences saved successfully!')
     } catch (error) {
       toast.error('Failed to save notification settings. Please try again.')
@@ -145,7 +146,7 @@ export function Settings() {
   const saveDatabaseSettings = async () => {
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       toast.success('Database settings saved successfully!')
     } catch (error) {
       toast.error('Failed to save database settings. Please try again.')
@@ -179,18 +180,20 @@ export function Settings() {
       if (twoFactorMethod === 'app') {
         setShowQRCode(true)
         // Simulate API call to generate QR code
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         setShowQRCode(false)
         setPendingVerification(true)
-        toast.success('Scan the QR code with your authenticator app, then enter the verification code')
+        toast.success(
+          'Scan the QR code with your authenticator app, then enter the verification code'
+        )
       } else if (twoFactorMethod === 'sms') {
         // Simulate sending SMS verification code
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         setPendingVerification(true)
         toast.success(`Verification code sent to ${phoneNumber}`)
       } else if (twoFactorMethod === 'email') {
         // Simulate sending email verification code
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise((resolve) => setTimeout(resolve, 1000))
         setPendingVerification(true)
         toast.success(`Verification code sent to ${emailAddress}`)
       }
@@ -209,7 +212,7 @@ export function Settings() {
     try {
       setIsVerifyingCode(true)
       // Simulate API call to verify code
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Simulate successful verification
       setTwoFactorEnabled(true)
@@ -224,10 +227,14 @@ export function Settings() {
   }
 
   const disableTwoFactor = async () => {
-    if (confirm('Are you sure you want to disable two-factor authentication? This will make your account less secure.')) {
+    if (
+      confirm(
+        'Are you sure you want to disable two-factor authentication? This will make your account less secure.'
+      )
+    ) {
       try {
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         setTwoFactorEnabled(false)
         setPendingVerification(false)
         setVerificationCode('')
@@ -247,9 +254,12 @@ export function Settings() {
     }
 
     // Basic IP/CIDR validation
-    const ipPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/[0-9]{1,2})?$/
+    const ipPattern =
+      /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/[0-9]{1,2})?$/
     if (!ipPattern.test(newIpAddress.trim())) {
-      toast.error('Please enter a valid IP address or CIDR range (e.g., 192.168.1.1 or 192.168.1.0/24)')
+      toast.error(
+        'Please enter a valid IP address or CIDR range (e.g., 192.168.1.1 or 192.168.1.0/24)'
+      )
       return
     }
 
@@ -259,14 +269,14 @@ export function Settings() {
         toast.error('IP address already in allowlist')
         return
       }
-      setIpAllowlist(prev => [...prev, ip])
+      setIpAllowlist((prev) => [...prev, ip])
       toast.success('IP address added to allowlist')
     } else {
       if (ipBlocklist.includes(ip)) {
         toast.error('IP address already in blocklist')
         return
       }
-      setIpBlocklist(prev => [...prev, ip])
+      setIpBlocklist((prev) => [...prev, ip])
       toast.success('IP address added to blocklist')
     }
     setNewIpAddress('')
@@ -274,10 +284,10 @@ export function Settings() {
 
   const removeIpAddress = (ip: string, type: 'allow' | 'block') => {
     if (type === 'allow') {
-      setIpAllowlist(prev => prev.filter(addr => addr !== ip))
+      setIpAllowlist((prev) => prev.filter((addr) => addr !== ip))
       toast.success('IP address removed from allowlist')
     } else {
-      setIpBlocklist(prev => prev.filter(addr => addr !== ip))
+      setIpBlocklist((prev) => prev.filter((addr) => addr !== ip))
       toast.success('IP address removed from blocklist')
     }
   }
@@ -285,7 +295,7 @@ export function Settings() {
   const saveSecuritySettings = async () => {
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000))
       toast.success('Security settings saved successfully!')
     } catch (error) {
       toast.error('Failed to save security settings. Please try again.')
@@ -296,7 +306,7 @@ export function Settings() {
     if (confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
       try {
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         console.log(`Deleting API key: ${keyId}`)
         toast.success('API key deleted successfully!')
         // In real implementation, refresh the API keys list
@@ -319,7 +329,7 @@ export function Settings() {
     try {
       toast.info('Preparing data export... This may take a few minutes.')
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
 
       // Create a mock export file
       const exportData = {
@@ -327,7 +337,7 @@ export function Settings() {
         telemetry: [],
         settings: generalSettings,
         users: [],
-        exportDate: new Date().toISOString()
+        exportDate: new Date().toISOString(),
       }
 
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
@@ -402,7 +412,9 @@ export function Settings() {
                   <input
                     type="text"
                     value={generalSettings.organizationName}
-                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, organizationName: e.target.value }))}
+                    onChange={(e) =>
+                      setGeneralSettings((prev) => ({ ...prev, organizationName: e.target.value }))
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
@@ -411,7 +423,9 @@ export function Settings() {
                   <label className="block text-sm font-medium mb-2">Time Zone</label>
                   <select
                     value={generalSettings.timeZone}
-                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, timeZone: e.target.value }))}
+                    onChange={(e) =>
+                      setGeneralSettings((prev) => ({ ...prev, timeZone: e.target.value }))
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option>UTC-8 (Pacific Time)</option>
@@ -427,7 +441,9 @@ export function Settings() {
                   </label>
                   <select
                     value={generalSettings.refreshRate}
-                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, refreshRate: e.target.value }))}
+                    onChange={(e) =>
+                      setGeneralSettings((prev) => ({ ...prev, refreshRate: e.target.value }))
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
                     <option>5 seconds</option>
@@ -461,7 +477,9 @@ export function Settings() {
                     id="auto-refresh"
                     className="rounded"
                     checked={generalSettings.autoRefresh}
-                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, autoRefresh: e.target.checked }))}
+                    onChange={(e) =>
+                      setGeneralSettings((prev) => ({ ...prev, autoRefresh: e.target.checked }))
+                    }
                   />
                   <label htmlFor="auto-refresh" className="text-sm">
                     Auto-refresh dashboard
@@ -506,10 +524,14 @@ export function Settings() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Notification Position</label>
+                      <label className="block text-sm font-medium mb-2">
+                        Notification Position
+                      </label>
                       <select
                         value={notificationSettings.position}
-                        onChange={(e) => updateNotificationSettings({ position: e.target.value as any })}
+                        onChange={(e) =>
+                          updateNotificationSettings({ position: e.target.value as any })
+                        }
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       >
                         <option value="top-right">Top Right</option>
@@ -523,7 +545,9 @@ export function Settings() {
                       <label className="block text-sm font-medium mb-2">Max Notifications</label>
                       <select
                         value={notificationSettings.maxNotifications}
-                        onChange={(e) => updateNotificationSettings({ maxNotifications: parseInt(e.target.value) })}
+                        onChange={(e) =>
+                          updateNotificationSettings({ maxNotifications: parseInt(e.target.value) })
+                        }
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       >
                         <option value="3">3 notifications</option>
@@ -537,7 +561,9 @@ export function Settings() {
                     <label className="block text-sm font-medium mb-2">Auto-hide Duration</label>
                     <select
                       value={notificationSettings.autoHideDuration}
-                      onChange={(e) => updateNotificationSettings({ autoHideDuration: parseInt(e.target.value) })}
+                      onChange={(e) =>
+                        updateNotificationSettings({ autoHideDuration: parseInt(e.target.value) })
+                      }
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                     >
                       <option value="5000">5 seconds</option>
@@ -569,7 +595,9 @@ export function Settings() {
                       type="checkbox"
                       className="rounded"
                       checked={notificationSettings.enableSound}
-                      onChange={(e) => updateNotificationSettings({ enableSound: e.target.checked })}
+                      onChange={(e) =>
+                        updateNotificationSettings({ enableSound: e.target.checked })
+                      }
                     />
                   </div>
 
@@ -584,7 +612,9 @@ export function Settings() {
                       type="checkbox"
                       className="rounded"
                       checked={notificationSettings.showOnlyCritical}
-                      onChange={(e) => updateNotificationSettings({ showOnlyCritical: e.target.checked })}
+                      onChange={(e) =>
+                        updateNotificationSettings({ showOnlyCritical: e.target.checked })
+                      }
                     />
                   </div>
                 </div>
@@ -649,7 +679,9 @@ export function Settings() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Temperature Warning (°C)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Temperature Warning (°C)
+                    </label>
                     <input
                       type="number"
                       defaultValue="50"
@@ -663,7 +695,9 @@ export function Settings() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Power Consumption Warning (W)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Power Consumption Warning (W)
+                    </label>
                     <input
                       type="number"
                       defaultValue="200"
@@ -677,7 +711,9 @@ export function Settings() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">GPS Accuracy Warning (m)</label>
+                    <label className="block text-sm font-medium mb-2">
+                      GPS Accuracy Warning (m)
+                    </label>
                     <input
                       type="number"
                       defaultValue="10"
@@ -717,20 +753,21 @@ export function Settings() {
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
                         <p className="font-medium">Status</p>
-                        <span className={cn(
-                          'px-2 py-1 text-xs font-medium rounded-full',
-                          twoFactorEnabled
-                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                        )}>
+                        <span
+                          className={cn(
+                            'px-2 py-1 text-xs font-medium rounded-full',
+                            twoFactorEnabled
+                              ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                              : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                          )}
+                        >
                           {twoFactorEnabled ? 'Enabled' : 'Disabled'}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
                         {twoFactorEnabled
                           ? 'Your account is protected with two-factor authentication'
-                          : 'Add an extra layer of security to your account'
-                        }
+                          : 'Add an extra layer of security to your account'}
                       </p>
                     </div>
 
@@ -777,7 +814,9 @@ export function Settings() {
                             />
                             <div>
                               <p className="font-medium">Authenticator App</p>
-                              <p className="text-sm text-muted-foreground">Use Google Authenticator, Authy, or similar apps</p>
+                              <p className="text-sm text-muted-foreground">
+                                Use Google Authenticator, Authy, or similar apps
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -800,7 +839,9 @@ export function Settings() {
                             />
                             <div>
                               <p className="font-medium">SMS</p>
-                              <p className="text-sm text-muted-foreground">Receive codes via text message</p>
+                              <p className="text-sm text-muted-foreground">
+                                Receive codes via text message
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -823,7 +864,9 @@ export function Settings() {
                             />
                             <div>
                               <p className="font-medium">Email</p>
-                              <p className="text-sm text-muted-foreground">Receive codes via email</p>
+                              <p className="text-sm text-muted-foreground">
+                                Receive codes via email
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -846,7 +889,9 @@ export function Settings() {
                             />
                             <div>
                               <p className="font-medium">Hardware Key</p>
-                              <p className="text-sm text-muted-foreground">YubiKey, FIDO2, or WebAuthn devices</p>
+                              <p className="text-sm text-muted-foreground">
+                                YubiKey, FIDO2, or WebAuthn devices
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -857,9 +902,7 @@ export function Settings() {
                         <div className="space-y-4 mt-6">
                           {twoFactorMethod === 'sms' && (
                             <div>
-                              <label className="block text-sm font-medium mb-2">
-                                Phone Number
-                              </label>
+                              <label className="block text-sm font-medium mb-2">Phone Number</label>
                               <input
                                 type="tel"
                                 value={phoneNumber}
@@ -900,13 +943,13 @@ export function Settings() {
                             Enter Verification Code
                           </h4>
                           <div>
-                            <label className="block text-sm font-medium mb-2">
-                              6-Digit Code
-                            </label>
+                            <label className="block text-sm font-medium mb-2">6-Digit Code</label>
                             <input
                               type="text"
                               value={verificationCode}
-                              onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                              onChange={(e) =>
+                                setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))
+                              }
                               placeholder="123456"
                               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono text-center text-lg tracking-widest"
                               maxLength={6}
@@ -999,7 +1042,10 @@ export function Settings() {
                           </p>
                         ) : (
                           ipAllowlist.map((ip, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                            >
                               <div className="flex items-center space-x-2">
                                 <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
                                 <span className="font-mono text-sm">{ip}</span>
@@ -1026,7 +1072,10 @@ export function Settings() {
                           </p>
                         ) : (
                           ipBlocklist.map((ip, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <div
+                              key={index}
+                              className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                            >
                               <div className="flex items-center space-x-2">
                                 <Ban className="h-4 w-4 text-red-600 dark:text-red-400" />
                                 <span className="font-mono text-sm">{ip}</span>
@@ -1204,7 +1253,9 @@ export function Settings() {
                 <div className="bg-card rounded-lg border border-border p-4">
                   <div className="flex items-center space-x-2">
                     <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                    <span className="text-sm font-medium text-muted-foreground">Pending Invites</span>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Pending Invites
+                    </span>
                   </div>
                   <p className="text-2xl font-bold mt-2">{userStats.pendingInvitations}</p>
                 </div>
@@ -1237,9 +1288,7 @@ export function Settings() {
                 </div>
 
                 {/* User Management Table */}
-                <UserManagementTable
-                  onEditUser={(user) => setEditingUser(user)}
-                />
+                <UserManagementTable onEditUser={(user) => setEditingUser(user)} />
               </div>
 
               {/* Modals */}
@@ -1338,15 +1387,9 @@ export function Settings() {
       </div>
 
       {/* Modals */}
-      <CreateApiKeyModal
-        isOpen={showCreateApiKey}
-        onClose={() => setShowCreateApiKey(false)}
-      />
+      <CreateApiKeyModal isOpen={showCreateApiKey} onClose={() => setShowCreateApiKey(false)} />
 
-      <InviteUserModal
-        isOpen={showInviteModal}
-        onClose={() => setShowInviteModal(false)}
-      />
+      <InviteUserModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
 
       {editingUser && (
         <EditUserModal

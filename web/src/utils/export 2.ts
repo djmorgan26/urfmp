@@ -1,4 +1,9 @@
-import { FleetMetrics, RobotPerformanceData, FleetTrendData, ErrorDistribution } from '../hooks/useAnalytics'
+import {
+  FleetMetrics,
+  RobotPerformanceData,
+  FleetTrendData,
+  ErrorDistribution,
+} from '../hooks/useAnalytics'
 
 export interface ExportData {
   fleetMetrics: FleetMetrics
@@ -29,29 +34,29 @@ export const REPORT_TEMPLATES: ReportTemplate[] = [
     name: 'Fleet Overview Report',
     description: 'Comprehensive fleet performance and status overview',
     sections: ['fleet-metrics', 'robot-performance', 'error-distribution'],
-    format: 'pdf'
+    format: 'pdf',
   },
   {
     id: 'performance-analysis',
     name: 'Performance Analysis',
     description: 'Detailed robot efficiency and cycle analysis',
     sections: ['robot-performance', 'fleet-trends', 'recommendations'],
-    format: 'csv'
+    format: 'csv',
   },
   {
     id: 'maintenance-report',
     name: 'Maintenance Report',
     description: 'Maintenance insights and predictive analytics',
     sections: ['health-scores', 'maintenance-alerts', 'recommendations'],
-    format: 'pdf'
+    format: 'pdf',
   },
   {
     id: 'power-consumption',
     name: 'Power Consumption Analysis',
     description: 'Energy usage patterns and optimization opportunities',
     sections: ['power-trends', 'fleet-metrics', 'recommendations'],
-    format: 'csv'
-  }
+    format: 'csv',
+  },
 ]
 
 export function exportToCSV(data: ExportData): string {
@@ -72,24 +77,32 @@ export function exportToCSV(data: ExportData): string {
 
   // Robot Performance Section
   sections.push('Robot Performance')
-  sections.push('Robot ID,Robot Name,Cycles,Efficiency (%),Uptime (%),Status,Power Consumption (W),Operating Hours')
-  data.robotPerformance.forEach(robot => {
-    sections.push(`${robot.robotId},${robot.robotName},${robot.cycles},${robot.efficiency},${robot.uptime},${robot.status},${robot.powerConsumption},${robot.operatingHours}`)
+  sections.push(
+    'Robot ID,Robot Name,Cycles,Efficiency (%),Uptime (%),Status,Power Consumption (W),Operating Hours'
+  )
+  data.robotPerformance.forEach((robot) => {
+    sections.push(
+      `${robot.robotId},${robot.robotName},${robot.cycles},${robot.efficiency},${robot.uptime},${robot.status},${robot.powerConsumption},${robot.operatingHours}`
+    )
   })
   sections.push('')
 
   // Fleet Trends Section
   sections.push('Fleet Trends')
-  sections.push('Date,Utilization (%),Efficiency (%),Downtime (hours),Power Consumption (W),Cycle Count')
-  data.fleetTrends.forEach(trend => {
-    sections.push(`${trend.date},${trend.utilization},${trend.efficiency},${trend.downtime},${trend.powerConsumption},${trend.cycleCount}`)
+  sections.push(
+    'Date,Utilization (%),Efficiency (%),Downtime (hours),Power Consumption (W),Cycle Count'
+  )
+  data.fleetTrends.forEach((trend) => {
+    sections.push(
+      `${trend.date},${trend.utilization},${trend.efficiency},${trend.downtime},${trend.powerConsumption},${trend.cycleCount}`
+    )
   })
   sections.push('')
 
   // Error Distribution Section
   sections.push('Error Distribution')
   sections.push('Error Type,Count,Color')
-  data.errorDistribution.forEach(error => {
+  data.errorDistribution.forEach((error) => {
     sections.push(`${error.type},${error.count},${error.color}`)
   })
 
@@ -190,7 +203,9 @@ function generatePDFHTML(data: ExportData): string {
             </tr>
           </thead>
           <tbody>
-            ${data.robotPerformance.map(robot => `
+            ${data.robotPerformance
+              .map(
+                (robot) => `
               <tr>
                 <td>${robot.robotName}</td>
                 <td>${robot.cycles.toLocaleString()}</td>
@@ -200,7 +215,9 @@ function generatePDFHTML(data: ExportData): string {
                 <td>${robot.operatingHours}h</td>
                 <td>${robot.status}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
       </div>
@@ -216,17 +233,19 @@ function generatePDFHTML(data: ExportData): string {
             </tr>
           </thead>
           <tbody>
-            ${data.errorDistribution.map(error => {
-              const total = data.errorDistribution.reduce((sum, e) => sum + e.count, 0)
-              const percentage = total > 0 ? ((error.count / total) * 100).toFixed(1) : '0.0'
-              return `
+            ${data.errorDistribution
+              .map((error) => {
+                const total = data.errorDistribution.reduce((sum, e) => sum + e.count, 0)
+                const percentage = total > 0 ? ((error.count / total) * 100).toFixed(1) : '0.0'
+                return `
                 <tr>
                   <td>${error.type}</td>
                   <td>${error.count}</td>
                   <td>${percentage}%</td>
                 </tr>
               `
-            }).join('')}
+              })
+              .join('')}
           </tbody>
         </table>
       </div>

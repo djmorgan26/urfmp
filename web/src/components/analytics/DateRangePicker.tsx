@@ -18,40 +18,40 @@ const DEFAULT_PRESETS: DateRange[] = [
   {
     from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     to: new Date(),
-    label: 'Last 7 days'
+    label: 'Last 7 days',
   },
   {
     from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     to: new Date(),
-    label: 'Last 30 days'
+    label: 'Last 30 days',
   },
   {
     from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000),
     to: new Date(),
-    label: 'Last 90 days'
+    label: 'Last 90 days',
   },
   {
     from: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
     to: new Date(),
-    label: 'Last year'
+    label: 'Last year',
   },
   {
     from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     to: new Date(),
-    label: 'This month'
+    label: 'This month',
   },
   {
     from: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
     to: new Date(new Date().getFullYear(), new Date().getMonth(), 0),
-    label: 'Last month'
-  }
+    label: 'Last month',
+  },
 ]
 
 export function DateRangePicker({
   value,
   onChange,
   presets = DEFAULT_PRESETS,
-  className = ''
+  className = '',
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [customMode, setCustomMode] = useState(false)
@@ -85,7 +85,7 @@ export function DateRangePicker({
   const handleCustomSubmit = () => {
     onChange({
       ...tempRange,
-      label: `${tempRange.from.toLocaleDateString()} - ${tempRange.to.toLocaleDateString()}`
+      label: `${tempRange.from.toLocaleDateString()} - ${tempRange.to.toLocaleDateString()}`,
     })
     setIsOpen(false)
     setCustomMode(false)
@@ -142,10 +142,12 @@ export function DateRangePicker({
                     <input
                       type="date"
                       value={formatDateForInput(tempRange.from)}
-                      onChange={(e) => setTempRange(prev => ({
-                        ...prev,
-                        from: new Date(e.target.value)
-                      }))}
+                      onChange={(e) =>
+                        setTempRange((prev) => ({
+                          ...prev,
+                          from: new Date(e.target.value),
+                        }))
+                      }
                       className="w-full mt-1 px-3 py-2 border border-input rounded-md text-sm"
                     />
                   </div>
@@ -155,10 +157,12 @@ export function DateRangePicker({
                     <input
                       type="date"
                       value={formatDateForInput(tempRange.to)}
-                      onChange={(e) => setTempRange(prev => ({
-                        ...prev,
-                        to: new Date(e.target.value)
-                      }))}
+                      onChange={(e) =>
+                        setTempRange((prev) => ({
+                          ...prev,
+                          to: new Date(e.target.value),
+                        }))
+                      }
                       className="w-full mt-1 px-3 py-2 border border-input rounded-md text-sm"
                     />
                   </div>

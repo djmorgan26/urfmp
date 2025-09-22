@@ -50,40 +50,48 @@ const systemRoles: Role[] = [
     name: 'Administrator',
     description: 'Full system access with user management capabilities',
     permissions: [
-      'user.view', 'user.create', 'user.update', 'user.delete',
-      'robot.view', 'robot.create', 'robot.update', 'robot.delete',
-      'telemetry.view', 'telemetry.write',
-      'maintenance.view', 'maintenance.create', 'maintenance.update',
-      'organization.view', 'organization.update',
-      'settings.view', 'settings.update'
+      'user.view',
+      'user.create',
+      'user.update',
+      'user.delete',
+      'robot.view',
+      'robot.create',
+      'robot.update',
+      'robot.delete',
+      'telemetry.view',
+      'telemetry.write',
+      'maintenance.view',
+      'maintenance.create',
+      'maintenance.update',
+      'organization.view',
+      'organization.update',
+      'settings.view',
+      'settings.update',
     ],
     isSystem: true,
-    canEdit: false
+    canEdit: false,
   },
   {
     id: 'operator',
     name: 'Robot Operator',
     description: 'Can control robots and view telemetry data',
     permissions: [
-      'robot.view', 'robot.update',
+      'robot.view',
+      'robot.update',
       'telemetry.view',
       'maintenance.view',
-      'commands.send'
+      'commands.send',
     ],
     isSystem: true,
-    canEdit: false
+    canEdit: false,
   },
   {
     id: 'viewer',
     name: 'Viewer',
     description: 'Read-only access to robots and telemetry',
-    permissions: [
-      'robot.view',
-      'telemetry.view',
-      'maintenance.view'
-    ],
+    permissions: ['robot.view', 'telemetry.view', 'maintenance.view'],
     isSystem: true,
-    canEdit: false
+    canEdit: false,
   },
   {
     id: 'maintainer',
@@ -92,12 +100,14 @@ const systemRoles: Role[] = [
     permissions: [
       'robot.view',
       'telemetry.view',
-      'maintenance.view', 'maintenance.create', 'maintenance.update',
-      'alerts.acknowledge'
+      'maintenance.view',
+      'maintenance.create',
+      'maintenance.update',
+      'alerts.acknowledge',
     ],
     isSystem: true,
-    canEdit: false
-  }
+    canEdit: false,
+  },
 ]
 
 export interface UseUserManagementReturn {
@@ -144,7 +154,7 @@ export function useUserManagement(): UseUserManagementReturn {
     setIsLoading(true)
     try {
       // In a real implementation, these would be API calls
-      await new Promise(resolve => setTimeout(resolve, 500)) // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate API delay
 
       // Mock users data
       const mockUsers: User[] = [
@@ -154,11 +164,11 @@ export function useUserManagement(): UseUserManagementReturn {
           firstName: 'John',
           lastName: 'Doe',
           role: 'admin',
-          permissions: systemRoles.find(r => r.id === 'admin')?.permissions || [],
+          permissions: systemRoles.find((r) => r.id === 'admin')?.permissions || [],
           isActive: true,
           lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
           createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-          organizationId: 'org-1'
+          organizationId: 'org-1',
         },
         {
           id: '2',
@@ -166,12 +176,12 @@ export function useUserManagement(): UseUserManagementReturn {
           firstName: 'Sarah',
           lastName: 'Johnson',
           role: 'operator',
-          permissions: systemRoles.find(r => r.id === 'operator')?.permissions || [],
+          permissions: systemRoles.find((r) => r.id === 'operator')?.permissions || [],
           isActive: true,
           lastLogin: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
           createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
           organizationId: 'org-1',
-          invitedBy: '1'
+          invitedBy: '1',
         },
         {
           id: '3',
@@ -179,12 +189,12 @@ export function useUserManagement(): UseUserManagementReturn {
           firstName: 'Mike',
           lastName: 'Wilson',
           role: 'maintainer',
-          permissions: systemRoles.find(r => r.id === 'maintainer')?.permissions || [],
+          permissions: systemRoles.find((r) => r.id === 'maintainer')?.permissions || [],
           isActive: true,
           lastLogin: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
           createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
           organizationId: 'org-1',
-          invitedBy: '1'
+          invitedBy: '1',
         },
         {
           id: '4',
@@ -192,13 +202,13 @@ export function useUserManagement(): UseUserManagementReturn {
           firstName: 'Lisa',
           lastName: 'Chen',
           role: 'viewer',
-          permissions: systemRoles.find(r => r.id === 'viewer')?.permissions || [],
+          permissions: systemRoles.find((r) => r.id === 'viewer')?.permissions || [],
           isActive: false,
           lastLogin: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
           createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago
           organizationId: 'org-1',
-          invitedBy: '1'
-        }
+          invitedBy: '1',
+        },
       ]
 
       // Mock invitations
@@ -207,13 +217,13 @@ export function useUserManagement(): UseUserManagementReturn {
           id: 'inv-1',
           email: 'newuser@example.com',
           role: 'operator',
-          permissions: systemRoles.find(r => r.id === 'operator')?.permissions || [],
+          permissions: systemRoles.find((r) => r.id === 'operator')?.permissions || [],
           invitedBy: '1',
           invitedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
           expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
           status: 'pending',
-          inviteToken: 'token-123'
-        }
+          inviteToken: 'token-123',
+        },
       ]
 
       setUsers(mockUsers)
@@ -230,16 +240,16 @@ export function useUserManagement(): UseUserManagementReturn {
   const inviteUser = async (email: string, role: string, permissions?: string[]) => {
     try {
       // Check if user already exists
-      if (users.find(u => u.email === email)) {
+      if (users.find((u) => u.email === email)) {
         throw new Error('User with this email already exists')
       }
 
       // Check if invitation already exists
-      if (invitations.find(i => i.email === email && i.status === 'pending')) {
+      if (invitations.find((i) => i.email === email && i.status === 'pending')) {
         throw new Error('Invitation already sent to this email')
       }
 
-      const selectedRole = systemRoles.find(r => r.id === role)
+      const selectedRole = systemRoles.find((r) => r.id === role)
       if (!selectedRole) {
         throw new Error('Invalid role selected')
       }
@@ -253,10 +263,10 @@ export function useUserManagement(): UseUserManagementReturn {
         invitedAt: new Date(),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         status: 'pending',
-        inviteToken: `token-${Math.random().toString(36).substring(2)}`
+        inviteToken: `token-${Math.random().toString(36).substring(2)}`,
       }
 
-      setInvitations(prev => [...prev, newInvitation])
+      setInvitations((prev) => [...prev, newInvitation])
 
       // In real implementation, send email invitation
       console.log(`Invitation sent to ${email} for role ${role}`)
@@ -268,9 +278,7 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const updateUser = async (userId: string, updates: Partial<User>) => {
     try {
-      setUsers(prev => prev.map(user =>
-        user.id === userId ? { ...user, ...updates } : user
-      ))
+      setUsers((prev) => prev.map((user) => (user.id === userId ? { ...user, ...updates } : user)))
 
       // In real implementation, make API call
       console.log(`User ${userId} updated:`, updates)
@@ -286,7 +294,7 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const deleteUser = async (userId: string) => {
     try {
-      setUsers(prev => prev.filter(user => user.id !== userId))
+      setUsers((prev) => prev.filter((user) => user.id !== userId))
       console.log(`User ${userId} deleted`)
     } catch (err) {
       console.error('Failed to delete user:', err)
@@ -296,11 +304,17 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const resendInvitation = async (invitationId: string) => {
     try {
-      setInvitations(prev => prev.map(inv =>
-        inv.id === invitationId
-          ? { ...inv, invitedAt: new Date(), expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }
-          : inv
-      ))
+      setInvitations((prev) =>
+        prev.map((inv) =>
+          inv.id === invitationId
+            ? {
+                ...inv,
+                invitedAt: new Date(),
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+              }
+            : inv
+        )
+      )
       console.log(`Invitation ${invitationId} resent`)
     } catch (err) {
       console.error('Failed to resend invitation:', err)
@@ -310,9 +324,9 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const revokeInvitation = async (invitationId: string) => {
     try {
-      setInvitations(prev => prev.map(inv =>
-        inv.id === invitationId ? { ...inv, status: 'revoked' } : inv
-      ))
+      setInvitations((prev) =>
+        prev.map((inv) => (inv.id === invitationId ? { ...inv, status: 'revoked' } : inv))
+      )
       console.log(`Invitation ${invitationId} revoked`)
     } catch (err) {
       console.error('Failed to revoke invitation:', err)
@@ -326,9 +340,9 @@ export function useUserManagement(): UseUserManagementReturn {
         ...role,
         id: `role-${Date.now()}`,
         isSystem: false,
-        canEdit: true
+        canEdit: true,
       }
-      setCustomRoles(prev => [...prev, newRole])
+      setCustomRoles((prev) => [...prev, newRole])
       console.log('Custom role created:', newRole)
     } catch (err) {
       console.error('Failed to create role:', err)
@@ -338,9 +352,9 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const updateRole = async (roleId: string, updates: Partial<Role>) => {
     try {
-      setCustomRoles(prev => prev.map(role =>
-        role.id === roleId ? { ...role, ...updates } : role
-      ))
+      setCustomRoles((prev) =>
+        prev.map((role) => (role.id === roleId ? { ...role, ...updates } : role))
+      )
       console.log(`Role ${roleId} updated:`, updates)
     } catch (err) {
       console.error('Failed to update role:', err)
@@ -350,12 +364,12 @@ export function useUserManagement(): UseUserManagementReturn {
 
   const deleteRole = async (roleId: string) => {
     try {
-      const role = customRoles.find(r => r.id === roleId)
+      const role = customRoles.find((r) => r.id === roleId)
       if (role?.isSystem) {
         throw new Error('Cannot delete system roles')
       }
 
-      setCustomRoles(prev => prev.filter(role => role.id !== roleId))
+      setCustomRoles((prev) => prev.filter((role) => role.id !== roleId))
       console.log(`Role ${roleId} deleted`)
     } catch (err) {
       console.error('Failed to delete role:', err)
@@ -364,11 +378,11 @@ export function useUserManagement(): UseUserManagementReturn {
   }
 
   const getUserByEmail = (email: string): User | undefined => {
-    return users.find(user => user.email === email)
+    return users.find((user) => user.email === email)
   }
 
   const hasPermission = (userId: string, permission: string): boolean => {
-    const user = users.find(u => u.id === userId)
+    const user = users.find((u) => u.id === userId)
     return user?.permissions.includes(permission) || false
   }
 
@@ -379,9 +393,11 @@ export function useUserManagement(): UseUserManagementReturn {
   // Calculate user statistics
   const userStats: UserStats = {
     totalUsers: users.length,
-    activeUsers: users.filter(u => u.isActive).length,
-    pendingInvitations: invitations.filter(i => i.status === 'pending').length,
-    recentLogins: users.filter(u => u.lastLogin && u.lastLogin > new Date(Date.now() - 24 * 60 * 60 * 1000)).length
+    activeUsers: users.filter((u) => u.isActive).length,
+    pendingInvitations: invitations.filter((i) => i.status === 'pending').length,
+    recentLogins: users.filter(
+      (u) => u.lastLogin && u.lastLogin > new Date(Date.now() - 24 * 60 * 60 * 1000)
+    ).length,
   }
 
   // Combine system and custom roles
@@ -405,6 +421,6 @@ export function useUserManagement(): UseUserManagementReturn {
     deleteRole,
     getUserByEmail,
     hasPermission,
-    refreshUsers
+    refreshUsers,
   }
 }

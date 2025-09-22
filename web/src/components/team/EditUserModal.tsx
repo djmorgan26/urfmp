@@ -18,7 +18,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
     email: '',
     role: 'operator',
     isActive: true,
-    permissions: [] as string[]
+    permissions: [] as string[],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,14 +31,14 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
         email: user.email,
         role: user.role,
         isActive: user.isActive,
-        permissions: user.permissions
+        permissions: user.permissions,
       })
     }
   }, [user])
 
   if (!isOpen || !user) return null
 
-  const selectedRole = roles.find(r => r.id === formData.role)
+  const selectedRole = roles.find((r) => r.id === formData.role)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +60,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
         email: formData.email.trim(),
         role: formData.role as any,
         isActive: formData.isActive,
-        permissions: selectedRole?.permissions || formData.permissions
+        permissions: selectedRole?.permissions || formData.permissions,
       })
 
       onSuccess?.()
@@ -86,10 +86,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
             <User className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">Edit User</h2>
           </div>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-muted rounded-md transition-colors"
-          >
+          <button onClick={handleClose} className="p-2 hover:bg-muted rounded-md transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -103,7 +100,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
                 <input
                   type="text"
                   value={formData.firstName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, firstName: e.target.value }))}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 />
@@ -113,7 +110,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
                 <input
                   type="text"
                   value={formData.lastName}
-                  onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, lastName: e.target.value }))}
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   required
                 />
@@ -126,7 +123,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 required
               />
@@ -140,7 +137,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
               </label>
               <select
                 value={formData.role}
-                onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {roles.map((role) => (
@@ -150,9 +147,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
                 ))}
               </select>
               {selectedRole && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {selectedRole.description}
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{selectedRole.description}</p>
               )}
             </div>
 
@@ -162,7 +157,7 @@ export function EditUserModal({ isOpen, user, onClose, onSuccess }: EditUserModa
                 type="checkbox"
                 id="isActive"
                 checked={formData.isActive}
-                onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
                 className="rounded"
               />
               <label htmlFor="isActive" className="text-sm font-medium">

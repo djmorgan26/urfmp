@@ -20,10 +20,30 @@ interface PathFormData {
 }
 
 const pathStatuses = [
-  { id: 'draft', name: 'Draft', description: 'Path is being planned', color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400' },
-  { id: 'active', name: 'Active', description: 'Path is currently in use', color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' },
-  { id: 'paused', name: 'Paused', description: 'Path execution is paused', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' },
-  { id: 'cancelled', name: 'Cancelled', description: 'Path execution cancelled', color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' },
+  {
+    id: 'draft',
+    name: 'Draft',
+    description: 'Path is being planned',
+    color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400',
+  },
+  {
+    id: 'active',
+    name: 'Active',
+    description: 'Path is currently in use',
+    color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+  },
+  {
+    id: 'paused',
+    name: 'Paused',
+    description: 'Path execution is paused',
+    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+  },
+  {
+    id: 'cancelled',
+    name: 'Cancelled',
+    description: 'Path execution cancelled',
+    color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+  },
 ]
 
 export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) {
@@ -36,12 +56,12 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
     description: '',
     waypoints: [],
     robotId: '',
-    status: 'draft'
+    status: 'draft',
   })
 
   // Available waypoints for selection
-  const availableWaypoints = waypoints.filter(wp => wp.isActive)
-  const selectedWaypoints = waypoints.filter(wp => formData.waypoints.includes(wp.id))
+  const availableWaypoints = waypoints.filter((wp) => wp.isActive)
+  const selectedWaypoints = waypoints.filter((wp) => formData.waypoints.includes(wp.id))
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -62,27 +82,27 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
 
   const handleInputChange = (field: string, value: any) => {
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const addWaypoint = (waypointId: string) => {
     if (!formData.waypoints.includes(waypointId)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        waypoints: [...prev.waypoints, waypointId]
+        waypoints: [...prev.waypoints, waypointId],
       }))
       if (errors.waypoints) {
-        setErrors(prev => ({ ...prev, waypoints: '' }))
+        setErrors((prev) => ({ ...prev, waypoints: '' }))
       }
     }
   }
 
   const removeWaypoint = (waypointId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      waypoints: prev.waypoints.filter(id => id !== waypointId)
+      waypoints: prev.waypoints.filter((id) => id !== waypointId),
     }))
   }
 
@@ -90,17 +110,17 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
     const newWaypoints = [...formData.waypoints]
     const [movedItem] = newWaypoints.splice(fromIndex, 1)
     newWaypoints.splice(toIndex, 0, movedItem)
-    setFormData(prev => ({ ...prev, waypoints: newWaypoints }))
+    setFormData((prev) => ({ ...prev, waypoints: newWaypoints }))
   }
 
   const optimizePath = () => {
     // Simple optimization: sort waypoints by name for demo
     const optimizedOrder = [...formData.waypoints].sort((a, b) => {
-      const waypointA = waypoints.find(wp => wp.id === a)
-      const waypointB = waypoints.find(wp => wp.id === b)
+      const waypointA = waypoints.find((wp) => wp.id === a)
+      const waypointB = waypoints.find((wp) => wp.id === b)
       return (waypointA?.name || '').localeCompare(waypointB?.name || '')
     })
-    setFormData(prev => ({ ...prev, waypoints: optimizedOrder }))
+    setFormData((prev) => ({ ...prev, waypoints: optimizedOrder }))
     toast.success('Path optimized for efficiency!')
   }
 
@@ -125,13 +145,13 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
     setIsLoading(true)
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       const pathData = {
         ...formData,
         totalDistance: calculateEstimatedDistance(),
         estimatedDuration: calculateEstimatedDuration(),
-        isOptimized: false
+        isOptimized: false,
       }
 
       console.log('Creating path:', pathData)
@@ -145,7 +165,7 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
         description: '',
         waypoints: [],
         robotId: '',
-        status: 'draft'
+        status: 'draft',
       })
       setErrors({})
     } catch (error) {
@@ -156,18 +176,17 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
   }
 
   const getInputClassName = (fieldName: string) => {
-    const baseClass = "w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+    const baseClass =
+      'w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2'
     const errorClass = errors[fieldName]
-      ? "border-red-500 focus:ring-red-500"
-      : "border-input bg-background focus:ring-ring"
+      ? 'border-red-500 focus:ring-red-500'
+      : 'border-input bg-background focus:ring-ring'
     return `${baseClass} ${errorClass}`
   }
 
   const renderFieldError = (fieldName: string) => {
     if (errors[fieldName]) {
-      return (
-        <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
-      )
+      return <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
     }
     return null
   }
@@ -179,19 +198,18 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
 
-        <div className={cn(
-          'relative w-full max-w-4xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-        )}>
+        <div
+          className={cn(
+            'relative w-full max-w-4xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
+            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          )}
+        >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <GitBranch className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">Create Path</h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-md hover:bg-muted"
-            >
+            <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -257,7 +275,9 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
                     onClick={() => handleInputChange('status', status.id)}
                   >
                     <div className="text-center">
-                      <div className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${status.color}`}>
+                      <div
+                        className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${status.color}`}
+                      >
                         {status.name}
                       </div>
                       <div className="text-xs text-muted-foreground">{status.description}</div>
@@ -290,30 +310,41 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
                 <div>
                   <h4 className="text-sm font-medium mb-3">Available Waypoints</h4>
                   <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
-                    {availableWaypoints.filter(wp => !formData.waypoints.includes(wp.id)).map(waypoint => (
-                      <div
-                        key={waypoint.id}
-                        className="flex items-center justify-between p-2 border border-border rounded-lg hover:bg-muted cursor-pointer"
-                        onClick={() => addWaypoint(waypoint.id)}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            waypoint.type === 'pickup' ? 'bg-blue-600' :
-                            waypoint.type === 'dropoff' ? 'bg-green-600' :
-                            waypoint.type === 'charging' ? 'bg-yellow-600' :
-                            waypoint.type === 'maintenance' ? 'bg-red-600' :
-                            'bg-gray-600'
-                          )} />
-                          <div>
-                            <p className="text-sm font-medium">{waypoint.name}</p>
-                            <p className="text-xs text-muted-foreground capitalize">{waypoint.type}</p>
+                    {availableWaypoints
+                      .filter((wp) => !formData.waypoints.includes(wp.id))
+                      .map((waypoint) => (
+                        <div
+                          key={waypoint.id}
+                          className="flex items-center justify-between p-2 border border-border rounded-lg hover:bg-muted cursor-pointer"
+                          onClick={() => addWaypoint(waypoint.id)}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <div
+                              className={cn(
+                                'w-2 h-2 rounded-full',
+                                waypoint.type === 'pickup'
+                                  ? 'bg-blue-600'
+                                  : waypoint.type === 'dropoff'
+                                    ? 'bg-green-600'
+                                    : waypoint.type === 'charging'
+                                      ? 'bg-yellow-600'
+                                      : waypoint.type === 'maintenance'
+                                        ? 'bg-red-600'
+                                        : 'bg-gray-600'
+                              )}
+                            />
+                            <div>
+                              <p className="text-sm font-medium">{waypoint.name}</p>
+                              <p className="text-xs text-muted-foreground capitalize">
+                                {waypoint.type}
+                              </p>
+                            </div>
                           </div>
+                          <Plus className="h-4 w-4 text-green-600" />
                         </div>
-                        <Plus className="h-4 w-4 text-green-600" />
-                      </div>
-                    ))}
-                    {availableWaypoints.filter(wp => !formData.waypoints.includes(wp.id)).length === 0 && (
+                      ))}
+                    {availableWaypoints.filter((wp) => !formData.waypoints.includes(wp.id))
+                      .length === 0 && (
                       <div className="text-center py-4 text-muted-foreground">
                         <Navigation className="h-8 w-8 mx-auto mb-2 opacity-50" />
                         <p className="text-sm">All waypoints added to path</p>
@@ -324,25 +355,38 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
 
                 {/* Selected Waypoints (Path Order) */}
                 <div>
-                  <h4 className="text-sm font-medium mb-3">Path Sequence ({formData.waypoints.length} waypoints)</h4>
+                  <h4 className="text-sm font-medium mb-3">
+                    Path Sequence ({formData.waypoints.length} waypoints)
+                  </h4>
                   <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
                     {selectedWaypoints.map((waypoint, index) => (
-                      <div key={waypoint.id} className="flex items-center justify-between p-2 border border-border rounded-lg">
+                      <div
+                        key={waypoint.id}
+                        className="flex items-center justify-between p-2 border border-border rounded-lg"
+                      >
                         <div className="flex items-center space-x-3">
                           <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
                             {index + 1}
                           </span>
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            waypoint.type === 'pickup' ? 'bg-blue-600' :
-                            waypoint.type === 'dropoff' ? 'bg-green-600' :
-                            waypoint.type === 'charging' ? 'bg-yellow-600' :
-                            waypoint.type === 'maintenance' ? 'bg-red-600' :
-                            'bg-gray-600'
-                          )} />
+                          <div
+                            className={cn(
+                              'w-2 h-2 rounded-full',
+                              waypoint.type === 'pickup'
+                                ? 'bg-blue-600'
+                                : waypoint.type === 'dropoff'
+                                  ? 'bg-green-600'
+                                  : waypoint.type === 'charging'
+                                    ? 'bg-yellow-600'
+                                    : waypoint.type === 'maintenance'
+                                      ? 'bg-red-600'
+                                      : 'bg-gray-600'
+                            )}
+                          />
                           <div>
                             <p className="text-sm font-medium">{waypoint.name}</p>
-                            <p className="text-xs text-muted-foreground capitalize">{waypoint.type}</p>
+                            <p className="text-xs text-muted-foreground capitalize">
+                              {waypoint.type}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-1">
@@ -401,7 +445,9 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
                     </div>
                     <div>
                       <span className="text-muted-foreground block">Est. Duration</span>
-                      <span className="font-medium">{Math.round(calculateEstimatedDuration() / 60)}min</span>
+                      <span className="font-medium">
+                        {Math.round(calculateEstimatedDuration() / 60)}min
+                      </span>
                     </div>
                     <div>
                       <span className="text-muted-foreground block">Optimized</span>

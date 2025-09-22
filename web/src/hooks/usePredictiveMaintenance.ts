@@ -124,7 +124,9 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
 
       // Only analyze first 2 robots to minimize API load
       const robotsToAnalyze = robots.slice(0, 2)
-      console.log(`Predictive Maintenance: analyzing ${robotsToAnalyze.length} of ${robots.length} robots`)
+      console.log(
+        `Predictive Maintenance: analyzing ${robotsToAnalyze.length} of ${robots.length} robots`
+      )
 
       let rateLimitHit = false
 
@@ -136,7 +138,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
 
         try {
           // Add delay between API calls to avoid hitting rate limits
-          await new Promise(resolve => setTimeout(resolve, 1000))
+          await new Promise((resolve) => setTimeout(resolve, 1000))
 
           // Get latest telemetry for health analysis
           const latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
@@ -152,12 +154,14 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
           // Analyze component health
           const robotComponentHealth = analyzeComponentHealth(robot, latestTelemetry)
           generatedComponentHealth.push(...robotComponentHealth)
-
         } catch (err) {
           console.warn(`Failed to analyze maintenance data for robot ${robot.id}:`, err)
 
           // Check for rate limiting and stop immediately
-          if (err instanceof Error && (err.message.includes('429') || err.message.includes('Too Many Requests'))) {
+          if (
+            err instanceof Error &&
+            (err.message.includes('429') || err.message.includes('Too Many Requests'))
+          ) {
             console.log('Rate limited detected, stopping all maintenance analysis')
             rateLimitHit = true
             setError('Rate limited - reducing analysis frequency')
@@ -175,15 +179,19 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
       }
 
       // Generate insights based on fleet data
-      const generatedInsights = generateMaintenanceInsights(generatedAlerts, generatedComponentHealth)
+      const generatedInsights = generateMaintenanceInsights(
+        generatedAlerts,
+        generatedComponentHealth
+      )
 
       setAlerts(generatedAlerts)
       setSchedule(generatedSchedule)
       setComponentHealth(generatedComponentHealth)
       setInsights(generatedInsights)
 
-      console.log(`Predictive Maintenance: Generated ${generatedAlerts.length} alerts, ${generatedSchedule.length} schedule items`)
-
+      console.log(
+        `Predictive Maintenance: Generated ${generatedAlerts.length} alerts, ${generatedSchedule.length} schedule items`
+      )
     } catch (err) {
       console.error('Failed to fetch maintenance data:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch maintenance data')
@@ -226,7 +234,7 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
     voltage = {},
     current = {},
     position = {},
-    safety = {}
+    safety = {},
   } = telemetry.data
 
   // Real temperature-based alerts
@@ -249,7 +257,7 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
       recommendation: `Schedule thermal inspection. Check cooling fans and air filtration. Current temp: ${temperature.ambient.toFixed(1)}°C`,
       estimatedDowntime: severity === 'high' ? 4 : severity === 'medium' ? 2 : 1,
       estimatedCost: severity === 'high' ? 800 : severity === 'medium' ? 400 : 200,
-      createdAt: now
+      createdAt: now,
     })
   }
 
@@ -273,13 +281,13 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
       recommendation: `Inspect motor drives and gearboxes. Check for increased friction. Current consumption: ${power.total.toFixed(1)}W`,
       estimatedDowntime: severity === 'high' ? 6 : 3,
       estimatedCost: severity === 'high' ? 1500 : 750,
-      createdAt: now
+      createdAt: now,
     })
   }
 
   // Real voltage analysis
   if (voltage.supply && (voltage.supply < 46 || voltage.supply > 50)) {
-    const severity = (voltage.supply < 44 || voltage.supply > 52) ? 'high' : 'medium'
+    const severity = voltage.supply < 44 || voltage.supply > 52 ? 'high' : 'medium'
     const daysUntilDue = severity === 'high' ? 2 : 7
 
     alerts.push({
@@ -296,7 +304,7 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
       recommendation: `Check power supply stability and connections. Expected: 48V ±2V, Actual: ${voltage.supply.toFixed(1)}V`,
       estimatedDowntime: severity === 'high' ? 4 : 2,
       estimatedCost: severity === 'high' ? 1200 : 400,
-      createdAt: now
+      createdAt: now,
     })
   }
 
@@ -313,17 +321,19 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
       predictedDate: new Date(now.getTime() + 24 * 60 * 60 * 1000), // Next day
       daysUntilDue: 1,
       confidence: 100,
-      recommendation: 'Immediate safety system inspection required. Identify root cause of safety activation.',
+      recommendation:
+        'Immediate safety system inspection required. Identify root cause of safety activation.',
       estimatedDowntime: 8,
       estimatedCost: 1000,
-      createdAt: now
+      createdAt: now,
     })
   }
 
   // Position drift analysis (joint accuracy)
   if (position.x !== undefined && position.y !== undefined) {
     const positionMagnitude = Math.sqrt(position.x * position.x + position.y * position.y)
-    if (positionMagnitude > 500) { // Assuming workspace of ~500mm radius
+    if (positionMagnitude > 500) {
+      // Assuming workspace of ~500mm radius
       alerts.push({
         id: `alert-${robot.id}-calibration`,
         robotId: robot.id,
@@ -335,10 +345,11 @@ function generatePredictiveAlerts(robot: any, telemetry: any): MaintenanceAlert[
         predictedDate: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
         daysUntilDue: 14,
         confidence: 75,
-        recommendation: 'Schedule joint calibration and accuracy verification. Check encoder alignment.',
+        recommendation:
+          'Schedule joint calibration and accuracy verification. Check encoder alignment.',
         estimatedDowntime: 3,
         estimatedCost: 500,
-        createdAt: now
+        createdAt: now,
       })
     }
   }
@@ -372,16 +383,28 @@ function generateMaintenanceSchedule(robot: any): MaintenanceSchedule[] {
     priority: inspectionPriority,
     status: 'scheduled',
     checklist: [
-      { id: '1', description: 'Check emergency stop functionality', required: true, completed: false },
+      {
+        id: '1',
+        description: 'Check emergency stop functionality',
+        required: true,
+        completed: false,
+      },
       { id: '2', description: 'Inspect cables and connections', required: true, completed: false },
       { id: '3', description: 'Verify joint range of motion', required: true, completed: false },
-      { id: '4', description: 'Check error logs and diagnostics', required: isHighPriority, completed: false },
+      {
+        id: '4',
+        description: 'Check error logs and diagnostics',
+        required: isHighPriority,
+        completed: false,
+      },
       { id: '5', description: 'Clean work area and robot base', required: false, completed: false },
-      ...(isHighPriority ? [
-        { id: '6', description: 'Detailed status analysis', required: true, completed: false },
-        { id: '7', description: 'Performance verification', required: true, completed: false }
-      ] : [])
-    ]
+      ...(isHighPriority
+        ? [
+            { id: '6', description: 'Detailed status analysis', required: true, completed: false },
+            { id: '7', description: 'Performance verification', required: true, completed: false },
+          ]
+        : []),
+    ],
   })
 
   // Lubrication schedule (frequency adjusted by robot usage)
@@ -405,10 +428,20 @@ function generateMaintenanceSchedule(robot: any): MaintenanceSchedule[] {
     checklist: [
       { id: '1', description: 'Apply grease to joints 1-6', required: true, completed: false },
       { id: '2', description: 'Check torque specifications', required: true, completed: false },
-      { id: '3', description: 'Test joint movement and accuracy', required: true, completed: false },
+      {
+        id: '3',
+        description: 'Test joint movement and accuracy',
+        required: true,
+        completed: false,
+      },
       { id: '4', description: 'Inspect seals and covers', required: true, completed: false },
-      { id: '5', description: 'Document lubrication quantities', required: false, completed: false }
-    ]
+      {
+        id: '5',
+        description: 'Document lubrication quantities',
+        required: false,
+        completed: false,
+      },
+    ],
   })
 
   // Calibration schedule (more frequent for error-prone robots)
@@ -432,8 +465,8 @@ function generateMaintenanceSchedule(robot: any): MaintenanceSchedule[] {
         { id: '2', description: 'Check encoder alignment', required: true, completed: false },
         { id: '3', description: 'Verify coordinate system', required: true, completed: false },
         { id: '4', description: 'Recalibrate if needed', required: true, completed: false },
-        { id: '5', description: 'Test program execution', required: true, completed: false }
-      ]
+        { id: '5', description: 'Test program execution', required: true, completed: false },
+      ],
     })
   } else {
     // Regular calibration for healthy robots
@@ -453,9 +486,14 @@ function generateMaintenanceSchedule(robot: any): MaintenanceSchedule[] {
       status: 'scheduled',
       checklist: [
         { id: '1', description: 'Run position accuracy test', required: true, completed: false },
-        { id: '2', description: 'Check coordinate repeatability', required: true, completed: false },
-        { id: '3', description: 'Verify tool center point', required: false, completed: false }
-      ]
+        {
+          id: '2',
+          description: 'Check coordinate repeatability',
+          required: true,
+          completed: false,
+        },
+        { id: '3', description: 'Verify tool center point', required: false, completed: false },
+      ],
     })
   }
 
@@ -478,7 +516,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       nextInspection: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
       metrics: {},
       wearIndicators: [],
-      recommendations: ['Connect telemetry data for detailed health analysis']
+      recommendations: ['Connect telemetry data for detailed health analysis'],
     })
     return components
   }
@@ -489,7 +527,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
     voltage = {},
     current = {},
     position = {},
-    safety = {}
+    safety = {},
   } = telemetry.data
 
   // Motor System Health Analysis
@@ -513,7 +551,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       name: 'Operating Temperature',
       value: temperature.ambient,
       threshold: 40,
-      unit: '°C'
+      unit: '°C',
     })
   }
 
@@ -532,7 +570,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       name: 'Power Efficiency',
       value: Math.max(0, 100 - (power.total - 100) * 0.5),
       threshold: 85,
-      unit: '%'
+      unit: '%',
     })
   }
 
@@ -548,7 +586,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       name: 'Current Draw',
       value: current.total,
       threshold: 4,
-      unit: 'A'
+      unit: 'A',
     })
   }
 
@@ -563,7 +601,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       name: 'Supply Voltage',
       value: voltage.supply,
       threshold: 48,
-      unit: 'V'
+      unit: 'V',
     })
   }
 
@@ -586,10 +624,12 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
     healthScore: Math.round(motorHealthScore),
     trend: motorHealthScore > 85 ? 'stable' : motorHealthScore > 70 ? 'degrading' : 'degrading',
     lastInspection: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-    nextInspection: new Date(now.getTime() + (motorHealthScore > 80 ? 14 : 7) * 24 * 60 * 60 * 1000),
+    nextInspection: new Date(
+      now.getTime() + (motorHealthScore > 80 ? 14 : 7) * 24 * 60 * 60 * 1000
+    ),
     metrics: motorMetrics,
     wearIndicators: motorWearIndicators,
-    recommendations: motorRecommendations
+    recommendations: motorRecommendations,
   })
 
   // Position System Health Analysis
@@ -599,7 +639,9 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
   const positionRecommendations: string[] = []
 
   if (position.x !== undefined && position.y !== undefined && position.z !== undefined) {
-    const positionMagnitude = Math.sqrt(position.x * position.x + position.y * position.y + position.z * position.z)
+    const positionMagnitude = Math.sqrt(
+      position.x * position.x + position.y * position.y + position.z * position.z
+    )
     positionMetrics.positionAccuracy = positionMagnitude
 
     if (positionMagnitude > 600) {
@@ -614,7 +656,7 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
       name: 'Position Accuracy',
       value: Math.max(0, 100 - (positionMagnitude - 200) * 0.2),
       threshold: 90,
-      unit: '%'
+      unit: '%',
     })
   }
 
@@ -638,22 +680,28 @@ function analyzeComponentHealth(robot: any, telemetry: any): ComponentHealth[] {
     robotName: robot.name,
     component: 'Position Control System',
     healthScore: Math.round(positionHealthScore),
-    trend: positionHealthScore > 85 ? 'stable' : positionHealthScore > 70 ? 'degrading' : 'degrading',
+    trend:
+      positionHealthScore > 85 ? 'stable' : positionHealthScore > 70 ? 'degrading' : 'degrading',
     lastInspection: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
-    nextInspection: new Date(now.getTime() + (positionHealthScore > 80 ? 21 : 10) * 24 * 60 * 60 * 1000),
+    nextInspection: new Date(
+      now.getTime() + (positionHealthScore > 80 ? 21 : 10) * 24 * 60 * 60 * 1000
+    ),
     metrics: positionMetrics,
     wearIndicators: positionWearIndicators,
-    recommendations: positionRecommendations
+    recommendations: positionRecommendations,
   })
 
   return components
 }
 
-function generateMaintenanceInsights(alerts: MaintenanceAlert[], components: ComponentHealth[]): MaintenanceInsight[] {
+function generateMaintenanceInsights(
+  alerts: MaintenanceAlert[],
+  components: ComponentHealth[]
+): MaintenanceInsight[] {
   const insights: MaintenanceInsight[] = []
 
   // Analyze alert patterns for cost optimization
-  const predictiveAlerts = alerts.filter(a => a.type === 'predictive')
+  const predictiveAlerts = alerts.filter((a) => a.type === 'predictive')
   const totalEstimatedCost = alerts.reduce((sum, alert) => sum + alert.estimatedCost, 0)
   const totalEstimatedDowntime = alerts.reduce((sum, alert) => sum + alert.estimatedDowntime, 0)
 
@@ -671,13 +719,15 @@ function generateMaintenanceInsights(alerts: MaintenanceAlert[], components: Com
       priority: alerts.length > 5 ? 'high' : 'medium',
       estimatedSavings,
       implementationCost,
-      roi: Math.round((estimatedSavings / implementationCost) * 100)
+      roi: Math.round((estimatedSavings / implementationCost) * 100),
     })
   }
 
   // Failure prevention insight based on component health analysis
-  const criticalComponents = components.filter(c => c.healthScore < 70)
-  const degradingComponents = components.filter(c => c.healthScore < 85 && c.trend === 'degrading')
+  const criticalComponents = components.filter((c) => c.healthScore < 70)
+  const degradingComponents = components.filter(
+    (c) => c.healthScore < 85 && c.trend === 'degrading'
+  )
 
   if (criticalComponents.length > 0) {
     const failureRisk = criticalComponents.length * 15000 + degradingComponents.length * 5000
@@ -691,7 +741,7 @@ function generateMaintenanceInsights(alerts: MaintenanceAlert[], components: Com
       priority: criticalComponents.length > 2 ? 'high' : 'medium',
       estimatedSavings: failureRisk,
       implementationCost: preventionCost,
-      roi: Math.round((failureRisk / preventionCost) * 100)
+      roi: Math.round((failureRisk / preventionCost) * 100),
     })
   }
 
@@ -705,28 +755,36 @@ function generateMaintenanceInsights(alerts: MaintenanceAlert[], components: Com
       type: 'downtime_reduction',
       title: 'Predictive Maintenance Optimization',
       description: `Current alerts predict ${totalEstimatedDowntime.toFixed(1)} hours of downtime. Implementing predictive strategies can reduce this significantly.`,
-      impact: `Reduce unplanned downtime by ${reductionPercentage}%, saving ${(totalEstimatedDowntime * reductionPercentage / 100).toFixed(1)} hours`,
+      impact: `Reduce unplanned downtime by ${reductionPercentage}%, saving ${((totalEstimatedDowntime * reductionPercentage) / 100).toFixed(1)} hours`,
       priority: totalEstimatedDowntime > 20 ? 'high' : 'medium',
       estimatedSavings: savings,
       implementationCost: Math.round(savings * 0.3),
-      roi: Math.round(70 / 0.3 * 100)
+      roi: Math.round((70 / 0.3) * 100),
     })
   }
 
   // Efficiency improvement insight based on power and temperature data
-  const highTempAlerts = alerts.filter(a => a.component.toLowerCase().includes('temperature') || a.component.toLowerCase().includes('thermal'))
-  const powerAlerts = alerts.filter(a => a.component.toLowerCase().includes('power') || a.component.toLowerCase().includes('drive'))
+  const highTempAlerts = alerts.filter(
+    (a) =>
+      a.component.toLowerCase().includes('temperature') ||
+      a.component.toLowerCase().includes('thermal')
+  )
+  const powerAlerts = alerts.filter(
+    (a) =>
+      a.component.toLowerCase().includes('power') || a.component.toLowerCase().includes('drive')
+  )
 
   if (highTempAlerts.length > 0 || powerAlerts.length > 0) {
     insights.push({
       type: 'efficiency_improvement',
       title: 'Energy Efficiency Optimization',
       description: `${highTempAlerts.length} thermal and ${powerAlerts.length} power-related alerts suggest opportunities for efficiency improvements.`,
-      impact: 'Optimize energy consumption and reduce operating temperatures for improved efficiency',
+      impact:
+        'Optimize energy consumption and reduce operating temperatures for improved efficiency',
       priority: 'medium',
       estimatedSavings: (highTempAlerts.length + powerAlerts.length) * 5000,
       implementationCost: (highTempAlerts.length + powerAlerts.length) * 1500,
-      roi: Math.round((5000 / 1500) * 100)
+      roi: Math.round((5000 / 1500) * 100),
     })
   }
 
@@ -735,12 +793,13 @@ function generateMaintenanceInsights(alerts: MaintenanceAlert[], components: Com
     insights.push({
       type: 'efficiency_improvement',
       title: 'Predictive Maintenance Baseline',
-      description: 'Fleet operating within normal parameters. Consider implementing advanced monitoring for early issue detection.',
+      description:
+        'Fleet operating within normal parameters. Consider implementing advanced monitoring for early issue detection.',
       impact: 'Establish baseline monitoring to detect future degradation trends',
       priority: 'low',
       estimatedSavings: 25000,
       implementationCost: 8000,
-      roi: 212
+      roi: 212,
     })
   }
 

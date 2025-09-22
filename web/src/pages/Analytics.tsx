@@ -39,7 +39,7 @@ export function Analytics() {
   const [dateRange, setDateRange] = useState<DateRange>({
     from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     to: new Date(),
-    label: 'Last 30 days'
+    label: 'Last 30 days',
   })
   const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
   const {
@@ -63,8 +63,8 @@ export function Analytics() {
         { id: 'offline', label: 'Offline', value: 'offline' },
         { id: 'error', label: 'Error', value: 'error' },
         { id: 'idle', label: 'Idle', value: 'idle' },
-        { id: 'maintenance', label: 'Maintenance', value: 'maintenance' }
-      ]
+        { id: 'maintenance', label: 'Maintenance', value: 'maintenance' },
+      ],
     },
     {
       id: 'efficiency-range',
@@ -72,7 +72,7 @@ export function Analytics() {
       type: 'range',
       min: 0,
       max: 100,
-      step: 1
+      step: 1,
     },
     {
       id: 'power-consumption',
@@ -80,7 +80,7 @@ export function Analytics() {
       type: 'range',
       min: 0,
       max: 1000,
-      step: 10
+      step: 10,
     },
     {
       id: 'robot-type',
@@ -90,28 +90,38 @@ export function Analytics() {
         { id: 'ur5e', label: 'UR5e', value: 'UR5e' },
         { id: 'ur10e', label: 'UR10e', value: 'UR10e' },
         { id: 'ur16e', label: 'UR16e', value: 'UR16e' },
-        { id: 'other', label: 'Other', value: 'other' }
-      ]
-    }
+        { id: 'other', label: 'Other', value: 'other' },
+      ],
+    },
   ]
 
   // Apply filters to robot performance data
-  const filteredRobotPerformance = robotPerformance.filter(robot => {
-    return activeFilters.every(filter => {
+  const filteredRobotPerformance = robotPerformance.filter((robot) => {
+    return activeFilters.every((filter) => {
       switch (filter.groupId) {
         case 'robot-status':
           return filter.values.includes(robot.status)
-        case 'efficiency-range':
+        case 'efficiency-range': {
           const [minEff, maxEff] = filter.values as number[]
           return (!minEff || robot.efficiency >= minEff) && (!maxEff || robot.efficiency <= maxEff)
-        case 'power-consumption':
+        }
+        case 'power-consumption': {
           const [minPower, maxPower] = filter.values as number[]
-          return (!minPower || robot.powerConsumption >= minPower) && (!maxPower || robot.powerConsumption <= maxPower)
-        case 'robot-type':
-          const robotType = robot.robotName.includes('UR5e') ? 'UR5e' :
-                           robot.robotName.includes('UR10e') ? 'UR10e' :
-                           robot.robotName.includes('UR16e') ? 'UR16e' : 'other'
+          return (
+            (!minPower || robot.powerConsumption >= minPower) &&
+            (!maxPower || robot.powerConsumption <= maxPower)
+          )
+        }
+        case 'robot-type': {
+          const robotType = robot.robotName.includes('UR5e')
+            ? 'UR5e'
+            : robot.robotName.includes('UR10e')
+              ? 'UR10e'
+              : robot.robotName.includes('UR16e')
+                ? 'UR16e'
+                : 'other'
           return filter.values.includes(robotType)
+        }
         default:
           return true
       }
@@ -135,7 +145,9 @@ export function Analytics() {
             onChange={(range) => {
               setDateRange(range)
               // Map to TimeRange for analytics hook
-              const days = Math.ceil((range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24))
+              const days = Math.ceil(
+                (range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24)
+              )
               if (days <= 7) setSelectedTimeRange('7d')
               else if (days <= 30) setSelectedTimeRange('30d')
               else if (days <= 90) setSelectedTimeRange('90d')
@@ -165,11 +177,11 @@ export function Analytics() {
             onClick={refresh}
             disabled={isLoading}
             className={cn(
-              "flex items-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors",
-              isLoading && "opacity-50 cursor-not-allowed"
+              'flex items-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors',
+              isLoading && 'opacity-50 cursor-not-allowed'
             )}
           >
-            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
             <span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
           </button>
 
@@ -181,7 +193,7 @@ export function Analytics() {
               errorDistribution,
               isLoading,
               error,
-              refresh
+              refresh,
             }}
             timeRange={dateRange.label}
           />
@@ -266,7 +278,9 @@ export function Analytics() {
             <p className="text-sm font-medium text-muted-foreground">Fleet Status</p>
             <Users className="h-4 w-4 text-purple-600" />
           </div>
-          <p className="text-3xl font-bold">{fleetMetrics.onlineRobots}/{fleetMetrics.totalRobots}</p>
+          <p className="text-3xl font-bold">
+            {fleetMetrics.onlineRobots}/{fleetMetrics.totalRobots}
+          </p>
           <div className="flex items-center mt-2 text-sm">
             <span className="text-muted-foreground">robots online</span>
           </div>
@@ -277,7 +291,9 @@ export function Analytics() {
             <p className="text-sm font-medium text-muted-foreground">Power Usage</p>
             <Zap className="h-4 w-4 text-orange-600" />
           </div>
-          <p className="text-3xl font-bold">{(fleetMetrics.totalPowerConsumption / 1000).toFixed(1)}kW</p>
+          <p className="text-3xl font-bold">
+            {(fleetMetrics.totalPowerConsumption / 1000).toFixed(1)}kW
+          </p>
           <div className="flex items-center mt-2 text-sm">
             <span className="text-muted-foreground">total consumption</span>
           </div>
@@ -407,7 +423,10 @@ export function Analytics() {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={fleetTrends}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-              <XAxis dataKey="date" tickFormatter={(value) => new Date(value).toLocaleDateString()} />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(value) => new Date(value).toLocaleDateString()}
+              />
               <YAxis />
               <Tooltip labelFormatter={(value) => new Date(value).toLocaleDateString()} />
               <Area
@@ -464,7 +483,12 @@ export function Analytics() {
                         className="h-full rounded-full"
                         style={{
                           width: `${robot.efficiency}%`,
-                          backgroundColor: robot.efficiency > 90 ? '#10B981' : robot.efficiency > 80 ? '#F59E0B' : '#EF4444'
+                          backgroundColor:
+                            robot.efficiency > 90
+                              ? '#10B981'
+                              : robot.efficiency > 80
+                                ? '#F59E0B'
+                                : '#EF4444',
                         }}
                       />
                     </div>
@@ -481,11 +505,15 @@ export function Analytics() {
             <div className="space-y-2 text-sm">
               <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
                 <p className="font-medium">Optimize Power Usage</p>
-                <p className="text-xs text-muted-foreground">Reduce energy consumption by 15% during off-peak hours</p>
+                <p className="text-xs text-muted-foreground">
+                  Reduce energy consumption by 15% during off-peak hours
+                </p>
               </div>
               <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                 <p className="font-medium">Schedule Calibration</p>
-                <p className="text-xs text-muted-foreground">UR5e-002 precision may benefit from recalibration</p>
+                <p className="text-xs text-muted-foreground">
+                  UR5e-002 precision may benefit from recalibration
+                </p>
               </div>
             </div>
           </div>
@@ -510,10 +538,14 @@ export function Analytics() {
               <tr className="border-b border-border">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">Robot</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">Cycles</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Efficiency</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                  Efficiency
+                </th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">Uptime</th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">Power (W)</th>
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground">Operating Hours</th>
+                <th className="text-left py-3 px-4 font-medium text-muted-foreground">
+                  Operating Hours
+                </th>
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground">Status</th>
               </tr>
             </thead>
@@ -547,13 +579,18 @@ export function Analytics() {
                   <td className="py-3 px-4">{robot.powerConsumption}W</td>
                   <td className="py-3 px-4">{robot.operatingHours}h</td>
                   <td className="py-3 px-4">
-                    <span className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-                      robot.status === 'online' ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400' :
-                      robot.status === 'error' ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400' :
-                      robot.status === 'idle' ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400' :
-                      'bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-400'
-                    )}>
+                    <span
+                      className={cn(
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                        robot.status === 'online'
+                          ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
+                          : robot.status === 'error'
+                            ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400'
+                            : robot.status === 'idle'
+                              ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                              : 'bg-gray-100 dark:bg-gray-950/30 text-gray-800 dark:text-gray-400'
+                      )}
+                    >
                       {robot.status.charAt(0).toUpperCase() + robot.status.slice(1)}
                     </span>
                   </td>

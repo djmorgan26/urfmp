@@ -107,9 +107,12 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       console.error('Failed to refresh robots:', err)
 
       // Handle 429 errors with exponential backoff
-      if (err instanceof Error && (err.message.includes('429') || err.message.includes('Too Many Requests'))) {
+      if (
+        err instanceof Error &&
+        (err.message.includes('429') || err.message.includes('Too Many Requests'))
+      ) {
         console.log('429 detected, increasing backoff delay')
-        setBackoffDelay(prev => Math.min(prev * 2, 60000)) // Max 1 minute backoff
+        setBackoffDelay((prev) => Math.min(prev * 2, 60000)) // Max 1 minute backoff
       } else {
         setError(err instanceof Error ? err.message : 'Failed to refresh robots')
       }

@@ -153,7 +153,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
   const handleInputChange = (field: string, value: any) => {
     // Clear error for this field when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
 
     if (field.includes('.')) {
@@ -171,18 +171,17 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
   }
 
   const getInputClassName = (fieldName: string) => {
-    const baseClass = "w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+    const baseClass =
+      'w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2'
     const errorClass = errors[fieldName]
-      ? "border-red-500 focus:ring-red-500"
-      : "border-input bg-background focus:ring-ring"
+      ? 'border-red-500 focus:ring-red-500'
+      : 'border-input bg-background focus:ring-ring'
     return `${baseClass} ${errorClass}`
   }
 
   const renderFieldError = (fieldName: string) => {
     if (errors[fieldName]) {
-      return (
-        <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
-      )
+      return <p className="text-red-500 text-xs mt-1">{errors[fieldName]}</p>
     }
     return null
   }

@@ -79,7 +79,7 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     try {
       // Calculate fleet metrics from robots and telemetry
       const totalRobots = robots.length
-      const onlineRobots = robots.filter(r => r.status === 'online').length
+      const onlineRobots = robots.filter((r) => r.status === 'online').length
 
       // Fetch aggregated telemetry data for fleet metrics
       const fromDate = new Date()
@@ -101,12 +101,19 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
             // Get real power consumption data
             const powerData = await fetchAggregatedMetric('power.total', 'avg', '1h', fromDate)
-            const robotPowerData = powerData.find(d => d.robotId === robot.id)
-            const powerConsumption = robotPowerData ? robotPowerData.value : Math.floor(Math.random() * 200) + 50
+            const robotPowerData = powerData.find((d) => d.robotId === robot.id)
+            const powerConsumption = robotPowerData
+              ? robotPowerData.value
+              : Math.floor(Math.random() * 200) + 50
 
             // Get temperature data for efficiency calculation
-            const tempData = await fetchAggregatedMetric('temperature.ambient', 'avg', '1h', fromDate)
-            const robotTempData = tempData.find(d => d.robotId === robot.id)
+            const tempData = await fetchAggregatedMetric(
+              'temperature.ambient',
+              'avg',
+              '1h',
+              fromDate
+            )
+            const robotTempData = tempData.find((d) => d.robotId === robot.id)
 
             // Calculate efficiency based on real data or use mock
             let efficiency = Math.floor(Math.random() * 20) + 80 // Default mock
@@ -116,9 +123,12 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
             }
 
             // Calculate uptime based on robot status and last seen
-            const uptime = robot.status === 'online' ? Math.floor(Math.random() * 5) + 95 :
-                          robot.status === 'idle' ? Math.floor(Math.random() * 10) + 85 :
-                          Math.floor(Math.random() * 30) + 60
+            const uptime =
+              robot.status === 'online'
+                ? Math.floor(Math.random() * 5) + 95
+                : robot.status === 'idle'
+                  ? Math.floor(Math.random() * 10) + 85
+                  : Math.floor(Math.random() * 30) + 60
 
             const cycles = Math.floor(Math.random() * 2000) + 500 // Mock cycles for now
             const operatingHours = Math.floor(Math.random() * 500) + 100 // Mock operating hours
@@ -151,12 +161,15 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
       // Calculate fleet metrics from robot data
       const totalCycles = robotPerformanceData.reduce((sum, r) => sum + r.cycles, 0)
-      const avgEfficiency = robotPerformanceData.length > 0
-        ? robotPerformanceData.reduce((sum, r) => sum + r.efficiency, 0) / robotPerformanceData.length
-        : 0
-      const avgUptime = robotPerformanceData.length > 0
-        ? robotPerformanceData.reduce((sum, r) => sum + r.uptime, 0) / robotPerformanceData.length
-        : 0
+      const avgEfficiency =
+        robotPerformanceData.length > 0
+          ? robotPerformanceData.reduce((sum, r) => sum + r.efficiency, 0) /
+            robotPerformanceData.length
+          : 0
+      const avgUptime =
+        robotPerformanceData.length > 0
+          ? robotPerformanceData.reduce((sum, r) => sum + r.uptime, 0) / robotPerformanceData.length
+          : 0
 
       // Generate fleet trend data
       const trendData = generateFleetTrendData(timeRange)
@@ -184,7 +197,6 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
       setRobotPerformance(robotPerformanceData)
       setFleetTrends(trendData)
       setErrorDistribution(errorDist)
-
     } catch (err) {
       console.error('Failed to fetch analytics data:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics data')
@@ -193,7 +205,12 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     }
   }
 
-  const fetchAggregatedMetric = async (metric: string, aggregation: string, timeWindow: string, from: Date): Promise<{ value: number; robotId?: string }[]> => {
+  const fetchAggregatedMetric = async (
+    metric: string,
+    aggregation: string,
+    timeWindow: string,
+    from: Date
+  ): Promise<{ value: number; robotId?: string }[]> => {
     try {
       if (!urfmp) return []
 
@@ -202,7 +219,7 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
         metric,
         aggregation: aggregation as 'avg' | 'min' | 'max' | 'sum' | 'count',
         timeWindow: timeWindow as '1m' | '5m' | '15m' | '1h' | '1d',
-        from
+        from,
       })
 
       return result || []
@@ -214,11 +231,16 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
   const getDaysFromTimeRange = (range: TimeRange): number => {
     switch (range) {
-      case '7d': return 7
-      case '30d': return 30
-      case '90d': return 90
-      case '1y': return 365
-      default: return 30
+      case '7d':
+        return 7
+      case '30d':
+        return 30
+      case '90d':
+        return 90
+      case '1y':
+        return 365
+      default:
+        return 30
     }
   }
 

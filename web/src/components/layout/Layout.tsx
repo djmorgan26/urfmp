@@ -87,33 +87,36 @@ export function Layout({ children }: LayoutProps) {
     const lowerQuery = query.toLowerCase()
 
     // Search robots
-    const robotResults = robots.filter(robot =>
-      robot.name.toLowerCase().includes(lowerQuery) ||
-      robot.model.toLowerCase().includes(lowerQuery) ||
-      robot.vendor.toLowerCase().includes(lowerQuery) ||
-      robot.status.toLowerCase().includes(lowerQuery)
-    ).map(robot => ({
-      type: 'robot',
-      id: robot.id,
-      title: robot.name,
-      subtitle: `${robot.vendor} ${robot.model}`,
-      status: robot.status,
-      href: `/robots/${robot.id}`
-    }))
+    const robotResults = robots
+      .filter(
+        (robot) =>
+          robot.name.toLowerCase().includes(lowerQuery) ||
+          robot.model.toLowerCase().includes(lowerQuery) ||
+          robot.vendor.toLowerCase().includes(lowerQuery) ||
+          robot.status.toLowerCase().includes(lowerQuery)
+      )
+      .map((robot) => ({
+        type: 'robot',
+        id: robot.id,
+        title: robot.name,
+        subtitle: `${robot.vendor} ${robot.model}`,
+        status: robot.status,
+        href: `/robots/${robot.id}`,
+      }))
 
     results.push(...robotResults)
 
     // Add navigation results
-    const navResults = navigation.filter(nav =>
-      nav.name.toLowerCase().includes(lowerQuery)
-    ).map(nav => ({
-      type: 'navigation',
-      id: nav.href,
-      title: nav.name,
-      subtitle: 'Navigate to page',
-      href: nav.href,
-      icon: nav.icon
-    }))
+    const navResults = navigation
+      .filter((nav) => nav.name.toLowerCase().includes(lowerQuery))
+      .map((nav) => ({
+        type: 'navigation',
+        id: nav.href,
+        title: nav.name,
+        subtitle: 'Navigate to page',
+        href: nav.href,
+        icon: nav.icon,
+      }))
 
     results.push(...navResults)
 
@@ -191,17 +194,21 @@ export function Layout({ children }: LayoutProps) {
                               )}
                               <div className="flex-1">
                                 <div className="font-medium text-sm">{result.title}</div>
-                                <div className="text-xs text-muted-foreground">{result.subtitle}</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {result.subtitle}
+                                </div>
                               </div>
                               {result.status && (
-                                <div className={cn(
-                                  'px-2 py-1 rounded-full text-xs font-medium',
-                                  result.status === 'online' || result.status === 'running'
-                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                                    : result.status === 'error'
-                                      ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                                      : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
-                                )}>
+                                <div
+                                  className={cn(
+                                    'px-2 py-1 rounded-full text-xs font-medium',
+                                    result.status === 'online' || result.status === 'running'
+                                      ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                                      : result.status === 'error'
+                                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+                                  )}
+                                >
                                   {result.status}
                                 </div>
                               )}
@@ -259,10 +266,7 @@ export function Layout({ children }: LayoutProps) {
               {/* Alert Panel Dropdown */}
               {showAlertPanel && (
                 <div className="absolute right-0 top-full mt-2 z-50">
-                  <RealTimeAlertPanel
-                    className="w-96 max-h-[70vh] shadow-lg"
-                    showFilters={true}
-                  />
+                  <RealTimeAlertPanel className="w-96 max-h-[70vh] shadow-lg" showFilters={true} />
                 </div>
               )}
             </div>
@@ -327,12 +331,18 @@ export function Layout({ children }: LayoutProps) {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Alerts</span>
-                    <span className={cn(
-                      'font-medium',
-                      alertStats.critical > 0 ? 'text-red-600 dark:text-red-400' :
-                      alertStats.error > 0 ? 'text-orange-600 dark:text-orange-400' :
-                      alertStats.warning > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'
-                    )}>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        alertStats.critical > 0
+                          ? 'text-red-600 dark:text-red-400'
+                          : alertStats.error > 0
+                            ? 'text-orange-600 dark:text-orange-400'
+                            : alertStats.warning > 0
+                              ? 'text-yellow-600 dark:text-yellow-400'
+                              : 'text-gray-600 dark:text-gray-400'
+                      )}
+                    >
                       {alertStats.total}
                     </span>
                   </div>

@@ -160,7 +160,7 @@ export function useDashboard(): DashboardData {
           temperature: Math.round(avgTemp * 10) / 10,
           utilization: Math.round(avgUtilization),
           errors: totalErrors,
-          powerConsumption: Math.round(avgPower)
+          powerConsumption: Math.round(avgPower),
         })
       }
 
@@ -181,7 +181,7 @@ export function useDashboard(): DashboardData {
                 message: `High temperature detected (${temperature.ambient.toFixed(1)}°C)`,
                 timestamp: new Date(),
                 severity: temperature.ambient > 55 ? 'error' : 'warning',
-                source: 'telemetry'
+                source: 'telemetry',
               })
             }
 
@@ -194,7 +194,7 @@ export function useDashboard(): DashboardData {
                 message: `High power consumption detected (${power.total.toFixed(1)}W)`,
                 timestamp: new Date(),
                 severity: 'warning',
-                source: 'telemetry'
+                source: 'telemetry',
               })
             }
 
@@ -207,7 +207,7 @@ export function useDashboard(): DashboardData {
                 message: `Voltage irregularity (${voltage.supply.toFixed(1)}V)`,
                 timestamp: new Date(),
                 severity: voltage.supply < 44 || voltage.supply > 52 ? 'error' : 'warning',
-                source: 'telemetry'
+                source: 'telemetry',
               })
             }
 
@@ -220,7 +220,7 @@ export function useDashboard(): DashboardData {
                 message: `Safety system activated: ${safety.emergencyStop ? 'Emergency stop' : 'Protective stop'}`,
                 timestamp: new Date(),
                 severity: 'critical',
-                source: 'telemetry'
+                source: 'telemetry',
               })
             }
 
@@ -233,7 +233,7 @@ export function useDashboard(): DashboardData {
                 message: `Robot is ${robot.status}`,
                 timestamp: new Date(),
                 severity: 'error',
-                source: 'system'
+                source: 'system',
               })
             }
           }
@@ -246,13 +246,13 @@ export function useDashboard(): DashboardData {
             message: 'Communication error - unable to retrieve telemetry',
             timestamp: new Date(),
             severity: 'warning',
-            source: 'system'
+            source: 'system',
           })
         }
       }
 
       // Add maintenance alerts
-      maintenanceAlerts.forEach(alert => {
+      maintenanceAlerts.forEach((alert) => {
         if (alert.severity === 'critical' || alert.severity === 'high') {
           alerts.push({
             id: `maint-${alert.id}`,
@@ -260,8 +260,13 @@ export function useDashboard(): DashboardData {
             robot: alert.robotName,
             message: `Maintenance: ${alert.description}`,
             timestamp: alert.createdAt,
-            severity: alert.severity === 'critical' ? 'critical' : alert.severity === 'high' ? 'error' : 'warning',
-            source: 'maintenance'
+            severity:
+              alert.severity === 'critical'
+                ? 'critical'
+                : alert.severity === 'high'
+                  ? 'error'
+                  : 'warning',
+            source: 'maintenance',
           })
         }
       })
@@ -271,7 +276,6 @@ export function useDashboard(): DashboardData {
 
       setTelemetryData(aggregatedData)
       setDashboardAlerts(alerts.slice(0, 10)) // Keep latest 10 alerts
-
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch dashboard data')
@@ -291,36 +295,46 @@ export function useDashboard(): DashboardData {
   // Calculate real-time metrics
   const metrics: DashboardMetrics = {
     totalRobots: robots.length,
-    onlineRobots: robots.filter(r => r.status === 'online').length,
-    avgTemperature: telemetryData.length > 0
-      ? Math.round(telemetryData[telemetryData.length - 1]?.temperature * 10) / 10
-      : 0,
-    avgUtilization: telemetryData.length > 0
-      ? telemetryData[telemetryData.length - 1]?.utilization || 0
-      : 0,
+    onlineRobots: robots.filter((r) => r.status === 'online').length,
+    avgTemperature:
+      telemetryData.length > 0
+        ? Math.round(telemetryData[telemetryData.length - 1]?.temperature * 10) / 10
+        : 0,
+    avgUtilization:
+      telemetryData.length > 0 ? telemetryData[telemetryData.length - 1]?.utilization || 0 : 0,
     totalErrors: telemetryData.reduce((sum, point) => sum + point.errors, 0),
-    alertCount: dashboardAlerts.filter(a => a.severity === 'error' || a.severity === 'critical').length,
-    powerConsumption: telemetryData.length > 0
-      ? telemetryData[telemetryData.length - 1]?.powerConsumption || 0
-      : 0,
+    alertCount: dashboardAlerts.filter((a) => a.severity === 'error' || a.severity === 'critical')
+      .length,
+    powerConsumption:
+      telemetryData.length > 0 ? telemetryData[telemetryData.length - 1]?.powerConsumption || 0 : 0,
     operatingHours: robots.reduce((sum, robot) => {
       return sum + (robot.status === 'online' ? 8 : robot.status === 'idle' ? 4 : 0)
-    }, 0)
+    }, 0),
   }
 
   // Calculate robot status distribution
-  const statusCounts = robots.reduce((acc, robot) => {
-    acc[robot.status] = (acc[robot.status] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const statusCounts = robots.reduce(
+    (acc, robot) => {
+      acc[robot.status] = (acc[robot.status] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
 
-  const robotStatusDistribution: RobotStatusCount[] = Object.entries(statusCounts).map(([status, count]) => ({
-    status,
-    count: count as number,
-    color: status === 'online' ? '#10B981' :
-           status === 'idle' ? '#6B7280' :
-           status === 'error' ? '#EF4444' : '#F59E0B'
-  }))
+  const robotStatusDistribution: RobotStatusCount[] = Object.entries(statusCounts).map(
+    ([status, count]) => ({
+      status,
+      count: count as number,
+      color:
+        status === 'online'
+          ? '#10B981'
+          : status === 'idle'
+            ? '#6B7280'
+            : status === 'error'
+              ? '#EF4444'
+              : '#F59E0B',
+    })
+  )
 
   return {
     metrics,
@@ -329,6 +343,6 @@ export function useDashboard(): DashboardData {
     robotStatusDistribution,
     isLoading,
     error,
-    refresh: fetchDashboardData
+    refresh: fetchDashboardData,
   }
 }

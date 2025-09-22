@@ -154,7 +154,6 @@ export function useGeofencing(): GeofencingData {
       setGeofences(mockGeofences)
       setPaths(mockPaths)
       setEvents(mockEvents)
-
     } catch (err) {
       console.error('Failed to fetch geofencing data:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch geofencing data')
@@ -168,19 +167,19 @@ export function useGeofencing(): GeofencingData {
       ...waypointData,
       id: `waypoint-${Date.now()}`,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
-    setWaypoints(prev => [...prev, newWaypoint])
+    setWaypoints((prev) => [...prev, newWaypoint])
   }
 
   const updateWaypoint = async (id: string, updates: Partial<Waypoint>) => {
-    setWaypoints(prev => prev.map(wp =>
-      wp.id === id ? { ...wp, ...updates, updatedAt: new Date() } : wp
-    ))
+    setWaypoints((prev) =>
+      prev.map((wp) => (wp.id === id ? { ...wp, ...updates, updatedAt: new Date() } : wp))
+    )
   }
 
   const deleteWaypoint = async (id: string) => {
-    setWaypoints(prev => prev.filter(wp => wp.id !== id))
+    setWaypoints((prev) => prev.filter((wp) => wp.id !== id))
   }
 
   const createGeofence = async (geofenceData: Omit<Geofence, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -188,19 +187,19 @@ export function useGeofencing(): GeofencingData {
       ...geofenceData,
       id: `geofence-${Date.now()}`,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
-    setGeofences(prev => [...prev, newGeofence])
+    setGeofences((prev) => [...prev, newGeofence])
   }
 
   const updateGeofence = async (id: string, updates: Partial<Geofence>) => {
-    setGeofences(prev => prev.map(gf =>
-      gf.id === id ? { ...gf, ...updates, updatedAt: new Date() } : gf
-    ))
+    setGeofences((prev) =>
+      prev.map((gf) => (gf.id === id ? { ...gf, ...updates, updatedAt: new Date() } : gf))
+    )
   }
 
   const deleteGeofence = async (id: string) => {
-    setGeofences(prev => prev.filter(gf => gf.id !== id))
+    setGeofences((prev) => prev.filter((gf) => gf.id !== id))
   }
 
   const createPath = async (pathData: Omit<Path, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -208,47 +207,51 @@ export function useGeofencing(): GeofencingData {
       ...pathData,
       id: `path-${Date.now()}`,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }
-    setPaths(prev => [...prev, newPath])
+    setPaths((prev) => [...prev, newPath])
   }
 
   const updatePath = async (id: string, updates: Partial<Path>) => {
-    setPaths(prev => prev.map(path =>
-      path.id === id ? { ...path, ...updates, updatedAt: new Date() } : path
-    ))
+    setPaths((prev) =>
+      prev.map((path) => (path.id === id ? { ...path, ...updates, updatedAt: new Date() } : path))
+    )
   }
 
   const deletePath = async (id: string) => {
-    setPaths(prev => prev.filter(path => path.id !== id))
+    setPaths((prev) => prev.filter((path) => path.id !== id))
   }
 
   const optimizePath = async (pathId: string) => {
     // Mock path optimization
-    setPaths(prev => prev.map(path =>
-      path.id === pathId
-        ? {
-            ...path,
-            isOptimized: true,
-            totalDistance: path.totalDistance * 0.9, // 10% improvement
-            estimatedDuration: path.estimatedDuration * 0.9,
-            updatedAt: new Date()
-          }
-        : path
-    ))
+    setPaths((prev) =>
+      prev.map((path) =>
+        path.id === pathId
+          ? {
+              ...path,
+              isOptimized: true,
+              totalDistance: path.totalDistance * 0.9, // 10% improvement
+              estimatedDuration: path.estimatedDuration * 0.9,
+              updatedAt: new Date(),
+            }
+          : path
+      )
+    )
   }
 
   const acknowledgeEvent = async (eventId: string, acknowledgedBy: string) => {
-    setEvents(prev => prev.map(event =>
-      event.id === eventId
-        ? {
-            ...event,
-            acknowledged: true,
-            acknowledgedBy,
-            acknowledgedAt: new Date()
-          }
-        : event
-    ))
+    setEvents((prev) =>
+      prev.map((event) =>
+        event.id === eventId
+          ? {
+              ...event,
+              acknowledged: true,
+              acknowledgedBy,
+              acknowledgedAt: new Date(),
+            }
+          : event
+      )
+    )
   }
 
   const clearEvents = async () => {
@@ -278,7 +281,7 @@ export function useGeofencing(): GeofencingData {
     deletePath,
     optimizePath,
     acknowledgeEvent,
-    clearEvents
+    clearEvents,
   }
 }
 
@@ -297,17 +300,17 @@ function generateMockWaypoints(): Waypoint[] {
           id: 'action-1',
           type: 'pause',
           parameters: { duration: 10 },
-          duration: 10
+          duration: 10,
         },
         {
           id: 'action-2',
           type: 'capture_data',
-          parameters: { sensors: ['camera', 'weight'] }
-        }
+          parameters: { sensors: ['camera', 'weight'] },
+        },
       ],
       isActive: true,
       createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     },
     {
       id: 'wp-dropoff-1',
@@ -320,12 +323,12 @@ function generateMockWaypoints(): Waypoint[] {
         {
           id: 'action-3',
           type: 'notify',
-          parameters: { message: 'Package delivered', recipients: ['operator@company.com'] }
-        }
+          parameters: { message: 'Package delivered', recipients: ['operator@company.com'] },
+        },
       ],
       isActive: true,
       createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000)
+      updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     },
     {
       id: 'wp-charging-1',
@@ -338,13 +341,13 @@ function generateMockWaypoints(): Waypoint[] {
         {
           id: 'action-4',
           type: 'execute_command',
-          parameters: { command: 'initiate_charging' }
-        }
+          parameters: { command: 'initiate_charging' },
+        },
       ],
       isActive: true,
       createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-    }
+      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
   ]
 }
 
@@ -356,10 +359,10 @@ function generateMockGeofences(): Geofence[] {
       description: 'Main operational area for robot fleet',
       type: 'polygon',
       coordinates: [
-        { latitude: 40.7580, longitude: -73.9860 },
-        { latitude: 40.7600, longitude: -73.9860 },
-        { latitude: 40.7600, longitude: -73.9840 },
-        { latitude: 40.7580, longitude: -73.9840 }
+        { latitude: 40.758, longitude: -73.986 },
+        { latitude: 40.76, longitude: -73.986 },
+        { latitude: 40.76, longitude: -73.984 },
+        { latitude: 40.758, longitude: -73.984 },
       ],
       rules: [
         {
@@ -371,11 +374,11 @@ function generateMockGeofences(): Geofence[] {
               id: 'action-1',
               type: 'alert',
               parameters: { message: 'Robot left safe zone', severity: 'warning' },
-              priority: 'high'
-            }
+              priority: 'high',
+            },
           ],
-          isActive: true
-        }
+          isActive: true,
+        },
       ],
       isActive: true,
       color: '#10B981',
@@ -383,7 +386,7 @@ function generateMockGeofences(): Geofence[] {
       fillOpacity: 0.2,
       robotIds: [],
       createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+      updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
     },
     {
       id: 'gf-restricted',
@@ -402,17 +405,17 @@ function generateMockGeofences(): Geofence[] {
               id: 'action-2',
               type: 'stop_robot',
               parameters: { immediate: true },
-              priority: 'critical'
+              priority: 'critical',
             },
             {
               id: 'action-3',
               type: 'alert',
               parameters: { message: 'Unauthorized area entry', severity: 'critical' },
-              priority: 'critical'
-            }
+              priority: 'critical',
+            },
           ],
-          isActive: true
-        }
+          isActive: true,
+        },
       ],
       isActive: true,
       color: '#EF4444',
@@ -420,8 +423,8 @@ function generateMockGeofences(): Geofence[] {
       fillOpacity: 0.3,
       robotIds: [],
       createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000)
-    }
+      updatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+    },
   ]
 }
 
@@ -431,14 +434,14 @@ function generateMockPaths(waypoints: Waypoint[]): Path[] {
       id: 'path-assembly-cycle',
       name: 'Assembly Line Cycle',
       description: 'Standard pickup and delivery cycle for assembly line',
-      waypoints: waypoints.slice(0, 2).map(wp => wp.id),
+      waypoints: waypoints.slice(0, 2).map((wp) => wp.id),
       isOptimized: true,
       totalDistance: 150,
       estimatedDuration: 480,
       status: 'active',
       createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
-      updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)
-    }
+      updatedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    },
   ]
 }
 
@@ -460,7 +463,7 @@ function generateMockEvents(geofences: Geofence[], robots: any[]): GeofenceEvent
       severity: 'warning',
       message: `${robots[0].name} exited ${geofences[0].name}`,
       actionsTaken: ['Alert sent to operator'],
-      acknowledged: false
+      acknowledged: false,
     })
   }
 

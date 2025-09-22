@@ -36,7 +36,7 @@ export function AdvancedFilters({
   filterGroups,
   activeFilters,
   onFiltersChange,
-  className = ''
+  className = '',
 }: AdvancedFiltersProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [tempFilters, setTempFilters] = useState(activeFilters)
@@ -54,18 +54,22 @@ export function AdvancedFilters({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [activeFilters])
 
-  const handleFilterChange = (groupId: string, values: (string | number)[], displayValue: string) => {
-    const group = filterGroups.find(g => g.id === groupId)
+  const handleFilterChange = (
+    groupId: string,
+    values: (string | number)[],
+    displayValue: string
+  ) => {
+    const group = filterGroups.find((g) => g.id === groupId)
     if (!group) return
 
-    setTempFilters(prev => {
-      const filtered = prev.filter(f => f.groupId !== groupId)
+    setTempFilters((prev) => {
+      const filtered = prev.filter((f) => f.groupId !== groupId)
       if (values.length > 0) {
         filtered.push({
           groupId,
           groupLabel: group.label,
           values,
-          displayValue
+          displayValue,
         })
       }
       return filtered
@@ -84,12 +88,12 @@ export function AdvancedFilters({
   }
 
   const removeFilter = (groupId: string) => {
-    const newFilters = activeFilters.filter(f => f.groupId !== groupId)
+    const newFilters = activeFilters.filter((f) => f.groupId !== groupId)
     onFiltersChange(newFilters)
   }
 
   const getFilterValue = (groupId: string) => {
-    return tempFilters.find(f => f.groupId === groupId)?.values || []
+    return tempFilters.find((f) => f.groupId === groupId)?.values || []
   }
 
   const renderFilterControl = (group: FilterGroup) => {
@@ -102,17 +106,13 @@ export function AdvancedFilters({
             value={currentValues[0] || ''}
             onChange={(e) => {
               const value = e.target.value
-              const option = group.options?.find(o => o.value.toString() === value)
-              handleFilterChange(
-                group.id,
-                value ? [value] : [],
-                option?.label || value
-              )
+              const option = group.options?.find((o) => o.value.toString() === value)
+              handleFilterChange(group.id, value ? [value] : [], option?.label || value)
             }}
             className="w-full px-3 py-2 border border-input rounded-md text-sm"
           >
             <option value="">All</option>
-            {group.options?.map(option => (
+            {group.options?.map((option) => (
               <option key={option.id} value={option.value}>
                 {option.label}
               </option>
@@ -123,7 +123,7 @@ export function AdvancedFilters({
       case 'multiselect':
         return (
           <div className="space-y-2 max-h-32 overflow-y-auto">
-            {group.options?.map(option => (
+            {group.options?.map((option) => (
               <label key={option.id} className="flex items-center space-x-2 text-sm">
                 <input
                   type="checkbox"
@@ -131,10 +131,10 @@ export function AdvancedFilters({
                   onChange={(e) => {
                     const newValues = e.target.checked
                       ? [...currentValues, option.value]
-                      : currentValues.filter(v => v !== option.value)
+                      : currentValues.filter((v) => v !== option.value)
 
-                    const labels = newValues.map(v =>
-                      group.options?.find(o => o.value === v)?.label || v.toString()
+                    const labels = newValues.map(
+                      (v) => group.options?.find((o) => o.value === v)?.label || v.toString()
                     )
 
                     handleFilterChange(
@@ -162,12 +162,13 @@ export function AdvancedFilters({
                 onChange={(e) => {
                   const min = e.target.value ? parseFloat(e.target.value) : undefined
                   const max = currentValues[1] as number | undefined
-                  const values = [min, max].filter(v => v !== undefined) as number[]
-                  const displayValue = values.length === 2
-                    ? `${values[0]} - ${values[1]}`
-                    : values.length === 1
-                    ? `≥ ${values[0]}`
-                    : ''
+                  const values = [min, max].filter((v) => v !== undefined) as number[]
+                  const displayValue =
+                    values.length === 2
+                      ? `${values[0]} - ${values[1]}`
+                      : values.length === 1
+                        ? `≥ ${values[0]}`
+                        : ''
                   handleFilterChange(group.id, values, displayValue)
                 }}
                 className="flex-1 px-3 py-2 border border-input rounded-md text-sm"
@@ -182,12 +183,13 @@ export function AdvancedFilters({
                 onChange={(e) => {
                   const min = currentValues[0] as number | undefined
                   const max = e.target.value ? parseFloat(e.target.value) : undefined
-                  const values = [min, max].filter(v => v !== undefined) as number[]
-                  const displayValue = values.length === 2
-                    ? `${values[0]} - ${values[1]}`
-                    : values.length === 1
-                    ? `≤ ${values[1]}`
-                    : ''
+                  const values = [min, max].filter((v) => v !== undefined) as number[]
+                  const displayValue =
+                    values.length === 2
+                      ? `${values[0]} - ${values[1]}`
+                      : values.length === 1
+                        ? `≤ ${values[1]}`
+                        : ''
                   handleFilterChange(group.id, values, displayValue)
                 }}
                 className="flex-1 px-3 py-2 border border-input rounded-md text-sm"
@@ -224,12 +226,14 @@ export function AdvancedFilters({
         {/* Active Filters Display */}
         {activeFilters.length > 0 && (
           <div className="flex items-center space-x-2 flex-wrap">
-            {activeFilters.map(filter => (
+            {activeFilters.map((filter) => (
               <div
                 key={filter.groupId}
                 className="flex items-center space-x-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs"
               >
-                <span>{filter.groupLabel}: {filter.displayValue}</span>
+                <span>
+                  {filter.groupLabel}: {filter.displayValue}
+                </span>
                 <button
                   onClick={() => removeFilter(filter.groupId)}
                   className="hover:bg-blue-200 rounded p-0.5"
@@ -256,11 +260,9 @@ export function AdvancedFilters({
             </div>
 
             <div className="space-y-4 max-h-80 overflow-y-auto">
-              {filterGroups.map(group => (
+              {filterGroups.map((group) => (
                 <div key={group.id} className="space-y-2">
-                  <label className="text-sm font-medium text-muted-foreground">
-                    {group.label}
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">{group.label}</label>
                   {renderFilterControl(group)}
                 </div>
               ))}

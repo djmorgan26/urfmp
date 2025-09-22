@@ -1,11 +1,5 @@
 import { useState } from 'react'
-import {
-  Activity,
-  Bot,
-  AlertTriangle,
-  Zap,
-  XCircle,
-} from 'lucide-react'
+import { Activity, Bot, AlertTriangle, Zap, XCircle } from 'lucide-react'
 import {
   LineChart,
   Line,
@@ -25,18 +19,10 @@ import { AlertFeed } from '@/components/dashboard/AlertFeed'
 import { MetricCard } from '@/components/dashboard/MetricCard'
 import { RealTimeAlertPanel } from '@/components/alerts/RealTimeAlertPanel'
 
-
 export function Dashboard() {
   const { robots } = useURFMP()
-  const {
-    metrics,
-    telemetryData,
-    alerts,
-    robotStatusDistribution,
-    isLoading,
-    error,
-    refresh
-  } = useDashboard()
+  const { metrics, telemetryData, alerts, robotStatusDistribution, isLoading, error, refresh } =
+    useDashboard()
   const [selectedTimeRange, setSelectedTimeRange] = useState('24h')
 
   if (isLoading) {
@@ -69,11 +55,13 @@ export function Dashboard() {
   }
 
   // Map robot status distribution for pie chart
-  const statusData = robotStatusDistribution.map(item => ({
-    name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
-    value: item.count,
-    color: item.color,
-  })).filter((item) => item.value > 0)
+  const statusData = robotStatusDistribution
+    .map((item) => ({
+      name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+      value: item.count,
+      color: item.color,
+    }))
+    .filter((item) => item.value > 0)
 
   return (
     <div className="space-y-6">
@@ -266,11 +254,7 @@ export function Dashboard() {
         </div>
 
         {/* Real-time Alert System */}
-        <RealTimeAlertPanel
-          className="h-fit"
-          showFilters={false}
-          maxHeight="max-h-96"
-        />
+        <RealTimeAlertPanel className="h-fit" showFilters={false} maxHeight="max-h-96" />
       </div>
     </div>
   )

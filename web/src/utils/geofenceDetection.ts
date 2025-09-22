@@ -15,15 +15,15 @@ export interface GeofenceViolation {
  */
 export function isPointInCircle(point: Coordinate, center: Coordinate, radius: number): boolean {
   const R = 6371e3 // Earth's radius in meters
-  const φ1 = point.latitude * Math.PI / 180
-  const φ2 = center.latitude * Math.PI / 180
-  const Δφ = (center.latitude - point.latitude) * Math.PI / 180
-  const Δλ = (center.longitude - point.longitude) * Math.PI / 180
+  const φ1 = (point.latitude * Math.PI) / 180
+  const φ2 = (center.latitude * Math.PI) / 180
+  const Δφ = ((center.latitude - point.latitude) * Math.PI) / 180
+  const Δλ = ((center.longitude - point.longitude) * Math.PI) / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   const distance = R * c
   return distance <= radius
@@ -45,7 +45,7 @@ export function isPointInPolygon(point: Coordinate, polygon: Coordinate[]): bool
     const xj = polygon[j].longitude
     const yj = polygon[j].latitude
 
-    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) {
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
       inside = !inside
     }
   }
@@ -60,18 +60,20 @@ export function isPointInRectangle(point: Coordinate, rectangle: Coordinate[]): 
   if (rectangle.length !== 4) return false
 
   // Find bounding box
-  const lats = rectangle.map(p => p.latitude)
-  const lngs = rectangle.map(p => p.longitude)
+  const lats = rectangle.map((p) => p.latitude)
+  const lngs = rectangle.map((p) => p.longitude)
 
   const minLat = Math.min(...lats)
   const maxLat = Math.max(...lats)
   const minLng = Math.min(...lngs)
   const maxLng = Math.max(...lngs)
 
-  return point.latitude >= minLat &&
-         point.latitude <= maxLat &&
-         point.longitude >= minLng &&
-         point.longitude <= maxLng
+  return (
+    point.latitude >= minLat &&
+    point.latitude <= maxLat &&
+    point.longitude >= minLng &&
+    point.longitude <= maxLng
+  )
 }
 
 /**
@@ -111,7 +113,9 @@ export function checkGeofenceViolation(
 
   const violations: GeofenceViolation[] = []
   const currentlyInside = isRobotInGeofence(currentPosition, geofence)
-  const previouslyInside = previousPosition ? isRobotInGeofence(previousPosition, geofence) : currentlyInside
+  const previouslyInside = previousPosition
+    ? isRobotInGeofence(previousPosition, geofence)
+    : currentlyInside
 
   for (const rule of geofence.rules) {
     if (!rule.isActive) continue
@@ -126,7 +130,7 @@ export function checkGeofenceViolation(
             coordinates: currentPosition,
             timestamp: new Date(),
             severity: determineSeverity(rule.actions),
-            additionalData: { geofenceName: geofence.name, ruleName: rule.name }
+            additionalData: { geofenceName: geofence.name, ruleName: rule.name },
           })
         }
         break
@@ -140,7 +144,7 @@ export function checkGeofenceViolation(
             coordinates: currentPosition,
             timestamp: new Date(),
             severity: determineSeverity(rule.actions),
-            additionalData: { geofenceName: geofence.name, ruleName: rule.name }
+            additionalData: { geofenceName: geofence.name, ruleName: rule.name },
           })
         }
         break
@@ -159,8 +163,8 @@ export function checkGeofenceViolation(
               additionalData: {
                 geofenceName: geofence.name,
                 ruleName: rule.name,
-                dwellTime: Math.round(dwellTime / 1000)
-              }
+                dwellTime: Math.round(dwellTime / 1000),
+              },
             })
           }
         }
@@ -180,8 +184,8 @@ export function checkGeofenceViolation(
                 geofenceName: geofence.name,
                 ruleName: rule.name,
                 currentSpeed: robotSpeed,
-                speedLimit: rule.condition.maxSpeed
-              }
+                speedLimit: rule.condition.maxSpeed,
+              },
             })
           }
         }
@@ -196,7 +200,10 @@ export function checkGeofenceViolation(
  * Monitor robot positions against all geofences
  */
 export function monitorGeofenceViolations(
-  robotPositions: Map<string, { current: Coordinate; previous: Coordinate | null; speed?: number; dwellStart?: Date }>,
+  robotPositions: Map<
+    string,
+    { current: Coordinate; previous: Coordinate | null; speed?: number; dwellStart?: Date }
+  >,
   geofences: Geofence[]
 ): GeofenceViolation[] {
   const allViolations: GeofenceViolation[] = []
@@ -235,15 +242,15 @@ export function calculateRobotSpeed(
   if (timeDelta <= 0) return 0
 
   const R = 6371e3 // Earth's radius in meters
-  const φ1 = previousPosition.latitude * Math.PI / 180
-  const φ2 = currentPosition.latitude * Math.PI / 180
-  const Δφ = (currentPosition.latitude - previousPosition.latitude) * Math.PI / 180
-  const Δλ = (currentPosition.longitude - previousPosition.longitude) * Math.PI / 180
+  const φ1 = (previousPosition.latitude * Math.PI) / 180
+  const φ2 = (currentPosition.latitude * Math.PI) / 180
+  const Δφ = ((currentPosition.latitude - previousPosition.latitude) * Math.PI) / 180
+  const Δλ = ((currentPosition.longitude - previousPosition.longitude) * Math.PI) / 180
 
-  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ/2) * Math.sin(Δλ/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 
   const distance = R * c // Distance in meters
   return distance / timeDelta // Speed in m/s
@@ -257,7 +264,7 @@ export function violationsToEvents(
   robotNames: Map<string, string>,
   geofenceNames: Map<string, string>
 ): GeofenceEvent[] {
-  return violations.map(violation => ({
+  return violations.map((violation) => ({
     id: `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     geofenceId: violation.geofenceId,
     geofenceName: geofenceNames.get(violation.geofenceId) || 'Unknown Geofence',
@@ -271,12 +278,12 @@ export function violationsToEvents(
     severity: violation.severity,
     message: generateViolationMessage(violation, robotNames, geofenceNames),
     actionsTaken: generateActionsTaken(violation),
-    acknowledged: false
+    acknowledged: false,
   }))
 }
 
 function determineSeverity(actions: any[]): 'info' | 'warning' | 'error' | 'critical' {
-  const priorities = actions.map(action => action.priority)
+  const priorities = actions.map((action) => action.priority)
 
   if (priorities.includes('critical')) return 'critical'
   if (priorities.includes('high')) return 'error'
@@ -297,13 +304,15 @@ function generateViolationMessage(
       return `${robotName} entered ${geofenceName}`
     case 'exit':
       return `${robotName} exited ${geofenceName}`
-    case 'dwell':
+    case 'dwell': {
       const dwellTime = violation.additionalData?.dwellTime || 0
       return `${robotName} has been in ${geofenceName} for ${dwellTime} seconds`
-    case 'speed_limit':
+    }
+    case 'speed_limit': {
       const speed = violation.additionalData?.currentSpeed || 0
       const limit = violation.additionalData?.speedLimit || 0
       return `${robotName} exceeded speed limit in ${geofenceName} (${speed.toFixed(1)} m/s > ${limit.toFixed(1)} m/s)`
+    }
     default:
       return `${robotName} triggered ${violation.violationType} in ${geofenceName}`
   }
@@ -336,13 +345,16 @@ function generateActionsTaken(violation: GeofenceViolation): string[] {
  * Real-time geofence monitor class
  */
 export class GeofenceMonitor {
-  private robotPositions = new Map<string, {
-    current: Coordinate
-    previous: Coordinate | null
-    lastUpdate: Date
-    speed?: number
-    dwellStart?: Date
-  }>()
+  private robotPositions = new Map<
+    string,
+    {
+      current: Coordinate
+      previous: Coordinate | null
+      lastUpdate: Date
+      speed?: number
+      dwellStart?: Date
+    }
+  >()
 
   private violations: GeofenceViolation[] = []
   private onViolation?: (violations: GeofenceViolation[]) => void
@@ -369,7 +381,7 @@ export class GeofenceMonitor {
       previous: existing?.current || null,
       lastUpdate: now,
       speed,
-      dwellStart
+      dwellStart,
     })
   }
 

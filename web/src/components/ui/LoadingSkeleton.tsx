@@ -21,14 +21,7 @@ interface LoadingChartProps {
 }
 
 export function LoadingSkeleton({ className }: LoadingSkeletonProps) {
-  return (
-    <div
-      className={cn(
-        'animate-pulse bg-gray-200 dark:bg-gray-700 rounded',
-        className
-      )}
-    />
-  )
+  return <div className={cn('animate-pulse bg-gray-200 dark:bg-gray-700 rounded', className)} />
 }
 
 export function LoadingCard({ className, rows = 3 }: LoadingCardProps) {
@@ -65,7 +58,11 @@ export function LoadingTable({ columns = 4, rows = 5, className }: LoadingTableP
 
       {/* Table Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <div key={rowIndex} className="grid gap-3" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+        <div
+          key={rowIndex}
+          className="grid gap-3"
+          style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
+        >
           {Array.from({ length: columns }).map((_, colIndex) => (
             <LoadingSkeleton key={colIndex} className="h-3 w-full" />
           ))}
@@ -125,7 +122,12 @@ export function LoadingButton({ className }: LoadingSkeletonProps) {
 
 export function LoadingSpinner({ className }: LoadingSkeletonProps) {
   return (
-    <div className={cn('animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full', className)} />
+    <div
+      className={cn(
+        'animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full',
+        className
+      )}
+    />
   )
 }
 

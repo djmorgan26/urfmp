@@ -17,24 +17,44 @@ const permissionGroups = [
       { id: 'robot.create', name: 'Add robots', description: 'Register new robots' },
       { id: 'robot.update', name: 'Edit robots', description: 'Modify robot settings' },
       { id: 'robot.delete', name: 'Delete robots', description: 'Remove robots from system' },
-      { id: 'commands.send', name: 'Send commands', description: 'Control robot operations' }
-    ]
+      { id: 'commands.send', name: 'Send commands', description: 'Control robot operations' },
+    ],
   },
   {
     name: 'Telemetry & Monitoring',
     permissions: [
-      { id: 'telemetry.view', name: 'View telemetry', description: 'Access sensor data and analytics' },
+      {
+        id: 'telemetry.view',
+        name: 'View telemetry',
+        description: 'Access sensor data and analytics',
+      },
       { id: 'telemetry.write', name: 'Write telemetry', description: 'Submit telemetry data' },
-      { id: 'alerts.acknowledge', name: 'Manage alerts', description: 'Acknowledge and dismiss alerts' }
-    ]
+      {
+        id: 'alerts.acknowledge',
+        name: 'Manage alerts',
+        description: 'Acknowledge and dismiss alerts',
+      },
+    ],
   },
   {
     name: 'Maintenance',
     permissions: [
-      { id: 'maintenance.view', name: 'View maintenance', description: 'See maintenance schedules and history' },
-      { id: 'maintenance.create', name: 'Schedule maintenance', description: 'Create maintenance tasks' },
-      { id: 'maintenance.update', name: 'Update maintenance', description: 'Modify maintenance records' }
-    ]
+      {
+        id: 'maintenance.view',
+        name: 'View maintenance',
+        description: 'See maintenance schedules and history',
+      },
+      {
+        id: 'maintenance.create',
+        name: 'Schedule maintenance',
+        description: 'Create maintenance tasks',
+      },
+      {
+        id: 'maintenance.update',
+        name: 'Update maintenance',
+        description: 'Modify maintenance records',
+      },
+    ],
   },
   {
     name: 'System Administration',
@@ -43,10 +63,18 @@ const permissionGroups = [
       { id: 'user.create', name: 'Invite users', description: 'Send team invitations' },
       { id: 'user.update', name: 'Manage users', description: 'Edit user roles and permissions' },
       { id: 'user.delete', name: 'Remove users', description: 'Deactivate team members' },
-      { id: 'organization.view', name: 'View settings', description: 'Access organization settings' },
-      { id: 'organization.update', name: 'Manage settings', description: 'Modify system configuration' }
-    ]
-  }
+      {
+        id: 'organization.view',
+        name: 'View settings',
+        description: 'Access organization settings',
+      },
+      {
+        id: 'organization.update',
+        name: 'Manage settings',
+        description: 'Modify system configuration',
+      },
+    ],
+  },
 ]
 
 export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalProps) {
@@ -54,7 +82,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
   const [formData, setFormData] = useState({
     email: '',
     role: 'operator',
-    customPermissions: [] as string[]
+    customPermissions: [] as string[],
   })
   const [useCustomPermissions, setUseCustomPermissions] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -63,8 +91,10 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
 
   if (!isOpen) return null
 
-  const selectedRole = roles.find(r => r.id === formData.role)
-  const effectivePermissions = useCustomPermissions ? formData.customPermissions : selectedRole?.permissions || []
+  const selectedRole = roles.find((r) => r.id === formData.role)
+  const effectivePermissions = useCustomPermissions
+    ? formData.customPermissions
+    : selectedRole?.permissions || []
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,16 +137,16 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
   }
 
   const togglePermission = (permissionId: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       customPermissions: prev.customPermissions.includes(permissionId)
-        ? prev.customPermissions.filter(p => p !== permissionId)
-        : [...prev.customPermissions, permissionId]
+        ? prev.customPermissions.filter((p) => p !== permissionId)
+        : [...prev.customPermissions, permissionId],
     }))
   }
 
   const handleRoleChange = (roleId: string) => {
-    setFormData(prev => ({ ...prev, role: roleId }))
+    setFormData((prev) => ({ ...prev, role: roleId }))
     setUseCustomPermissions(false)
   }
 
@@ -130,7 +160,8 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             </div>
             <h3 className="text-lg font-semibold mb-2">Invitation Sent!</h3>
             <p className="text-muted-foreground mb-4">
-              We've sent an invitation to {formData.email}. They'll receive an email with instructions to join your team.
+              We've sent an invitation to {formData.email}. They'll receive an email with
+              instructions to join your team.
             </p>
           </div>
         </div>
@@ -147,10 +178,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             <UserPlus className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">Invite Team Member</h2>
           </div>
-          <button
-            onClick={handleClose}
-            className="p-2 hover:bg-muted rounded-md transition-colors"
-          >
+          <button onClick={handleClose} className="p-2 hover:bg-muted rounded-md transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -166,7 +194,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                 placeholder="colleague@company.com"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 required
@@ -246,10 +274,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
                     <h5 className="font-medium mb-3">{group.name}</h5>
                     <div className="space-y-2">
                       {group.permissions.map((permission) => (
-                        <div
-                          key={permission.id}
-                          className="flex items-center justify-between py-2"
-                        >
+                        <div key={permission.id} className="flex items-center justify-between py-2">
                           <div className="flex items-center space-x-3">
                             <input
                               type="checkbox"
@@ -259,7 +284,9 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
                             />
                             <div>
                               <p className="text-sm font-medium">{permission.name}</p>
-                              <p className="text-xs text-muted-foreground">{permission.description}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {permission.description}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -274,9 +301,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             {effectivePermissions.length > 0 && (
               <div className="bg-muted/30 rounded-lg p-4">
                 <h4 className="font-medium mb-2">Permissions Summary</h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  This user will have access to:
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">This user will have access to:</p>
                 <div className="flex flex-wrap gap-1">
                   {effectivePermissions.map((permission) => (
                     <span

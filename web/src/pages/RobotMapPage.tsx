@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useURFMP } from '@/hooks/useURFMP'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useGeofencing } from '@/hooks/useGeofencing'
-import { Robot } from '@urfmp/types'
 import { SimpleRobotMap } from '@/components/gps/SimpleRobotMap'
-import { Settings, RefreshCw, Shield, ChevronDown, ChevronUp, MapPin, GitBranch } from 'lucide-react'
+import {
+  Settings,
+  RefreshCw,
+  Shield,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
+  GitBranch,
+} from 'lucide-react'
 import { cn } from '@/utils/cn'
-
 
 export function RobotMapPage() {
   const { robots, isLoading, error, refreshRobots } = useURFMP()
@@ -137,7 +143,7 @@ export function RobotMapPage() {
           style={{
             position: 'absolute',
             zIndex: 1000,
-            pointerEvents: 'auto'
+            pointerEvents: 'auto',
           }}
         >
           {/* Panel Header */}
@@ -151,7 +157,9 @@ export function RobotMapPage() {
           >
             <div className="flex items-center gap-1">
               <Settings className="w-3 h-3" />
-              <h3 className={cn('font-semibold text-xs', isDark ? 'text-gray-200' : 'text-gray-900')}>
+              <h3
+                className={cn('font-semibold text-xs', isDark ? 'text-gray-200' : 'text-gray-900')}
+              >
                 Fleet Status ({robots.length})
               </h3>
             </div>
@@ -208,7 +216,9 @@ export function RobotMapPage() {
                         {robot.status}
                       </span>
                     </div>
-                    <div className={cn('text-xs mt-0.5', isDark ? 'text-gray-400' : 'text-gray-600')}>
+                    <div
+                      className={cn('text-xs mt-0.5', isDark ? 'text-gray-400' : 'text-gray-600')}
+                    >
                       {robot.model} • {robot.vendor}
                     </div>
                   </div>
@@ -224,7 +234,6 @@ export function RobotMapPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   )

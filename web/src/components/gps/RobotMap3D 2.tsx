@@ -158,7 +158,7 @@ function RobotMarker({
             pointerEvents: 'none',
             whiteSpace: 'nowrap',
             boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)'
+            border: isDark ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.1)',
           }}
         >
           {robot.name}
@@ -172,7 +172,7 @@ function RobotMarker({
 function RobotTrail({
   gpsData,
   robot,
-  isDark
+  isDark,
 }: {
   gpsData: RobotGPSData[]
   robot: Robot
@@ -196,11 +196,7 @@ function RobotTrail({
         return (
           <mesh key={`${robot.id}-trail-${index}`} position={position}>
             <sphereGeometry args={[size, 6, 6]} />
-            <meshBasicMaterial
-              color={color}
-              transparent
-              opacity={opacity}
-            />
+            <meshBasicMaterial color={color} transparent opacity={opacity} />
           </mesh>
         )
       })}
@@ -392,19 +388,20 @@ export function RobotMap3D({
         <Earth isDark={isDark} />
 
         {/* Robot Trails */}
-        {showTrails && robots.map((robot) => {
-          const gpsData = robotGPSData.get(robot.id)
-          if (!gpsData || gpsData.length === 0) return null
+        {showTrails &&
+          robots.map((robot) => {
+            const gpsData = robotGPSData.get(robot.id)
+            if (!gpsData || gpsData.length === 0) return null
 
-          return (
-            <RobotTrail
-              key={`${robot.id}-trail`}
-              gpsData={gpsData}
-              robot={robot}
-              isDark={isDark}
-            />
-          )
-        })}
+            return (
+              <RobotTrail
+                key={`${robot.id}-trail`}
+                gpsData={gpsData}
+                robot={robot}
+                isDark={isDark}
+              />
+            )
+          })}
 
         {/* Robot Markers */}
         {robots.map((robot) => {
