@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Download, FileText } from 'lucide-react'
+import { toast } from 'sonner'
 import { useTheme } from '../../contexts/ThemeContext'
 import { cn } from '../../utils/cn'
 import {
@@ -67,7 +68,7 @@ export function ReportGenerator({
       setIsOpen(false)
     } catch (error) {
       console.error('Failed to generate report:', error)
-      alert(`Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(`Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setIsGenerating(false)
     }
@@ -101,7 +102,7 @@ export function ReportGenerator({
       }
     } catch (error) {
       console.error('Failed to export data:', error)
-      alert('Failed to export data. Please try again.')
+      toast.error('Failed to export data. Please try again.')
     } finally {
       setIsGenerating(false)
     }

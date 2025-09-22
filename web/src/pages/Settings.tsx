@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   Save,
   Key,
@@ -20,6 +21,10 @@ import {
   Activity,
   Clock,
   AlertTriangle,
+  X,
+  Check,
+  Ban,
+  Settings as SettingsIcon,
 } from 'lucide-react'
 import { cn } from '@/utils/cn'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -28,6 +33,7 @@ import { useUserManagement } from '@/hooks/useUserManagement'
 import { InviteUserModal } from '@/components/team/InviteUserModal'
 import { EditUserModal } from '@/components/team/EditUserModal'
 import { UserManagementTable } from '@/components/team/UserManagementTable'
+import { CreateApiKeyModal } from '@/components/api/CreateApiKeyModal'
 
 interface ApiKey {
   id: string
@@ -70,8 +76,197 @@ export function Settings() {
   const { settings: notificationSettings, updateSettings: updateNotificationSettings } = useAlertNotificationSettings()
   const { userStats, refreshUsers } = useUserManagement()
 
+  // General settings state
+  const [generalSettings, setGeneralSettings] = useState({
+    organizationName: 'Acme Robotics',
+    timeZone: 'UTC-8 (Pacific Time)',
+    refreshRate: '5 seconds',
+    autoRefresh: true
+  })
+
+  // Database settings state
+  const [retentionDays, setRetentionDays] = useState(90)
+  const [enableBackups, setEnableBackups] = useState(true)
+  const [backupFrequency, setBackupFrequency] = useState('daily')
+
+  // 2FA settings state
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false)
+  const [showQRCode, setShowQRCode] = useState(false)
+  const [twoFactorMethod, setTwoFactorMethod] = useState('app')
+
+  // IP restrictions state
+  const [ipRestrictionsEnabled, setIpRestrictionsEnabled] = useState(false)
+  const [ipAllowlist, setIpAllowlist] = useState<string[]>(['192.168.1.0/24', '10.0.0.0/8'])
+  const [ipBlocklist, setIpBlocklist] = useState<string[]>(['1.2.3.4', '5.6.7.8'])
+  const [newIpAddress, setNewIpAddress] = useState('')
+  const [ipListType, setIpListType] = useState<'allow' | 'block'>('allow')
+
   const toggleApiKeyVisibility = (id: string) => {
     setShowApiKeys((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  // Save functions
+  const saveGeneralSettings = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      toast.success('General settings saved successfully!')
+    } catch (error) {
+      toast.error('Failed to save general settings. Please try again.')
+    }
+  }
+
+  const saveNotificationSettings = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      toast.success('Notification preferences saved successfully!')
+    } catch (error) {
+      toast.error('Failed to save notification settings. Please try again.')
+    }
+  }
+
+  const saveDatabaseSettings = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      toast.success('Database settings saved successfully!')
+    } catch (error) {
+      toast.error('Failed to save database settings. Please try again.')
+    }
+  }
+
+  const enableTwoFactor = async () => {
+    try {
+      setShowQRCode(true)
+      // Simulate API call to generate QR code
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setTwoFactorEnabled(true)
+      setShowQRCode(false)
+      toast.success('Two-factor authentication enabled successfully!')
+    } catch (error) {
+      setShowQRCode(false)
+      toast.error('Failed to enable two-factor authentication. Please try again.')
+    }
+  }
+
+  const disableTwoFactor = async () => {
+    if (confirm('Are you sure you want to disable two-factor authentication? This will make your account less secure.')) {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setTwoFactorEnabled(false)
+        toast.success('Two-factor authentication disabled.')
+      } catch (error) {
+        toast.error('Failed to disable two-factor authentication. Please try again.')
+      }
+    }
+  }
+
+  const addIpAddress = () => {
+    if (!newIpAddress.trim()) {
+      toast.error('Please enter an IP address or CIDR range')
+      return
+    }
+
+    // Basic IP/CIDR validation
+    const ipPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:\/[0-9]{1,2})?$/
+    if (!ipPattern.test(newIpAddress.trim())) {
+      toast.error('Please enter a valid IP address or CIDR range (e.g., 192.168.1.1 or 192.168.1.0/24)')
+      return
+    }
+
+    const ip = newIpAddress.trim()
+    if (ipListType === 'allow') {
+      if (ipAllowlist.includes(ip)) {
+        toast.error('IP address already in allowlist')
+        return
+      }
+      setIpAllowlist(prev => [...prev, ip])
+      toast.success('IP address added to allowlist')
+    } else {
+      if (ipBlocklist.includes(ip)) {
+        toast.error('IP address already in blocklist')
+        return
+      }
+      setIpBlocklist(prev => [...prev, ip])
+      toast.success('IP address added to blocklist')
+    }
+    setNewIpAddress('')
+  }
+
+  const removeIpAddress = (ip: string, type: 'allow' | 'block') => {
+    if (type === 'allow') {
+      setIpAllowlist(prev => prev.filter(addr => addr !== ip))
+      toast.success('IP address removed from allowlist')
+    } else {
+      setIpBlocklist(prev => prev.filter(addr => addr !== ip))
+      toast.success('IP address removed from blocklist')
+    }
+  }
+
+  const saveSecuritySettings = async () => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      toast.success('Security settings saved successfully!')
+    } catch (error) {
+      toast.error('Failed to save security settings. Please try again.')
+    }
+  }
+
+  const deleteApiKey = async (keyId: string) => {
+    if (confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500))
+        console.log(`Deleting API key: ${keyId}`)
+        toast.success('API key deleted successfully!')
+        // In real implementation, refresh the API keys list
+      } catch (error) {
+        toast.error('Failed to delete API key. Please try again.')
+      }
+    }
+  }
+
+  const copyApiKey = async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key)
+      toast.success('API key copied to clipboard!')
+    } catch (error) {
+      toast.error('Failed to copy API key to clipboard.')
+    }
+  }
+
+  const exportAllData = async () => {
+    try {
+      toast.info('Preparing data export... This may take a few minutes.')
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
+      // Create a mock export file
+      const exportData = {
+        robots: [],
+        telemetry: [],
+        settings: generalSettings,
+        users: [],
+        exportDate: new Date().toISOString()
+      }
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `urfmp-export-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+
+      toast.success('Data export completed successfully!')
+    } catch (error) {
+      toast.error('Failed to export data. Please try again.')
+    }
   }
 
   const tabs = [
@@ -129,14 +324,19 @@ export function Settings() {
                   <label className="block text-sm font-medium mb-2">Organization Name</label>
                   <input
                     type="text"
-                    defaultValue="Acme Robotics"
+                    value={generalSettings.organizationName}
+                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, organizationName: e.target.value }))}
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Time Zone</label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <select
+                    value={generalSettings.timeZone}
+                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, timeZone: e.target.value }))}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
                     <option>UTC-8 (Pacific Time)</option>
                     <option>UTC-5 (Eastern Time)</option>
                     <option>UTC+0 (GMT)</option>
@@ -148,7 +348,11 @@ export function Settings() {
                   <label className="block text-sm font-medium mb-2">
                     Default Dashboard Refresh Rate
                   </label>
-                  <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                  <select
+                    value={generalSettings.refreshRate}
+                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, refreshRate: e.target.value }))}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
                     <option>5 seconds</option>
                     <option>10 seconds</option>
                     <option>30 seconds</option>
@@ -175,13 +379,22 @@ export function Settings() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="auto-refresh" className="rounded" defaultChecked />
+                  <input
+                    type="checkbox"
+                    id="auto-refresh"
+                    className="rounded"
+                    checked={generalSettings.autoRefresh}
+                    onChange={(e) => setGeneralSettings(prev => ({ ...prev, autoRefresh: e.target.checked }))}
+                  />
                   <label htmlFor="auto-refresh" className="text-sm">
                     Auto-refresh dashboard
                   </label>
                 </div>
 
-                <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+                <button
+                  onClick={saveGeneralSettings}
+                  className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
                   <Save className="h-4 w-4" />
                   <span>Save Changes</span>
                 </button>
@@ -402,7 +615,10 @@ export function Settings() {
                 </div>
               </div>
 
-              <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+              <button
+                onClick={saveNotificationSettings}
+                className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
                 <Save className="h-4 w-4" />
                 <span>Save Notification Preferences</span>
               </button>
@@ -411,72 +627,313 @@ export function Settings() {
 
           {activeTab === 'security' && (
             <div className="space-y-6">
+              {/* Two-Factor Authentication */}
               <div className="bg-card rounded-lg border border-border p-6">
-                <h2 className="text-xl font-semibold mb-6">Security Settings</h2>
+                <div className="flex items-center space-x-2 mb-6">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Two-Factor Authentication</h2>
+                </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Authentication</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Two-Factor Authentication</p>
-                          <p className="text-sm text-muted-foreground">
-                            Add an extra layer of security to your account
-                          </p>
-                        </div>
-                        <button className="px-3 py-1.5 bg-green-600 dark:bg-green-700 text-white text-sm rounded-md hover:bg-green-700 dark:hover:bg-green-600">
-                          Enable
-                        </button>
+                  {/* 2FA Status */}
+                  <div className="flex items-center justify-between p-4 rounded-lg border border-border">
+                    <div>
+                      <div className="flex items-center space-x-2 mb-1">
+                        <p className="font-medium">Status</p>
+                        <span className={cn(
+                          'px-2 py-1 text-xs font-medium rounded-full',
+                          twoFactorEnabled
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                        )}>
+                          {twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                        </span>
                       </div>
+                      <p className="text-sm text-muted-foreground">
+                        {twoFactorEnabled
+                          ? 'Your account is protected with two-factor authentication'
+                          : 'Add an extra layer of security to your account'
+                        }
+                      </p>
+                    </div>
 
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Session Timeout</p>
-                          <p className="text-sm text-muted-foreground">
-                            Automatically log out after period of inactivity
-                          </p>
-                        </div>
-                        <select className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                          <option>30 minutes</option>
-                          <option>1 hour</option>
-                          <option>4 hours</option>
-                          <option>8 hours</option>
-                        </select>
-                      </div>
+                    <div className="flex space-x-2">
+                      {!twoFactorEnabled ? (
+                        <button
+                          onClick={enableTwoFactor}
+                          disabled={showQRCode}
+                          className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white text-sm rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50"
+                        >
+                          {showQRCode ? 'Setting up...' : 'Enable 2FA'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={disableTwoFactor}
+                          className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white text-sm rounded-md hover:bg-red-700 dark:hover:bg-red-600"
+                        >
+                          Disable 2FA
+                        </button>
+                      )}
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">API Security</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Rate Limiting</p>
-                          <p className="text-sm text-muted-foreground">
-                            Requests per minute per API key
-                          </p>
+                  {/* 2FA Method Selection */}
+                  {twoFactorEnabled && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium">Authentication Method</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div
+                          className={cn(
+                            'p-4 rounded-lg border cursor-pointer transition-colors',
+                            twoFactorMethod === 'app'
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:bg-muted'
+                          )}
+                          onClick={() => setTwoFactorMethod('app')}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <input
+                              type="radio"
+                              checked={twoFactorMethod === 'app'}
+                              onChange={() => setTwoFactorMethod('app')}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <p className="font-medium">Authenticator App</p>
+                              <p className="text-sm text-muted-foreground">Use Google Authenticator, Authy, or similar apps</p>
+                            </div>
+                          </div>
                         </div>
-                        <select className="rounded-md border border-input bg-background px-3 py-2 text-sm">
-                          <option>100</option>
-                          <option>500</option>
-                          <option>1000</option>
-                          <option>Unlimited</option>
-                        </select>
-                      </div>
 
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">IP Restrictions</p>
-                          <p className="text-sm text-muted-foreground">
-                            Restrict API access to specific IP addresses
-                          </p>
+                        <div
+                          className={cn(
+                            'p-4 rounded-lg border cursor-pointer transition-colors',
+                            twoFactorMethod === 'sms'
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:bg-muted'
+                          )}
+                          onClick={() => setTwoFactorMethod('sms')}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <input
+                              type="radio"
+                              checked={twoFactorMethod === 'sms'}
+                              onChange={() => setTwoFactorMethod('sms')}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <p className="font-medium">SMS</p>
+                              <p className="text-sm text-muted-foreground">Receive codes via text message</p>
+                            </div>
+                          </div>
                         </div>
-                        <input type="checkbox" className="rounded" />
+
+                        <div
+                          className={cn(
+                            'p-4 rounded-lg border cursor-pointer transition-colors',
+                            twoFactorMethod === 'email'
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:bg-muted'
+                          )}
+                          onClick={() => setTwoFactorMethod('email')}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <input
+                              type="radio"
+                              checked={twoFactorMethod === 'email'}
+                              onChange={() => setTwoFactorMethod('email')}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <p className="font-medium">Email</p>
+                              <p className="text-sm text-muted-foreground">Receive codes via email</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          className={cn(
+                            'p-4 rounded-lg border cursor-pointer transition-colors',
+                            twoFactorMethod === 'hardware'
+                              ? 'border-primary bg-primary/10'
+                              : 'border-border hover:bg-muted'
+                          )}
+                          onClick={() => setTwoFactorMethod('hardware')}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <input
+                              type="radio"
+                              checked={twoFactorMethod === 'hardware'}
+                              onChange={() => setTwoFactorMethod('hardware')}
+                              className="rounded-full"
+                            />
+                            <div>
+                              <p className="font-medium">Hardware Key</p>
+                              <p className="text-sm text-muted-foreground">YubiKey, FIDO2, or WebAuthn devices</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+
+              {/* IP Restrictions */}
+              <div className="bg-card rounded-lg border border-border p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-2">
+                    <Ban className="h-5 w-5 text-primary" />
+                    <h2 className="text-xl font-semibold">IP Restrictions</h2>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="ip-restrictions"
+                      checked={ipRestrictionsEnabled}
+                      onChange={(e) => setIpRestrictionsEnabled(e.target.checked)}
+                      className="rounded"
+                    />
+                    <label htmlFor="ip-restrictions" className="text-sm font-medium">
+                      Enable IP Restrictions
+                    </label>
                   </div>
                 </div>
+
+                {ipRestrictionsEnabled && (
+                  <div className="space-y-6">
+                    {/* Add IP Address */}
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <h3 className="text-lg font-medium mb-4">Add IP Address or Range</h3>
+                      <div className="flex space-x-2">
+                        <select
+                          value={ipListType}
+                          onChange={(e) => setIpListType(e.target.value as 'allow' | 'block')}
+                          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                          <option value="allow">Allowlist</option>
+                          <option value="block">Blocklist</option>
+                        </select>
+                        <input
+                          type="text"
+                          value={newIpAddress}
+                          onChange={(e) => setNewIpAddress(e.target.value)}
+                          placeholder="192.168.1.1 or 192.168.1.0/24"
+                          className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          onKeyPress={(e) => e.key === 'Enter' && addIpAddress()}
+                        />
+                        <button
+                          onClick={addIpAddress}
+                          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* IP Allowlist */}
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Allowed IP Addresses</h3>
+                      <div className="space-y-2">
+                        {ipAllowlist.length === 0 ? (
+                          <p className="text-sm text-muted-foreground p-4 text-center border border-dashed rounded-lg">
+                            No IP addresses in allowlist. Add some to restrict access.
+                          </p>
+                        ) : (
+                          ipAllowlist.map((ip, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                <span className="font-mono text-sm">{ip}</span>
+                              </div>
+                              <button
+                                onClick={() => removeIpAddress(ip, 'allow')}
+                                className="p-1 rounded-md hover:bg-green-100 dark:hover:bg-green-800 text-green-600 dark:text-green-400"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+
+                    {/* IP Blocklist */}
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Blocked IP Addresses</h3>
+                      <div className="space-y-2">
+                        {ipBlocklist.length === 0 ? (
+                          <p className="text-sm text-muted-foreground p-4 text-center border border-dashed rounded-lg">
+                            No IP addresses in blocklist.
+                          </p>
+                        ) : (
+                          ipBlocklist.map((ip, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <Ban className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                <span className="font-mono text-sm">{ip}</span>
+                              </div>
+                              <button
+                                onClick={() => removeIpAddress(ip, 'block')}
+                                className="p-1 rounded-md hover:bg-red-100 dark:hover:bg-red-800 text-red-600 dark:text-red-400"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Session & API Security */}
+              <div className="bg-card rounded-lg border border-border p-6">
+                <div className="flex items-center space-x-2 mb-6">
+                  <SettingsIcon className="h-5 w-5 text-primary" />
+                  <h2 className="text-xl font-semibold">Session & API Security</h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">Session Timeout</p>
+                      <p className="text-sm text-muted-foreground">
+                        Automatically log out after period of inactivity
+                      </p>
+                    </div>
+                    <select className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      <option>30 minutes</option>
+                      <option>1 hour</option>
+                      <option>4 hours</option>
+                      <option>8 hours</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">API Rate Limiting</p>
+                      <p className="text-sm text-muted-foreground">
+                        Maximum requests per minute per API key
+                      </p>
+                    </div>
+                    <select className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+                      <option>100</option>
+                      <option>500</option>
+                      <option>1000</option>
+                      <option>Unlimited</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  onClick={saveSecuritySettings}
+                  className="mt-6 flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
+                  <Save className="h-4 w-4" />
+                  <span>Save Security Settings</span>
+                </button>
               </div>
             </div>
           )}
@@ -518,7 +975,10 @@ export function Settings() {
                           >
                             {apiKey.isActive ? 'Active' : 'Inactive'}
                           </span>
-                          <button className="p-1 rounded-md hover:bg-muted text-red-600">
+                          <button
+                            onClick={() => deleteApiKey(apiKey.id)}
+                            className="p-1 rounded-md hover:bg-muted text-red-600"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
@@ -538,7 +998,10 @@ export function Settings() {
                             <Eye className="h-4 w-4" />
                           )}
                         </button>
-                        <button className="p-2 rounded-md border border-border hover:bg-muted">
+                        <button
+                          onClick={() => copyApiKey(apiKey.key)}
+                          className="p-2 rounded-md border border-border hover:bg-muted"
+                        >
                           <Copy className="h-4 w-4" />
                         </button>
                       </div>
@@ -694,13 +1157,19 @@ export function Settings() {
                       <input type="checkbox" className="rounded" defaultChecked />
                     </div>
 
-                    <button className="px-4 py-2 border border-border rounded-md hover:bg-muted">
+                    <button
+                      onClick={exportAllData}
+                      className="px-4 py-2 border border-border rounded-md hover:bg-muted"
+                    >
                       Export All Data
                     </button>
                   </div>
                 </div>
 
-                <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+                <button
+                  onClick={saveDatabaseSettings}
+                  className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
                   <Save className="h-4 w-4" />
                   <span>Save Settings</span>
                 </button>
@@ -709,6 +1178,25 @@ export function Settings() {
           )}
         </div>
       </div>
+
+      {/* Modals */}
+      <CreateApiKeyModal
+        isOpen={showCreateApiKey}
+        onClose={() => setShowCreateApiKey(false)}
+      />
+
+      <InviteUserModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+      />
+
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          isOpen={!!editingUser}
+          onClose={() => setEditingUser(null)}
+        />
+      )}
     </div>
   )
 }
