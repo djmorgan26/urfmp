@@ -62,7 +62,7 @@ jobs:
           name: urfmp-web-coverage
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: matrix.test-type == 'unit'
         with:
           name: build-artifacts
