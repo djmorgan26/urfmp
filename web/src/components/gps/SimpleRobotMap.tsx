@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, Polygon, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapPin, Satellite, Home, ZoomIn, ZoomOut } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
@@ -37,6 +37,8 @@ interface SimpleRobotMapProps {
   selectedRobotId?: string
   onRobotSelect?: (robotId: string) => void
   geofences?: Geofence[]
+  waypoints?: any[]
+  paths?: any[]
   className?: string
 }
 
@@ -44,6 +46,58 @@ interface RobotGPSData {
   robotId: string
   position: GPSPosition
   timestamp: Date
+}
+
+// Create a custom waypoint icon
+const createWaypointIcon = (waypoint: any) => {
+  const size = 20
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+  canvas.width = size + 8
+  canvas.height = size + 8
+
+  const centerX = canvas.width / 2
+  const centerY = canvas.height / 2
+
+  // Get waypoint color based on type
+  const getWaypointColor = (type: string) => {
+    switch (type) {
+      case 'pickup': return '#10b981' // green
+      case 'dropoff': return '#ef4444' // red
+      case 'charging': return '#f59e0b' // yellow
+      case 'maintenance': return '#8b5cf6' // purple
+      case 'checkpoint': return '#3b82f6' // blue
+      default: return '#6b7280' // gray
+    }
+  }
+
+  const color = getWaypointColor(waypoint.type)
+
+  // Draw main circle
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, size / 2, 0, 2 * Math.PI)
+  ctx.fillStyle = color
+  ctx.fill()
+
+  // Draw white border
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, size / 2, 0, 2 * Math.PI)
+  ctx.strokeStyle = 'white'
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // Draw waypoint symbol (circle in center)
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, size / 4, 0, 2 * Math.PI)
+  ctx.fillStyle = 'white'
+  ctx.fill()
+
+  return L.icon({
+    iconUrl: canvas.toDataURL(),
+    iconSize: [canvas.width, canvas.height],
+    iconAnchor: [canvas.width / 2, canvas.height / 2],
+    popupAnchor: [0, -canvas.height / 2],
+  })
 }
 
 // Create a simple, reliable robot icon using Canvas
@@ -204,6 +258,8 @@ export function SimpleRobotMap({
   selectedRobotId,
   onRobotSelect,
   geofences = [],
+  waypoints = [],
+  paths = [],
   className,
 }: SimpleRobotMapProps) {
   const { urfmp } = useURFMP()
@@ -448,29 +504,184 @@ export function SimpleRobotMap({
 
         {/* Geofences */}
         {geofences.map((geofence) => {
-          if (!geofence.isActive) return null
+          if (!geofence.isActive || !geofence.coordinates.length) return null
 
-          // Handle different geofence types
-          if (geofence.type === 'circle' && geofence.coordinates.length > 0) {
+          const getGeofenceColor = (type: string) => {
+            switch (type) {
+              case 'safety': return '#ef4444' // red
+              case 'work': return '#10b981' // green
+              case 'restricted': return '#f59e0b' // yellow
+              case 'charging': return '#3b82f6' // blue
+              default: return '#8b5cf6' // purple
+            }
+          }
+
+          const color = getGeofenceColor(geofence.type)
+
+          if (geofence.shape === 'circle' && geofence.coordinates.length > 0) {
             const center = geofence.coordinates[0]
             return (
-              <div key={geofence.id}>
-                {/* Note: Circle rendering would need additional Leaflet plugin */}
-                {/* For now, just show center point */}
-                <Marker position={[center.latitude, center.longitude]}>
-                  <Popup>
-                    <div className="text-sm">
-                      <strong>{geofence.name}</strong><br />
-                      Type: {geofence.type}<br />
-                      Radius: {geofence.radius}m
-                    </div>
-                  </Popup>
-                </Marker>
-              </div>
+              <Circle
+                key={geofence.id}
+                center={[center.latitude, center.longitude]}
+                radius={geofence.radius || 100}
+                pathOptions={{
+                  color: color,
+                  fillColor: color,
+                  fillOpacity: 0.2,
+                  weight: 2,
+                  opacity: 0.8
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <strong>{geofence.name}</strong><br />
+                    {geofence.description && <span>{geofence.description}<br /></span>}
+                    Type: {geofence.type}<br />
+                    Shape: {geofence.shape}<br />
+                    Radius: {geofence.radius}m<br />
+                    Rules: {geofence.rules?.length || 0}
+                  </div>
+                </Popup>
+              </Circle>
+            )
+          }
+
+          if (geofence.shape === 'polygon' && geofence.coordinates.length >= 3) {
+            const positions = geofence.coordinates.map(coord => [coord.latitude, coord.longitude] as [number, number])
+            return (
+              <Polygon
+                key={geofence.id}
+                positions={positions}
+                pathOptions={{
+                  color: color,
+                  fillColor: color,
+                  fillOpacity: 0.2,
+                  weight: 2,
+                  opacity: 0.8
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <strong>{geofence.name}</strong><br />
+                    {geofence.description && <span>{geofence.description}<br /></span>}
+                    Type: {geofence.type}<br />
+                    Shape: {geofence.shape}<br />
+                    Points: {geofence.coordinates.length}<br />
+                    Rules: {geofence.rules?.length || 0}
+                  </div>
+                </Popup>
+              </Polygon>
+            )
+          }
+
+          if (geofence.shape === 'rectangle' && geofence.coordinates.length >= 2) {
+            const [topLeft, bottomRight] = geofence.coordinates
+            const positions = [
+              [topLeft.latitude, topLeft.longitude],
+              [topLeft.latitude, bottomRight.longitude],
+              [bottomRight.latitude, bottomRight.longitude],
+              [bottomRight.latitude, topLeft.longitude]
+            ] as [number, number][]
+
+            return (
+              <Polygon
+                key={geofence.id}
+                positions={positions}
+                pathOptions={{
+                  color: color,
+                  fillColor: color,
+                  fillOpacity: 0.2,
+                  weight: 2,
+                  opacity: 0.8
+                }}
+              >
+                <Popup>
+                  <div className="text-sm">
+                    <strong>{geofence.name}</strong><br />
+                    {geofence.description && <span>{geofence.description}<br /></span>}
+                    Type: {geofence.type}<br />
+                    Shape: {geofence.shape}<br />
+                    Rules: {geofence.rules?.length || 0}
+                  </div>
+                </Popup>
+              </Polygon>
             )
           }
 
           return null
+        })}
+
+        {/* Waypoints */}
+        {waypoints.map((waypoint) => {
+          if (!waypoint.isActive || !waypoint.coordinates) return null
+
+          return (
+            <Marker
+              key={waypoint.id}
+              position={[waypoint.coordinates.latitude, waypoint.coordinates.longitude]}
+              icon={createWaypointIcon(waypoint)}
+            >
+              <Popup>
+                <div className="text-sm">
+                  <strong>{waypoint.name}</strong><br />
+                  {waypoint.description && <span>{waypoint.description}<br /></span>}
+                  Type: {waypoint.type}<br />
+                  Radius: {waypoint.radius}m<br />
+                  Actions: {waypoint.actions?.length || 0}<br />
+                  Status: {waypoint.isActive ? 'Active' : 'Inactive'}
+                </div>
+              </Popup>
+            </Marker>
+          )
+        })}
+
+        {/* Paths */}
+        {paths.map((path) => {
+          if (!path.isActive || !path.waypoints.length) return null
+
+          // Get waypoint coordinates for the path
+          const pathCoordinates = path.waypoints
+            .map((waypointId: string) => waypoints.find(wp => wp.id === waypointId))
+            .filter(wp => wp && wp.coordinates)
+            .map(wp => [wp.coordinates.latitude, wp.coordinates.longitude] as [number, number])
+
+          if (pathCoordinates.length < 2) return null
+
+          const getPathColor = (status: string) => {
+            switch (status) {
+              case 'active': return '#10b981' // green
+              case 'paused': return '#f59e0b' // yellow
+              case 'completed': return '#6b7280' // gray
+              case 'error': return '#ef4444' // red
+              default: return '#8b5cf6' // purple
+            }
+          }
+
+          return (
+            <Polyline
+              key={path.id}
+              positions={pathCoordinates}
+              pathOptions={{
+                color: getPathColor(path.status),
+                weight: 4,
+                opacity: 0.8,
+                dashArray: path.status === 'paused' ? '10, 10' : undefined
+              }}
+            >
+              <Popup>
+                <div className="text-sm">
+                  <strong>{path.name}</strong><br />
+                  {path.description && <span>{path.description}<br /></span>}
+                  Robot: {path.robotId}<br />
+                  Status: {path.status}<br />
+                  Waypoints: {path.waypoints.length}<br />
+                  Distance: {path.totalDistance?.toFixed(0)}m<br />
+                  Est. Time: {path.estimatedTime ? `${Math.round(path.estimatedTime / 60)}min` : 'N/A'}
+                </div>
+              </Popup>
+            </Polyline>
+          )
         })}
       </MapContainer>
 

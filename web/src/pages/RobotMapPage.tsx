@@ -4,17 +4,19 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useGeofencing } from '@/hooks/useGeofencing'
 import { Robot } from '@urfmp/types'
 import { SimpleRobotMap } from '@/components/gps/SimpleRobotMap'
-import { Settings, RefreshCw, Shield, ChevronDown, ChevronUp } from 'lucide-react'
+import { Settings, RefreshCw, Shield, ChevronDown, ChevronUp, MapPin, GitBranch } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 
 export function RobotMapPage() {
   const { robots, isLoading, error, refreshRobots } = useURFMP()
   const { isDark } = useTheme()
-  const { geofences } = useGeofencing()
+  const { geofences, waypoints, paths } = useGeofencing()
   const [selectedRobotId, setSelectedRobotId] = useState<string>()
   const [isFleetPanelExpanded, setIsFleetPanelExpanded] = useState(false)
   const [showGeofences, setShowGeofences] = useState(true)
+  const [showWaypoints, setShowWaypoints] = useState(true)
+  const [showPaths, setShowPaths] = useState(true)
 
   if (error) {
     return (
@@ -52,21 +54,51 @@ export function RobotMapPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Layer Toggles */}
+          <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            {/* Geofence Toggle */}
+            <button
+              onClick={() => setShowGeofences(!showGeofences)}
+              className={cn(
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                showGeofences
+                  ? 'bg-blue-500 dark:bg-blue-600 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+              )}
+            >
+              <Shield className="w-3 h-3" />
+              Geofences
+            </button>
 
-          {/* Geofence Toggle */}
-          <button
-            onClick={() => setShowGeofences(!showGeofences)}
-            className={cn(
-              'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
-              showGeofences
-                ? 'bg-blue-500 dark:bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
-            )}
-          >
-            <Shield className="w-3 h-3" />
-            Geofences
-          </button>
+            {/* Waypoint Toggle */}
+            <button
+              onClick={() => setShowWaypoints(!showWaypoints)}
+              className={cn(
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                showWaypoints
+                  ? 'bg-green-500 dark:bg-green-600 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+              )}
+            >
+              <MapPin className="w-3 h-3" />
+              Waypoints
+            </button>
+
+            {/* Paths Toggle */}
+            <button
+              onClick={() => setShowPaths(!showPaths)}
+              className={cn(
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                showPaths
+                  ? 'bg-purple-500 dark:bg-purple-600 text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
+              )}
+            >
+              <GitBranch className="w-3 h-3" />
+              Paths
+            </button>
+          </div>
 
           {/* Refresh Button */}
           <button
@@ -90,6 +122,8 @@ export function RobotMapPage() {
             selectedRobotId={selectedRobotId}
             onRobotSelect={setSelectedRobotId}
             geofences={showGeofences ? geofences : []}
+            waypoints={showWaypoints ? waypoints : []}
+            paths={showPaths ? paths : []}
             className="w-full h-full"
           />
         </div>
