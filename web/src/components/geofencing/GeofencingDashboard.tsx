@@ -21,6 +21,8 @@ import { AddWaypointModal } from './AddWaypointModal'
 import { EditWaypointModal } from './EditWaypointModal'
 import { AddPathModal } from './AddPathModal'
 import { EditPathModal } from './EditPathModal'
+import { AddGeofenceModal } from './AddGeofenceModal'
+import { EditGeofenceModal } from './EditGeofenceModal'
 
 export function GeofencingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'waypoints' | 'geofences' | 'paths' | 'events'>('overview')
@@ -30,6 +32,9 @@ export function GeofencingDashboard() {
   const [showAddPathModal, setShowAddPathModal] = useState(false)
   const [showEditPathModal, setShowEditPathModal] = useState(false)
   const [selectedPath, setSelectedPath] = useState<any>(null)
+  const [showAddGeofenceModal, setShowAddGeofenceModal] = useState(false)
+  const [showEditGeofenceModal, setShowEditGeofenceModal] = useState(false)
+  const [selectedGeofence, setSelectedGeofence] = useState<any>(null)
 
   const {
     waypoints,
@@ -55,11 +60,20 @@ export function GeofencingDashboard() {
     setShowEditPathModal(true)
   }
 
+  const handleEditGeofence = (geofence: any) => {
+    setSelectedGeofence(geofence)
+    setShowEditGeofenceModal(true)
+  }
+
   const handleWaypointSuccess = () => {
     refresh()
   }
 
   const handlePathSuccess = () => {
+    refresh()
+  }
+
+  const handleGeofenceSuccess = () => {
     refresh()
   }
 
@@ -315,7 +329,10 @@ export function GeofencingDashboard() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Geofences Management</h3>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            <button
+              onClick={() => setShowAddGeofenceModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4" />
               <span>Add Geofence</span>
             </button>
@@ -342,7 +359,10 @@ export function GeofencingDashboard() {
                     <p className="text-sm text-muted-foreground">{geofence.description}</p>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <button className="p-1 hover:bg-muted rounded">
+                    <button
+                      onClick={() => handleEditGeofence(geofence)}
+                      className="p-1 hover:bg-muted rounded"
+                    >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
@@ -587,6 +607,22 @@ export function GeofencingDashboard() {
         }}
         onSuccess={handlePathSuccess}
         path={selectedPath}
+      />
+
+      <AddGeofenceModal
+        isOpen={showAddGeofenceModal}
+        onClose={() => setShowAddGeofenceModal(false)}
+        onSuccess={handleGeofenceSuccess}
+      />
+
+      <EditGeofenceModal
+        isOpen={showEditGeofenceModal}
+        onClose={() => {
+          setShowEditGeofenceModal(false)
+          setSelectedGeofence(null)
+        }}
+        onSuccess={handleGeofenceSuccess}
+        geofence={selectedGeofence}
       />
     </div>
   )
