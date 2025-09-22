@@ -1,10 +1,21 @@
-import { useState, useEffect } from 'react'
-import { MapPin, Navigation, Satellite, Home, ZoomIn, ZoomOut } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import { MapPin, Satellite, Home, ZoomIn, ZoomOut } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
 import { useTheme } from '../../contexts/ThemeContext'
 import { cn } from '../../lib/utils'
 import { Robot } from '@urfmp/types'
 import { Geofence } from '../../hooks/useGeofencing'
+import L from 'leaflet'
+
+// Fix Leaflet default markers in webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+})
 
 interface GPSPosition {
   latitude: number
@@ -35,6 +46,159 @@ interface RobotGPSData {
   timestamp: Date
 }
 
+// Create a simple, reliable robot icon using Canvas
+const createRobotIcon = (robot: Robot, isSelected: boolean) => {
+  const color = getRobotColor(robot.status)
+  const size = isSelected ? 30 : 24
+
+  // Create canvas for the marker
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')!
+  canvas.width = size + 8
+  canvas.height = size + 8
+
+  const centerX = canvas.width / 2
+  const centerY = canvas.height / 2
+
+  // Draw outer ring for selected robot
+  if (isSelected) {
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, (size + 8) / 2, 0, 2 * Math.PI)
+    ctx.fillStyle = color + '40'
+    ctx.fill()
+  }
+
+  // Draw main circle
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, size / 2, 0, 2 * Math.PI)
+  ctx.fillStyle = color
+  ctx.fill()
+
+  // Draw white border
+  ctx.beginPath()
+  ctx.arc(centerX, centerY, size / 2, 0, 2 * Math.PI)
+  ctx.strokeStyle = 'white'
+  ctx.lineWidth = 3
+  ctx.stroke()
+
+  // Draw white triangle (robot icon)
+  ctx.beginPath()
+  ctx.moveTo(centerX, centerY - size * 0.2)
+  ctx.lineTo(centerX - size * 0.15, centerY + size * 0.1)
+  ctx.lineTo(centerX + size * 0.15, centerY + size * 0.1)
+  ctx.closePath()
+  ctx.fillStyle = 'white'
+  ctx.fill()
+
+  // Draw status indicator dot
+  const statusColor = robot.status === 'online' ? '#10b981' :
+                     robot.status === 'error' ? '#ef4444' : '#6b7280'
+  ctx.beginPath()
+  ctx.arc(centerX + size * 0.3, centerY - size * 0.3, 4, 0, 2 * Math.PI)
+  ctx.fillStyle = statusColor
+  ctx.fill()
+  ctx.strokeStyle = 'white'
+  ctx.lineWidth = 2
+  ctx.stroke()
+
+  // Convert canvas to data URL
+  const dataUrl = canvas.toDataURL()
+
+  return L.icon({
+    iconUrl: dataUrl,
+    iconSize: [canvas.width, canvas.height],
+    iconAnchor: [canvas.width / 2, canvas.height / 2],
+    popupAnchor: [0, -canvas.height / 2],
+  })
+}
+
+// Get robot color based on status
+const getRobotColor = (status: string): string => {
+  switch (status) {
+    case 'online':
+    case 'running':
+      return '#10b981' // green
+    case 'idle':
+      return '#f59e0b' // yellow
+    case 'offline':
+      return '#6b7280' // gray
+    case 'error':
+    case 'emergency_stop':
+      return '#ef4444' // red
+    case 'charging':
+      return '#3b82f6' // blue
+    default:
+      return '#8b5cf6' // purple
+  }
+}
+
+// Get location name based on GPS coordinates
+const getLocationName = (lat: number, lng: number): string => {
+  if (lat >= 40.6 && lat <= 40.9 && lng >= -74.3 && lng <= -73.7) {
+    return 'New York City, USA'
+  } else if (lat >= 37.6 && lat <= 37.9 && lng >= -122.6 && lng <= -122.3) {
+    return 'San Francisco, USA'
+  } else if (lat >= 51.4 && lat <= 51.6 && lng >= -0.3 && lng <= 0.2) {
+    return 'London, UK'
+  } else if (lat >= 48.7 && lat <= 49.0 && lng >= 2.2 && lng <= 2.5) {
+    return 'Paris, France'
+  } else if (lat >= 35.6 && lat <= 35.8 && lng >= 139.6 && lng <= 139.9) {
+    return 'Tokyo, Japan'
+  } else if (lat >= -33.9 && lat <= -33.8 && lng >= 151.1 && lng <= 151.3) {
+    return 'Sydney, Australia'
+  }
+
+  return `${lat >= 0 ? lat.toFixed(2) + '°N' : Math.abs(lat).toFixed(2) + '°S'}, ${lng >= 0 ? lng.toFixed(2) + '°E' : Math.abs(lng).toFixed(2) + '°W'}`
+}
+
+// Map controller component
+function MapController({
+  robotGPSData,
+  selectedRobotId
+}: {
+  robotGPSData: Map<string, RobotGPSData[]>
+  selectedRobotId?: string
+}) {
+  const map = useMap()
+
+  // Auto-center on robots when they're loaded
+  useEffect(() => {
+    if (robotGPSData.size > 0) {
+      const allPositions = Array.from(robotGPSData.values()).flat()
+      if (allPositions.length > 0) {
+        const bounds = L.latLngBounds(
+          allPositions.map(p => [p.position.latitude, p.position.longitude])
+        )
+        map.fitBounds(bounds, { padding: [20, 20] })
+      }
+    }
+  }, [map, robotGPSData])
+
+  // Follow selected robot
+  useEffect(() => {
+    if (selectedRobotId) {
+      const gpsData = robotGPSData.get(selectedRobotId)
+      if (gpsData && gpsData.length > 0) {
+        const latest = gpsData[gpsData.length - 1]
+        map.setView([latest.position.latitude, latest.position.longitude], 16, {
+          animate: true,
+          duration: 1
+        })
+      }
+    }
+  }, [selectedRobotId, robotGPSData, map])
+
+  return null
+}
+
+// Map click handler
+function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
+  useMapEvents({
+    click: onMapClick,
+  })
+  return null
+}
+
 export function SimpleRobotMap({
   robots,
   selectedRobotId,
@@ -45,9 +209,10 @@ export function SimpleRobotMap({
   const { urfmp } = useURFMP()
   const { isDark } = useTheme()
   const [robotGPSData, setRobotGPSData] = useState<Map<string, RobotGPSData[]>>(new Map())
-  const [mapCenter, setMapCenter] = useState({ lat: 40.7589, lng: -73.9851 }) // NYC default
-  const [zoomLevel, setZoomLevel] = useState(10)
+  const [mapCenter] = useState<[number, number]>([40.7589, -73.9851]) // NYC default
   const [isLoading, setIsLoading] = useState(true)
+  const [mapStyle, setMapStyle] = useState<'street' | 'satellite' | 'dark'>('street')
+  const mapRef = useRef<L.Map>(null)
 
   // Load robot GPS data
   useEffect(() => {
@@ -59,13 +224,6 @@ export function SimpleRobotMap({
 
       for (const robot of robots) {
         try {
-          // Get recent telemetry data with GPS coordinates
-          // Skip telemetry loading for now to avoid API errors
-          // const telemetryData = await urfmp.getTelemetryHistory(robot.id, {
-          //   from: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
-          //   limit: 100
-          // })
-
           // Generate mock GPS data for demonstration
           const mockGPSData: RobotGPSData[] = []
           if (robot.status === 'online' || robot.status === 'running') {
@@ -75,16 +233,18 @@ export function SimpleRobotMap({
               { lat: 40.7505, lng: -73.9934, name: 'Empire State' },
               { lat: 40.7614, lng: -73.9776, name: 'Central Park' },
               { lat: 40.7128, lng: -74.006, name: 'Downtown' },
+              { lat: 40.7282, lng: -73.7949, name: 'JFK Airport' },
+              { lat: 40.6892, lng: -74.0445, name: 'Statue of Liberty' },
             ]
 
             const robotIndex = robots.indexOf(robot)
             const baseLocation = baseLocations[robotIndex % baseLocations.length]
 
-            // Generate a trail of 5 GPS points around the base location
-            for (let i = 0; i < 5; i++) {
-              const latOffset = (Math.random() - 0.5) * 0.01 // ~500m radius
-              const lngOffset = (Math.random() - 0.5) * 0.01
-              const timestamp = new Date(Date.now() - (4 - i) * 5 * 60 * 1000) // 5-minute intervals
+            // Generate a trail of GPS points around the base location
+            for (let i = 0; i < 8; i++) {
+              const latOffset = (Math.random() - 0.5) * 0.005 // ~250m radius
+              const lngOffset = (Math.random() - 0.5) * 0.005
+              const timestamp = new Date(Date.now() - (7 - i) * 3 * 60 * 1000) // 3-minute intervals
 
               mockGPSData.push({
                 robotId: robot.id,
@@ -107,10 +267,8 @@ export function SimpleRobotMap({
             }
           }
 
-          const gpsData = mockGPSData
-
-          if (gpsData.length > 0) {
-            gpsDataMap.set(robot.id, gpsData)
+          if (mockGPSData.length > 0) {
+            gpsDataMap.set(robot.id, mockGPSData)
           }
         } catch (error) {
           console.error(`Failed to load GPS data for robot ${robot.id}:`, error)
@@ -118,19 +276,6 @@ export function SimpleRobotMap({
       }
 
       setRobotGPSData(gpsDataMap)
-
-      // Auto-center map on robots if we have GPS data
-      if (gpsDataMap.size > 0) {
-        const allPositions = Array.from(gpsDataMap.values()).flat()
-        if (allPositions.length > 0) {
-          const avgLat =
-            allPositions.reduce((sum, p) => sum + p.position.latitude, 0) / allPositions.length
-          const avgLng =
-            allPositions.reduce((sum, p) => sum + p.position.longitude, 0) / allPositions.length
-          setMapCenter({ lat: avgLat, lng: avgLng })
-        }
-      }
-
       setIsLoading(false)
     }
 
@@ -148,7 +293,7 @@ export function SimpleRobotMap({
         setRobotGPSData((prev) => {
           const updated = new Map(prev)
           const existingData = updated.get(data.robotId) || []
-          const newData = [...existingData, newGPSData].slice(-100) // Keep last 100 points
+          const newData = [...existingData, newGPSData].slice(-50) // Keep last 50 points
           updated.set(data.robotId, newData)
           return updated
         })
@@ -167,265 +312,73 @@ export function SimpleRobotMap({
     }
   }, [urfmp, robots])
 
-  // Get robot status color
-  const getRobotStatusColor = (status: string) => {
-    switch (status) {
-      case 'online':
-      case 'running':
-        return 'text-green-500 bg-green-100'
-      case 'idle':
-        return 'text-yellow-500 bg-yellow-100'
-      case 'offline':
-        return 'text-gray-500 bg-gray-100'
-      case 'error':
-      case 'emergency_stop':
-        return 'text-red-500 bg-red-100'
+  // Get tile layer URL based on style and theme
+  const getTileLayerUrl = () => {
+    switch (mapStyle) {
+      case 'satellite':
+        return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+      case 'dark':
+        return isDark
+          ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+          : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
       default:
-        return 'text-blue-500 bg-blue-100'
+        return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     }
   }
 
-  // Convert GPS to map coordinates (simplified projection)
-  const gpsToMapCoords = (lat: number, lng: number) => {
-    const x =
-      (lng - mapCenter.lng) * Math.cos((mapCenter.lat * Math.PI) / 180) * zoomLevel * 100 + 250
-    const y = (mapCenter.lat - lat) * zoomLevel * 100 + 250
-    return { x, y }
+  const getTileLayerAttribution = () => {
+    switch (mapStyle) {
+      case 'satellite':
+        return '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      case 'dark':
+        return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+      default:
+        return '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }
   }
 
-  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev * 1.5, 50))
-  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev / 1.5, 1))
-
   const handleCenterOnRobots = () => {
-    if (robotGPSData.size === 0) return
+    if (robotGPSData.size === 0 || !mapRef.current) return
 
     const allPositions = Array.from(robotGPSData.values()).flat()
     if (allPositions.length > 0) {
-      const avgLat =
-        allPositions.reduce((sum, p) => sum + p.position.latitude, 0) / allPositions.length
-      const avgLng =
-        allPositions.reduce((sum, p) => sum + p.position.longitude, 0) / allPositions.length
-      setMapCenter({ lat: avgLat, lng: avgLng })
+      const bounds = L.latLngBounds(
+        allPositions.map(p => [p.position.latitude, p.position.longitude])
+      )
+      mapRef.current.fitBounds(bounds, { padding: [20, 20] })
     }
   }
 
   return (
-    <div
-      className={cn(
-        'relative w-full h-full rounded-lg overflow-hidden',
-        isDark ? 'bg-gray-900' : 'bg-blue-50',
-        className
-      )}
-    >
-      {/* Enhanced Map Background */}
-      <div
-        className={cn(
-          'absolute inset-0',
-          isDark
-            ? 'bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800'
-            : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50'
-        )}
+    <div className={cn('relative w-full h-full overflow-hidden', className)}>
+      {/* Map Container */}
+      <MapContainer
+        center={mapCenter}
+        zoom={12}
+        className="w-full h-full"
+        ref={mapRef}
+        zoomControl={false}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        dragging={true}
       >
-        {/* Animated Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <svg width="100%" height="100%">
-            <defs>
-              <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={isDark ? '#3b82f6' : '#06b6d4'} stopOpacity="0.8" />
-                <stop offset="70%" stopColor={isDark ? '#1e40af' : '#0891b2'} stopOpacity="0.3" />
-                <stop offset="100%" stopColor={isDark ? '#1e3a8a' : '#0e7490'} stopOpacity="0.1" />
-              </radialGradient>
-              <pattern id="modernGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <circle cx="20" cy="20" r="1" fill={isDark ? '#374151' : '#cbd5e1'} opacity="0.5" />
-                <path
-                  d="M 40 0 L 0 0 0 40"
-                  fill="none"
-                  stroke={isDark ? '#374151' : '#cbd5e1'}
-                  strokeWidth="0.5"
-                  opacity="0.3"
-                />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#modernGrid)" />
-            <circle
-              cx="50%"
-              cy="50%"
-              r="30%"
-              fill="url(#radarGradient)"
-              className="animate-pulse"
-            />
-          </svg>
-        </div>
+        {/* Tile Layer */}
+        <TileLayer
+          url={getTileLayerUrl()}
+          attribution={getTileLayerAttribution()}
+          maxZoom={19}
+        />
 
-        {/* Radar-style center indicator */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            {/* Pulsing outer ring */}
-            <div
-              className={cn(
-                'w-12 h-12 rounded-full border-2 opacity-30 animate-ping',
-                isDark ? 'border-blue-400' : 'border-cyan-500'
-              )}
-            ></div>
-            {/* Static inner ring */}
-            <div
-              className={cn(
-                'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-6 h-6 rounded-full border opacity-50',
-                isDark ? 'border-blue-300' : 'border-cyan-400'
-              )}
-            ></div>
-            {/* Center dot */}
-            <div
-              className={cn(
-                'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full',
-                isDark ? 'bg-blue-400' : 'bg-cyan-500'
-              )}
-            ></div>
-          </div>
-        </div>
+        {/* Map Controller */}
+        <MapController
+          robotGPSData={robotGPSData}
+          selectedRobotId={selectedRobotId}
+        />
 
-        {/* Coordinate overlay */}
-        <div className="absolute top-4 left-4 text-xs opacity-60 font-mono">
-          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
-            Lat: {mapCenter.lat.toFixed(4)}°
-          </div>
-          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
-            Lng: {mapCenter.lng.toFixed(4)}°
-          </div>
-          <div className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
-            Zoom: {zoomLevel.toFixed(1)}x
-          </div>
-        </div>
+        {/* Map Click Handler */}
+        <MapClickHandler onMapClick={() => onRobotSelect?.('')} />
 
-        {/* Geofences on map */}
-        {geofences.map((geofence) => {
-          if (!geofence.isActive) return null
-
-          if (geofence.type === 'circle' && geofence.coordinates.length > 0) {
-            const center = gpsToMapCoords(geofence.coordinates[0].latitude, geofence.coordinates[0].longitude)
-            const radiusPixels = (geofence.radius || 50) * zoomLevel / 10 // Convert meters to pixels based on zoom
-
-            return (
-              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
-                <svg className="absolute inset-0">
-                  <defs>
-                    <radialGradient id={`geofenceGradient-${geofence.id}`} cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor={geofence.color} stopOpacity={geofence.fillOpacity * 0.3} />
-                      <stop offset="100%" stopColor={geofence.color} stopOpacity={geofence.fillOpacity} />
-                    </radialGradient>
-                  </defs>
-                  <circle
-                    cx={center.x}
-                    cy={center.y}
-                    r={radiusPixels}
-                    fill={`url(#geofenceGradient-${geofence.id})`}
-                    stroke={geofence.color}
-                    strokeWidth={geofence.strokeWidth}
-                    strokeOpacity="0.8"
-                    className="animate-pulse"
-                  />
-                  {/* Geofence label */}
-                  <text
-                    x={center.x}
-                    y={center.y - radiusPixels - 10}
-                    textAnchor="middle"
-                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
-                  >
-                    {geofence.name}
-                  </text>
-                </svg>
-              </div>
-            )
-          }
-
-          if (geofence.type === 'polygon' && geofence.coordinates.length >= 3) {
-            const points = geofence.coordinates.map(coord =>
-              gpsToMapCoords(coord.latitude, coord.longitude)
-            )
-            const pathData = points.map((point, index) =>
-              `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`
-            ).join(' ') + ' Z'
-
-            const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length
-            const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length
-
-            return (
-              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
-                <svg className="absolute inset-0">
-                  <defs>
-                    <pattern id={`geofencePattern-${geofence.id}`} patternUnits="userSpaceOnUse" width="20" height="20">
-                      <rect width="20" height="20" fill={geofence.color} opacity={geofence.fillOpacity * 0.3} />
-                      <path d="M 10,0 L 20,10 L 10,20 L 0,10 Z" fill={geofence.color} opacity={geofence.fillOpacity * 0.5} />
-                    </pattern>
-                  </defs>
-                  <path
-                    d={pathData}
-                    fill={`url(#geofencePattern-${geofence.id})`}
-                    stroke={geofence.color}
-                    strokeWidth={geofence.strokeWidth}
-                    strokeOpacity="0.9"
-                    strokeDasharray="5,3"
-                  />
-                  {/* Geofence label */}
-                  <text
-                    x={centerX}
-                    y={centerY}
-                    textAnchor="middle"
-                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
-                  >
-                    {geofence.name}
-                  </text>
-                </svg>
-              </div>
-            )
-          }
-
-          if (geofence.type === 'rectangle' && geofence.coordinates.length === 4) {
-            const coords = geofence.coordinates.map(coord =>
-              gpsToMapCoords(coord.latitude, coord.longitude)
-            )
-
-            const minX = Math.min(...coords.map(c => c.x))
-            const maxX = Math.max(...coords.map(c => c.x))
-            const minY = Math.min(...coords.map(c => c.y))
-            const maxY = Math.max(...coords.map(c => c.y))
-
-            const centerX = (minX + maxX) / 2
-            const centerY = (minY + maxY) / 2
-
-            return (
-              <div key={geofence.id} className="absolute inset-0 pointer-events-none">
-                <svg className="absolute inset-0">
-                  <rect
-                    x={minX}
-                    y={minY}
-                    width={maxX - minX}
-                    height={maxY - minY}
-                    fill={geofence.color}
-                    fillOpacity={geofence.fillOpacity}
-                    stroke={geofence.color}
-                    strokeWidth={geofence.strokeWidth}
-                    strokeOpacity="0.8"
-                    strokeDasharray="8,4"
-                  />
-                  {/* Geofence label */}
-                  <text
-                    x={centerX}
-                    y={centerY}
-                    textAnchor="middle"
-                    className={cn('text-xs font-medium fill-current', isDark ? 'text-gray-300' : 'text-gray-700')}
-                  >
-                    {geofence.name}
-                  </text>
-                </svg>
-              </div>
-            )
-          }
-
-          return null
-        })}
-
-        {/* Robots on map */}
+        {/* Robot Markers and Trails */}
         {Array.from(robotGPSData.entries()).map(([robotId, gpsData]) => {
           if (gpsData.length === 0) return null
 
@@ -433,211 +386,194 @@ export function SimpleRobotMap({
           if (!robot) return null
 
           const latestPosition = gpsData[gpsData.length - 1]
-          const coords = gpsToMapCoords(
-            latestPosition.position.latitude,
-            latestPosition.position.longitude
-          )
           const isSelected = selectedRobotId === robotId
 
-          // Don't render if off-screen
-          if (coords.x < -20 || coords.x > 520 || coords.y < -20 || coords.y > 520) return null
-
           return (
-            <div key={robotId}>
-              {/* Enhanced Robot trail with gradient */}
+            <div key={`robot-container-${robotId}-${latestPosition.timestamp.getTime()}`}>
+              {/* Robot trail */}
               {gpsData.length > 1 && (
-                <svg className="absolute inset-0 pointer-events-none">
-                  <defs>
-                    <linearGradient id={`trailGradient-${robotId}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor={
-                        isSelected ? (isDark ? '#3b82f6' : '#1e40af') : isDark ? '#6b7280' : '#9ca3af'
-                      } stopOpacity="0.1" />
-                      <stop offset="100%" stopColor={
-                        isSelected ? (isDark ? '#60a5fa' : '#3b82f6') : isDark ? '#9ca3af' : '#6b7280'
-                      } stopOpacity="0.8" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d={gpsData
-                      .map((data, index) => {
-                        const c = gpsToMapCoords(data.position.latitude, data.position.longitude)
-                        return `${index === 0 ? 'M' : 'L'} ${c.x} ${c.y}`
-                      })
-                      .join(' ')}
-                    fill="none"
-                    stroke={`url(#trailGradient-${robotId})`}
-                    strokeWidth={isSelected ? "3" : "2"}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className={isSelected ? "animate-pulse" : ""}
-                  />
-
-                  {/* Trail points for better visibility */}
-                  {gpsData.slice(0, -1).map((data, index) => {
-                    const c = gpsToMapCoords(data.position.latitude, data.position.longitude)
-                    const opacity = (index / gpsData.length) * 0.6 + 0.2
-                    return (
-                      <circle
-                        key={index}
-                        cx={c.x}
-                        cy={c.y}
-                        r="2"
-                        fill={isSelected ? (isDark ? '#60a5fa' : '#3b82f6') : isDark ? '#9ca3af' : '#6b7280'}
-                        opacity={opacity}
-                      />
-                    )
-                  })}
-                </svg>
+                <Polyline
+                  key={`trail-${robotId}`}
+                  positions={gpsData.map(data => [data.position.latitude, data.position.longitude])}
+                  color={getRobotColor(robot.status)}
+                  weight={isSelected ? 4 : 2}
+                  opacity={isSelected ? 0.8 : 0.6}
+                  smoothFactor={1}
+                />
               )}
 
-              {/* Enhanced Robot marker */}
-              <div
-                className={cn(
-                  'absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 group',
-                  isSelected ? 'scale-125 z-20' : 'z-10 hover:scale-110'
-                )}
-                style={{ left: coords.x, top: coords.y }}
-                onClick={() => onRobotSelect?.(robotId)}
+              {/* Robot marker */}
+              <Marker
+                key={`robot-${robotId}-${isSelected}`}
+                position={[latestPosition.position.latitude, latestPosition.position.longitude]}
+                icon={createRobotIcon(robot, isSelected)}
+                eventHandlers={{
+                  click: () => onRobotSelect?.(robotId),
+                }}
+                zIndexOffset={isSelected ? 1000 : 0}
               >
-                {/* Outer glow ring for selected robot */}
-                {isSelected && (
-                  <div className={cn(
-                    'absolute inset-0 w-12 h-12 rounded-full animate-ping opacity-30 -top-2 -left-2',
-                    robot.status === 'online' ? (isDark ? 'bg-green-400' : 'bg-green-500') :
-                    robot.status === 'error' ? (isDark ? 'bg-red-400' : 'bg-red-500') :
-                    isDark ? 'bg-blue-400' : 'bg-blue-500'
-                  )}></div>
-                )}
+                <Popup className="robot-popup">
+                  <div className="p-2 min-w-[200px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: getRobotColor(robot.status) }}
+                      />
+                      <h3 className="font-bold text-base">{robot.name}</h3>
+                    </div>
 
-                <div
-                  className={cn(
-                    'relative w-10 h-10 rounded-full border-2 shadow-xl flex items-center justify-center backdrop-blur-sm',
-                    'group-hover:shadow-2xl transition-all duration-300',
-                    robot.status === 'online' ? 'border-green-300 bg-green-500/90 shadow-green-500/30' :
-                    robot.status === 'error' ? 'border-red-300 bg-red-500/90 shadow-red-500/30' :
-                    robot.status === 'idle' ? 'border-yellow-300 bg-yellow-500/90 shadow-yellow-500/30' :
-                    'border-gray-300 bg-gray-500/90 shadow-gray-500/30',
-                    isSelected && 'ring-2 ring-offset-2 ring-blue-400'
-                  )}
-                >
-                  {/* Robot direction indicator */}
-                  <div className="relative">
-                    <Navigation
-                      className={cn(
-                        'w-5 h-5 text-white drop-shadow-sm transition-transform duration-300',
-                        'group-hover:scale-110'
+                    <div className="space-y-1 text-sm">
+                      <div><strong>Status:</strong> {robot.status}</div>
+                      <div><strong>Model:</strong> {robot.model}</div>
+                      <div><strong>Location:</strong> {getLocationName(latestPosition.position.latitude, latestPosition.position.longitude)}</div>
+
+                      {latestPosition.position.speed !== undefined && (
+                        <div><strong>Speed:</strong> {latestPosition.position.speed.toFixed(1)} m/s</div>
                       )}
-                      style={{
-                        transform: `rotate(${latestPosition.position.heading || 0}deg)`,
-                      }}
-                    />
 
-                    {/* Status indicator dot */}
-                    <div className={cn(
-                      'absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white',
-                      robot.status === 'online' ? 'bg-green-400 animate-pulse' :
-                      robot.status === 'error' ? 'bg-red-400 animate-bounce' :
-                      robot.status === 'idle' ? 'bg-yellow-400' :
-                      'bg-gray-400'
-                    )}></div>
+                      {latestPosition.position.accuracy && (
+                        <div><strong>GPS Accuracy:</strong> ±{latestPosition.position.accuracy.horizontal?.toFixed(1)}m</div>
+                      )}
+
+                      <div className="text-xs text-gray-500 mt-2">
+                        Last update: {latestPosition.timestamp.toLocaleTimeString()}
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                {/* Robot label */}
-                <div
-                  className={cn(
-                    'absolute top-full mt-1 left-1/2 transform -translate-x-1/2 rounded px-2 py-1 text-xs font-medium shadow-md whitespace-nowrap',
-                    isDark ? 'bg-gray-800 text-gray-100 border border-gray-600' : 'bg-white text-gray-900',
-                    isSelected ? 'block' : 'hidden group-hover:block'
-                  )}
-                >
-                  {robot.name}
-                </div>
-              </div>
+                </Popup>
+              </Marker>
             </div>
           )
         })}
+
+        {/* Geofences */}
+        {geofences.map((geofence) => {
+          if (!geofence.isActive) return null
+
+          // Handle different geofence types
+          if (geofence.type === 'circle' && geofence.coordinates.length > 0) {
+            const center = geofence.coordinates[0]
+            return (
+              <div key={geofence.id}>
+                {/* Note: Circle rendering would need additional Leaflet plugin */}
+                {/* For now, just show center point */}
+                <Marker position={[center.latitude, center.longitude]}>
+                  <Popup>
+                    <div className="text-sm">
+                      <strong>{geofence.name}</strong><br />
+                      Type: {geofence.type}<br />
+                      Radius: {geofence.radius}m
+                    </div>
+                  </Popup>
+                </Marker>
+              </div>
+            )
+          }
+
+          return null
+        })}
+      </MapContainer>
+
+      {/* Map Style Controls */}
+      <div className="absolute top-4 right-2 z-[1000]">
+        {/* Style Selector */}
+        <div
+          className={cn(
+            'rounded-lg shadow-lg p-2 backdrop-blur-sm',
+            isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
+          )}
+        >
+          <div className="flex gap-1">
+            <button
+              onClick={() => setMapStyle('street')}
+              className={cn(
+                'p-2 rounded text-xs font-medium transition-colors',
+                mapStyle === 'street'
+                  ? 'bg-blue-500 text-white'
+                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+              )}
+            >
+              Street
+            </button>
+            <button
+              onClick={() => setMapStyle('satellite')}
+              className={cn(
+                'p-2 rounded text-xs font-medium transition-colors',
+                mapStyle === 'satellite'
+                  ? 'bg-blue-500 text-white'
+                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+              )}
+            >
+              Satellite
+            </button>
+            <button
+              onClick={() => setMapStyle('dark')}
+              className={cn(
+                'p-2 rounded text-xs font-medium transition-colors',
+                mapStyle === 'dark'
+                  ? 'bg-blue-500 text-white'
+                  : isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+              )}
+            >
+              {isDark ? 'Dark' : 'Light'}
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Map Controls */}
-      <div
-        className={cn(
-          'absolute top-4 right-4 rounded-lg shadow-lg p-2 space-y-2',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
-        )}
-      >
-        <button
-          onClick={handleZoomIn}
+      {/* Zoom and Center Controls */}
+      <div className="absolute top-20 right-2 z-[1000]">
+        <div
           className={cn(
-            'flex items-center justify-center w-8 h-8 rounded',
-            isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+            'rounded shadow-sm backdrop-blur-sm flex flex-col w-fit',
+            isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
           )}
         >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className={cn(
-            'flex items-center justify-center w-8 h-8 rounded',
-            isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
-          )}
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleCenterOnRobots}
-          className={cn(
-            'flex items-center justify-center w-8 h-8 rounded',
-            isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
-          )}
-        >
-          <Home className="w-4 h-4" />
-        </button>
+          <button
+            onClick={() => mapRef.current?.zoomIn()}
+            className={cn(
+              'flex items-center justify-center w-6 h-6 rounded',
+              isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+            )}
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => mapRef.current?.zoomOut()}
+            className={cn(
+              'flex items-center justify-center w-6 h-6 rounded',
+              isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+            )}
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          <button
+            onClick={handleCenterOnRobots}
+            className={cn(
+              'flex items-center justify-center w-6 h-6 rounded',
+              isDark ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-600 hover:bg-gray-100'
+            )}
+          >
+            <Home className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Map Info */}
       <div
         className={cn(
-          'absolute top-4 left-4 rounded-lg shadow-lg p-3 space-y-1',
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+          'absolute bottom-4 left-4 rounded-lg shadow-lg p-3 backdrop-blur-sm z-[1000]',
+          isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
         )}
       >
-        <div className={cn('text-sm font-medium', isDark ? 'text-gray-200' : 'text-gray-900')}>
-          GPS Fleet View
+        <div className={cn('text-sm font-medium mb-1', isDark ? 'text-gray-200' : 'text-gray-900')}>
+          Robot Fleet Map
         </div>
         <div className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
-          Center: {mapCenter.lat.toFixed(4)}°, {mapCenter.lng.toFixed(4)}°
+          {robotGPSData.size} robots with GPS
         </div>
         <div className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
-          Zoom: {zoomLevel.toFixed(1)}x
-        </div>
-        <div className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
-          Robots: {robotGPSData.size} with GPS
-        </div>
-      </div>
-
-      {/* Scale Indicator */}
-      <div
-        className={cn(
-          'absolute bottom-4 left-4 rounded-lg shadow-lg p-3 backdrop-blur-sm',
-          selectedRobotId ? 'bottom-32' : 'bottom-4',
-          isDark ? 'bg-gray-800/90 border border-gray-600' : 'bg-white/90 border border-gray-200'
-        )}
-      >
-        <div className={cn('text-xs font-medium mb-2', isDark ? 'text-gray-300' : 'text-gray-700')}>
-          Scale
-        </div>
-        <div className="flex items-center gap-2">
-          <div className={cn(
-            'w-16 h-0.5',
-            isDark ? 'bg-gray-400' : 'bg-gray-600'
-          )}></div>
-          <span className={cn('text-xs', isDark ? 'text-gray-400' : 'text-gray-600')}>
-            {(100 / zoomLevel).toFixed(0)}m
-          </span>
-        </div>
-        <div className={cn('text-xs mt-1', isDark ? 'text-gray-500' : 'text-gray-500')}>
-          Approx. distance
+          Map: {mapStyle.charAt(0).toUpperCase() + mapStyle.slice(1)}
         </div>
       </div>
 
@@ -645,8 +581,8 @@ export function SimpleRobotMap({
       {selectedRobotId && (
         <div
           className={cn(
-            'absolute bottom-4 left-4 rounded-lg shadow-lg p-4 max-w-sm',
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white'
+            'absolute bottom-4 right-4 rounded-lg shadow-lg p-4 max-w-sm backdrop-blur-sm z-[1000]',
+            isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
           )}
         >
           {(() => {
@@ -657,12 +593,13 @@ export function SimpleRobotMap({
             if (!robot || !latestGPS) return null
 
             return (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <div className={cn('w-3 h-3 rounded-full', getRobotStatusColor(robot.status))} />
-                  <h3
-                    className={cn('font-bold text-lg', isDark ? 'text-gray-200' : 'text-gray-900')}
-                  >
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: getRobotColor(robot.status) }}
+                  />
+                  <h3 className={cn('font-bold text-lg', isDark ? 'text-gray-200' : 'text-gray-900')}>
                     {robot.name}
                   </h3>
                 </div>
@@ -670,9 +607,7 @@ export function SimpleRobotMap({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Status:</span>
-                    <span
-                      className={cn('ml-1 font-medium', isDark ? 'text-gray-200' : 'text-gray-900')}
-                    >
+                    <span className={cn('ml-1 font-medium', isDark ? 'text-gray-200' : 'text-gray-900')}>
                       {robot.status}
                     </span>
                   </div>
@@ -684,49 +619,30 @@ export function SimpleRobotMap({
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <div className={cn('text-sm', isDark ? 'text-gray-400' : 'text-gray-600')}>
-                    GPS Position:
+                <div className="space-y-2">
+                  <div className={cn('text-sm font-medium', isDark ? 'text-blue-400' : 'text-blue-600')}>
+                    📍 {getLocationName(latestGPS.position.latitude, latestGPS.position.longitude)}
                   </div>
-                  <div
-                    className={cn(
-                      'text-xs font-mono p-2 rounded',
-                      isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-900'
-                    )}
-                  >
-                    Lat: {latestGPS.position.latitude.toFixed(6)}°<br />
-                    Lng: {latestGPS.position.longitude.toFixed(6)}°
+
+                  <div className={cn('text-xs font-mono p-2 rounded', isDark ? 'bg-gray-700 text-gray-300' : 'bg-gray-50 text-gray-900')}>
+                    {latestGPS.position.latitude.toFixed(6)}°, {latestGPS.position.longitude.toFixed(6)}°
                     {latestGPS.position.altitude && (
-                      <>
-                        <br />
-                        Alt: {latestGPS.position.altitude.toFixed(1)}m
-                      </>
+                      <><br />Alt: {latestGPS.position.altitude.toFixed(1)}m</>
                     )}
                   </div>
-                </div>
 
-                {latestGPS.position.speed !== undefined && (
-                  <div className="text-sm">
-                    <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Speed:</span>
-                    <span className={cn('ml-1', isDark ? 'text-gray-200' : 'text-gray-900')}>
-                      {latestGPS.position.speed.toFixed(1)} m/s
-                    </span>
+                  {latestGPS.position.speed !== undefined && (
+                    <div className="text-sm">
+                      <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>Speed:</span>
+                      <span className={cn('ml-1', isDark ? 'text-gray-200' : 'text-gray-900')}>
+                        {latestGPS.position.speed.toFixed(1)} m/s
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={cn('text-xs', isDark ? 'text-gray-500' : 'text-gray-500')}>
+                    Last update: {latestGPS.timestamp.toLocaleTimeString()}
                   </div>
-                )}
-
-                {latestGPS.position.accuracy && (
-                  <div className="text-sm">
-                    <span className={cn(isDark ? 'text-gray-400' : 'text-gray-600')}>
-                      GPS Accuracy:
-                    </span>
-                    <span className={cn('ml-1', isDark ? 'text-gray-200' : 'text-gray-900')}>
-                      {latestGPS.position.accuracy.horizontal.toFixed(1)}m
-                    </span>
-                  </div>
-                )}
-
-                <div className={cn('text-xs', isDark ? 'text-gray-500' : 'text-gray-500')}>
-                  Last update: {new Date(latestGPS.timestamp).toLocaleTimeString()}
                 </div>
               </div>
             )
@@ -738,7 +654,7 @@ export function SimpleRobotMap({
       {isLoading && (
         <div
           className={cn(
-            'absolute inset-0 bg-opacity-90 flex items-center justify-center',
+            'absolute inset-0 bg-opacity-90 flex items-center justify-center z-[1000]',
             isDark ? 'bg-gray-900' : 'bg-white'
           )}
         >
@@ -753,7 +669,7 @@ export function SimpleRobotMap({
 
       {/* No GPS Data State */}
       {!isLoading && robotGPSData.size === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center z-[1000]">
           <div className="text-center">
             <MapPin
               className={cn('w-12 h-12 mx-auto mb-4', isDark ? 'text-gray-500' : 'text-gray-400')}

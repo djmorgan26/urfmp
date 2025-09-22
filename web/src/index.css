@@ -115,6 +115,22 @@
   }
 }
 
+/* Ensure UI panels stay above Leaflet map */
+.ui-panel {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+/* Prevent Leaflet map from interfering with UI */
+.leaflet-container {
+  z-index: 0 !important;
+}
+
+.leaflet-control-container {
+  z-index: 100 !important;
+}
+
 /* Chart styles */
 .recharts-tooltip-content {
   @apply bg-card border border-border rounded-lg shadow-lg;

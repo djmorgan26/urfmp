@@ -234,18 +234,23 @@ function generateFleetTrendsHTML(data: ExportData): string {
 }
 
 function generateErrorDistributionHTML(data: ExportData): string {
+  const totalErrors = data.errorDistribution.reduce((sum, error) => sum + error.count, 0)
+
   return `
     <div class="section">
       <h3>Error Distribution</h3>
       <table>
         <tr><th>Error Type</th><th>Count</th><th>Percentage</th></tr>
-        ${data.errorDistribution.map(error => `
-          <tr>
-            <td>${error.errorType}</td>
-            <td>${error.count}</td>
-            <td>${error.percentage.toFixed(1)}%</td>
-          </tr>
-        `).join('')}
+        ${data.errorDistribution.map(error => {
+          const percentage = totalErrors > 0 ? (error.count / totalErrors) * 100 : 0
+          return `
+            <tr>
+              <td>${error.type}</td>
+              <td>${error.count}</td>
+              <td>${percentage.toFixed(1)}%</td>
+            </tr>
+          `
+        }).join('')}
       </table>
     </div>
   `

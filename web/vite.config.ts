@@ -26,6 +26,28 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
       },
+      // CORS proxy for NASA Earth imagery
+      '/nasa-proxy': {
+        target: 'https://eoimages.gsfc.nasa.gov',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/nasa-proxy/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.setHeader('origin', 'https://eoimages.gsfc.nasa.gov')
+          })
+        }
+      },
+      // CORS proxy for ESA imagery
+      '/esa-proxy': {
+        target: 'https://s2maps-tiles.eu',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/esa-proxy/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            proxyReq.setHeader('origin', 'https://s2maps-tiles.eu')
+          })
+        }
+      },
     },
   },
   build: {
