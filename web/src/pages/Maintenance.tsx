@@ -15,6 +15,7 @@ import {
 import { cn } from '../lib/utils'
 import { formatDistanceToNow, format, parseISO } from 'date-fns'
 import { PredictiveMaintenanceDashboard } from '../components/maintenance/PredictiveMaintenanceDashboard'
+import { CreateMaintenanceModal } from '../components/maintenance/CreateMaintenanceModal'
 
 interface MaintenanceTask {
   id: string
@@ -474,6 +475,16 @@ export function Maintenance() {
           </div>
         </div>
       )}
+
+      {/* Create Maintenance Modal */}
+      <CreateMaintenanceModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          // In real implementation, refresh the maintenance tasks list
+          console.log('Maintenance task created successfully')
+        }}
+      />
     </div>
   )
 }

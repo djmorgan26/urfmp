@@ -17,9 +17,15 @@ import {
 } from 'lucide-react'
 import { useGeofencing } from '../../hooks/useGeofencing'
 import { cn } from '../../lib/utils'
+import { AddWaypointModal } from './AddWaypointModal'
+import { EditWaypointModal } from './EditWaypointModal'
 
 export function GeofencingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'waypoints' | 'geofences' | 'paths' | 'events'>('overview')
+  const [showAddWaypointModal, setShowAddWaypointModal] = useState(false)
+  const [showEditWaypointModal, setShowEditWaypointModal] = useState(false)
+  const [selectedWaypoint, setSelectedWaypoint] = useState<any>(null)
+
   const {
     waypoints,
     geofences,
@@ -33,6 +39,15 @@ export function GeofencingDashboard() {
     acknowledgeEvent,
     clearEvents
   } = useGeofencing()
+
+  const handleEditWaypoint = (waypoint: any) => {
+    setSelectedWaypoint(waypoint)
+    setShowEditWaypointModal(true)
+  }
+
+  const handleWaypointSuccess = () => {
+    refresh()
+  }
 
   const activeWaypoints = waypoints.filter(wp => wp.isActive).length
   const activeGeofences = geofences.filter(gf => gf.isActive).length
@@ -210,7 +225,10 @@ export function GeofencingDashboard() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Waypoints Management</h3>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            <button
+              onClick={() => setShowAddWaypointModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4" />
               <span>Add Waypoint</span>
             </button>
@@ -235,7 +253,10 @@ export function GeofencingDashboard() {
                     <button className="p-1 hover:bg-muted rounded">
                       {waypoint.isActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </button>
-                    <button className="p-1 hover:bg-muted rounded">
+                    <button
+                      onClick={() => handleEditWaypoint(waypoint)}
+                      className="p-1 hover:bg-muted rounded"
+                    >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
@@ -514,6 +535,23 @@ export function GeofencingDashboard() {
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <AddWaypointModal
+        isOpen={showAddWaypointModal}
+        onClose={() => setShowAddWaypointModal(false)}
+        onSuccess={handleWaypointSuccess}
+      />
+
+      <EditWaypointModal
+        isOpen={showEditWaypointModal}
+        onClose={() => {
+          setShowEditWaypointModal(false)
+          setSelectedWaypoint(null)
+        }}
+        onSuccess={handleWaypointSuccess}
+        waypoint={selectedWaypoint}
+      />
     </div>
   )
 }
