@@ -19,12 +19,17 @@ import { useGeofencing } from '../../hooks/useGeofencing'
 import { cn } from '../../lib/utils'
 import { AddWaypointModal } from './AddWaypointModal'
 import { EditWaypointModal } from './EditWaypointModal'
+import { AddPathModal } from './AddPathModal'
+import { EditPathModal } from './EditPathModal'
 
 export function GeofencingDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'waypoints' | 'geofences' | 'paths' | 'events'>('overview')
   const [showAddWaypointModal, setShowAddWaypointModal] = useState(false)
   const [showEditWaypointModal, setShowEditWaypointModal] = useState(false)
   const [selectedWaypoint, setSelectedWaypoint] = useState<any>(null)
+  const [showAddPathModal, setShowAddPathModal] = useState(false)
+  const [showEditPathModal, setShowEditPathModal] = useState(false)
+  const [selectedPath, setSelectedPath] = useState<any>(null)
 
   const {
     waypoints,
@@ -45,7 +50,16 @@ export function GeofencingDashboard() {
     setShowEditWaypointModal(true)
   }
 
+  const handleEditPath = (path: any) => {
+    setSelectedPath(path)
+    setShowEditPathModal(true)
+  }
+
   const handleWaypointSuccess = () => {
+    refresh()
+  }
+
+  const handlePathSuccess = () => {
     refresh()
   }
 
@@ -388,7 +402,10 @@ export function GeofencingDashboard() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Path Management</h3>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            <button
+              onClick={() => setShowAddPathModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
               <Plus className="h-4 w-4" />
               <span>Create Path</span>
             </button>
@@ -440,7 +457,10 @@ export function GeofencingDashboard() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <button className="flex-1 px-3 py-2 border border-input rounded hover:bg-muted text-sm">
+                  <button
+                    onClick={() => handleEditPath(path)}
+                    className="flex-1 px-3 py-2 border border-input rounded hover:bg-muted text-sm"
+                  >
                     Edit Path
                   </button>
                   {!path.isOptimized && (
@@ -551,6 +571,22 @@ export function GeofencingDashboard() {
         }}
         onSuccess={handleWaypointSuccess}
         waypoint={selectedWaypoint}
+      />
+
+      <AddPathModal
+        isOpen={showAddPathModal}
+        onClose={() => setShowAddPathModal(false)}
+        onSuccess={handlePathSuccess}
+      />
+
+      <EditPathModal
+        isOpen={showEditPathModal}
+        onClose={() => {
+          setShowEditPathModal(false)
+          setSelectedPath(null)
+        }}
+        onSuccess={handlePathSuccess}
+        path={selectedPath}
       />
     </div>
   )
