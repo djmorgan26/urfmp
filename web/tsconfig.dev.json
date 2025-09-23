@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "references": [
+    { "path": "../packages/types" },
+    { "path": "../packages/sdk" }
+  ]
+}
