@@ -229,26 +229,26 @@ jobs:
             const issueTitle = `Manual Testing Required - Deploy ${context.sha.substring(0, 7)}`;
             const issueBody = `## 🧪 Manual Testing Required
 
-**Deployment:** ${context.sha}
-**Environment:** Production
-**Production URL:** [Vercel Production](https://urfmp.vercel.app)
+            **Deployment:** ${context.sha}
+            **Environment:** Production
+            **Production URL:** [Vercel Production](https://urfmp.vercel.app)
 
-Please complete the manual test checklist:
+            Please complete the manual test checklist:
 
-### Quick Smoke Test
-- [ ] Dashboard loads without errors
-- [ ] Robot map displays correctly
-- [ ] Geofencing features functional
-- [ ] Real-time updates working
+            ### Quick Smoke Test
+            - [ ] Dashboard loads without errors
+            - [ ] Robot map displays correctly
+            - [ ] Geofencing features functional
+            - [ ] Real-time updates working
 
-### Critical User Flows
-- [ ] Robot management CRUD operations
-- [ ] Geofencing dashboard fully functional
-- [ ] Analytics reports generate correctly
-- [ ] Map integration with all toggles working
+            ### Critical User Flows
+            - [ ] Robot management CRUD operations
+            - [ ] Geofencing dashboard fully functional
+            - [ ] Analytics reports generate correctly
+            - [ ] Map integration with all toggles working
 
----
-_Automated deployment notification from CI/CD pipeline_`;
+            ---
+            _Automated deployment notification from CI/CD pipeline_`;
 
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
