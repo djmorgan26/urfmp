@@ -288,7 +288,12 @@ export function SimpleRobotMap({
 
   // Load robot GPS data
   useEffect(() => {
-    if (!urfmp) return
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    // In demo mode, we don't need urfmp instance, just use mock data
+    if (!isDemo && !urfmp) return
 
     const loadRobotGPSData = async () => {
       setIsLoading(true)
