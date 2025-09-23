@@ -13,11 +13,26 @@ export default defineConfig({
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
+  optimizeDeps: {
+    exclude: ['@urfmp/types', '@urfmp/sdk'],
+  },
   server: {
     port: 3001,
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['lucide-react'],
+          charts: ['recharts'],
+          maps: ['leaflet', 'react-leaflet'],
+          utils: ['date-fns', 'clsx', 'tailwind-merge'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
   },
 })
