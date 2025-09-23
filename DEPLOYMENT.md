@@ -33,19 +33,45 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 
 ### Getting Vercel Credentials
 
-1. **Vercel Token**
+#### Quick Setup (Recommended)
+```bash
+# Run the automated setup script
+./scripts/setup-vercel.sh
+```
+
+#### Manual Setup
+
+1. **Install Vercel CLI**
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Login and Link Project**
+   ```bash
+   vercel login
+   vercel link  # Follow prompts to link your project
+   ```
+
+3. **Get Your IDs**
+   ```bash
+   # Your credentials will be in .vercel/project.json
+   cat .vercel/project.json
+   ```
+
+4. **Get Vercel Token**
    - Go to [Vercel Settings > Tokens](https://vercel.com/account/tokens)
    - Create a new token with appropriate scope
 
-2. **Organization ID**
-   ```bash
-   npx vercel org ls
-   ```
+5. **Add GitHub Secrets**
+   - Go to `https://github.com/YOUR_USERNAME/urfmp/settings/secrets/actions`
+   - Add the three secrets:
+     - `VERCEL_TOKEN` (from step 4)
+     - `VERCEL_ORG_ID` (from .vercel/project.json)
+     - `VERCEL_PROJECT_ID` (from .vercel/project.json)
 
-3. **Project ID**
-   ```bash
-   npx vercel project ls
-   ```
+#### Alternative: Get IDs from Dashboard
+- **Organization ID**: Check URL at `https://vercel.com/[ORG_ID]/projects`
+- **Project ID**: Import project, then check Settings → General
 
 ### Deployment Process
 
