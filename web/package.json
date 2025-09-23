@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:strict": "tsc && vite build",
     "build:ci": "tsc --project tsconfig.ci.json && vite build",
-    "build:vercel": "VITE_SKIP_TYPE_CHECK=true vite build",
+    "build:vercel": "vite build --config vite.config.prod.ts",
     "preview": "vite preview",
     "test": "vitest",
     "test:watch": "vitest --watch",
