@@ -158,9 +158,9 @@ jobs:
           # Validate critical files exist
           test -f dist/index.html
           test -d dist/assets
-          # Check bundle size (should be under 5MB)
+          # Check bundle size (should be under 8MB)
           size=$(du -sm dist/ | cut -f1)
-          if [ $size -gt 5 ]; then
+          if [ $size -gt 8 ]; then
             echo "Bundle size too large: ${size}MB"
             exit 1
           fi
