@@ -55,28 +55,28 @@ export function RobotCard({ robot }: RobotCardProps) {
   }
 
   return (
-    <div className="bg-background rounded-lg border border-border p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3">
-          <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-            <Bot className="h-5 w-5 text-muted-foreground" />
+          <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <Bot className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           </div>
 
           <div className="flex-1 min-w-0">
             <Link
               to={`/robots/${robot.id}`}
-              className="font-medium text-foreground hover:text-primary transition-colors truncate block"
+              className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block"
             >
               {robot.name}
             </Link>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {robot.model || robot.type} • {robot.vendor?.replace('_', ' ') || 'Unknown'}
             </p>
           </div>
         </div>
 
-        <button className="p-1 rounded-md hover:bg-muted">
-          <MoreVertical className="h-4 w-4 text-muted-foreground" />
+        <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+          <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </button>
       </div>
 
@@ -93,7 +93,7 @@ export function RobotCard({ robot }: RobotCardProps) {
 
       {/* Last Seen */}
       {robot.lastSeen && (
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
           Last seen{' '}
           {formatDistanceToNow(
             typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
@@ -126,7 +126,7 @@ export function RobotCard({ robot }: RobotCardProps) {
 
         <Link
           to={`/robots/${robot.id}`}
-          className="px-3 py-1.5 border border-border text-xs rounded-md hover:bg-muted transition-colors"
+          className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
           View Details
         </Link>
