@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:strict": "tsc && vite build",
     "build:ci": "tsc --project tsconfig.ci.json && vite build",
     "build:vercel": "VITE_SKIP_TYPE_CHECK=true vite build",
     "preview": "vite preview",
