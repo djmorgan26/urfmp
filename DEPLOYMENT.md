@@ -40,7 +40,7 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 #### Quick Setup (Recommended)
 
 ```bash
-# Run the automated setup script
+# Run the automated setup bash script
 ./scripts/setup-vercel.sh
 ```
 
