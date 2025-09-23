@@ -55,8 +55,8 @@ export function RobotCard({ robot }: RobotCardProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
+    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between mb-4">
         <div className="flex items-start space-x-3">
           <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
             <Bot className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -81,7 +81,7 @@ export function RobotCard({ robot }: RobotCardProps) {
       </div>
 
       {/* Status */}
-      <div className="flex items-center space-x-2 mb-3">
+      <div className="flex items-center space-x-2 mb-4">
         <div className={cn('h-6 w-6 rounded-full flex items-center justify-center', status.bg)}>
           <StatusIcon className={cn('h-3 w-3', status.color)} />
         </div>
@@ -93,7 +93,7 @@ export function RobotCard({ robot }: RobotCardProps) {
 
       {/* Last Seen */}
       {robot.lastSeen && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
           Last seen{' '}
           {formatDistanceToNow(
             typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
