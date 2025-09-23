@@ -9,6 +9,8 @@ const generateMockRobots = (): Robot[] => [
     id: 'demo-robot-1',
     name: 'UR5e Production Line Alpha',
     type: 'UR5e',
+    model: 'UR5e',
+    vendor: 'Universal_Robots',
     status: 'online',
     batteryLevel: 85,
     location: {
@@ -34,6 +36,8 @@ const generateMockRobots = (): Robot[] => [
     id: 'demo-robot-2',
     name: 'UR10e Packaging Station',
     type: 'UR10e',
+    model: 'UR10e',
+    vendor: 'Universal_Robots',
     status: 'idle',
     batteryLevel: 92,
     location: {
@@ -59,6 +63,8 @@ const generateMockRobots = (): Robot[] => [
     id: 'demo-robot-3',
     name: 'UR16e Heavy Lifting Unit',
     type: 'UR16e',
+    model: 'UR16e',
+    vendor: 'Universal_Robots',
     status: 'maintenance',
     batteryLevel: 45,
     location: {
