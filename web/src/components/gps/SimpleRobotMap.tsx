@@ -377,15 +377,17 @@ export function SimpleRobotMap({
       }
     }
 
-    // Subscribe to robot telemetry updates
-    robots.forEach((robot) => {
-      urfmp.on(`robot:${robot.id}`, handleTelemetryUpdate)
-    })
-
-    return () => {
+    // Subscribe to robot telemetry updates (only in non-demo mode)
+    if (!isDemo && urfmp) {
       robots.forEach((robot) => {
-        urfmp.off(`robot:${robot.id}`, handleTelemetryUpdate)
+        urfmp.on(`robot:${robot.id}`, handleTelemetryUpdate)
       })
+
+      return () => {
+        robots.forEach((robot) => {
+          urfmp.off(`robot:${robot.id}`, handleTelemetryUpdate)
+        })
+      }
     }
   }, [urfmp, robots])
 
