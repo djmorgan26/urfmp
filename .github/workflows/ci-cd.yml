@@ -176,7 +176,7 @@ jobs:
         id: deploy-staging
         run: |
           # Deploy using Vercel CLI directly to avoid permissions issues
-          npx vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --meta githubCommitSha=${{ github.sha }} 2>&1 | tee deployment.txt
+          npx vercel --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --name urfmp --meta githubCommitSha=${{ github.sha }} 2>&1 | tee deployment.txt
           PREVIEW_URL=$(grep -E "Preview: https://[^[:space:]]*" deployment.txt | grep -o 'https://[^[:space:]]*' | head -1)
           echo "preview-url=$PREVIEW_URL" >> $GITHUB_OUTPUT
           echo "✅ Preview deployed to: $PREVIEW_URL"
@@ -200,7 +200,7 @@ jobs:
         id: deploy
         run: |
           # Deploy to production using Vercel CLI directly
-          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --meta githubCommitSha=${{ github.sha }} 2>&1 | tee production.txt
+          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --name urfmp --meta githubCommitSha=${{ github.sha }} 2>&1 | tee production.txt
           PRODUCTION_URL=$(grep -E "Production: https://[^[:space:]]*" production.txt | grep -o 'https://[^[:space:]]*' | head -1)
           echo "url=$PRODUCTION_URL" >> $GITHUB_OUTPUT
           echo "✅ Production deployed to: $PRODUCTION_URL"
@@ -222,43 +222,23 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-      - name: Create manual test issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const issueTitle = `Manual Testing Required - Deploy ${context.sha.substring(0, 7)}`;
-            const issueBody = `## 🧪 Manual Testing Required
-
-            **Deployment:** ${context.sha}
-            **Environment:** Production
-            **Production URL:** [Vercel Production](https://urfmp.vercel.app)
-
-            Please complete the manual test checklist:
-
-            ### Quick Smoke Test
-            - [ ] Dashboard loads without errors
-            - [ ] Robot map displays correctly
-            - [ ] Geofencing features functional
-            - [ ] Real-time updates working
-
-            ### Critical User Flows
-            - [ ] Robot management CRUD operations
-            - [ ] Geofencing dashboard fully functional
-            - [ ] Analytics reports generate correctly
-            - [ ] Map integration with all toggles working
-
-            ---
-            _Automated deployment notification from CI/CD pipeline_`;
-
-            const { data: issue } = await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: issueTitle,
-              body: issueBody,
-              labels: ['manual-testing', 'deployment', 'high-priority']
-            });
-
-            console.log(`Created manual testing issue: #${issue.number}`);
+      - name: Manual testing reminder
+        run: |
+          echo "🧪 Manual Testing Required"
+          echo "================================"
+          echo "Deployment: ${{ github.sha }}"
+          echo "Environment: Production"
+          echo "Production URL: https://urfmp.vercel.app"
+          echo ""
+          echo "Please complete manual testing:"
+          echo "- [ ] Dashboard loads without errors"
+          echo "- [ ] Robot map displays correctly"
+          echo "- [ ] Geofencing features functional"
+          echo "- [ ] Real-time updates working"
+          echo "- [ ] Robot management CRUD operations"
+          echo "- [ ] Analytics reports generate correctly"
+          echo ""
+          echo "✅ Deployment successful - ready for manual testing"
 
   # Job 5: Performance monitoring
   performance:
