@@ -17,6 +17,9 @@
     "VITE_PRODUCT_FULL_NAME": "Universal Robot Fleet Management Platform",
     "VITE_TAGLINE": "The Stripe of Robotics",
     "VITE_DESCRIPTION": "Monitor any robot in 7 lines of code",
-    "VITE_API_URL": "https://api.urfmp.com"
+    "VITE_DEMO_MODE": "true",
+    "VITE_URFMP_API_KEY": "demo-frontend-key",
+    "VITE_URFMP_API_URL": "",
+    "VITE_URFMP_WS_URL": ""
   }
 }

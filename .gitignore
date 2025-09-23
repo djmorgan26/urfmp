@@ -175,3 +175,4 @@ jspm_packages/
 .vscode-test
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+.vercel
