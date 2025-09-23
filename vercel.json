@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "name": "urfmp",
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "web/dist",
+  "installCommand": "npm ci",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_COMPANY_NAME": "URFMP",
+    "VITE_PRODUCT_NAME": "URFMP",
+    "VITE_PRODUCT_FULL_NAME": "Universal Robot Fleet Management Platform",
+    "VITE_TAGLINE": "The Stripe of Robotics",
+    "VITE_DESCRIPTION": "Monitor any robot in 7 lines of code",
+    "VITE_API_URL": "https://api.urfmp.com"
+  }
+}
