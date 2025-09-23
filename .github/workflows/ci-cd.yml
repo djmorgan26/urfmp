@@ -230,41 +230,32 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Manual Testing Required - Deploy ${context.sha.substring(0, 7)}`,
-              body: `
-                ## 🧪 Manual Testing Required
+              body: `## 🧪 Manual Testing Required
 
-                **Deployment:** ${context.sha}
-                **Environment:** Production
-                **Production URL:** [Vercel Production](https://urfmp.vercel.app)
-                **Preview URL:** [Vercel Preview](https://urfmp-preview.vercel.app)
+**Deployment:** ${context.sha}
+**Environment:** Production
+**Production URL:** [Vercel Production](https://urfmp.vercel.app)
 
-                Please complete the manual test checklist:
-                📋 [Manual Test Checklist](./web/src/tests/MANUAL_TEST_CHECKLIST.md)
+Please complete the manual test checklist:
 
-                ### Quick Smoke Test
-                - [ ] Login works (admin@urfmp.com / admin123)
-                - [ ] Dashboard loads without errors
-                - [ ] Robot map displays correctly
-                - [ ] Geofencing features functional
-                - [ ] Real-time updates working
+### Quick Smoke Test
+- [ ] Dashboard loads without errors
+- [ ] Robot map displays correctly
+- [ ] Geofencing features functional
+- [ ] Real-time updates working
 
-                ### Critical User Flows
-                - [ ] Robot management CRUD operations
-                - [ ] Geofencing dashboard fully functional
-                - [ ] Analytics reports generate correctly
-                - [ ] Map integration with all toggles working
+### Critical User Flows
+- [ ] Robot management CRUD operations
+- [ ] Geofencing dashboard fully functional
+- [ ] Analytics reports generate correctly
+- [ ] Map integration with all toggles working
 
-                **Assignees:** @qa-team
-                **Labels:** manual-testing, deployment, high-priority
-
-                ---
-                _Automated deployment notification from CI/CD pipeline_
-              `,
-              assignees: ['qa-team'], // Replace with actual usernames
+---
+_Automated deployment notification from CI/CD pipeline_`,
               labels: ['manual-testing', 'deployment', 'high-priority']
             });
 
-            console.log(\`Created manual testing issue: #\${issue.number}\`);
+            console.log(`Created manual testing issue: #${issue.number}`);
 
   # Job 5: Performance monitoring
   performance:
@@ -282,8 +273,8 @@ jobs:
             https://urfmp.vercel.app/robots
             https://urfmp.vercel.app/map
             https://urfmp.vercel.app/analytics
-          uploadArtifacts: true
-          temporaryPublicStorage: true
+          uploadArtifacts: false
+          temporaryPublicStorage: false
 
       - name: Bundle size analysis
         run: |
