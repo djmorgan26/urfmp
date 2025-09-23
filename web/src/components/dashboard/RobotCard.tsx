@@ -57,25 +57,25 @@ export function RobotCard({ robot }: RobotCardProps) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start space-x-3">
-          <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <div className="flex items-start space-x-3 flex-1 min-w-0 pr-2">
+          <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
             <Bot className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           </div>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-hidden">
             <Link
               to={`/robots/${robot.id}`}
               className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block"
             >
               {robot.name}
             </Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
               {robot.model || robot.type} • {robot.vendor?.replace('_', ' ') || 'Unknown'}
             </p>
           </div>
         </div>
 
-        <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+        <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0">
           <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </button>
       </div>
