@@ -1,0 +1,31 @@
+# Ignore API and other services - only deploy web frontend
+services/
+adapters/
+packages/types/node_modules/
+packages/sdk/node_modules/
+infrastructure/
+
+# Ignore development files
+.env
+.env.local
+.env.development
+docker-compose.yml
+Dockerfile*
+
+# Ignore logs and temp files
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Ignore test and coverage files
+coverage/
+*.test.*
+test-results/
+
+# Keep only what's needed for web build
+!web/
+!packages/types/src/
+!packages/types/package.json
+!packages/sdk/src/
+!packages/sdk/package.json

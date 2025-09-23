@@ -14,7 +14,7 @@
     "dev:api": "npm run dev --workspace=@urfmp/api",
     "dev:web": "npm run dev --workspace=@urfmp/web",
     "build": "npm run build --workspaces",
-    "build:vercel": "cd web && npm ci && npm run build",
+    "build:vercel": "cd web && npm ci && vite build",
     "test": "npm run test --workspaces",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "typecheck": "npm run typecheck --workspaces",
