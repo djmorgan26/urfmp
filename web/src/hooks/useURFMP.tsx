@@ -184,7 +184,10 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
   const refreshRobots = async (client?: URFMP) => {
     try {
       // Handle demo mode
-      if (import.meta.env.VITE_DEMO_MODE === 'true') {
+      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                    (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+      if (isDemo) {
         setRobots(generateMockRobots())
         return
       }

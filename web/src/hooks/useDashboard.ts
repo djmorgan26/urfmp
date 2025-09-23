@@ -57,7 +57,15 @@ export function useDashboard(): DashboardData {
   const [lastFetch, setLastFetch] = useState<number>(0)
 
   const fetchDashboardData = async () => {
-    if (!urfmp || robots.length === 0) return
+    // Check if we have robots data (either from API or demo mode)
+    if (robots.length === 0) return
+
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    // In demo mode, we don't need urfmp instance, just use mock data
+    if (!isDemo && !urfmp) return
 
     // Rate limiting: prevent fetches within 2 minutes
     const now = Date.now()
@@ -87,16 +95,35 @@ export function useDashboard(): DashboardData {
       // Get current telemetry for first 5 robots only to reduce API load
       const robotTelemetryMap = new Map()
       const robotsToQuery = robots.slice(0, 5)
-      for (const robot of robotsToQuery) {
-        try {
-          const latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
-          robotTelemetryMap.set(robot.id, latestTelemetry)
-        } catch (err) {
-          console.warn(`Failed to get telemetry for robot ${robot.id}:`, err)
-          // Stop fetching more telemetry if we get rate limited
-          if (err instanceof Error && err.message.includes('429')) {
-            console.log('Rate limited, stopping telemetry fetch')
-            break
+
+      if (isDemo) {
+        // Generate mock telemetry data for demo mode
+        for (const robot of robotsToQuery) {
+          const mockTelemetry = {
+            robotId: robot.id,
+            timestamp: new Date(),
+            data: {
+              temperature: { ambient: 20 + Math.random() * 15, controller: 30 + Math.random() * 20 },
+              power: { total: 80 + Math.random() * 40 },
+              utilization: Math.random() * 100,
+              errors: Math.floor(Math.random() * 3)
+            }
+          }
+          robotTelemetryMap.set(robot.id, mockTelemetry)
+        }
+      } else {
+        // Real API calls for production
+        for (const robot of robotsToQuery) {
+          try {
+            const latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
+            robotTelemetryMap.set(robot.id, latestTelemetry)
+          } catch (err) {
+            console.warn(`Failed to get telemetry for robot ${robot.id}:`, err)
+            // Stop fetching more telemetry if we get rate limited
+            if (err instanceof Error && err.message.includes('429')) {
+              console.log('Rate limited, stopping telemetry fetch')
+              break
+            }
           }
         }
       }
