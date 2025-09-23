@@ -14,6 +14,7 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 
 2. **Required Environment Variables**
    Set these in your Vercel project settings:
+
    ```bash
    VITE_COMPANY_NAME=URFMP
    VITE_PRODUCT_NAME=URFMP
@@ -25,10 +26,11 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 
 3. **GitHub Secrets for CI/CD**
    Add these secrets to your GitHub repository:
+
    ```bash
    VERCEL_TOKEN=your_vercel_token
    VERCEL_ORG_ID=your_org_id
-   URFMP_API_KEY=urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
+   URFMP_API_KEY=urfmp_dev_9f8*****************
    ```
 
    Note: VERCEL_PROJECT_ID is not required for CLI-based deployment.
@@ -36,6 +38,7 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 ### Getting Vercel Credentials
 
 #### Quick Setup (Recommended)
+
 ```bash
 # Run the automated setup script
 ./scripts/setup-vercel.sh
@@ -44,17 +47,20 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 #### Manual Setup
 
 1. **Install Vercel CLI**
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Login and Link Project**
+
    ```bash
    vercel login
    vercel link  # Follow prompts to link your project
    ```
 
 3. **Get Your IDs**
+
    ```bash
    # Your credentials will be in .vercel/project.json
    cat .vercel/project.json
@@ -72,17 +78,20 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
      - `URFMP_API_KEY` (use default: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678)
 
 #### Alternative: Get IDs from Dashboard
+
 - **Organization ID**: Check URL at `https://vercel.com/[ORG_ID]/projects`
 - **Project ID**: Import project, then check Settings → General
 
 ### Deployment Process
 
 **Automatic Deployments:**
+
 - Every push to `main` → Production deployment
 - Every push to `dev` → Preview deployment
 - Every PR → Preview deployment with unique URL
 
 **Manual Deployment:**
+
 ```bash
 # Install Vercel CLI
 npm i -g vercel
@@ -102,6 +111,7 @@ vercel --prod
 ## 📊 Performance Monitoring
 
 The CI/CD pipeline includes:
+
 - **Lighthouse CI** - Performance, accessibility, SEO scores
 - **Bundle size analysis** - Ensures builds stay under 5MB
 - **Smoke tests** - Basic functionality verification
@@ -122,6 +132,7 @@ cd web && npm run preview
 ## 🌍 Other Deployment Options
 
 ### GitHub Pages
+
 ```yaml
 # .github/workflows/pages.yml
 - name: Deploy to GitHub Pages
@@ -132,6 +143,7 @@ cd web && npm run preview
 ```
 
 ### Netlify
+
 ```toml
 # netlify.toml
 [build]
@@ -152,16 +164,19 @@ cd web && npm run preview
 ## 📝 Troubleshooting
 
 **Build Failures:**
+
 1. Check Node.js version (requires 20+)
 2. Verify environment variables are set
 3. Check build logs in Vercel dashboard
 
 **Performance Issues:**
+
 1. Review Lighthouse reports
 2. Check bundle size analysis
 3. Optimize images and assets
 
 **API Connectivity:**
+
 1. Verify VITE_API_URL is correct
 2. Check CORS configuration
 3. Validate API key format
