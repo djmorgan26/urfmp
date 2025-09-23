@@ -75,7 +75,13 @@ export function RobotCard({ robot }: RobotCardProps) {
           </div>
         </div>
 
-        <button className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0">
+        <button
+          onClick={() => {
+            // TODO: Implement robot menu - e.g., edit, delete, clone, etc.
+            console.log(`Robot menu clicked for ${robot.name}`)
+          }}
+          className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0"
+        >
           <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </button>
       </div>

@@ -274,6 +274,10 @@ export function RobotDetail() {
                 </button>
 
                 <button
+                  onClick={() => {
+                    // TODO: Implement robot configuration dialog
+                    console.log(`Configure clicked for robot ${robot.id}`)
+                  }}
                   disabled={isLoading}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-md hover:bg-muted disabled:opacity-50"
                 >
