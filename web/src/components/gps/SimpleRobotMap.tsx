@@ -288,7 +288,12 @@ export function SimpleRobotMap({
 
   // Load robot GPS data
   useEffect(() => {
-    if (!urfmp) return
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    // In demo mode, we don't need urfmp instance, just use mock data
+    if (!isDemo && !urfmp) return
 
     const loadRobotGPSData = async () => {
       setIsLoading(true)
@@ -372,15 +377,17 @@ export function SimpleRobotMap({
       }
     }
 
-    // Subscribe to robot telemetry updates
-    robots.forEach((robot) => {
-      urfmp.on(`robot:${robot.id}`, handleTelemetryUpdate)
-    })
-
-    return () => {
+    // Subscribe to robot telemetry updates (only in non-demo mode)
+    if (!isDemo && urfmp) {
       robots.forEach((robot) => {
-        urfmp.off(`robot:${robot.id}`, handleTelemetryUpdate)
+        urfmp.on(`robot:${robot.id}`, handleTelemetryUpdate)
       })
+
+      return () => {
+        robots.forEach((robot) => {
+          urfmp.off(`robot:${robot.id}`, handleTelemetryUpdate)
+        })
+      }
     }
   }, [urfmp, robots])
 

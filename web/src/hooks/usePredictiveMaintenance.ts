@@ -103,7 +103,15 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
   const [lastFetch, setLastFetch] = useState<number>(0)
 
   const fetchMaintenanceData = async () => {
-    if (!urfmp || robots.length === 0) return
+    // Check if we have robots data (either from API or demo mode)
+    if (robots.length === 0) return
+
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    // In demo mode, we don't need urfmp instance, just use mock data
+    if (!isDemo && !urfmp) return
 
     // Aggressive rate limiting: prevent fetches within 5 minutes
     const now = Date.now()
@@ -141,7 +149,23 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
           await new Promise((resolve) => setTimeout(resolve, 1000))
 
           // Get latest telemetry for health analysis
-          const latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
+          let latestTelemetry
+          if (isDemo) {
+            // Generate mock telemetry for demo mode
+            latestTelemetry = {
+              robotId: robot.id,
+              timestamp: new Date(),
+              data: {
+                temperature: { ambient: 20 + Math.random() * 15, controller: 30 + Math.random() * 20 },
+                power: { total: 80 + Math.random() * 40 },
+                vibration: { magnitude: Math.random() * 10 },
+                cycles: Math.floor(Math.random() * 10000),
+                operatingHours: Math.floor(Math.random() * 8760)
+              }
+            }
+          } else {
+            latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
+          }
 
           // Generate predictive alerts based on telemetry patterns
           const robotAlerts = generatePredictiveAlerts(robot, latestTelemetry)

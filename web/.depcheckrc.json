@@ -1,0 +1,12 @@
+{
+  "ignores": [
+    "@typescript-eslint/eslint-plugin",
+    "@typescript-eslint/parser",
+    "@vitest/coverage-v8",
+    "autoprefixer",
+    "eslint-plugin-react-hooks",
+    "eslint-plugin-react-refresh",
+    "postcss",
+    "tailwindcss"
+  ]
+}

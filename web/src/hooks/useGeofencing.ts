@@ -143,7 +143,15 @@ export function useGeofencing(): GeofencingData {
   const geofenceMonitorRef = useRef<GeofenceMonitor | null>(null)
 
   const fetchGeofencingData = async () => {
-    if (!urfmp || robots.length === 0) return
+    // Check if we have robots data (either from API or demo mode)
+    if (robots.length === 0) return
+
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    // In demo mode, we don't need urfmp instance, just use mock data
+    if (!isDemo && !urfmp) return
 
     setIsLoading(true)
     setError(null)

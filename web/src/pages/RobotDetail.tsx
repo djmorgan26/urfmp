@@ -274,6 +274,10 @@ export function RobotDetail() {
                 </button>
 
                 <button
+                  onClick={() => {
+                    // TODO: Implement robot configuration dialog
+                    console.log(`Configure clicked for robot ${robot.id}`)
+                  }}
                   disabled={isLoading}
                   className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-border rounded-md hover:bg-muted disabled:opacity-50"
                 >
@@ -309,13 +313,13 @@ export function RobotDetail() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(parseISO(robot.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(typeof robot.createdAt === 'string' ? parseISO(robot.createdAt) : robot.createdAt, { addSuffix: true })}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Updated</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(parseISO(robot.updatedAt), { addSuffix: true })}
+                    {formatDistanceToNow(typeof robot.updatedAt === 'string' ? parseISO(robot.updatedAt) : robot.updatedAt, { addSuffix: true })}
                   </span>
                 </div>
               </div>

@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [react()],
   test: {
     // Test environment
-    environment: 'jsdom',
+    environment: 'node',
 
     // Global test settings
     globals: true,
-    setupFiles: ['./src/test/setup.ts'],
+    setupFiles: ['./src/tests/setup.ts'],
 
     // Test file patterns
     include: [
@@ -34,22 +34,35 @@ export default defineConfig({
       reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
-        'src/test/setup.ts',
+        'src/tests/setup.ts',
         '**/*.d.ts',
         '**/*.config.*',
         '**/coverage/**',
         '**/dist/**',
         '**/.{idea,git,cache,output,temp}/**'
       ],
-      // Coverage thresholds disabled for CI stability
-      // thresholds: {
-      //   global: {
-      //     branches: 15,
-      //     functions: 10,
-      //     lines: 15,
-      //     statements: 15
-      //   }
-      // }
+      // Coverage thresholds for CI/CD
+      thresholds: {
+        global: {
+          branches: 70,
+          functions: 70,
+          lines: 75,
+          statements: 75
+        },
+        // Higher thresholds for critical modules
+        'src/hooks/**': {
+          branches: 80,
+          functions: 80,
+          lines: 85,
+          statements: 85
+        },
+        'src/utils/**': {
+          branches: 85,
+          functions: 85,
+          lines: 90,
+          statements: 90
+        }
+      }
     },
 
     // Timeout settings

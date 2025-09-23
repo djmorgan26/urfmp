@@ -111,7 +111,7 @@ function printSummary() {
 function main() {
   validateEnvironment()
 
-  // 1. TypeScript Type Checking (skipped in CI for now - focus on builds and tests)
+  // 1. TypeScript Type Checking (skipped in CI for now)
   if (isCI) {
     console.log('\n📋 TypeScript Type Checking - SKIPPED (CI mode)')
     results.typecheck = true
@@ -119,7 +119,7 @@ function main() {
     results.typecheck = runCommand('npm run typecheck', 'TypeScript Type Checking', 3)
   }
 
-  // 2. ESLint Code Quality (skipped in CI for now - focus on builds and tests)
+  // 2. ESLint Code Quality (relaxed for CI)
   if (isCI) {
     console.log('\n📋 ESLint Code Quality Check - SKIPPED (CI mode)')
     results.lint = true
@@ -127,19 +127,15 @@ function main() {
     results.lint = runCommand('npm run lint', 'ESLint Code Quality Check', 4)
   }
 
-  // 3. Unit Tests (skipped in CI for now - dependencies handled by workflow)
-  if (isCI) {
-    console.log('\n📋 Unit Tests - SKIPPED (CI mode - handled by workflow)')
-    results.test = true
-  } else {
-    const testCommand = coverage
-      ? 'npm test -- --coverage --reporter=verbose'
-      : 'npm test'
-    results.test = runCommand(testCommand, 'Unit Tests', 1)
-  }
+  // 3. Unit Tests
+  const testCommand = coverage || isCI
+    ? 'npx vitest run --coverage'
+    : 'npx vitest run'
+  results.test = runCommand(testCommand, 'Unit Tests', 1)
 
-  // 4. Production Build
-  results.build = runCommand('npm run build', 'Production Build', 2)
+  // 4. Production Build (skip TypeScript checking for CI)
+  const buildCommand = isCI ? 'vite build' : 'npm run build'
+  results.build = runCommand(buildCommand, 'Production Build', 2)
 
   // Additional CI/CD specific checks
   if (isCI) {

@@ -74,16 +74,39 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
   }, [urfmp, robotId, selectedTimeRange, selectedAggregation])
 
   const loadTelemetryData = async () => {
-    if (!urfmp) return
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    if (!isDemo && !urfmp) return
 
     setIsLoading(true)
     try {
-      const from = getTimeRangeDate(selectedTimeRange)
-      const history = await urfmp.getTelemetryHistory(robotId, {
-        from,
-        to: new Date(),
-        limit: 1000,
-      })
+      let history
+      if (isDemo) {
+        // Generate mock telemetry history for demo mode
+        history = []
+        for (let i = 0; i < 24; i++) {
+          history.push({
+            robotId,
+            timestamp: new Date(Date.now() - i * 60 * 60 * 1000),
+            data: {
+              temperature: { ambient: 20 + Math.random() * 15 },
+              power: { total: 80 + Math.random() * 40 },
+              position: { x: 125 + Math.random() * 10, y: 245 + Math.random() * 10, z: 300 + Math.random() * 5 },
+              voltage: { supply: 48 + Math.random() * 2 },
+              current: { total: 2 + Math.random() * 0.5 }
+            }
+          })
+        }
+      } else {
+        const from = getTimeRangeDate(selectedTimeRange)
+        history = await urfmp.getTelemetryHistory(robotId, {
+          from,
+          to: new Date(),
+          limit: 1000,
+        })
+      }
 
       setTelemetryData(history)
     } catch (error) {
@@ -94,10 +117,20 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
   }
 
   const loadAvailableMetrics = async () => {
-    if (!urfmp) return
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    if (!isDemo && !urfmp) return
 
     try {
-      const metrics = await urfmp.getTelemetryMetrics(robotId)
+      let metrics
+      if (isDemo) {
+        // Mock available metrics for demo mode
+        metrics = ['temperature', 'power', 'position', 'voltage', 'current', 'speed', 'force']
+      } else {
+        metrics = await urfmp.getTelemetryMetrics(robotId)
+      }
       setAvailableMetrics(metrics)
     } catch (error) {
       console.error('Failed to load available metrics:', error)
@@ -105,10 +138,32 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
   }
 
   const loadLatestTelemetry = async () => {
-    if (!urfmp) return
+    // Check if we're in demo mode
+    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
+    if (!isDemo && !urfmp) return
 
     try {
-      const latest = await urfmp.getLatestTelemetry(robotId)
+      let latest
+      if (isDemo) {
+        // Mock latest telemetry for demo mode
+        latest = {
+          robotId,
+          timestamp: new Date(),
+          data: {
+            temperature: { ambient: 25.3, controller: 35.7 },
+            power: { total: 103.5 },
+            position: { x: 125.5, y: 245.8, z: 300.2 },
+            voltage: { supply: 48.2 },
+            current: { total: 2.15 },
+            speed: { linear: 0.5, angular: 0.1 },
+            force: { tcp: 12.5 }
+          }
+        }
+      } else {
+        latest = await urfmp.getLatestTelemetry(robotId)
+      }
       setLatestTelemetry(latest)
 
       if (latest?.data) {
