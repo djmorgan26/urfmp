@@ -28,8 +28,10 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
    ```bash
    VERCEL_TOKEN=your_vercel_token
    VERCEL_ORG_ID=your_org_id
-   VERCEL_PROJECT_ID=your_project_id
+   URFMP_API_KEY=urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
    ```
+
+   Note: VERCEL_PROJECT_ID is not required for CLI-based deployment.
 
 ### Getting Vercel Credentials
 
@@ -64,10 +66,10 @@ URFMP is configured for automatic deployment to Vercel with zero configuration n
 
 5. **Add GitHub Secrets**
    - Go to `https://github.com/YOUR_USERNAME/urfmp/settings/secrets/actions`
-   - Add the three secrets:
+   - Add the required secrets:
      - `VERCEL_TOKEN` (from step 4)
      - `VERCEL_ORG_ID` (from .vercel/project.json)
-     - `VERCEL_PROJECT_ID` (from .vercel/project.json)
+     - `URFMP_API_KEY` (use default: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678)
 
 #### Alternative: Get IDs from Dashboard
 - **Organization ID**: Check URL at `https://vercel.com/[ORG_ID]/projects`

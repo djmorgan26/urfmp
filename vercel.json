@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd web && npm ci && npm run build:vercel",
+  "buildCommand": "npm ci && npm run build --workspace=@urfmp/web",
   "outputDirectory": "web/dist",
   "installCommand": "echo 'Dependencies installed in buildCommand'",
   "framework": null,
