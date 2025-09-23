@@ -1,7 +1,7 @@
 {
   "version": 2,
   "name": "urfmp-web",
-  "buildCommand": "cd web && npm ci && vite build",
+  "buildCommand": "cd web && npm ci && npm run build:vercel",
   "outputDirectory": "web/dist",
   "installCommand": "echo 'Dependencies installed in buildCommand'",
   "framework": "vite",
