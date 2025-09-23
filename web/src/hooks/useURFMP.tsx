@@ -11,10 +11,11 @@ const generateMockRobots = (): Robot[] => [
     type: 'UR5e',
     model: 'UR5e',
     vendor: 'Universal_Robots',
-    status: 'online',
+    status: 'online' as any,
     batteryLevel: 85,
     location: {
       facility: 'Demo Factory',
+      area: 'Production Floor',
       cell: 'Assembly Line A',
       coordinates: { x: 125.5, y: 245.8, z: 300.2 }
     },
@@ -38,10 +39,11 @@ const generateMockRobots = (): Robot[] => [
     type: 'UR10e',
     model: 'UR10e',
     vendor: 'Universal_Robots',
-    status: 'idle',
+    status: 'idle' as any,
     batteryLevel: 92,
     location: {
       facility: 'Demo Factory',
+      area: 'Production Floor',
       cell: 'Packaging Line B',
       coordinates: { x: 200.1, y: 180.5, z: 285.0 }
     },
@@ -65,10 +67,11 @@ const generateMockRobots = (): Robot[] => [
     type: 'UR16e',
     model: 'UR16e',
     vendor: 'Universal_Robots',
-    status: 'maintenance',
+    status: 'maintenance' as any,
     batteryLevel: 45,
     location: {
       facility: 'Demo Factory',
+      area: 'Production Floor',
       cell: 'Heavy Assembly C',
       coordinates: { x: 75.2, y: 320.1, z: 250.5 }
     },

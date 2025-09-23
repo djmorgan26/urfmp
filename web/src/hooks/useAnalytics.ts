@@ -236,6 +236,10 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     from: Date
   ): Promise<{ value: number; robotId?: string }[]> => {
     try {
+      // Check if we're in demo mode
+      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
+                    (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+
       if (isDemo) {
         // Return mock aggregated data for demo mode
         return robots.map(robot => ({

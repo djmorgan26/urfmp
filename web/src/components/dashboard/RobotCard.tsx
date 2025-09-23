@@ -70,7 +70,7 @@ export function RobotCard({ robot }: RobotCardProps) {
               {robot.name}
             </Link>
             <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {robot.model || robot.type} • {robot.vendor?.replace('_', ' ') || 'Unknown'}
+              {robot.model || (robot as any).type} • {robot.vendor?.replace('_', ' ') || 'Unknown'}
             </p>
           </div>
         </div>
