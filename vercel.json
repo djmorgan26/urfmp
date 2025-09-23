@@ -4,7 +4,7 @@
   "buildCommand": "cd web && npm ci && npm run build:vercel",
   "outputDirectory": "web/dist",
   "installCommand": "echo 'Dependencies installed in buildCommand'",
-  "framework": "vite",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
