@@ -145,6 +145,10 @@ jobs:
         env:
           VITE_COMPANY_NAME: ${{ secrets.COMPANY_NAME || 'URFMP' }}
           VITE_PRODUCT_NAME: ${{ secrets.PRODUCT_NAME || 'URFMP' }}
+          VITE_PRODUCT_FULL_NAME: ${{ secrets.PRODUCT_FULL_NAME || 'Universal Robot Fleet Management Platform' }}
+          VITE_TAGLINE: ${{ secrets.TAGLINE || 'The Stripe of Robotics' }}
+          VITE_DESCRIPTION: ${{ secrets.DESCRIPTION || 'Monitor any robot in 7 lines of code' }}
+          VITE_DEMO_MODE: 'true'
           VITE_URFMP_API_KEY: ${{ secrets.URFMP_API_KEY }}
           VITE_API_URL: ${{ secrets.API_URL }}
 
@@ -186,7 +190,7 @@ jobs:
           fi
 
       - name: Deploy to Vercel (Production)
-        if: success()
+        if: success() && github.ref == 'refs/heads/main'
         id: deploy
         uses: amondnet/vercel-action@v25
         with:
@@ -202,7 +206,9 @@ jobs:
         if: success()
         run: |
           echo "✅ Deployment successful!"
-          echo "Production URL: ${{ steps.deploy.outputs.preview-url }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "Production URL: ${{ steps.deploy.outputs.preview-url }}"
+          fi
           echo "Preview URL: ${{ steps.deploy-staging.outputs.preview-url }}"
 
   # Job 4: Manual Test Notification
