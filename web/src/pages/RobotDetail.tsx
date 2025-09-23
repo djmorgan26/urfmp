@@ -309,13 +309,13 @@ export function RobotDetail() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(parseISO(robot.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(parseISO(robot.createdAt.toString()), { addSuffix: true })}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Updated</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(parseISO(robot.updatedAt), { addSuffix: true })}
+                    {formatDistanceToNow(parseISO(robot.updatedAt.toString()), { addSuffix: true })}
                   </span>
                 </div>
               </div>

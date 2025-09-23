@@ -7,11 +7,11 @@ export default defineConfig({
   plugins: [react()],
   test: {
     // Test environment
-    environment: 'node',
+    environment: 'jsdom',
 
     // Global test settings
     globals: true,
-    setupFiles: ['./src/tests/setup.ts'],
+    setupFiles: ['./src/test/setup.ts'],
 
     // Test file patterns
     include: [
@@ -34,7 +34,7 @@ export default defineConfig({
       reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
-        'src/tests/setup.ts',
+        'src/test/setup.ts',
         '**/*.d.ts',
         '**/*.config.*',
         '**/coverage/**',
