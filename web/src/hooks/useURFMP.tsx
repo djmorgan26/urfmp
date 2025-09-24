@@ -17,14 +17,14 @@ const generateMockRobots = (): Robot[] => [
       facility: 'Demo Factory',
       area: 'Production Floor',
       cell: 'Assembly Line A',
-      coordinates: { x: 125.5, y: 245.8, z: 300.2 }
+      coordinates: { x: 125.5, y: 245.8, z: 300.2 },
     },
     configuration: {
       axes: 6,
       payload: 5.0,
       reach: 850,
       capabilities: [],
-      customSettings: {}
+      customSettings: {},
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-01-15'),
@@ -43,14 +43,14 @@ const generateMockRobots = (): Robot[] => [
       facility: 'Demo Factory',
       area: 'Production Floor',
       cell: 'Packaging Line B',
-      coordinates: { x: 200.1, y: 180.5, z: 285.0 }
+      coordinates: { x: 200.1, y: 180.5, z: 285.0 },
     },
     configuration: {
       axes: 6,
       payload: 10.0,
       reach: 1300,
       capabilities: [],
-      customSettings: {}
+      customSettings: {},
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-02-20'),
@@ -69,21 +69,21 @@ const generateMockRobots = (): Robot[] => [
       facility: 'Demo Factory',
       area: 'Production Floor',
       cell: 'Heavy Assembly C',
-      coordinates: { x: 75.2, y: 320.1, z: 250.5 }
+      coordinates: { x: 75.2, y: 320.1, z: 250.5 },
     },
     configuration: {
       axes: 6,
       payload: 16.0,
       reach: 900,
       capabilities: [],
-      customSettings: {}
+      customSettings: {},
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-03-10'),
     updatedAt: new Date(),
     lastSeen: new Date(Date.now() - 300000), // 5 minutes ago
     firmwareVersion: '5.14.2',
-  }
+  },
 ]
 
 interface URFMPContextType {
@@ -121,8 +121,9 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       setError(null)
 
       // Check if we're in demo mode
-      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                    (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+      const isDemo =
+        import.meta.env.VITE_DEMO_MODE === 'true' ||
+        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
       if (isDemo) {
         console.log('🎭 Running in demo mode - using mock data')
@@ -136,7 +137,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       const client = new URFMP({
         apiKey: import.meta.env.VITE_URFMP_API_KEY || 'demo-api-key',
         baseUrl: import.meta.env.VITE_URFMP_API_URL || 'http://localhost:3000',
-        websocketUrl: import.meta.env.VITE_URFMP_WS_URL || 'ws://localhost:3000/ws',
+        websocketUrl: import.meta.env.VITE_URFMP_WS_URL || 'ws://localhost:3000',
       })
 
       setUrfmp(client)
@@ -182,8 +183,9 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
   const refreshRobots = async (client?: URFMP) => {
     try {
       // Handle demo mode
-      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                    (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+      const isDemo =
+        import.meta.env.VITE_DEMO_MODE === 'true' ||
+        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
       if (isDemo) {
         setRobots(generateMockRobots())

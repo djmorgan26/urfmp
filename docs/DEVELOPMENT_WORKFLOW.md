@@ -3,11 +3,13 @@
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - Docker & Docker Compose
 - Git
 
 ### Initial Setup
+
 ```bash
 # Clone repository
 git clone <repository-url>
@@ -25,6 +27,7 @@ docker restart urfmp-api
 ```
 
 ### Verify Setup
+
 - Web app: http://localhost:3001
 - API health: http://localhost:3000/health
 - Database admin: http://localhost:8080
@@ -33,6 +36,7 @@ docker restart urfmp-api
 ## Development Commands
 
 ### Common Tasks
+
 ```bash
 # Start all services
 docker-compose up -d
@@ -62,6 +66,7 @@ npm run lint
 ```
 
 ### Working with Types
+
 ```bash
 # When adding new types
 1. Edit packages/types/src/*.ts
@@ -73,12 +78,14 @@ npm run lint
 ## Feature Development Process
 
 ### 1. Planning Phase
+
 - Review ROADMAP.md for priorities
 - Check CLAUDE.md for current status
 - Review existing code patterns
 - Plan API endpoints and data flow
 
 ### 2. API Development
+
 ```bash
 # API endpoint development
 services/api/src/routes/
@@ -95,6 +102,7 @@ services/api/src/routes/
 ```
 
 ### 3. Frontend Development
+
 ```bash
 # Frontend development
 web/src/
@@ -112,6 +120,7 @@ web/src/
 ```
 
 ### 4. Testing Process
+
 ```bash
 # Manual testing checklist
 1. Verify API endpoints work
@@ -137,6 +146,7 @@ web/src/
 ## Working with Specific Features
 
 ### Authentication System
+
 ```bash
 # Current status: Development bypass active
 # Location: services/api/src/middleware/auth.middleware.ts
@@ -150,6 +160,7 @@ web/src/
 ```
 
 ### Robot Management
+
 ```bash
 # Current status: Mock data only
 # API: services/api/src/routes/robot.routes.ts
@@ -163,6 +174,7 @@ web/src/
 ```
 
 ### WebSocket System
+
 ```bash
 # Current status: Basic structure
 # Location: services/api/src/services/websocket.service.ts
@@ -177,6 +189,7 @@ web/src/
 ## Database Development
 
 ### Working with Schema
+
 ```bash
 # Schema location: docs/DATABASE_SCHEMA.md
 # Migrations: services/api/src/migrations/
@@ -189,6 +202,7 @@ web/src/
 ```
 
 ### Database Access
+
 ```bash
 # Connect to database
 docker exec -it urfmp-postgres psql -U urfmp -d urfmp
@@ -202,6 +216,7 @@ SELECT * FROM robots; # Query data
 ## Code Standards
 
 ### TypeScript
+
 ```typescript
 // Use interfaces for object shapes
 interface ComponentProps {
@@ -224,6 +239,7 @@ const response: ApiResponse<Robot[]> = await api.getRobots()
 ```
 
 ### React Components
+
 ```tsx
 // Use functional components with TypeScript
 interface ComponentProps {
@@ -234,7 +250,7 @@ interface ComponentProps {
 export function Component({ data, onSelect }: ComponentProps) {
   return (
     <div>
-      {data.map(robot => (
+      {data.map((robot) => (
         <div key={robot.id} onClick={() => onSelect(robot)}>
           {robot.name}
         </div>
@@ -245,6 +261,7 @@ export function Component({ data, onSelect }: ComponentProps) {
 ```
 
 ### API Routes
+
 ```typescript
 // Use consistent patterns
 router.get(
@@ -259,8 +276,8 @@ router.get(
       metadata: {
         requestId: req.traceId,
         timestamp: new Date(),
-        version: '1.0.0'
-      }
+        version: '1.0.0',
+      },
     }
 
     res.json(response)
@@ -271,6 +288,7 @@ router.get(
 ## Debugging Tips
 
 ### Common Issues
+
 ```bash
 # Container won't start
 docker-compose down && docker-compose up -d --build
@@ -290,6 +308,7 @@ docker logs urfmp-api | grep -i websocket
 ```
 
 ### Debugging Tools
+
 ```bash
 # Browser DevTools
 - React DevTools extension
@@ -311,6 +330,7 @@ docker logs urfmp-api | grep -i websocket
 ## Deployment Checklist
 
 ### Pre-deployment
+
 - [ ] All tests passing
 - [ ] TypeScript compilation successful
 - [ ] No console errors in development
@@ -319,6 +339,7 @@ docker logs urfmp-api | grep -i websocket
 - [ ] Database migrations ready
 
 ### Production Considerations
+
 - [ ] Remove development auth bypass
 - [ ] Configure production JWT secrets
 - [ ] Set up proper CORS origins
@@ -329,6 +350,7 @@ docker logs urfmp-api | grep -i websocket
 ## Git Workflow
 
 ### Branch Strategy
+
 ```bash
 # Feature development
 git checkout -b feature/robot-management
@@ -340,6 +362,7 @@ git push origin feature/robot-management
 ```
 
 ### Commit Messages
+
 ```bash
 # Good commit messages
 git commit -m "Add robot status update endpoint"
@@ -357,18 +380,21 @@ git commit -m "Add authentication middleware
 ## Performance Guidelines
 
 ### Frontend Performance
+
 - Use React.memo for expensive components
 - Implement virtual scrolling for large lists
 - Lazy load pages and components
 - Optimize bundle size with code splitting
 
 ### API Performance
+
 - Implement database indexing
 - Use connection pooling
 - Add response caching where appropriate
 - Optimize database queries
 
 ### Real-time Performance
+
 - Throttle high-frequency updates
 - Use compression for WebSocket messages
 - Implement client-side buffering
@@ -377,6 +403,7 @@ git commit -m "Add authentication middleware
 ## Documentation Updates
 
 ### When to Update Docs
+
 - Adding new API endpoints → API_REFERENCE.md
 - Changing database schema → DATABASE_SCHEMA.md
 - Adding new components → COMPONENTS.md
@@ -384,6 +411,7 @@ git commit -m "Add authentication middleware
 - Development process changes → This file
 
 ### Documentation Locations
+
 - `/docs/` - Technical documentation
 - `/CLAUDE.md` - Development reference for AI
 - `/README.md` - Project overview
@@ -391,4 +419,4 @@ git commit -m "Add authentication middleware
 
 ---
 
-*Follow this workflow for consistent, efficient development*
+_Follow this workflow for consistent, efficient development_

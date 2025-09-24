@@ -16,16 +16,9 @@ export default defineConfig({
     // Test file patterns
     include: [
       'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      'src/tests/**/*.test.{js,ts,tsx}'
+      'src/tests/**/*.test.{js,ts,tsx}',
     ],
-    exclude: [
-      'node_modules',
-      'dist',
-      '.idea',
-      '.git',
-      '.cache',
-      'build'
-    ],
+    exclude: ['node_modules', 'dist', '.idea', '.git', '.cache', 'build'],
 
     // Coverage configuration
     coverage: {
@@ -39,7 +32,7 @@ export default defineConfig({
         '**/*.config.*',
         '**/coverage/**',
         '**/dist/**',
-        '**/.{idea,git,cache,output,temp}/**'
+        '**/.{idea,git,cache,output,temp}/**',
       ],
       // Coverage thresholds disabled for CI stability
       // thresholds: {
@@ -57,22 +50,17 @@ export default defineConfig({
     hookTimeout: 10000,
 
     // Reporter configuration
-    reporter: process.env.CI
-      ? ['verbose', 'junit', 'json']
-      : ['verbose'],
+    reporter: process.env.CI ? ['verbose', 'junit', 'json'] : ['verbose'],
 
     outputFile: {
       junit: './coverage/junit.xml',
       json: './coverage/test-results.json',
-      html: './coverage/test-report.html'
+      html: './coverage/test-report.html',
     },
 
     // Mock configuration
     deps: {
-      inline: [
-        '@urfmp/types',
-        '@urfmp/sdk'
-      ]
+      inline: ['@urfmp/types', '@urfmp/sdk'],
     },
 
     // Browser-like environment
@@ -81,9 +69,9 @@ export default defineConfig({
       threads: {
         singleThread: false,
         minThreads: 1,
-        maxThreads: process.env.CI ? 2 : undefined
-      }
-    }
+        maxThreads: process.env.CI ? 2 : undefined,
+      },
+    },
   },
 
   // Resolve configuration for tests
@@ -94,13 +82,13 @@ export default defineConfig({
       '@/hooks': path.resolve(__dirname, './src/hooks'),
       '@/utils': path.resolve(__dirname, './src/utils'),
       '@/pages': path.resolve(__dirname, './src/pages'),
-      '@/contexts': path.resolve(__dirname, './src/contexts')
-    }
+      '@/contexts': path.resolve(__dirname, './src/contexts'),
+    },
   },
 
   // Define global constants for tests
   define: {
     'import.meta.vitest': 'undefined',
-    __TEST__: true
-  }
+    __TEST__: true,
+  },
 })

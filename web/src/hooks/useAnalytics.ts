@@ -75,8 +75,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     if (robots.length === 0) return
 
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
@@ -116,8 +117,8 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
                   cycles: Math.floor(Math.random() * 1000),
                   errors: Math.floor(Math.random() * 5),
                   power: { total: 80 + Math.random() * 40 },
-                  operatingHours: Math.floor(Math.random() * 8760)
-                }
+                  operatingHours: Math.floor(Math.random() * 8760),
+                },
               }
             } else {
               latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
@@ -237,14 +238,15 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
   ): Promise<{ value: number; robotId?: string }[]> => {
     try {
       // Check if we're in demo mode
-      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                    (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+      const isDemo =
+        import.meta.env.VITE_DEMO_MODE === 'true' ||
+        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
       if (isDemo) {
         // Return mock aggregated data for demo mode
-        return robots.map(robot => ({
+        return robots.map((robot) => ({
           value: 50 + Math.random() * 100,
-          robotId: robot.id
+          robotId: robot.id,
         }))
       }
 

@@ -87,10 +87,7 @@ export function LoadingChart({ className, height = 200 }: LoadingChartProps) {
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-end space-x-2 h-6">
               {Array.from({ length: 8 }).map((_, j) => (
-                <LoadingSkeleton
-                  key={j}
-                  className="flex-1"
-                />
+                <LoadingSkeleton key={j} className="flex-1" />
               ))}
             </div>
           ))}

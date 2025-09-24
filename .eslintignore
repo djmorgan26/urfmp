@@ -1,2 +1,10 @@
 dist/
 node_modules/
+mock-api-server.js
+*.d.ts
+*.js.map
+packages/types/src/*.js
+packages/types/src/*.d.ts
+packages/types/src/**/*.js
+packages/types/src/**/*.d.ts
+web/.eslintrc.ci.js

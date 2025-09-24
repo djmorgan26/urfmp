@@ -7,12 +7,14 @@ URFMP uses PostgreSQL as the primary database with TimescaleDB extension for tim
 ## Database Configuration
 
 ### PostgreSQL (TimescaleDB)
+
 - **Host**: localhost:5432 (development)
 - **Database**: urfmp
 - **User**: urfmp
 - **Extensions**: TimescaleDB for time-series data
 
 ### Redis
+
 - **Host**: localhost:6379 (development)
 - **Usage**: Sessions, caching, rate limiting
 
@@ -21,6 +23,7 @@ URFMP uses PostgreSQL as the primary database with TimescaleDB extension for tim
 ### Users & Authentication
 
 #### `users`
+
 ```sql
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -46,6 +49,7 @@ CREATE INDEX idx_users_role ON users(role);
 ```
 
 #### `user_sessions`
+
 ```sql
 CREATE TABLE user_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -70,6 +74,7 @@ CREATE INDEX idx_sessions_expires ON user_sessions(expires_at);
 ### Organizations
 
 #### `organizations`
+
 ```sql
 CREATE TABLE organizations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -90,6 +95,7 @@ CREATE INDEX idx_organizations_plan ON organizations(plan);
 ### Robots
 
 #### `robots`
+
 ```sql
 CREATE TABLE robots (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -119,6 +125,7 @@ CREATE INDEX idx_robots_last_seen ON robots(last_seen);
 ```
 
 #### `robot_commands`
+
 ```sql
 CREATE TABLE robot_commands (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -149,6 +156,7 @@ CREATE INDEX idx_commands_created ON robot_commands(created_at);
 ### Telemetry (TimescaleDB Hypertables)
 
 #### `robot_telemetry`
+
 ```sql
 CREATE TABLE robot_telemetry (
     time TIMESTAMPTZ NOT NULL,
@@ -170,6 +178,7 @@ CREATE INDEX idx_telemetry_metric ON robot_telemetry(metric_name, time DESC);
 ```
 
 #### `robot_status_history`
+
 ```sql
 CREATE TABLE robot_status_history (
     time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -191,6 +200,7 @@ CREATE INDEX idx_status_history_robot ON robot_status_history(robot_id, time DES
 ### Maintenance
 
 #### `maintenance_tasks`
+
 ```sql
 CREATE TABLE maintenance_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -229,6 +239,7 @@ CREATE INDEX idx_maintenance_scheduled ON maintenance_tasks(scheduled_at);
 ### Alerts & Notifications
 
 #### `alerts`
+
 ```sql
 CREATE TABLE alerts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -261,6 +272,7 @@ CREATE INDEX idx_alerts_unresolved ON alerts(is_resolved, created_at) WHERE NOT 
 ### API & Security
 
 #### `api_keys`
+
 ```sql
 CREATE TABLE api_keys (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -287,6 +299,7 @@ CREATE INDEX idx_api_keys_organization ON api_keys(organization_id);
 ```
 
 #### `audit_logs`
+
 ```sql
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -318,6 +331,7 @@ CREATE INDEX idx_audit_action ON audit_logs(action);
 ## Views
 
 ### `robot_status_current`
+
 ```sql
 CREATE VIEW robot_status_current AS
 SELECT DISTINCT ON (robot_id)
@@ -331,6 +345,7 @@ ORDER BY robot_id, time DESC;
 ```
 
 ### `maintenance_summary`
+
 ```sql
 CREATE VIEW maintenance_summary AS
 SELECT
@@ -347,6 +362,7 @@ GROUP BY robot_id;
 ## Functions & Triggers
 
 ### Update Timestamps
+
 ```sql
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -375,6 +391,7 @@ CREATE TRIGGER update_maintenance_updated_at
 ```
 
 ### Robot Status Change Trigger
+
 ```sql
 CREATE OR REPLACE FUNCTION log_robot_status_change()
 RETURNS TRIGGER AS $$
@@ -395,6 +412,7 @@ CREATE TRIGGER robot_status_change_trigger
 ## Data Retention Policies
 
 ### TimescaleDB Retention
+
 ```sql
 -- Keep telemetry data for 1 year
 SELECT add_retention_policy('robot_telemetry', INTERVAL '1 year');
@@ -404,6 +422,7 @@ SELECT add_retention_policy('robot_status_history', INTERVAL '2 years');
 ```
 
 ### Manual Cleanup
+
 ```sql
 -- Clean up old sessions (older than 30 days)
 DELETE FROM user_sessions
@@ -417,12 +436,14 @@ WHERE created_at < NOW() - INTERVAL '1 year';
 ## Indexes Strategy
 
 ### Performance Indexes
+
 - Time-based queries: Compound indexes with time column
 - Foreign key lookups: Indexes on all foreign key columns
 - Status queries: Indexes on status columns
 - Search queries: GIN indexes on JSONB columns where needed
 
 ### Monitoring Queries
+
 ```sql
 -- Check index usage
 SELECT schemaname, tablename, indexname, idx_scan, idx_tup_read, idx_tup_fetch
@@ -442,6 +463,7 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 Migrations are handled through the API service in `services/api/src/migrations/`.
 
 ### Migration Template
+
 ```sql
 -- Migration: YYYY-MM-DD-HH-MM-description.sql
 -- Up migration
@@ -461,14 +483,16 @@ COMMIT;
 ## Backup Strategy
 
 ### Development
+
 - Docker volume persistence
 - Manual exports for testing
 
 ### Production
+
 - Automated daily backups
 - Point-in-time recovery
 - Cross-region replication for critical data
 
 ---
 
-*Schema will evolve as features are implemented*
+_Schema will evolve as features are implemented_

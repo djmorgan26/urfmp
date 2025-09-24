@@ -5,6 +5,7 @@ This file contains all essential information for Claude to efficiently work on t
 ## 🚀 Quick Start Commands
 
 ### Development Commands
+
 - `npm run dev` - Start development mode
 - `npm run build` - Build all packages
 - `npm run typecheck` - Run TypeScript checking
@@ -15,6 +16,7 @@ This file contains all essential information for Claude to efficiently work on t
 - `docker logs urfmp-web --tail 50` - Check web logs
 
 ### Testing API
+
 - Health: `curl http://localhost:3000/health`
 - Robots: `curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" http://localhost:3000/api/v1/robots`
 - Telemetry: `curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" http://localhost:3000/api/v1/telemetry/ROBOT_ID/latest`
@@ -23,6 +25,7 @@ This file contains all essential information for Claude to efficiently work on t
 ## 🏗️ Architecture Overview
 
 ### Monorepo Structure
+
 ```
 urfmp/
 ├── packages/
@@ -37,6 +40,7 @@ urfmp/
 ```
 
 ### Tech Stack
+
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL (TimescaleDB), Redis
@@ -48,6 +52,7 @@ urfmp/
 ## 🔧 Current Status
 
 ### ✅ Working Features
+
 - Docker environment with all services
 - React web application with routing
 - Dark mode theme switching
@@ -64,17 +69,20 @@ urfmp/
 - **✅ COMPLETE: Geofencing and waypoint management**
 
 ### 🚀 Latest Advanced Features (PRODUCTION READY)
+
 - **Advanced Analytics Dashboard** with custom reports, data export (CSV/JSON/PDF), and real-time filtering
 - **Predictive Maintenance System** with AI-powered insights, component health monitoring, and cost optimization
 - **Geofencing & Waypoint Management** with automated boundaries, path optimization, and real-time event monitoring
 
 ### 🌍 GPS Visualization System
+
 - **Interactive 2D/3D robot mapping** - Real-time GPS positioning with SimpleRobotMap and RobotMap3D components
 - **Fleet tracking dashboard** - Centralized GPS map view with robot selection and filtering
 - **Real-time coordinate updates** - WebSocket-based GPS data streaming
 - **Path visualization** - Robot trail rendering and historical position tracking
 
 ### 🏃‍♂️ Development Mode Settings
+
 - `NODE_ENV=development`
 - `DEV_MOCK_ROBOTS=true` (enables auth bypass)
 - API runs on port 3000
@@ -83,6 +91,7 @@ urfmp/
 ## 📊 Key Environment Variables
 
 ### Required for Development
+
 ```bash
 # Brand Configuration
 VITE_COMPANY_NAME=URFMP
@@ -107,6 +116,7 @@ JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
 ## 🗄️ Database Information
 
 ### Current Schema Status
+
 - ✅ Complete database schema with migration system
 - ✅ Users and organizations tables with authentication
 - ✅ Robots table with full CRUD operations
@@ -117,6 +127,7 @@ JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
 - ✅ RabbitMQ for real-time messaging
 
 ### Database Migration System
+
 ```bash
 # Run migrations manually
 docker exec urfmp-api npx tsx services/api/src/migrations/cli.ts migrate
@@ -129,11 +140,13 @@ docker exec urfmp-api npx tsx services/api/src/migrations/cli.ts rollback
 ```
 
 Migration files in `services/api/src/migrations/sql/`:
+
 - `20250918-194300-initial-schema.up.sql` - Users, organizations, sessions
 - `20250918-194400-robots-schema.up.sql` - Robot tables and triggers
 - `20250918-194500-seed-data.up.sql` - Admin user and demo org
 
 ### Key Models (from types package)
+
 - `Robot` - Core robot entity
 - `User` - User accounts and authentication
 - `RobotTelemetry` - Time-series robot data
@@ -143,11 +156,13 @@ Migration files in `services/api/src/migrations/sql/`:
 ## 🎯 Development Status (COMPLETED)
 
 ### ✅ Phase 1: Core Foundation (COMPLETE)
+
 1. ✅ **Authentication System** - Production-ready JWT + API key authentication
 2. ✅ **Robot Management** - Full CRUD operations with real-time updates
 3. ✅ **Real-time WebSocket** - Live telemetry streaming and command broadcasting
 
 ### ✅ Phase 2: Advanced Features (COMPLETE)
+
 1. ✅ **JWT authentication implementation** - Dual authentication system
 2. ✅ **Robot CRUD operations** - Complete management interface
 3. ✅ **WebSocket real-time system** - Live monitoring and control
@@ -158,7 +173,9 @@ Migration files in `services/api/src/migrations/sql/`:
 8. ✅ **Geofencing and waypoint management** - Automated navigation control
 
 ### 🚀 Production Ready Features
+
 All core features are now fully implemented and production-ready:
+
 - **Enterprise Analytics** with custom reporting and data export
 - **AI-Powered Maintenance** with predictive insights and cost optimization
 - **Advanced Geofencing** with automated boundary management and path planning
@@ -166,6 +183,7 @@ All core features are now fully implemented and production-ready:
 ## 🔗 API Endpoints
 
 ### Current Status
+
 ```
 ✅ GET  /health               - System health check
 ✅ POST /api/v1/auth/login    - JWT authentication
@@ -188,6 +206,7 @@ All core features are now fully implemented and production-ready:
 ### Authentication System
 
 #### Valid Test User
+
 ```
 Email: admin@urfmp.com
 Password: admin123
@@ -198,6 +217,7 @@ Permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'tel
 ```
 
 #### Getting Access Tokens
+
 ```bash
 # Login to get JWT tokens
 curl -X POST -H "Content-Type: application/json" \
@@ -211,6 +231,7 @@ curl -X POST -H "Content-Type: application/json" \
 ```
 
 #### Using API with Authentication
+
 ```bash
 # JWT Bearer Token (from login endpoint)
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -222,6 +243,7 @@ curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" \
 ```
 
 #### API Key Authentication
+
 ```bash
 # Development API Key (configured in database)
 API_KEY=urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
@@ -234,6 +256,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/robots
 ```
 
 #### Authentication Status
+
 - ✅ **Production-ready authentication** - No hardcoded bypasses
 - ✅ **Dual authentication support** - JWT tokens AND API keys
 - ✅ **Proper security validation** - Database lookup, expiry checks, permission validation
@@ -243,9 +266,11 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/robots
 ## 📊 Telemetry System
 
 ### Comprehensive Telemetry Data Collection
+
 URFMP provides a production-ready telemetry system with real-time data ingestion, storage, and visualization.
 
 #### Telemetry Database Schema
+
 ```sql
 -- Optimized for high-frequency telemetry data
 CREATE TABLE robot_telemetry (
@@ -260,6 +285,7 @@ CREATE TABLE robot_telemetry (
 ```
 
 #### Supported Telemetry Data Types
+
 - **Position data** (x, y, z coordinates with rotations)
 - **GPS positioning** (latitude, longitude, altitude, heading, speed, accuracy)
 - **Navigation data** (waypoints, path planning, geofencing)
@@ -272,6 +298,7 @@ CREATE TABLE robot_telemetry (
 - **Custom metrics** (extensible for vendor-specific data)
 
 #### Telemetry API Usage Examples
+
 ```bash
 # Send comprehensive telemetry data
 curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
@@ -333,6 +360,7 @@ http://localhost:3000/api/v1/telemetry/ROBOT_ID
 ```
 
 #### Telemetry Dashboard Features
+
 - **Real-time metric cards** with trend indicators and safety status
 - **Interactive charts** (temperature, power consumption, voltage, current draw)
 - **Time range selection** (1h, 6h, 24h, 7d, 30d)
@@ -341,12 +369,14 @@ http://localhost:3000/api/v1/telemetry/ROBOT_ID
 - **Tabbed robot interface** with dedicated telemetry view
 
 #### Real-time WebSocket Broadcasting
+
 - **Instant telemetry updates** broadcasted to connected clients
 - **Channel-based subscriptions** (`robot:{robotId}`)
 - **Event-driven architecture** for live monitoring
 - **Automatic reconnection** and error handling
 
 #### SDK Integration
+
 ```typescript
 // URFMP SDK telemetry methods
 await urfmp.sendTelemetry(robotId, telemetryData)
@@ -359,9 +389,11 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 📊 Advanced Analytics and Reporting System
 
 ### Comprehensive Analytics Dashboard (`/analytics`)
+
 URFMP now includes a production-ready advanced analytics system with enterprise-grade reporting capabilities.
 
 #### Key Features
+
 - **Custom Report Generation** with predefined templates:
   - Fleet Overview Report (comprehensive performance overview)
   - Performance Analysis (detailed efficiency and cycle analysis)
@@ -369,6 +401,7 @@ URFMP now includes a production-ready advanced analytics system with enterprise-
   - Power Consumption Analysis (energy optimization)
 
 #### Advanced Filtering and Date Selection
+
 - **Smart Date Range Picker** with preset options (7d, 30d, 90d, 1y) and custom date selection
 - **Multi-dimensional Filtering**:
   - Robot status (online, offline, error, idle, maintenance)
@@ -377,12 +410,14 @@ URFMP now includes a production-ready advanced analytics system with enterprise-
   - Robot types (UR5e, UR10e, UR16e, custom)
 
 #### Data Export Capabilities
+
 - **Multiple Format Support**: CSV, JSON, PDF with template-based generation
 - **Custom Report Builder** with section selection
 - **Automated Report Generation** with downloadable files
 - **Quick Export** buttons for instant data export
 
 #### Technical Implementation
+
 - **Components**: `DateRangePicker`, `AdvancedFilters`, `ReportGenerator`
 - **Utils**: `export.ts` with comprehensive export functions
 - **Real-time Integration**: Live data filtering with WebSocket updates
@@ -395,15 +430,18 @@ URFMP now includes a production-ready advanced analytics system with enterprise-
 ## 🔧 AI-Powered Predictive Maintenance System
 
 ### Intelligent Maintenance Management (`/maintenance`)
+
 Revolutionary predictive maintenance system with AI-powered insights and automated scheduling.
 
 #### Core Features
+
 - **Predictive Analytics Dashboard** with tabbed interface:
   - **Predictive Analytics**: AI-powered failure prediction and component health
   - **Scheduled Tasks**: Traditional maintenance scheduling and tracking
   - **History**: Completed maintenance records and performance trends
 
 #### AI-Powered Insights
+
 - **Component Health Monitoring** with real-time health scores (0-100%)
 - **Predictive Failure Detection** based on telemetry patterns:
   - Temperature trend analysis
@@ -414,12 +452,14 @@ Revolutionary predictive maintenance system with AI-powered insights and automat
 - **Cost Optimization Recommendations** with ROI calculations
 
 #### Maintenance Scheduling
+
 - **Intelligent Scheduling**: Frequency-based and condition-based maintenance
 - **Automated Recommendations**: AI-generated maintenance suggestions
 - **Resource Optimization**: Labor and downtime cost reduction
 - **Integration**: Direct integration with robot telemetry and usage data
 
 #### Technical Implementation
+
 - **Hook**: `usePredictiveMaintenance.ts` with comprehensive maintenance data management
 - **Component**: `PredictiveMaintenanceDashboard.tsx` with full-featured interface
 - **Data Types**: Complete TypeScript interfaces for maintenance workflows
@@ -430,15 +470,18 @@ Revolutionary predictive maintenance system with AI-powered insights and automat
 ## 🗺️ Geofencing and Waypoint Management System
 
 ### Advanced Navigation Control (`/geofencing`)
+
 Comprehensive geofencing and waypoint system for automated robot navigation and boundary management.
 
 #### Waypoint Management
+
 - **Multiple Waypoint Types**: pickup, dropoff, charging, maintenance, checkpoint, custom
 - **Automated Actions**: pause, notify, execute_command, capture_data, wait
 - **Radius-based Triggers**: Configurable activation zones (1-50 meters)
 - **Real-time Status**: Active/inactive state management
 
 #### Geofencing Capabilities
+
 - **Multiple Geofence Types**:
   - **Circle**: Radius-based boundaries
   - **Polygon**: Complex multi-point boundaries
@@ -449,18 +492,21 @@ Comprehensive geofencing and waypoint system for automated robot navigation and 
   - **Conditions**: Minimum duration, maximum speed thresholds
 
 #### Path Planning and Optimization
+
 - **Automated Path Generation**: Waypoint sequencing with distance optimization
 - **Real-time Path Optimization**: AI-powered route improvement (up to 10% efficiency gains)
 - **Multi-robot Support**: Individual robot assignments and fleet coordination
 - **Performance Metrics**: Distance tracking, time estimation, completion status
 
 #### Event Management
+
 - **Real-time Event Monitoring**: Live geofence violations and boundary events
 - **Event Classification**: info, warning, error, critical severity levels
 - **Acknowledgment System**: Manual event acknowledgment with audit trails
 - **Automated Responses**: Configurable actions based on event types
 
 #### Dashboard Interface
+
 - **5-Tab Management Interface**:
   - **Overview**: Key metrics and recent events
   - **Waypoints**: Visual waypoint management
@@ -469,6 +515,7 @@ Comprehensive geofencing and waypoint system for automated robot navigation and 
   - **Events**: Real-time monitoring and acknowledgment
 
 #### Technical Implementation
+
 - **Hook**: `useGeofencing.ts` with complete CRUD operations
 - **Component**: `GeofencingDashboard.tsx` with comprehensive management interface
 - **Data Models**: Full TypeScript interfaces for all geofencing entities
@@ -480,11 +527,13 @@ Comprehensive geofencing and waypoint system for automated robot navigation and 
 ## 🌍 GPS Robot Visualization
 
 ### Interactive Robot Mapping System
+
 URFMP provides comprehensive GPS visualization capabilities with both 2D and 3D mapping interfaces for real-time robot fleet tracking.
 
 #### Key Components
 
 **SimpleRobotMap (`/web/src/components/gps/SimpleRobotMap.tsx`)**
+
 - **2D GPS visualization** with OpenStreetMap-style interface
 - **Real-time robot positioning** with coordinate projection
 - **Robot trail rendering** showing historical movement paths
@@ -493,6 +542,7 @@ URFMP provides comprehensive GPS visualization capabilities with both 2D and 3D 
 - **GPS accuracy display** with horizontal/vertical precision
 
 **RobotMap3D (`/web/src/components/gps/RobotMap3D.tsx`)**
+
 - **3D globe visualization** using CesiumJS and Resium
 - **Terrain and satellite imagery** with multiple map layers
 - **3D robot models** with altitude and heading visualization
@@ -501,6 +551,7 @@ URFMP provides comprehensive GPS visualization capabilities with both 2D and 3D 
 - **Label and silhouette highlighting** for selected robots
 
 **RobotMapPage (`/web/src/pages/RobotMapPage.tsx`)**
+
 - **Unified GPS dashboard** accessible at `/map` route
 - **2D/3D view toggle** for different visualization modes
 - **Fleet status sidebar** with robot filtering and selection
@@ -508,17 +559,18 @@ URFMP provides comprehensive GPS visualization capabilities with both 2D and 3D 
 - **Robot status indicators** with online/offline states
 
 #### GPS Data Structure
+
 ```typescript
 interface GPSPosition {
-  latitude: number          // WGS84 decimal degrees
-  longitude: number         // WGS84 decimal degrees
-  altitude?: number         // Height above sea level (meters)
-  heading?: number          // True heading (0-360 degrees)
-  speed?: number           // Ground speed (m/s)
-  accuracy?: GPSAccuracy   // Horizontal/vertical precision
-  timestamp: Date          // GPS fix timestamp
-  satelliteCount?: number  // Number of satellites
-  fix?: GPSFixType        // GPS fix quality (2d/3d)
+  latitude: number // WGS84 decimal degrees
+  longitude: number // WGS84 decimal degrees
+  altitude?: number // Height above sea level (meters)
+  heading?: number // True heading (0-360 degrees)
+  speed?: number // Ground speed (m/s)
+  accuracy?: GPSAccuracy // Horizontal/vertical precision
+  timestamp: Date // GPS fix timestamp
+  satelliteCount?: number // Number of satellites
+  fix?: GPSFixType // GPS fix quality (2d/3d)
 }
 
 interface NavigationData {
@@ -530,6 +582,7 @@ interface NavigationData {
 ```
 
 #### Real-time GPS Updates
+
 - **WebSocket integration** for live coordinate streaming
 - **Automatic map centering** based on robot positions
 - **Trail length optimization** (keeps last 100 GPS points per robot)
@@ -537,6 +590,7 @@ interface NavigationData {
 - **GPS accuracy visualization** with confidence indicators
 
 #### GPS Map Features
+
 - **Multi-robot fleet tracking** with individual robot trails
 - **Interactive robot selection** with detailed GPS information panel
 - **Zoom and pan controls** with home/center-on-robots functionality
@@ -546,6 +600,7 @@ interface NavigationData {
 - **Historical path rendering** with configurable trail opacity
 
 #### Usage Examples
+
 ```bash
 # Access GPS map dashboard
 http://localhost:3001/map
@@ -563,6 +618,7 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ```
 
 #### Technical Implementation
+
 - **Vite 5+ configuration** with CesiumJS static asset handling
 - **React 18 components** with TypeScript interfaces
 - **Real-time WebSocket subscriptions** for live GPS updates
@@ -573,17 +629,20 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ## 🎨 Frontend Components
 
 ### Layout Structure
+
 - `Layout.tsx` - Main layout with header, sidebar, content
 - Header includes: Logo, search, connection status, notifications, theme toggle, user menu
 - Sidebar includes: Navigation menu with Dashboard, Robots, Analytics, Maintenance, Settings
 
 ### Theme System
+
 - Supports light/dark/system themes
 - Theme context in `contexts/ThemeContext.tsx`
 - Toggle in header and settings page
 - CSS custom properties in `index.css`
 
 ### Key Pages
+
 - `/` - Dashboard (analytics widgets)
 - `/robots` - Robot list and management
 - `/robots/:id` - Individual robot details with telemetry dashboard
@@ -600,6 +659,7 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ## 🛠️ Development Workflows
 
 ### Adding New Features
+
 1. Check types package for required interfaces
 2. Add API endpoint in `services/api/src/routes/`
 3. Update frontend components in `web/src/`
@@ -607,17 +667,20 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 5. Test with Docker environment
 
 ### Working with Types
+
 - All shared types in `packages/types/src/`
 - Export new types in `packages/types/src/index.ts`
 - Rebuild types: `npm run build --workspace=@urfmp/types`
 
 ### Working with API
+
 - Routes in `services/api/src/routes/`
 - Middleware in `services/api/src/middleware/`
 - Use `asyncHandler` for async routes
 - Follow existing patterns for error handling
 
 ### Working with Frontend
+
 - Components in `web/src/components/`
 - Pages in `web/src/pages/`
 - Hooks in `web/src/hooks/`
@@ -627,16 +690,19 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ## 🐛 Common Issues & Solutions
 
 ### Docker Issues
+
 - If containers fail to start: `docker-compose down && docker-compose up -d --build`
 - If API shows connection errors: Wait for RabbitMQ to fully start, then restart API
 - Check logs: `docker logs urfmp-api --tail 50`
 
 ### TypeScript Issues
+
 - If types not found: Rebuild types package
 - Missing exports: Add to `packages/types/src/index.ts`
 - SDK build issues: Clean and rebuild SDK
 
 ### Development Tips
+
 - Use browser dev tools for React DevTools
 - API documentation available at `http://localhost:3000/docs` (when enabled)
 - Database admin at `http://localhost:8080` (Adminer)
@@ -645,18 +711,21 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ## 📝 Code Standards
 
 ### TypeScript
+
 - Strict mode enabled
 - Use interfaces for object shapes
 - Export types from centralized location
 - Use proper error handling
 
 ### React
+
 - Functional components with hooks
 - Use TypeScript for all components
 - Follow naming conventions (PascalCase for components)
 - Use custom hooks for logic
 
 ### API
+
 - RESTful endpoints
 - Consistent error responses
 - Use middleware for common functionality
@@ -665,12 +734,14 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 ## 🔍 Debugging Tools
 
 ### Available Services
+
 - API: http://localhost:3000
 - Web: http://localhost:3001
 - Adminer (DB): http://localhost:8080
 - RabbitMQ: http://localhost:15672
 
 ### Useful Commands
+
 ```bash
 # Check all containers
 docker ps
@@ -693,6 +764,7 @@ docker exec -it urfmp-redis redis-cli
 ## 🎉 URFMP Development Complete
 
 **URFMP is now a fully-featured, production-ready robot fleet management platform with:**
+
 - ✅ Complete authentication and security system
 - ✅ Real-time robot monitoring and control
 - ✅ Advanced analytics with custom reporting
@@ -701,5 +773,5 @@ docker exec -it urfmp-redis redis-cli
 - ✅ 2D/3D GPS visualization system
 - ✅ Enterprise-grade data export capabilities
 
-*Last Updated: September 20, 2025 - All Advanced Features Completed*
-*This file has been updated to reflect the completion of all major URFMP features*
+_Last Updated: September 20, 2025 - All Advanced Features Completed_
+_This file has been updated to reflect the completion of all major URFMP features_

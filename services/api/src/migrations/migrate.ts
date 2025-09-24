@@ -50,7 +50,7 @@ async function executeMigration(migration: Migration): Promise<void> {
 
     logger.info(`Migration completed: ${migration.filename}`)
   } catch (error) {
-    logger.error(`Migration failed: ${migration.filename}`, { error: error.message })
+    logger.error(`Migration failed: ${migration.filename}`, { error: (error as Error).message })
     throw error
   }
 }
@@ -104,7 +104,7 @@ export async function runMigrations(): Promise<void> {
 
     logger.info('All migrations completed successfully')
   } catch (error) {
-    logger.error('Migration process failed', { error: error.message })
+    logger.error('Migration process failed', { error: (error as Error).message })
     throw error
   }
 }

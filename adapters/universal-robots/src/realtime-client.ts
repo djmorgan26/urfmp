@@ -29,9 +29,9 @@ export class URRealTimeClient {
 
       this.socket.on('error', (error) => {
         this.connected = false
-        console.error(`Real-time connection error: ${error.message}`)
+        console.error(`Real-time connection error: ${(error as Error).message}`)
         this.attemptReconnection()
-        reject(new Error(`Real-time connection failed: ${error.message}`))
+        reject(new Error(`Real-time connection failed: ${(error as Error).message}`))
       })
 
       this.socket.on('close', () => {
@@ -78,7 +78,7 @@ export class URRealTimeClient {
             const robotState = this.parseRobotState(buffer)
             resolve(robotState)
           } catch (error) {
-            reject(new Error(`Failed to parse robot state: ${error.message}`))
+            reject(new Error(`Failed to parse robot state: ${(error as Error).message}`))
           }
         }
       }
@@ -114,7 +114,7 @@ export class URRealTimeClient {
             this.dataCallback(robotState)
           }
         } catch (error) {
-          console.error('Error parsing robot state:', error.message)
+          console.error('Error parsing robot state:', (error as Error).message)
           break
         }
       }
@@ -142,7 +142,7 @@ export class URRealTimeClient {
     }
 
     // Helper function to read uint32 (4 bytes, big-endian)
-    const readUInt32 = (): number => {
+    const _readUInt32 = (): number => {
       const value = buffer.readUInt32BE(offset)
       offset += 4
       return value
@@ -319,7 +319,7 @@ export class URRealTimeClient {
 
       return robotState
     } catch (error) {
-      throw new Error(`Failed to parse robot state buffer: ${error.message}`)
+      throw new Error(`Failed to parse robot state buffer: ${(error as Error).message}`)
     }
   }
 
@@ -341,7 +341,7 @@ export class URRealTimeClient {
         await this.connect()
         console.log('Real-time interface reconnected successfully')
       } catch (error) {
-        console.error('Reconnection failed:', error.message)
+        console.error('Reconnection failed:', (error as Error).message)
       }
     }, delay)
   }

@@ -70,6 +70,7 @@ export enum RobotCapability {
 export interface RobotCommand {
   id: string
   robotId: string
+  organizationId: string
   type: RobotCommandType
   payload: Record<string, any>
   priority: CommandPriority
@@ -79,6 +80,7 @@ export interface RobotCommand {
   completedAt?: Date
   error?: string
   createdAt: Date
+  createdBy: string
 }
 
 export enum RobotCommandType {

@@ -39,6 +39,18 @@ export interface ListRequest {
   search?: string
 }
 
+export interface PaginationOptions {
+  page?: number
+  limit?: number
+  sort?: string
+  order?: SortOrder
+}
+
+export interface PaginationResult<T = any> {
+  data: T[]
+  pagination: PaginationInfo
+}
+
 export enum SortOrder {
   ASC = 'asc',
   DESC = 'desc',

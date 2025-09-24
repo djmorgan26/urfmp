@@ -11,7 +11,7 @@ Build the Stripe of robotics - a developer-first platform that manages, monitors
 ```
 Frontend:
 - React with TypeScript
-- TailwindCSS for rapid UI development  
+- TailwindCSS for rapid UI development
 - Recharts for data visualization
 - WebSocket for real-time updates
 
@@ -67,13 +67,13 @@ ML/Analytics:
 // Universal adapter pattern for any robot vendor
 class RobotAdapter {
   constructor(vendorType, credentials) {
-    this.vendor = VendorFactory.create(vendorType, credentials);
+    this.vendor = VendorFactory.create(vendorType, credentials)
   }
-  
+
   async connect() {
     // Standardize connection across vendors
   }
-  
+
   async getStatus() {
     // Transform vendor-specific data to standard format
     return {
@@ -81,8 +81,8 @@ class RobotAdapter {
       status: this.vendor.mapStatus(),
       position: this.vendor.getPosition(),
       battery: this.vendor.getBatteryLevel(),
-      health: this.calculateHealth()
-    };
+      health: this.calculateHealth(),
+    }
   }
 }
 ```
@@ -104,15 +104,15 @@ const alertRules = [
     name: 'Low Battery',
     condition: (robot) => robot.battery < 20,
     severity: 'WARNING',
-    action: 'notify'
+    action: 'notify',
   },
   {
     name: 'Unexpected Stop',
     condition: (robot) => robot.status === 'ERROR',
     severity: 'CRITICAL',
-    action: 'page'
-  }
-];
+    action: 'page',
+  },
+]
 ```
 
 ### 4. RESTful API with SDK
@@ -143,11 +143,11 @@ fleet.monitor({
 class MaintenancePredictor:
     def __init__(self):
         self.model = self.load_model()
-    
+
     def predict_failure(self, robot_data):
         features = self.extract_features(robot_data)
         probability = self.model.predict_proba(features)
-        
+
         if probability > 0.7:
             return {
                 'risk': 'HIGH',
@@ -170,14 +170,14 @@ class MaintenancePredictor:
 // Third-party app integration
 class AppMarketplace {
   async install(appId, fleetId) {
-    const app = await this.validateApp(appId);
-    const permissions = await this.requestPermissions(app);
-    
+    const app = await this.validateApp(appId)
+    const permissions = await this.requestPermissions(app)
+
     return {
       webhooks: this.registerWebhooks(app),
       api_access: this.generateAppToken(app),
-      revenue_share: this.setupBilling(app) // 30% platform fee
-    };
+      revenue_share: this.setupBilling(app), // 30% platform fee
+    }
   }
 }
 ```
@@ -258,21 +258,21 @@ CREATE TABLE maintenance_predictions (
 class SecurityLayer {
   // API key management with scopes
   validateAPIKey(key, requiredScope) {
-    const decoded = jwt.verify(key, process.env.JWT_SECRET);
-    return decoded.scopes.includes(requiredScope);
+    const decoded = jwt.verify(key, process.env.JWT_SECRET)
+    return decoded.scopes.includes(requiredScope)
   }
-  
+
   // End-to-end encryption for robot data
   encryptTelemetry(data) {
-    return crypto.AES.encrypt(JSON.stringify(data), this.key);
+    return crypto.AES.encrypt(JSON.stringify(data), this.key)
   }
-  
+
   // Rate limiting per customer
   rateLimit() {
     return rateLimit({
       windowMs: 60 * 1000,
-      max: (req) => this.getTierLimit(req.user.subscription)
-    });
+      max: (req) => this.getTierLimit(req.user.subscription),
+    })
   }
 }
 ```
@@ -299,7 +299,7 @@ paths:
       responses:
         200:
           description: List of robots
-          
+
   /robots/{id}/telemetry:
     get:
       summary: Get robot telemetry data
@@ -357,15 +357,15 @@ class OnboardingWizard {
   async start() {
     const steps = [
       this.createOrganization(),
-      this.detectRobots(),      // Auto-discovery on network
+      this.detectRobots(), // Auto-discovery on network
       this.connectFirstRobot(),
       this.configurealerts(),
-      this.showDashboard()
-    ];
-    
+      this.showDashboard(),
+    ]
+
     // Track conversion at each step
     for (const step of steps) {
-      await this.track(step);
+      await this.track(step)
     }
   }
 }
@@ -406,19 +406,19 @@ class GrowthEngine {
     return {
       robots: 3,
       duration: 'forever',
-      features: ['monitoring', 'basic_alerts']
-    };
+      features: ['monitoring', 'basic_alerts'],
+    }
   }
-  
+
   // Partner program for integrators
   createPartnerProgram() {
     return {
       commission: '20% recurring',
       support: 'dedicated',
-      co_marketing: true
-    };
+      co_marketing: true,
+    }
   }
-  
+
   // Open source basic connectors
   openSourceStrategy() {
     // Release robot connectors as open source

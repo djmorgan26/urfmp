@@ -23,7 +23,13 @@ export const authMiddleware = async (req: Request, _res: Response, next: NextFun
         sub: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
         org: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
         email: 'demo@urfmp.com',
-        permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
+        permissions: [
+          'robot.view',
+          'robot.create',
+          'robot.update',
+          'robot.delete',
+          'telemetry.view',
+        ],
         role: 'admin',
         scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
         iat: Math.floor(Date.now() / 1000),
@@ -124,7 +130,13 @@ export const requiredAuth = async (req: Request, _res: Response, next: NextFunct
         sub: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
         org: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
         email: 'demo@urfmp.com',
-        permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
+        permissions: [
+          'robot.view',
+          'robot.create',
+          'robot.update',
+          'robot.delete',
+          'telemetry.view',
+        ],
         role: 'admin',
         scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view'],
         iat: Math.floor(Date.now() / 1000),
@@ -196,7 +208,9 @@ export const requiredAuth = async (req: Request, _res: Response, next: NextFunct
       await updateApiKeyLastUsed(keyData.id)
       return next()
     } else {
-      throw new UnauthorizedError('Authentication required: provide Bearer token or X-API-Key header')
+      throw new UnauthorizedError(
+        'Authentication required: provide Bearer token or X-API-Key header'
+      )
     }
   } catch (error) {
     next(error)

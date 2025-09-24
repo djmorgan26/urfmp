@@ -285,7 +285,11 @@ export function useRealTimeAlerts(): UseRealTimeAlertsReturn {
 
     // Optionally sync with backend
     try {
-      if (urfmp && 'acknowledgeAlert' in urfmp && typeof (urfmp as any).acknowledgeAlert === 'function') {
+      if (
+        urfmp &&
+        'acknowledgeAlert' in urfmp &&
+        typeof (urfmp as any).acknowledgeAlert === 'function'
+      ) {
         await (urfmp as any).acknowledgeAlert(alertId)
       }
     } catch (error) {

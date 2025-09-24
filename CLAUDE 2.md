@@ -5,6 +5,7 @@ This file contains all essential information for Claude to efficiently work on t
 ## 🚀 Quick Start Commands
 
 ### Development Commands
+
 - `npm run dev` - Start development mode
 - `npm run build` - Build all packages
 - `npm run typecheck` - Run TypeScript checking
@@ -15,6 +16,7 @@ This file contains all essential information for Claude to efficiently work on t
 - `docker logs urfmp-web --tail 50` - Check web logs
 
 ### Testing API
+
 - Health: `curl http://localhost:3000/health`
 - Robots: `curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" http://localhost:3000/api/v1/robots`
 - Telemetry: `curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" http://localhost:3000/api/v1/telemetry/ROBOT_ID/latest`
@@ -23,6 +25,7 @@ This file contains all essential information for Claude to efficiently work on t
 ## 🏗️ Architecture Overview
 
 ### Monorepo Structure
+
 ```
 urfmp/
 ├── packages/
@@ -37,6 +40,7 @@ urfmp/
 ```
 
 ### Tech Stack
+
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: PostgreSQL (TimescaleDB), Redis
@@ -48,6 +52,7 @@ urfmp/
 ## 🔧 Current Status
 
 ### ✅ Working Features
+
 - Docker environment with all services
 - React web application with routing
 - Dark mode theme switching
@@ -61,17 +66,20 @@ urfmp/
 - Tabbed robot detail pages with telemetry dashboard
 
 ### 🔨 In Development
+
 - Advanced analytics and reporting
 - Predictive maintenance features
 - Geofencing and waypoint management
 
 ### 🌍 GPS Visualization System
+
 - **Interactive 2D/3D robot mapping** - Real-time GPS positioning with SimpleRobotMap and RobotMap3D components
 - **Fleet tracking dashboard** - Centralized GPS map view with robot selection and filtering
 - **Real-time coordinate updates** - WebSocket-based GPS data streaming
 - **Path visualization** - Robot trail rendering and historical position tracking
 
 ### 🏃‍♂️ Development Mode Settings
+
 - `NODE_ENV=development`
 - `DEV_MOCK_ROBOTS=true` (enables auth bypass)
 - API runs on port 3000
@@ -80,6 +88,7 @@ urfmp/
 ## 📊 Key Environment Variables
 
 ### Required for Development
+
 ```bash
 # Brand Configuration
 VITE_COMPANY_NAME=URFMP
@@ -104,6 +113,7 @@ JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
 ## 🗄️ Database Information
 
 ### Current Schema Status
+
 - ✅ Complete database schema with migration system
 - ✅ Users and organizations tables with authentication
 - ✅ Robots table with full CRUD operations
@@ -114,6 +124,7 @@ JWT_SECRET=your-super-secret-jwt-key-here-change-in-production
 - ✅ RabbitMQ for real-time messaging
 
 ### Database Migration System
+
 ```bash
 # Run migrations manually
 docker exec urfmp-api npx tsx services/api/src/migrations/cli.ts migrate
@@ -126,11 +137,13 @@ docker exec urfmp-api npx tsx services/api/src/migrations/cli.ts rollback
 ```
 
 Migration files in `services/api/src/migrations/sql/`:
+
 - `20250918-194300-initial-schema.up.sql` - Users, organizations, sessions
 - `20250918-194400-robots-schema.up.sql` - Robot tables and triggers
 - `20250918-194500-seed-data.up.sql` - Admin user and demo org
 
 ### Key Models (from types package)
+
 - `Robot` - Core robot entity
 - `User` - User accounts and authentication
 - `RobotTelemetry` - Time-series robot data
@@ -140,11 +153,13 @@ Migration files in `services/api/src/migrations/sql/`:
 ## 🎯 Current Development Priorities
 
 ### Phase 1: Core Foundation (CRITICAL)
+
 1. **Authentication System** - Currently using development bypass
 2. **Robot Management** - Add/edit/delete robots, commands
 3. **Real-time WebSocket** - Live updates and telemetry
 
 ### Next Items to Work On
+
 1. ✅ Complete JWT authentication implementation
 2. ✅ Build robot CRUD operations
 3. ✅ Implement WebSocket real-time system
@@ -156,6 +171,7 @@ Migration files in `services/api/src/migrations/sql/`:
 ## 🔗 API Endpoints
 
 ### Current Status
+
 ```
 ✅ GET  /health               - System health check
 ✅ POST /api/v1/auth/login    - JWT authentication
@@ -178,6 +194,7 @@ Migration files in `services/api/src/migrations/sql/`:
 ### Authentication System
 
 #### Valid Test User
+
 ```
 Email: admin@urfmp.com
 Password: admin123
@@ -188,6 +205,7 @@ Permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'tel
 ```
 
 #### Getting Access Tokens
+
 ```bash
 # Login to get JWT tokens
 curl -X POST -H "Content-Type: application/json" \
@@ -201,6 +219,7 @@ curl -X POST -H "Content-Type: application/json" \
 ```
 
 #### Using API with Authentication
+
 ```bash
 # JWT Bearer Token (from login endpoint)
 curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -212,6 +231,7 @@ curl -H "X-API-Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678" \
 ```
 
 #### API Key Authentication
+
 ```bash
 # Development API Key (configured in database)
 API_KEY=urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
@@ -224,6 +244,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/robots
 ```
 
 #### Authentication Status
+
 - ✅ **Production-ready authentication** - No hardcoded bypasses
 - ✅ **Dual authentication support** - JWT tokens AND API keys
 - ✅ **Proper security validation** - Database lookup, expiry checks, permission validation
@@ -233,9 +254,11 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/robots
 ## 📊 Telemetry System
 
 ### Comprehensive Telemetry Data Collection
+
 URFMP provides a production-ready telemetry system with real-time data ingestion, storage, and visualization.
 
 #### Telemetry Database Schema
+
 ```sql
 -- Optimized for high-frequency telemetry data
 CREATE TABLE robot_telemetry (
@@ -250,6 +273,7 @@ CREATE TABLE robot_telemetry (
 ```
 
 #### Supported Telemetry Data Types
+
 - **Position data** (x, y, z coordinates with rotations)
 - **GPS positioning** (latitude, longitude, altitude, heading, speed, accuracy)
 - **Navigation data** (waypoints, path planning, geofencing)
@@ -262,6 +286,7 @@ CREATE TABLE robot_telemetry (
 - **Custom metrics** (extensible for vendor-specific data)
 
 #### Telemetry API Usage Examples
+
 ```bash
 # Send comprehensive telemetry data
 curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
@@ -323,6 +348,7 @@ http://localhost:3000/api/v1/telemetry/ROBOT_ID
 ```
 
 #### Telemetry Dashboard Features
+
 - **Real-time metric cards** with trend indicators and safety status
 - **Interactive charts** (temperature, power consumption, voltage, current draw)
 - **Time range selection** (1h, 6h, 24h, 7d, 30d)
@@ -331,12 +357,14 @@ http://localhost:3000/api/v1/telemetry/ROBOT_ID
 - **Tabbed robot interface** with dedicated telemetry view
 
 #### Real-time WebSocket Broadcasting
+
 - **Instant telemetry updates** broadcasted to connected clients
 - **Channel-based subscriptions** (`robot:{robotId}`)
 - **Event-driven architecture** for live monitoring
 - **Automatic reconnection** and error handling
 
 #### SDK Integration
+
 ```typescript
 // URFMP SDK telemetry methods
 await urfmp.sendTelemetry(robotId, telemetryData)
@@ -349,17 +377,20 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 🎨 Frontend Components
 
 ### Layout Structure
+
 - `Layout.tsx` - Main layout with header, sidebar, content
 - Header includes: Logo, search, connection status, notifications, theme toggle, user menu
 - Sidebar includes: Navigation menu with Dashboard, Robots, Analytics, Maintenance, Settings
 
 ### Theme System
+
 - Supports light/dark/system themes
 - Theme context in `contexts/ThemeContext.tsx`
 - Toggle in header and settings page
 - CSS custom properties in `index.css`
 
 ### Key Pages
+
 - `/` - Dashboard (analytics widgets)
 - `/robots` - Robot list and management
 - `/robots/:id` - Individual robot details with telemetry dashboard
@@ -374,6 +405,7 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 🛠️ Development Workflows
 
 ### Adding New Features
+
 1. Check types package for required interfaces
 2. Add API endpoint in `services/api/src/routes/`
 3. Update frontend components in `web/src/`
@@ -381,17 +413,20 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 5. Test with Docker environment
 
 ### Working with Types
+
 - All shared types in `packages/types/src/`
 - Export new types in `packages/types/src/index.ts`
 - Rebuild types: `npm run build --workspace=@urfmp/types`
 
 ### Working with API
+
 - Routes in `services/api/src/routes/`
 - Middleware in `services/api/src/middleware/`
 - Use `asyncHandler` for async routes
 - Follow existing patterns for error handling
 
 ### Working with Frontend
+
 - Components in `web/src/components/`
 - Pages in `web/src/pages/`
 - Hooks in `web/src/hooks/`
@@ -401,16 +436,19 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 🐛 Common Issues & Solutions
 
 ### Docker Issues
+
 - If containers fail to start: `docker-compose down && docker-compose up -d --build`
 - If API shows connection errors: Wait for RabbitMQ to fully start, then restart API
 - Check logs: `docker logs urfmp-api --tail 50`
 
 ### TypeScript Issues
+
 - If types not found: Rebuild types package
 - Missing exports: Add to `packages/types/src/index.ts`
 - SDK build issues: Clean and rebuild SDK
 
 ### Development Tips
+
 - Use browser dev tools for React DevTools
 - API documentation available at `http://localhost:3000/docs` (when enabled)
 - Database admin at `http://localhost:8080` (Adminer)
@@ -419,18 +457,21 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 📝 Code Standards
 
 ### TypeScript
+
 - Strict mode enabled
 - Use interfaces for object shapes
 - Export types from centralized location
 - Use proper error handling
 
 ### React
+
 - Functional components with hooks
 - Use TypeScript for all components
 - Follow naming conventions (PascalCase for components)
 - Use custom hooks for logic
 
 ### API
+
 - RESTful endpoints
 - Consistent error responses
 - Use middleware for common functionality
@@ -439,12 +480,14 @@ await urfmp.getAggregatedTelemetry({ metric, aggregation, timeWindow })
 ## 🔍 Debugging Tools
 
 ### Available Services
+
 - API: http://localhost:3000
 - Web: http://localhost:3001
 - Adminer (DB): http://localhost:8080
 - RabbitMQ: http://localhost:15672
 
 ### Useful Commands
+
 ```bash
 # Check all containers
 docker ps
@@ -464,5 +507,5 @@ docker exec -it urfmp-redis redis-cli
 
 ---
 
-*Last Updated: $(date)*
-*This file should be updated as the codebase evolves*
+_Last Updated: $(date)_
+_This file should be updated as the codebase evolves_

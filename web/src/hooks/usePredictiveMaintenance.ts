@@ -107,8 +107,9 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     if (robots.length === 0) return
 
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
@@ -116,8 +117,11 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     // Very aggressive rate limiting: prevent fetches within 30 minutes
     const now = Date.now()
     const timeSinceLastFetch = now - lastFetch
-    if (timeSinceLastFetch < 1800000) { // 30 minutes
-      console.log(`Predictive Maintenance: skipping fetch due to rate limiting (need ${Math.ceil((1800000 - timeSinceLastFetch) / 60000)} more minutes)`)
+    if (timeSinceLastFetch < 1800000) {
+      // 30 minutes
+      console.log(
+        `Predictive Maintenance: skipping fetch due to rate limiting (need ${Math.ceil((1800000 - timeSinceLastFetch) / 60000)} more minutes)`
+      )
       return
     }
 
@@ -163,12 +167,15 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
               robotId: robot.id,
               timestamp: new Date(),
               data: {
-                temperature: { ambient: 20 + Math.random() * 15, controller: 30 + Math.random() * 20 },
+                temperature: {
+                  ambient: 20 + Math.random() * 15,
+                  controller: 30 + Math.random() * 20,
+                },
                 power: { total: 80 + Math.random() * 40 },
                 vibration: { magnitude: Math.random() * 10 },
                 cycles: Math.floor(Math.random() * 10000),
-                operatingHours: Math.floor(Math.random() * 8760)
-              }
+                operatingHours: Math.floor(Math.random() * 8760),
+              },
             }
           } else {
             latestTelemetry = await urfmp.getLatestTelemetry(robot.id)
@@ -189,8 +196,11 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
           console.warn(`Failed to analyze maintenance data for robot ${robot.id}:`, err)
 
           // Check for rate limiting and stop immediately
-          if ((err as any)?.response?.status === 429 || (err as any)?.status === 429 ||
-              (err as any)?.message?.includes('429')) {
+          if (
+            (err as any)?.response?.status === 429 ||
+            (err as any)?.status === 429 ||
+            (err as any)?.message?.includes('429')
+          ) {
             console.log('Rate limited detected, stopping all maintenance analysis')
             rateLimitHit = true
             setError('Rate limited - will retry in 1 hour')
@@ -235,7 +245,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     if (!urfmp) return
 
     const now = Date.now()
-    if (now - lastFetch < 1800000) { // 30 minutes
+    if (now - lastFetch < 1800000) {
+      // 30 minutes
       console.log('Predictive Maintenance: skipping fetch due to recent update')
       return
     }
@@ -250,7 +261,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     // Set up interval for periodic updates (every 30 minutes)
     const interval = setInterval(() => {
       const now = Date.now()
-      if (now - lastFetch >= 1800000) { // Only if it's been 30+ minutes
+      if (now - lastFetch >= 1800000) {
+        // Only if it's been 30+ minutes
         fetchMaintenanceData()
       }
     }, 1800000)

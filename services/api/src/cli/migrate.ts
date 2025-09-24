@@ -24,7 +24,7 @@ async function main() {
         console.log(`  Pending: ${status.pending.length}`)
         if (status.pending.length > 0) {
           console.log('  Pending migrations:')
-          status.pending.forEach(id => console.log(`    - ${id}`))
+          status.pending.forEach((id) => console.log(`    - ${id}`))
         }
         break
 
@@ -52,7 +52,7 @@ async function main() {
   } catch (error) {
     logger.error('Migration command failed', {
       command,
-      error: (error as Error).message
+      error: (error as Error).message,
     })
     console.error(`Error: ${(error as Error).message}`)
     process.exit(1)

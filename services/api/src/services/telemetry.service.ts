@@ -6,7 +6,7 @@ import {
   TelemetryData,
   AggregationType,
   TimeWindow,
-  TelemetryAggregation
+  TelemetryAggregation,
 } from '@urfmp/types'
 import { NotFoundError, ValidationError } from '../middleware/error.middleware'
 
@@ -43,10 +43,10 @@ export class TelemetryService {
     const { robotId, organizationId, data, timestamp = new Date() } = request
 
     // Verify robot exists and belongs to organization
-    const robotCheck = await query(
-      'SELECT id FROM robots WHERE id = $1 AND organization_id = $2',
-      [robotId, organizationId]
-    )
+    const robotCheck = await query('SELECT id FROM robots WHERE id = $1 AND organization_id = $2', [
+      robotId,
+      organizationId,
+    ])
 
     if (robotCheck.rows.length === 0) {
       throw new NotFoundError('Robot not found')
@@ -65,7 +65,9 @@ export class TelemetryService {
     let paramIndex = 1
 
     for (const entry of telemetryEntries) {
-      values.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`)
+      values.push(
+        `($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, $${paramIndex + 4}, $${paramIndex + 5})`
+      )
       params.push(
         timestamp,
         robotId,
@@ -85,10 +87,7 @@ export class TelemetryService {
     await query(insertQuery, params)
 
     // Update robot last_seen timestamp
-    await query(
-      'UPDATE robots SET last_seen = $1 WHERE id = $2',
-      [timestamp, robotId]
-    )
+    await query('UPDATE robots SET last_seen = $1 WHERE id = $2', [timestamp, robotId])
 
     // Create RobotTelemetry response object
     const telemetryRecord: RobotTelemetry = {
@@ -100,7 +99,7 @@ export class TelemetryService {
         source: 'robot_controller' as any,
         quality: 'high' as any,
         samplingRate: telemetryEntries.length,
-      }
+      },
     }
 
     // Cache latest telemetry for quick access
@@ -179,16 +178,25 @@ export class TelemetryService {
       }
 
       const telemetry = telemetryMap.get(timestamp)!
-      this.addMetricToTelemetryData(telemetry.data!, row.metric_name, row.value, row.unit, row.metadata)
+      this.addMetricToTelemetryData(
+        telemetry.data!,
+        row.metric_name,
+        row.value,
+        row.unit,
+        row.metadata
+      )
     }
 
-    return Array.from(telemetryMap.values()).map(t => t as RobotTelemetry)
+    return Array.from(telemetryMap.values()).map((t) => t as RobotTelemetry)
   }
 
   /**
    * Get latest telemetry data for a robot
    */
-  async getLatestTelemetry(robotId: string, organizationId: string): Promise<RobotTelemetry | null> {
+  async getLatestTelemetry(
+    robotId: string,
+    organizationId: string
+  ): Promise<RobotTelemetry | null> {
     // Try cache first
     const cacheKey = `telemetry:latest:${robotId}`
     let cachedTelemetry = await cache.get(cacheKey)
@@ -200,7 +208,7 @@ export class TelemetryService {
     const telemetryData = await this.getTelemetryData({
       robotId,
       organizationId,
-      limit: 100 // Get recent data points to reconstruct latest complete telemetry
+      limit: 100, // Get recent data points to reconstruct latest complete telemetry
     })
 
     return telemetryData.length > 0 ? telemetryData[0] : null
@@ -223,7 +231,7 @@ export class TelemetryService {
       [robotId]
     )
 
-    return result.rows.map(row => row.metric_name)
+    return result.rows.map((row: any) => row.metric_name)
   }
 
   /**
@@ -284,7 +292,7 @@ export class TelemetryService {
       params
     )
 
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       robotId: row.robot_id,
       metric,
       timeWindow,
@@ -297,19 +305,52 @@ export class TelemetryService {
   /**
    * Extract individual metrics from TelemetryData structure
    */
-  private extractMetrics(data: TelemetryData, robotId: string, timestamp: Date): any[] {
+  private extractMetrics(data: TelemetryData, _robotId: string, _timestamp: Date): any[] {
     const metrics: any[] = []
 
     // Position metrics
     if (data.position) {
       metrics.push(
-        { metric_name: 'position.x', value: data.position.x, unit: 'mm', metadata: { frame: data.position.frame } },
-        { metric_name: 'position.y', value: data.position.y, unit: 'mm', metadata: { frame: data.position.frame } },
-        { metric_name: 'position.z', value: data.position.z, unit: 'mm', metadata: { frame: data.position.frame } }
+        {
+          metric_name: 'position.x',
+          value: data.position.x,
+          unit: 'mm',
+          metadata: { frame: data.position.frame },
+        },
+        {
+          metric_name: 'position.y',
+          value: data.position.y,
+          unit: 'mm',
+          metadata: { frame: data.position.frame },
+        },
+        {
+          metric_name: 'position.z',
+          value: data.position.z,
+          unit: 'mm',
+          metadata: { frame: data.position.frame },
+        }
       )
-      if (data.position.rx !== undefined) metrics.push({ metric_name: 'position.rx', value: data.position.rx, unit: 'rad', metadata: {} })
-      if (data.position.ry !== undefined) metrics.push({ metric_name: 'position.ry', value: data.position.ry, unit: 'rad', metadata: {} })
-      if (data.position.rz !== undefined) metrics.push({ metric_name: 'position.rz', value: data.position.rz, unit: 'rad', metadata: {} })
+      if (data.position.rx !== undefined)
+        metrics.push({
+          metric_name: 'position.rx',
+          value: data.position.rx,
+          unit: 'rad',
+          metadata: {},
+        })
+      if (data.position.ry !== undefined)
+        metrics.push({
+          metric_name: 'position.ry',
+          value: data.position.ry,
+          unit: 'rad',
+          metadata: {},
+        })
+      if (data.position.rz !== undefined)
+        metrics.push({
+          metric_name: 'position.rz',
+          value: data.position.rz,
+          unit: 'rad',
+          metadata: {},
+        })
     }
 
     // Joint angles
@@ -318,7 +359,12 @@ export class TelemetryService {
         const jointKey = `joint${i}` as keyof typeof data.jointAngles
         const value = data.jointAngles[jointKey]
         if (value !== undefined) {
-          metrics.push({ metric_name: `joint.${i}.angle`, value, unit: data.jointAngles.unit, metadata: {} })
+          metrics.push({
+            metric_name: `joint.${i}.angle`,
+            value,
+            unit: data.jointAngles.unit,
+            metadata: {},
+          })
         }
       }
     }
@@ -326,29 +372,64 @@ export class TelemetryService {
     // Velocity metrics
     if (data.velocity?.linear) {
       metrics.push(
-        { metric_name: 'velocity.linear.x', value: data.velocity.linear.x, unit: data.velocity.linear.unit, metadata: {} },
-        { metric_name: 'velocity.linear.y', value: data.velocity.linear.y, unit: data.velocity.linear.unit, metadata: {} },
-        { metric_name: 'velocity.linear.z', value: data.velocity.linear.z, unit: data.velocity.linear.unit, metadata: {} }
+        {
+          metric_name: 'velocity.linear.x',
+          value: data.velocity.linear.x,
+          unit: data.velocity.linear.unit,
+          metadata: {},
+        },
+        {
+          metric_name: 'velocity.linear.y',
+          value: data.velocity.linear.y,
+          unit: data.velocity.linear.unit,
+          metadata: {},
+        },
+        {
+          metric_name: 'velocity.linear.z',
+          value: data.velocity.linear.z,
+          unit: data.velocity.linear.unit,
+          metadata: {},
+        }
       )
       if (data.velocity.linear.magnitude !== undefined) {
-        metrics.push({ metric_name: 'velocity.linear.magnitude', value: data.velocity.linear.magnitude, unit: data.velocity.linear.unit, metadata: {} })
+        metrics.push({
+          metric_name: 'velocity.linear.magnitude',
+          value: data.velocity.linear.magnitude,
+          unit: data.velocity.linear.unit,
+          metadata: {},
+        })
       }
     }
 
     // Temperature metrics
     if (data.temperature) {
       if (data.temperature.ambient !== undefined) {
-        metrics.push({ metric_name: 'temperature.ambient', value: data.temperature.ambient, unit: data.temperature.unit, metadata: {} })
+        metrics.push({
+          metric_name: 'temperature.ambient',
+          value: data.temperature.ambient,
+          unit: data.temperature.unit,
+          metadata: {},
+        })
       }
       if (data.temperature.controller !== undefined) {
-        metrics.push({ metric_name: 'temperature.controller', value: data.temperature.controller, unit: data.temperature.unit, metadata: {} })
+        metrics.push({
+          metric_name: 'temperature.controller',
+          value: data.temperature.controller,
+          unit: data.temperature.unit,
+          metadata: {},
+        })
       }
       if (data.temperature.motor) {
         for (let i = 1; i <= 8; i++) {
           const jointKey = `joint${i}` as keyof typeof data.temperature.motor
           const value = data.temperature.motor[jointKey]
           if (value !== undefined) {
-            metrics.push({ metric_name: `temperature.motor.joint${i}`, value, unit: data.temperature.unit, metadata: {} })
+            metrics.push({
+              metric_name: `temperature.motor.joint${i}`,
+              value,
+              unit: data.temperature.unit,
+              metadata: {},
+            })
           }
         }
       }
@@ -356,60 +437,145 @@ export class TelemetryService {
 
     // Power metrics
     if (data.voltage?.supply !== undefined) {
-      metrics.push({ metric_name: 'voltage.supply', value: data.voltage.supply, unit: data.voltage.unit, metadata: {} })
+      metrics.push({
+        metric_name: 'voltage.supply',
+        value: data.voltage.supply,
+        unit: data.voltage.unit,
+        metadata: {},
+      })
     }
     if (data.current?.total !== undefined) {
-      metrics.push({ metric_name: 'current.total', value: data.current.total, unit: data.current.unit, metadata: {} })
+      metrics.push({
+        metric_name: 'current.total',
+        value: data.current.total,
+        unit: data.current.unit,
+        metadata: {},
+      })
     }
     if (data.power?.total !== undefined) {
-      metrics.push({ metric_name: 'power.total', value: data.power.total, unit: data.power.unit, metadata: {} })
+      metrics.push({
+        metric_name: 'power.total',
+        value: data.power.total,
+        unit: data.power.unit,
+        metadata: {},
+      })
     }
 
     // Safety metrics
     if (data.safety) {
       metrics.push(
-        { metric_name: 'safety.emergency_stop', value: data.safety.emergencyStop ? 1 : 0, unit: 'bool', metadata: {} },
-        { metric_name: 'safety.protective_stop', value: data.safety.protectiveStop ? 1 : 0, unit: 'bool', metadata: {} },
-        { metric_name: 'safety.reduced_mode', value: data.safety.reducedMode ? 1 : 0, unit: 'bool', metadata: {} }
+        {
+          metric_name: 'safety.emergency_stop',
+          value: data.safety.emergencyStop ? 1 : 0,
+          unit: 'bool',
+          metadata: {},
+        },
+        {
+          metric_name: 'safety.protective_stop',
+          value: data.safety.protectiveStop ? 1 : 0,
+          unit: 'bool',
+          metadata: {},
+        },
+        {
+          metric_name: 'safety.reduced_mode',
+          value: data.safety.reducedMode ? 1 : 0,
+          unit: 'bool',
+          metadata: {},
+        }
       )
     }
 
     // GPS position metrics
     if (data.gpsPosition) {
       metrics.push(
-        { metric_name: 'gps.latitude', value: data.gpsPosition.latitude, unit: 'deg', metadata: { accuracy: data.gpsPosition.accuracy } },
-        { metric_name: 'gps.longitude', value: data.gpsPosition.longitude, unit: 'deg', metadata: { accuracy: data.gpsPosition.accuracy } }
+        {
+          metric_name: 'gps.latitude',
+          value: data.gpsPosition.latitude,
+          unit: 'deg',
+          metadata: { accuracy: data.gpsPosition.accuracy },
+        },
+        {
+          metric_name: 'gps.longitude',
+          value: data.gpsPosition.longitude,
+          unit: 'deg',
+          metadata: { accuracy: data.gpsPosition.accuracy },
+        }
       )
       if (data.gpsPosition.altitude !== undefined) {
-        metrics.push({ metric_name: 'gps.altitude', value: data.gpsPosition.altitude, unit: 'm', metadata: {} })
+        metrics.push({
+          metric_name: 'gps.altitude',
+          value: data.gpsPosition.altitude,
+          unit: 'm',
+          metadata: {},
+        })
       }
       if (data.gpsPosition.heading !== undefined) {
-        metrics.push({ metric_name: 'gps.heading', value: data.gpsPosition.heading, unit: 'deg', metadata: {} })
+        metrics.push({
+          metric_name: 'gps.heading',
+          value: data.gpsPosition.heading,
+          unit: 'deg',
+          metadata: {},
+        })
       }
       if (data.gpsPosition.speed !== undefined) {
-        metrics.push({ metric_name: 'gps.speed', value: data.gpsPosition.speed, unit: 'm/s', metadata: {} })
+        metrics.push({
+          metric_name: 'gps.speed',
+          value: data.gpsPosition.speed,
+          unit: 'm/s',
+          metadata: {},
+        })
       }
       if (data.gpsPosition.accuracy?.horizontal !== undefined) {
-        metrics.push({ metric_name: 'gps.accuracy.horizontal', value: data.gpsPosition.accuracy.horizontal, unit: 'm', metadata: {} })
+        metrics.push({
+          metric_name: 'gps.accuracy.horizontal',
+          value: data.gpsPosition.accuracy.horizontal,
+          unit: 'm',
+          metadata: {},
+        })
       }
       if (data.gpsPosition.satelliteCount !== undefined) {
-        metrics.push({ metric_name: 'gps.satellite_count', value: data.gpsPosition.satelliteCount, unit: 'count', metadata: {} })
+        metrics.push({
+          metric_name: 'gps.satellite_count',
+          value: data.gpsPosition.satelliteCount,
+          unit: 'count',
+          metadata: {},
+        })
       }
     }
 
     // Navigation metrics
     if (data.navigation) {
       if (data.navigation.pathDeviation !== undefined) {
-        metrics.push({ metric_name: 'navigation.path_deviation', value: data.navigation.pathDeviation, unit: 'm', metadata: {} })
+        metrics.push({
+          metric_name: 'navigation.path_deviation',
+          value: data.navigation.pathDeviation,
+          unit: 'm',
+          metadata: {},
+        })
       }
       if (data.navigation.estimatedTimeToTarget !== undefined) {
-        metrics.push({ metric_name: 'navigation.eta', value: data.navigation.estimatedTimeToTarget, unit: 's', metadata: {} })
+        metrics.push({
+          metric_name: 'navigation.eta',
+          value: data.navigation.estimatedTimeToTarget,
+          unit: 's',
+          metadata: {},
+        })
       }
       if (data.navigation.missionProgress !== undefined) {
-        metrics.push({ metric_name: 'navigation.mission_progress', value: data.navigation.missionProgress, unit: '%', metadata: {} })
+        metrics.push({
+          metric_name: 'navigation.mission_progress',
+          value: data.navigation.missionProgress,
+          unit: '%',
+          metadata: {},
+        })
       }
       if (data.navigation.obstacleDetected !== undefined) {
-        metrics.push({ metric_name: 'navigation.obstacle_detected', value: data.navigation.obstacleDetected ? 1 : 0, unit: 'bool', metadata: {} })
+        metrics.push({
+          metric_name: 'navigation.obstacle_detected',
+          value: data.navigation.obstacleDetected ? 1 : 0,
+          unit: 'bool',
+          metadata: {},
+        })
       }
     }
 
@@ -428,7 +594,13 @@ export class TelemetryService {
   /**
    * Add metric to TelemetryData structure for response reconstruction
    */
-  private addMetricToTelemetryData(data: TelemetryData, metricName: string, value: number, unit: string, metadata: any): void {
+  private addMetricToTelemetryData(
+    data: TelemetryData,
+    metricName: string,
+    value: number,
+    unit: string,
+    metadata: any
+  ): void {
     const parts = metricName.split('.')
 
     switch (parts[0]) {
@@ -470,14 +642,21 @@ export class TelemetryService {
         break
 
       case 'safety':
-        if (!data.safety) data.safety = { emergencyStop: false, protectiveStop: false, reducedMode: false, safetyZoneViolation: false }
+        if (!data.safety)
+          data.safety = {
+            emergencyStop: false,
+            protectiveStop: false,
+            reducedMode: false,
+            safetyZoneViolation: false,
+          }
         if (parts[1] === 'emergency_stop') data.safety.emergencyStop = value === 1
         else if (parts[1] === 'protective_stop') data.safety.protectiveStop = value === 1
         else if (parts[1] === 'reduced_mode') data.safety.reducedMode = value === 1
         break
 
       case 'gps':
-        if (!data.gpsPosition) data.gpsPosition = { latitude: 0, longitude: 0, timestamp: new Date() }
+        if (!data.gpsPosition)
+          data.gpsPosition = { latitude: 0, longitude: 0, timestamp: new Date() }
         if (parts[1] === 'latitude') data.gpsPosition.latitude = value
         else if (parts[1] === 'longitude') data.gpsPosition.longitude = value
         else if (parts[1] === 'altitude') data.gpsPosition.altitude = value
@@ -506,32 +685,44 @@ export class TelemetryService {
   }
 
   private async verifyRobotAccess(robotId: string, organizationId: string): Promise<boolean> {
-    const result = await query(
-      'SELECT 1 FROM robots WHERE id = $1 AND organization_id = $2',
-      [robotId, organizationId]
-    )
+    const result = await query('SELECT 1 FROM robots WHERE id = $1 AND organization_id = $2', [
+      robotId,
+      organizationId,
+    ])
     return result.rows.length > 0
   }
 
   private getAggregationFunction(aggregation: AggregationType): string {
     switch (aggregation) {
-      case 'avg': return 'AVG'
-      case 'min': return 'MIN'
-      case 'max': return 'MAX'
-      case 'sum': return 'SUM'
-      case 'count': return 'COUNT'
-      default: return 'AVG'
+      case 'avg':
+        return 'AVG'
+      case 'min':
+        return 'MIN'
+      case 'max':
+        return 'MAX'
+      case 'sum':
+        return 'SUM'
+      case 'count':
+        return 'COUNT'
+      default:
+        return 'AVG'
     }
   }
 
   private getTimeWindowInterval(timeWindow: TimeWindow): string {
     switch (timeWindow) {
-      case '1m': return '1 minute'
-      case '5m': return '5 minutes'
-      case '15m': return '15 minutes'
-      case '1h': return '1 hour'
-      case '1d': return '1 day'
-      default: return '1 hour'
+      case '1m':
+        return '1 minute'
+      case '5m':
+        return '5 minutes'
+      case '15m':
+        return '15 minutes'
+      case '1h':
+        return '1 hour'
+      case '1d':
+        return '1 day'
+      default:
+        return '1 hour'
     }
   }
 }

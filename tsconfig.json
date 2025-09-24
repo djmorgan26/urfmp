@@ -37,18 +37,6 @@
       "@web/*": ["web/src/*"]
     }
   },
-  "include": [
-    "packages/**/*",
-    "services/**/*",
-    "adapters/**/*",
-    "web/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "include": ["packages/**/*", "services/**/*", "adapters/**/*", "web/**/*"],
+  "exclude": ["node_modules", "dist", "build", "coverage", "**/*.spec.ts", "**/*.test.ts"]
 }

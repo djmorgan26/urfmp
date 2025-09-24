@@ -1,7 +1,14 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { AuthPayload, AuthToken, LoginRequest, LoginResponse, AuthUser, AuthOrganization } from '@urfmp/types'
+import {
+  AuthPayload,
+  AuthToken,
+  LoginRequest,
+  LoginResponse,
+  AuthUser,
+  AuthOrganization,
+} from '@urfmp/types'
 import { query } from '../config/database'
 import { cache } from '../config/redis'
 import { logger } from '../config/logger'
@@ -17,8 +24,11 @@ export class AuthService {
     this.jwtSecret = process.env.JWT_SECRET || 'development-secret-key'
     this.jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || 'development-refresh-secret-key'
 
-    if (process.env.NODE_ENV === 'production' &&
-        (this.jwtSecret === 'development-secret-key' || this.jwtRefreshSecret === 'development-refresh-secret-key')) {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      (this.jwtSecret === 'development-secret-key' ||
+        this.jwtRefreshSecret === 'development-refresh-secret-key')
+    ) {
       throw new Error('JWT secrets must be set in production environment')
     }
   }
@@ -64,9 +74,9 @@ export class AuthService {
     try {
       return jwt.verify(token, this.jwtSecret) as AuthPayload
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
+      if ((error as any).name === 'TokenExpiredError') {
         throw new UnauthorizedError('Access token expired')
-      } else if (error.name === 'JsonWebTokenError') {
+      } else if ((error as any).name === 'JsonWebTokenError') {
         throw new UnauthorizedError('Invalid access token')
       }
       throw error
@@ -80,9 +90,9 @@ export class AuthService {
     try {
       return jwt.verify(token, this.jwtRefreshSecret) as { sub: string; org: string; type: string }
     } catch (error) {
-      if (error.name === 'TokenExpiredError') {
+      if ((error as any).name === 'TokenExpiredError') {
         throw new UnauthorizedError('Refresh token expired')
-      } else if (error.name === 'JsonWebTokenError') {
+      } else if ((error as any).name === 'JsonWebTokenError') {
         throw new UnauthorizedError('Invalid refresh token')
       }
       throw error
@@ -125,7 +135,8 @@ export class AuthService {
     const userRow = result.rows[0]
 
     // Verify password (temporary simple check for testing)
-    const isValidPassword = password === userRow.password_hash || await bcrypt.compare(password, userRow.password_hash)
+    const isValidPassword =
+      password === userRow.password_hash || (await bcrypt.compare(password, userRow.password_hash))
     if (!isValidPassword) {
       throw new UnauthorizedError('Invalid email or password')
     }
@@ -184,13 +195,13 @@ export class AuthService {
 
       // Optionally, add token to blacklist for additional security
       if (refreshToken) {
-        const decoded = this.verifyRefreshToken(refreshToken)
+        this.verifyRefreshToken(refreshToken) // Validate token before blacklisting
         await cache.set(`blacklisted_token:${refreshToken}`, 'true', 7 * 24 * 60 * 60) // 7 days
       }
 
       logger.info('User logged out successfully', { userId })
     } catch (error) {
-      logger.error('Error during logout', { userId, error: error.message })
+      logger.error('Error during logout', { userId, error: (error as Error).message })
       throw error
     }
   }
@@ -332,10 +343,7 @@ export class AuthService {
     const normalizedEmail = email.toLowerCase()
 
     // Check if user already exists
-    const existingUser = await query(
-      'SELECT id FROM users WHERE email = $1',
-      [normalizedEmail]
-    )
+    const existingUser = await query('SELECT id FROM users WHERE email = $1', [normalizedEmail])
 
     if (existingUser.rows.length > 0) {
       throw new ValidationError('User with this email already exists')
@@ -349,10 +357,9 @@ export class AuthService {
       .substring(0, 50)
 
     // Check if organization slug already exists
-    const existingOrg = await query(
-      'SELECT id FROM organizations WHERE slug = $1',
-      [organizationSlug]
-    )
+    const existingOrg = await query('SELECT id FROM organizations WHERE slug = $1', [
+      organizationSlug,
+    ])
 
     let finalSlug = organizationSlug
     if (existingOrg.rows.length > 0) {
@@ -388,7 +395,21 @@ export class AuthService {
           lastName,
           'admin', // First user in organization is admin
           organization.id,
-          ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write', 'maintenance.view', 'maintenance.create', 'maintenance.update', 'user.view', 'user.create', 'organization.view', 'organization.update']
+          [
+            'robot.view',
+            'robot.create',
+            'robot.update',
+            'robot.delete',
+            'telemetry.view',
+            'telemetry.write',
+            'maintenance.view',
+            'maintenance.create',
+            'maintenance.update',
+            'user.view',
+            'user.create',
+            'organization.view',
+            'organization.update',
+          ],
         ]
       )
 
@@ -437,7 +458,7 @@ export class AuthService {
       await query('ROLLBACK')
       logger.error('User registration failed', {
         email: normalizedEmail,
-        error: error.message,
+        error: (error as Error).message,
       })
       throw error
     }

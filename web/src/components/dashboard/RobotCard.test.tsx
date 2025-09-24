@@ -14,7 +14,7 @@ vi.mock('../../hooks/useURFMP', () => ({
     error: null,
     refreshRobots: vi.fn(),
     sendCommand: vi.fn(),
-  })
+  }),
 }))
 
 // Mock robot data for testing
@@ -34,20 +34,18 @@ const mockRobot: Robot = {
   location: {
     facility: 'Test Factory',
     area: 'Production Floor',
-    cell: 'Line A'
+    cell: 'Line A',
   },
   configuration: {
     payload: 5.0,
     reach: 850,
     repeatability: 0.03,
-    joints: 6
-  }
+    joints: 6,
+  },
 }
 
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>
-    {children}
-  </BrowserRouter>
+  <BrowserRouter>{children}</BrowserRouter>
 )
 
 describe('RobotCard Component', () => {
@@ -85,7 +83,7 @@ describe('RobotCard Component', () => {
     const offlineRobot: Robot = {
       ...mockRobot,
       status: 'offline',
-      lastSeen: new Date(Date.now() - 300000) // 5 minutes ago
+      lastSeen: new Date(Date.now() - 300000), // 5 minutes ago
     }
 
     render(
@@ -111,7 +109,7 @@ describe('RobotCard Component', () => {
       updatedAt: new Date(),
       lastSeen: new Date(),
       firmwareVersion: '1.0.0',
-      capabilities: []
+      capabilities: [],
     }
 
     render(

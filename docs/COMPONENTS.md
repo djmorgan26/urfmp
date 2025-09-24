@@ -7,6 +7,7 @@ This document outlines the React component structure and design patterns used in
 ## Design System
 
 ### Theme System
+
 - **Colors**: CSS custom properties with light/dark theme support
 - **Typography**: Tailwind typography classes
 - **Spacing**: Tailwind spacing scale (0.25rem increments)
@@ -14,6 +15,7 @@ This document outlines the React component structure and design patterns used in
 - **Shadows**: Tailwind shadow utilities
 
 ### CSS Custom Properties
+
 ```css
 :root {
   --background: 0 0% 100%;
@@ -33,9 +35,11 @@ This document outlines the React component structure and design patterns used in
 ## Layout Components
 
 ### Layout (`components/layout/Layout.tsx`)
+
 Main application layout wrapper.
 
 **Features**:
+
 - Header with navigation and user controls
 - Sidebar navigation
 - Main content area
@@ -43,6 +47,7 @@ Main application layout wrapper.
 - Real-time connection status
 
 **Usage**:
+
 ```tsx
 <Layout>
   <Routes>
@@ -53,6 +58,7 @@ Main application layout wrapper.
 ```
 
 **Header Elements**:
+
 - Company logo and branding
 - Global search bar
 - Connection status indicator
@@ -62,6 +68,7 @@ Main application layout wrapper.
 - User profile menu
 
 **Sidebar Navigation**:
+
 - Dashboard
 - Robots
 - Analytics
@@ -71,11 +78,13 @@ Main application layout wrapper.
 ## Page Components
 
 ### Dashboard (`pages/Dashboard.tsx`)
+
 Main dashboard with fleet overview and metrics.
 
 **Current Status**: Basic layout with placeholder widgets
 
 **Planned Features**:
+
 - Fleet status summary cards
 - Real-time metrics charts
 - Recent activity feed
@@ -83,11 +92,13 @@ Main dashboard with fleet overview and metrics.
 - Performance indicators
 
 ### Robots (`pages/Robots.tsx`)
+
 Robot fleet management interface.
 
 **Current Status**: Basic layout
 
 **Planned Features**:
+
 - Robot list with filtering
 - Status indicators
 - Bulk operations
@@ -95,11 +106,13 @@ Robot fleet management interface.
 - Real-time status updates
 
 ### RobotDetail (`pages/RobotDetail.tsx`)
+
 Individual robot details and control interface.
 
 **Current Status**: Basic layout with status display
 
 **Features**:
+
 - Robot information display
 - Status visualization
 - Control buttons
@@ -107,11 +120,13 @@ Individual robot details and control interface.
 - Maintenance history
 
 ### Settings (`pages/Settings.tsx`)
+
 System configuration interface.
 
 **Current Status**: Complete with tabbed interface
 
 **Tabs**:
+
 - General (theme selection, organization settings)
 - Notifications (email, push preferences)
 - Security (2FA, session settings)
@@ -120,22 +135,26 @@ System configuration interface.
 - Database (retention, backup settings)
 
 ### Maintenance (`pages/Maintenance.tsx`)
+
 Maintenance task management.
 
 **Current Status**: Basic layout
 
 **Planned Features**:
+
 - Task scheduling
 - Maintenance history
 - Cost tracking
 - Calendar view
 
 ### Analytics (`pages/Analytics.tsx`)
+
 Performance analytics and reporting.
 
 **Current Status**: Basic layout
 
 **Planned Features**:
+
 - Performance charts
 - Usage statistics
 - Trend analysis
@@ -144,9 +163,11 @@ Performance analytics and reporting.
 ## Reusable Components
 
 ### RobotCard (`components/dashboard/RobotCard.tsx`)
+
 Card component for displaying robot information.
 
 **Props**:
+
 ```tsx
 interface RobotCardProps {
   robot: Robot
@@ -154,6 +175,7 @@ interface RobotCardProps {
 ```
 
 **Features**:
+
 - Status indicator with color coding
 - Robot name and model
 - Last seen timestamp
@@ -161,6 +183,7 @@ interface RobotCardProps {
 - Status-specific icon display
 
 **Status Configuration**:
+
 ```tsx
 const statusConfig = {
   online: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100' },
@@ -175,25 +198,25 @@ const statusConfig = {
 ## Utility Components
 
 ### cn (`utils/cn.ts`)
+
 Class name utility function for conditional styling.
 
 **Usage**:
+
 ```tsx
 import { cn } from '@/utils/cn'
 
-<div className={cn(
-  'base-classes',
-  condition && 'conditional-classes',
-  'always-applied'
-)} />
+;<div className={cn('base-classes', condition && 'conditional-classes', 'always-applied')} />
 ```
 
 ## Hooks
 
 ### useURFMP (`hooks/useURFMP.tsx`)
+
 Main application state management hook.
 
 **Features**:
+
 - Robot data management
 - WebSocket connection handling
 - Real-time updates
@@ -201,20 +224,24 @@ Main application state management hook.
 - Loading states
 
 **Usage**:
+
 ```tsx
 const { robots, isConnected, error, sendCommand, refreshRobots } = useURFMP()
 ```
 
 ### useTheme (`contexts/ThemeContext.tsx`)
+
 Theme management hook.
 
 **Features**:
+
 - Light/dark/system theme support
 - localStorage persistence
 - System preference detection
 - Real-time theme switching
 
 **Usage**:
+
 ```tsx
 const { theme, setTheme, isDark } = useTheme()
 ```
@@ -222,9 +249,11 @@ const { theme, setTheme, isDark } = useTheme()
 ## Icon System
 
 ### Lucide React Icons
+
 Consistent icon library used throughout the application.
 
 **Common Icons**:
+
 - `Activity` - Running/active states
 - `Bot` - Robot representation
 - `BarChart3` - Analytics
@@ -235,15 +264,17 @@ Consistent icon library used throughout the application.
 - `Search` - Search functionality
 
 **Usage**:
+
 ```tsx
 import { Activity, Bot } from 'lucide-react'
 
-<Activity className="h-5 w-5" />
+;<Activity className="h-5 w-5" />
 ```
 
 ## Styling Patterns
 
 ### Component Structure
+
 ```tsx
 // Base component with proper TypeScript
 interface ComponentProps {
@@ -251,24 +282,24 @@ interface ComponentProps {
 }
 
 export function Component({ prop }: ComponentProps) {
-  return (
-    <div className="component-container">
-      {/* Component content */}
-    </div>
-  )
+  return <div className="component-container">{/* Component content */}</div>
 }
 ```
 
 ### Conditional Styling
+
 ```tsx
-<div className={cn(
-  'base-classes',
-  isActive && 'active-classes',
-  variant === 'primary' && 'primary-classes'
-)} />
+<div
+  className={cn(
+    'base-classes',
+    isActive && 'active-classes',
+    variant === 'primary' && 'primary-classes'
+  )}
+/>
 ```
 
 ### State-based Styling
+
 ```tsx
 const statusClasses = {
   success: 'text-green-600 bg-green-100',
@@ -282,6 +313,7 @@ const statusClasses = {
 ## Responsive Design
 
 ### Breakpoints (Tailwind)
+
 - `sm`: 640px and up
 - `md`: 768px and up
 - `lg`: 1024px and up
@@ -289,13 +321,16 @@ const statusClasses = {
 - `2xl`: 1536px and up
 
 ### Mobile-First Approach
+
 ```tsx
-<div className="
+<div
+  className="
   grid grid-cols-1
   md:grid-cols-2
   lg:grid-cols-3
   xl:grid-cols-4
-">
+"
+>
   {/* Responsive grid */}
 </div>
 ```
@@ -303,6 +338,7 @@ const statusClasses = {
 ## Accessibility
 
 ### Best Practices
+
 - Semantic HTML elements
 - ARIA labels where needed
 - Keyboard navigation support
@@ -310,6 +346,7 @@ const statusClasses = {
 - Color contrast compliance
 
 ### Examples
+
 ```tsx
 <button
   aria-label="Toggle dark mode"
@@ -323,13 +360,13 @@ const statusClasses = {
 ## Animation & Transitions
 
 ### Tailwind Transitions
+
 ```tsx
-<div className="transition-colors duration-200 hover:bg-accent">
-  Hover me
-</div>
+<div className="transition-colors duration-200 hover:bg-accent">Hover me</div>
 ```
 
 ### Loading States
+
 ```tsx
 <div className="animate-pulse">
   <div className="h-4 bg-gray-200 rounded w-3/4"></div>
@@ -339,6 +376,7 @@ const statusClasses = {
 ## Form Components
 
 ### Input Patterns
+
 ```tsx
 <input
   type="text"
@@ -348,6 +386,7 @@ const statusClasses = {
 ```
 
 ### Select Patterns
+
 ```tsx
 <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
   <option value="option1">Option 1</option>
@@ -356,6 +395,7 @@ const statusClasses = {
 ```
 
 ### Button Patterns
+
 ```tsx
 // Primary button
 <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
@@ -371,6 +411,7 @@ const statusClasses = {
 ## Data Display Components
 
 ### Cards
+
 ```tsx
 <div className="bg-card rounded-lg border border-border p-6">
   <h3 className="text-lg font-semibold mb-4">Card Title</h3>
@@ -379,6 +420,7 @@ const statusClasses = {
 ```
 
 ### Tables
+
 ```tsx
 <div className="overflow-x-auto">
   <table className="w-full border-collapse">
@@ -399,6 +441,7 @@ const statusClasses = {
 ## Testing Patterns
 
 ### Component Testing
+
 ```tsx
 import { render, screen } from '@testing-library/react'
 import { Component } from './Component'
@@ -412,6 +455,7 @@ test('renders component correctly', () => {
 ## Performance Considerations
 
 ### Code Splitting
+
 ```tsx
 import { lazy, Suspense } from 'react'
 
@@ -423,6 +467,7 @@ const LazyComponent = lazy(() => import('./LazyComponent'))
 ```
 
 ### Memoization
+
 ```tsx
 import { memo, useMemo } from 'react'
 
@@ -438,6 +483,7 @@ const ExpensiveComponent = memo(({ data }) => {
 ## Future Components
 
 ### To Be Implemented
+
 - Loading spinners and skeletons
 - Modal and dialog components
 - Toast notification system
@@ -449,4 +495,4 @@ const ExpensiveComponent = memo(({ data }) => {
 
 ---
 
-*This component library will grow as new features are implemented*
+_This component library will grow as new features are implemented_

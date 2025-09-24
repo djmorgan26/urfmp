@@ -1,16 +1,20 @@
 # URFMP API Reference
 
 ## Base URL
+
 - **Development**: `http://localhost:3000`
 - **Production**: `https://api.urfmp.com` (when deployed)
 
 ## Authentication
 
 ### Development Mode
+
 When `NODE_ENV=development` and `DEV_MOCK_ROBOTS=true`, authentication is bypassed for easier development.
 
 ### Production Mode
+
 Requires JWT Bearer token in Authorization header:
+
 ```
 Authorization: Bearer <jwt_token>
 ```
@@ -20,9 +24,11 @@ Authorization: Bearer <jwt_token>
 ### Health Check
 
 #### `GET /health`
+
 System health check endpoint.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -67,9 +73,11 @@ System health check endpoint.
 ```
 
 #### `GET /health/live`
+
 Simple liveness probe for Kubernetes.
 
 **Response:**
+
 ```json
 {
   "status": "alive",
@@ -78,9 +86,11 @@ Simple liveness probe for Kubernetes.
 ```
 
 #### `GET /health/ready`
+
 Readiness probe - checks if service can handle requests.
 
 **Response:**
+
 ```json
 {
   "status": "ready",
@@ -91,11 +101,13 @@ Readiness probe - checks if service can handle requests.
 ### Authentication
 
 #### `POST /api/v1/auth/login`
+
 User login endpoint.
 
 **Status**: Mock implementation
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -104,6 +116,7 @@ User login endpoint.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -121,6 +134,7 @@ User login endpoint.
 ```
 
 #### `POST /api/v1/auth/logout`
+
 User logout endpoint.
 
 **Status**: Mock implementation
@@ -128,17 +142,20 @@ User logout endpoint.
 ### Robots
 
 #### `GET /api/v1/robots`
+
 List all robots in the organization.
 
 **Permissions Required**: `robot.view`
 
 **Query Parameters:**
+
 - `page` (optional): Page number for pagination
 - `limit` (optional): Number of items per page
 - `status` (optional): Filter by robot status
 - `vendor` (optional): Filter by robot vendor
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -184,31 +201,37 @@ List all robots in the organization.
 ### Robots (Continued)
 
 #### `POST /api/v1/robots`
+
 Create a new robot.
 
 **Permissions Required**: `robot.create`
 
 #### `GET /api/v1/robots/:id`
+
 Get specific robot details.
 
 **Permissions Required**: `robot.view`
 
 #### `PUT /api/v1/robots/:id`
+
 Update robot configuration.
 
 **Permissions Required**: `robot.update`
 
 #### `DELETE /api/v1/robots/:id`
+
 Remove robot from fleet.
 
 **Permissions Required**: `robot.delete`
 
 #### `POST /api/v1/robots/:id/commands`
+
 Send command to robot.
 
 **Permissions Required**: `robot.control`
 
 **Request Body:**
+
 ```json
 {
   "type": "start|stop|pause|resume|emergency_stop",
@@ -219,11 +242,13 @@ Send command to robot.
 ### Telemetry
 
 #### `GET /api/v1/robots/:id/telemetry`
+
 Get robot telemetry data.
 
 **Permissions Required**: `telemetry.view`
 
 #### `POST /api/v1/robots/:id/telemetry`
+
 Submit telemetry data (typically used by adapters).
 
 **Permissions Required**: `telemetry.write`
@@ -231,48 +256,61 @@ Submit telemetry data (typically used by adapters).
 ### Maintenance
 
 #### `GET /api/v1/maintenance`
+
 List maintenance tasks.
 
 #### `POST /api/v1/maintenance`
+
 Schedule maintenance task.
 
 #### `GET /api/v1/maintenance/:id`
+
 Get maintenance task details.
 
 #### `PUT /api/v1/maintenance/:id`
+
 Update maintenance task.
 
 ### Alerts
 
 #### `GET /api/v1/alerts`
+
 List system alerts.
 
 #### `POST /api/v1/alerts`
+
 Create new alert.
 
 #### `PUT /api/v1/alerts/:id/acknowledge`
+
 Acknowledge alert.
 
 ### Analytics
 
 #### `GET /api/v1/analytics/performance`
+
 Get performance analytics.
 
 #### `GET /api/v1/analytics/usage`
+
 Get usage statistics.
 
 ### Users & Organizations
 
 #### `GET /api/v1/users`
+
 List organization users.
 
 #### `POST /api/v1/users`
+
 Invite new user.
 
 #### `GET /api/v1/organization`
+
 Get organization details.
 
 #### `PUT /api/v1/organization`
+
 Update organization settings.
 
 ## Standard Response Format
@@ -310,20 +348,24 @@ All API responses follow this structure:
 ## Error Codes
 
 ### Authentication Errors
+
 - `UNAUTHORIZED` - Missing or invalid token
 - `FORBIDDEN` - Insufficient permissions
 - `TOKEN_EXPIRED` - JWT token has expired
 
 ### Validation Errors
+
 - `VALIDATION_ERROR` - Request validation failed
 - `INVALID_INPUT` - Invalid input parameters
 
 ### Resource Errors
+
 - `NOT_FOUND` - Resource not found
 - `ALREADY_EXISTS` - Resource already exists
 - `CONFLICT` - Resource conflict
 
 ### System Errors
+
 - `INTERNAL_SERVER_ERROR` - Unexpected server error
 - `SERVICE_UNAVAILABLE` - Service temporarily unavailable
 - `RATE_LIMITED` - Too many requests
@@ -331,14 +373,17 @@ All API responses follow this structure:
 ## Rate Limiting
 
 ### Development Mode
+
 Rate limiting is relaxed for development.
 
 ### Production Limits
+
 - **Authenticated requests**: 1000 requests per hour per user
 - **Unauthenticated requests**: 100 requests per hour per IP
 - **Telemetry endpoints**: 10,000 requests per hour per robot
 
 Rate limit headers included in response:
+
 ```
 X-RateLimit-Limit: 1000
 X-RateLimit-Remaining: 999
@@ -348,12 +393,15 @@ X-RateLimit-Reset: 1640995200
 ## WebSocket API
 
 ### Connection
+
 ```javascript
-const ws = new WebSocket('ws://localhost:3000/ws');
+const ws = new WebSocket('ws://localhost:3000/ws')
 ```
 
 ### Authentication
+
 Send JWT token after connection:
+
 ```json
 {
   "type": "auth",
@@ -362,7 +410,9 @@ Send JWT token after connection:
 ```
 
 ### Subscription
+
 Subscribe to robot events:
+
 ```json
 {
   "type": "subscribe",
@@ -372,6 +422,7 @@ Subscribe to robot events:
 ```
 
 ### Event Messages
+
 ```json
 {
   "id": "event-id",
@@ -389,40 +440,43 @@ Subscribe to robot events:
 ## SDK Usage
 
 ### Installation
+
 ```bash
 npm install @urfmp/sdk
 ```
 
 ### Basic Usage
+
 ```typescript
-import { URFMP } from '@urfmp/sdk';
+import { URFMP } from '@urfmp/sdk'
 
 const client = new URFMP({
   apiUrl: 'http://localhost:3000',
-  apiKey: 'your-api-key'
-});
+  apiKey: 'your-api-key',
+})
 
 // List robots
-const robots = await client.getRobots();
+const robots = await client.getRobots()
 
 // Get specific robot
-const robot = await client.getRobot('robot-id');
+const robot = await client.getRobot('robot-id')
 
 // Send command
 await client.sendCommand('robot-id', {
   type: 'start',
-  payload: {}
-});
+  payload: {},
+})
 
 // Subscribe to events
 client.on('robot:status', (data) => {
-  console.log('Robot status changed:', data);
-});
+  console.log('Robot status changed:', data)
+})
 ```
 
 ## Testing
 
 ### Using cURL
+
 ```bash
 # Health check
 curl http://localhost:3000/health
@@ -436,8 +490,9 @@ curl -H "Authorization: Bearer <token>" \
 ```
 
 ### Using Postman
+
 Import the Swagger documentation from `http://localhost:3000/docs` when available.
 
 ---
 
-*This documentation will be updated as new endpoints are implemented*
+_This documentation will be updated as new endpoints are implemented_

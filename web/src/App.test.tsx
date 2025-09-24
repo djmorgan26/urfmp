@@ -7,9 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 // Mock the theme context for testing
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>
-    <ThemeProvider>
-      {children}
-    </ThemeProvider>
+    <ThemeProvider>{children}</ThemeProvider>
   </BrowserRouter>
 )
 

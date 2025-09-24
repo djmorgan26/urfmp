@@ -34,7 +34,7 @@ const results = {
   lint: false,
   test: false,
   build: false,
-  startTime: Date.now()
+  startTime: Date.now(),
 }
 
 function runCommand(command, description, exitCode = 1) {
@@ -45,7 +45,7 @@ function runCommand(command, description, exitCode = 1) {
     const output = execSync(command, {
       stdio: isCI ? 'pipe' : 'inherit',
       encoding: 'utf8',
-      timeout: 300000 // 5 minutes timeout
+      timeout: 300000, // 5 minutes timeout
     })
 
     console.log(`✅ ${description} - PASSED`)
@@ -73,7 +73,7 @@ function validateEnvironment() {
   console.log(`Package: ${packageJson.name}@${packageJson.version}`)
 
   const requiredScripts = ['test', 'typecheck', 'lint', 'build']
-  const missingScripts = requiredScripts.filter(script => !packageJson.scripts[script])
+  const missingScripts = requiredScripts.filter((script) => !packageJson.scripts[script])
 
   if (missingScripts.length > 0) {
     console.log(`❌ Missing required scripts: ${missingScripts.join(', ')}`)
@@ -85,7 +85,7 @@ function validateEnvironment() {
 
 function printSummary() {
   const duration = Math.round((Date.now() - results.startTime) / 1000)
-  const passed = Object.values(results).filter(r => r === true).length
+  const passed = Object.values(results).filter((r) => r === true).length
   const total = Object.keys(results).length - 1 // Exclude startTime
 
   console.log('\n' + '=' * 50)
@@ -128,9 +128,7 @@ function main() {
   }
 
   // 3. Unit Tests
-  const testCommand = coverage || isCI
-    ? 'npx vitest run --coverage'
-    : 'npx vitest run'
+  const testCommand = coverage || isCI ? 'npx vitest run --coverage' : 'npx vitest run'
   results.test = runCommand(testCommand, 'Unit Tests', 1)
 
   // 4. Production Build (skip TypeScript checking for CI)
@@ -145,14 +143,10 @@ function main() {
     runCommand('ls -la dist/ || ls -la build/', 'Bundle Size Check', 2)
 
     // Validate critical files exist
-    const criticalFiles = [
-      'dist/index.html',
-      'dist/assets/',
-      'package.json'
-    ]
+    const criticalFiles = ['dist/index.html', 'dist/assets/', 'package.json']
 
     console.log('\n📁 Validating critical files...')
-    criticalFiles.forEach(file => {
+    criticalFiles.forEach((file) => {
       try {
         execSync(`test -e ${file}`, { stdio: 'ignore' })
         console.log(`✅ ${file} exists`)

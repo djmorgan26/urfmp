@@ -1,12 +1,38 @@
 // Robot types
 export * from './robot'
-export type { Robot, RobotCommand, RobotStatus, RobotVendor, RobotCapability, RobotLocation, RobotConfiguration } from './robot'
-export { CommandPriority, CommandStatus, RobotCommandType } from './robot'
+export type {
+  Robot,
+  RobotCommand,
+  RobotStatus,
+  RobotCapability,
+  RobotLocation,
+  RobotConfiguration,
+} from './robot'
+export { CommandPriority, CommandStatus, RobotCommandType, RobotVendor } from './robot'
 
 // Telemetry types
-export type { TelemetryData, RobotTelemetry, TelemetryMetadata } from './telemetry'
+export type {
+  TelemetryData,
+  RobotTelemetry,
+  TelemetryMetadata,
+  TelemetryAggregation,
+} from './telemetry'
 
-export { AngleUnit, ForceUnit, TemperatureUnit, TorqueUnit, VelocityUnit } from './telemetry'
+export {
+  AngleUnit,
+  ForceUnit,
+  TemperatureUnit,
+  TorqueUnit,
+  VelocityUnit,
+  AngularVelocityUnit,
+  VoltageUnit,
+  CurrentUnit,
+  CoordinateFrame,
+  TelemetrySource,
+  DataQuality,
+  TimeWindow,
+  AggregationType,
+} from './telemetry'
 
 // Organization types
 export * from './organization'
@@ -18,7 +44,14 @@ export * from './user'
 export * from './auth'
 
 // API types
-export type { ApiResponse, ApiError, HealthCheck, ServiceHealth } from './api'
+export type {
+  ApiResponse,
+  ApiError,
+  HealthCheck,
+  ServiceHealth,
+  PaginationOptions,
+  PaginationResult,
+} from './api'
 
 export { SortOrder, HealthStatus } from './api'
 export type { ValidationError } from './api'

@@ -14,6 +14,7 @@ This document outlines security best practices for the URFMP project.
 ### ⚠️ Action Required for Production
 
 1. **Generate Secure JWT Secrets**
+
    ```bash
    # Generate a secure JWT secret
    openssl rand -base64 32
@@ -26,6 +27,7 @@ This document outlines security best practices for the URFMP project.
    - Generate real API keys from vendor portals
 
 3. **Database Security**
+
    ```bash
    # ❌ NEVER use this in production:
    DATABASE_URL=postgresql://username:CHANGE_ME_PASSWORD@localhost:5432/urfmp
@@ -33,6 +35,7 @@ This document outlines security best practices for the URFMP project.
    # ✅ Use strong credentials:
    DATABASE_URL=postgresql://myuser:SecureP@ssw0rd123@localhost:5432/urfmp_prod
    ```
+
    - Change default database passwords
    - Use strong passwords (minimum 16 characters)
    - Consider using environment-specific database names
@@ -71,6 +74,7 @@ This document outlines security best practices for the URFMP project.
 ## 🔧 Environment Variables
 
 ### Required for Security
+
 ```bash
 # Critical - Generate with: openssl rand -base64 32
 JWT_SECRET=<your-secure-jwt-secret>
@@ -91,11 +95,13 @@ SMTP_PASSWORD=<real-smtp-password>
 ### Development vs Production
 
 **Development:**
+
 - Use `.env` for local secrets
 - Use mock/test API keys when possible
 - Use local database with test data
 
 **Production:**
+
 - Use secure secret management (AWS Secrets Manager, Azure Key Vault, etc.)
 - Never log secrets
 - Use environment-specific configurations
@@ -104,6 +110,7 @@ SMTP_PASSWORD=<real-smtp-password>
 ## 🛡️ Code Security
 
 ### Current Implementation
+
 - ✅ Environment variables for all secrets
 - ✅ JWT tokens for authentication
 - ✅ API key middleware for external access
@@ -112,6 +119,7 @@ SMTP_PASSWORD=<real-smtp-password>
 - ✅ Input validation middleware
 
 ### Additional Recommendations
+
 - Use HTTPS in production
 - Implement Content Security Policy (CSP)
 - Add security headers middleware
@@ -131,15 +139,18 @@ If you discover a security vulnerability:
 ## 🔄 Regular Security Tasks
 
 ### Weekly
+
 - [ ] Review access logs for anomalies
 - [ ] Check for dependency security updates
 
 ### Monthly
+
 - [ ] Rotate development secrets
 - [ ] Review user access permissions
 - [ ] Update security dependencies
 
 ### Quarterly
+
 - [ ] Security audit of codebase
 - [ ] Review and update security policies
 - [ ] Test incident response procedures

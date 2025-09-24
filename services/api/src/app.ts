@@ -43,7 +43,14 @@ app.use(
     origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3001'],
     credentials: process.env.CORS_CREDENTIALS === 'true',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Trace-ID', 'X-Request-ID', 'User-Agent'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-API-Key',
+      'X-Trace-ID',
+      'X-Request-ID',
+      'User-Agent',
+    ],
   })
 )
 

@@ -95,7 +95,7 @@ export class RobotService {
       [...params, limit, offset]
     )
 
-    const robots: Robot[] = robotsResult.rows.map(row => ({
+    const robots: Robot[] = robotsResult.rows.map((row: any) => ({
       id: row.id,
       organizationId: row.organization_id,
       name: row.name,
@@ -190,7 +190,9 @@ export class RobotService {
     )
 
     if (existingRobot.rows.length > 0) {
-      throw new ValidationError('A robot with this serial number already exists in your organization')
+      throw new ValidationError(
+        'A robot with this serial number already exists in your organization'
+      )
     }
 
     try {
@@ -246,7 +248,7 @@ export class RobotService {
       logger.error('Failed to create robot', {
         organizationId,
         robotData,
-        error: error.message,
+        error: (error as Error).message,
       })
       throw error
     }
@@ -381,12 +383,12 @@ export class RobotService {
           oldStatus: existingRobot.status,
           newStatus: updateData.status,
           robot,
-          timestamp: new Date()
+          timestamp: new Date(),
         })
       } catch (error) {
         logger.warn('Failed to broadcast robot status change', {
           robotId,
-          error: error.message
+          error: (error as Error).message,
         })
       }
     }
@@ -404,10 +406,10 @@ export class RobotService {
    * Delete a robot
    */
   async deleteRobot(robotId: string, organizationId: string): Promise<void> {
-    const result = await query(
-      'DELETE FROM robots WHERE id = $1 AND organization_id = $2',
-      [robotId, organizationId]
-    )
+    const result = await query('DELETE FROM robots WHERE id = $1 AND organization_id = $2', [
+      robotId,
+      organizationId,
+    ])
 
     if (result.rowCount === 0) {
       throw new NotFoundError('Robot not found')

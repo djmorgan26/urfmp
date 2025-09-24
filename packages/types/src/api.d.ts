@@ -1,201 +1,201 @@
 export interface ApiResponse<T = any> {
-    success: boolean;
-    data?: T;
-    error?: ApiError;
-    pagination?: PaginationInfo;
-    metadata?: ResponseMetadata;
+  success: boolean
+  data?: T
+  error?: ApiError
+  pagination?: PaginationInfo
+  metadata?: ResponseMetadata
 }
 export interface ApiError {
-    code: string;
-    message: string;
-    details?: Record<string, any>;
-    traceId?: string;
-    timestamp: Date;
+  code: string
+  message: string
+  details?: Record<string, any>
+  traceId?: string
+  timestamp: Date
 }
 export interface PaginationInfo {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 export interface ResponseMetadata {
-    requestId: string;
-    timestamp: Date;
-    version: string;
-    executionTime?: number;
+  requestId: string
+  timestamp: Date
+  version: string
+  executionTime?: number
 }
 export interface ListRequest {
-    page?: number;
-    limit?: number;
-    sort?: string;
-    order?: SortOrder;
-    filter?: Record<string, any>;
-    search?: string;
+  page?: number
+  limit?: number
+  sort?: string
+  order?: SortOrder
+  filter?: Record<string, any>
+  search?: string
 }
 export declare enum SortOrder {
-    ASC = "asc",
-    DESC = "desc"
+  ASC = 'asc',
+  DESC = 'desc',
 }
 export interface BulkOperation<T> {
-    operation: BulkOperationType;
-    items: T[];
-    options?: BulkOperationOptions;
+  operation: BulkOperationType
+  items: T[]
+  options?: BulkOperationOptions
 }
 export declare enum BulkOperationType {
-    CREATE = "create",
-    UPDATE = "update",
-    DELETE = "delete",
-    UPSERT = "upsert"
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  UPSERT = 'upsert',
 }
 export interface BulkOperationOptions {
-    continueOnError?: boolean;
-    batchSize?: number;
-    validateBeforeExecution?: boolean;
+  continueOnError?: boolean
+  batchSize?: number
+  validateBeforeExecution?: boolean
 }
 export interface BulkOperationResult<T> {
-    successful: T[];
-    failed: BulkOperationError[];
-    summary: BulkOperationSummary;
+  successful: T[]
+  failed: BulkOperationError[]
+  summary: BulkOperationSummary
 }
 export interface BulkOperationError {
-    item: any;
-    error: ApiError;
-    index: number;
+  item: any
+  error: ApiError
+  index: number
 }
 export interface BulkOperationSummary {
-    total: number;
-    successful: number;
-    failed: number;
-    skipped: number;
-    executionTime: number;
+  total: number
+  successful: number
+  failed: number
+  skipped: number
+  executionTime: number
 }
 export interface HealthCheck {
-    status: HealthStatus;
-    checks: ServiceHealth[];
-    timestamp: Date;
-    version: string;
-    uptime: number;
+  status: HealthStatus
+  checks: ServiceHealth[]
+  timestamp: Date
+  version: string
+  uptime: number
 }
 export declare enum HealthStatus {
-    HEALTHY = "healthy",
-    DEGRADED = "degraded",
-    UNHEALTHY = "unhealthy"
+  HEALTHY = 'healthy',
+  DEGRADED = 'degraded',
+  UNHEALTHY = 'unhealthy',
 }
 export interface ServiceHealth {
-    name: string;
-    status: HealthStatus;
-    message?: string;
-    responseTime?: number;
-    details?: Record<string, any>;
+  name: string
+  status: HealthStatus
+  message?: string
+  responseTime?: number
+  details?: Record<string, any>
 }
 export interface ApiMetrics {
-    requestsPerSecond: number;
-    averageResponseTime: number;
-    errorRate: number;
-    activeConnections: number;
-    uptime: number;
-    memoryUsage: MemoryUsage;
-    cpuUsage: number;
+  requestsPerSecond: number
+  averageResponseTime: number
+  errorRate: number
+  activeConnections: number
+  uptime: number
+  memoryUsage: MemoryUsage
+  cpuUsage: number
 }
 export interface MemoryUsage {
-    used: number;
-    total: number;
-    percentage: number;
+  used: number
+  total: number
+  percentage: number
 }
 export interface RateLimitInfo {
-    limit: number;
-    remaining: number;
-    reset: Date;
-    retryAfter?: number;
+  limit: number
+  remaining: number
+  reset: Date
+  retryAfter?: number
 }
 export interface ValidationError {
-    field: string;
-    message: string;
-    code: string;
-    value?: any;
+  field: string
+  message: string
+  code: string
+  value?: any
 }
 export interface FileUpload {
-    fieldName: string;
-    originalName: string;
-    encoding: string;
-    mimetype: string;
-    size: number;
-    destination: string;
-    filename: string;
-    path: string;
+  fieldName: string
+  originalName: string
+  encoding: string
+  mimetype: string
+  size: number
+  destination: string
+  filename: string
+  path: string
 }
 export interface ExportRequest {
-    format: ExportFormat;
-    filters?: Record<string, any>;
-    fields?: string[];
-    dateRange?: DateRange;
-    options?: ExportOptions;
+  format: ExportFormat
+  filters?: Record<string, any>
+  fields?: string[]
+  dateRange?: DateRange
+  options?: ExportOptions
 }
 export declare enum ExportFormat {
-    CSV = "csv",
-    JSON = "json",
-    XLSX = "xlsx",
-    PDF = "pdf",
-    XML = "xml"
+  CSV = 'csv',
+  JSON = 'json',
+  XLSX = 'xlsx',
+  PDF = 'pdf',
+  XML = 'xml',
 }
 export interface DateRange {
-    start: Date;
-    end: Date;
+  start: Date
+  end: Date
 }
 export interface ExportOptions {
-    includeHeaders?: boolean;
-    delimiter?: string;
-    encoding?: string;
-    compression?: boolean;
-    password?: string;
+  includeHeaders?: boolean
+  delimiter?: string
+  encoding?: string
+  compression?: boolean
+  password?: string
 }
 export interface ImportRequest {
-    file: FileUpload;
-    format: ImportFormat;
-    options?: ImportOptions;
-    mapping?: FieldMapping[];
+  file: FileUpload
+  format: ImportFormat
+  options?: ImportOptions
+  mapping?: FieldMapping[]
 }
 export declare enum ImportFormat {
-    CSV = "csv",
-    JSON = "json",
-    XLSX = "xlsx",
-    XML = "xml"
+  CSV = 'csv',
+  JSON = 'json',
+  XLSX = 'xlsx',
+  XML = 'xml',
 }
 export interface ImportOptions {
-    skipFirstRow?: boolean;
-    delimiter?: string;
-    encoding?: string;
-    validateOnly?: boolean;
-    updateExisting?: boolean;
-    batchSize?: number;
+  skipFirstRow?: boolean
+  delimiter?: string
+  encoding?: string
+  validateOnly?: boolean
+  updateExisting?: boolean
+  batchSize?: number
 }
 export interface FieldMapping {
-    sourceField: string;
-    targetField: string;
-    transform?: string;
-    required?: boolean;
-    defaultValue?: any;
+  sourceField: string
+  targetField: string
+  transform?: string
+  required?: boolean
+  defaultValue?: any
 }
 export interface ImportResult {
-    totalRows: number;
-    successfulRows: number;
-    failedRows: number;
-    errors: ImportError[];
-    summary: ImportSummary;
+  totalRows: number
+  successfulRows: number
+  failedRows: number
+  errors: ImportError[]
+  summary: ImportSummary
 }
 export interface ImportError {
-    row: number;
-    field?: string;
-    message: string;
-    value?: any;
+  row: number
+  field?: string
+  message: string
+  value?: any
 }
 export interface ImportSummary {
-    created: number;
-    updated: number;
-    skipped: number;
-    duplicates: number;
-    executionTime: number;
+  created: number
+  updated: number
+  skipped: number
+  duplicates: number
+  executionTime: number
 }
 //# sourceMappingURL=api.d.ts.map

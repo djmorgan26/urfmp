@@ -116,22 +116,31 @@ export class URFMP {
     return response.data.data!
   }
 
-  async updateRobot(robotId: string, robotData: {
-    name?: string
-    vendor?: string
-    model?: string
-    serialNumber?: string
-    firmwareVersion?: string
-    status?: string
-    location?: Record<string, any>
-    configuration?: Record<string, any>
-  }): Promise<Robot> {
-    const response = await this.client.put<ApiResponse<Robot>>(`/api/v1/robots/${robotId}`, robotData)
+  async updateRobot(
+    robotId: string,
+    robotData: {
+      name?: string
+      vendor?: string
+      model?: string
+      serialNumber?: string
+      firmwareVersion?: string
+      status?: string
+      location?: Record<string, any>
+      configuration?: Record<string, any>
+    }
+  ): Promise<Robot> {
+    const response = await this.client.put<ApiResponse<Robot>>(
+      `/api/v1/robots/${robotId}`,
+      robotData
+    )
     return response.data.data!
   }
 
   async sendTelemetry(robotId: string, data: any): Promise<RobotTelemetry> {
-    const response = await this.client.post<ApiResponse<RobotTelemetry>>(`/api/v1/telemetry/${robotId}`, { data })
+    const response = await this.client.post<ApiResponse<RobotTelemetry>>(
+      `/api/v1/telemetry/${robotId}`,
+      { data }
+    )
     return response.data.data!
   }
 
@@ -142,12 +151,15 @@ export class URFMP {
     return response.data.data!
   }
 
-  async getTelemetryHistory(robotId: string, options: {
-    metric?: string
-    from?: Date
-    to?: Date
-    limit?: number
-  } = {}): Promise<RobotTelemetry[]> {
+  async getTelemetryHistory(
+    robotId: string,
+    options: {
+      metric?: string
+      from?: Date
+      to?: Date
+      limit?: number
+    } = {}
+  ): Promise<RobotTelemetry[]> {
     const params = new URLSearchParams()
     if (options.metric) params.append('metric', options.metric)
     if (options.from) params.append('from', options.from.toISOString())
@@ -201,7 +213,9 @@ export class URFMP {
   async connectWebSocket(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.websocket = new WebSocketImpl(`${this.config.websocketUrl}?token=${this.config.apiKey}`)
+        this.websocket = new WebSocketImpl(
+          `${this.config.websocketUrl}?token=${this.config.apiKey}`
+        )
 
         // Handle both browser WebSocket and Node.js ws package
         if (typeof window !== 'undefined') {
@@ -284,7 +298,8 @@ export class URFMP {
   }
 
   subscribe(channel: string): void {
-    if (this.websocket && this.websocket.readyState === 1) { // WebSocket.OPEN = 1
+    if (this.websocket && this.websocket.readyState === 1) {
+      // WebSocket.OPEN = 1
       this.websocket.send(
         JSON.stringify({
           type: WebSocketMessageType.SUBSCRIPTION,

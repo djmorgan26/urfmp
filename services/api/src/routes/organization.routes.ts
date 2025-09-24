@@ -8,7 +8,7 @@ const router = Router()
 router.get(
   '/',
   requirePermission(Permission.ORG_VIEW),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const response: ApiResponse = {
       success: true,
       data: { message: 'Organization endpoints - implementation pending' },

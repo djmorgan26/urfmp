@@ -5,6 +5,7 @@ import {
   VendorConnectionConfig,
   VendorConnection,
   RobotCommand,
+  RobotCommandType,
   CommandResult,
   RobotTelemetry,
   RobotInfo,
@@ -13,8 +14,19 @@ import {
   ValidationResult,
   VendorFeatures,
   ConnectionStatus,
-  RobotStatus,
-  RobotCapability,
+  CoordinateFrame,
+  AngleUnit,
+  VelocityUnit,
+  AngularVelocityUnit,
+  ForceUnit,
+  TorqueUnit,
+  TemperatureUnit,
+  VoltageUnit,
+  CurrentUnit,
+  TelemetrySource,
+  DataQuality,
+  type RobotStatus,
+  type RobotCapability,
 } from '@urfmp/types'
 
 import { URDashboardClient } from './dashboard-client'
@@ -73,7 +85,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       return connection
     } catch (error) {
       connection.status = ConnectionStatus.ERROR
-      throw new Error(`Failed to connect to Universal Robot: ${error.message}`)
+      throw new Error(`Failed to connect to Universal Robot: ${(error as Error).message}`)
     }
   }
 
@@ -99,7 +111,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
 
       console.log(`✅ Disconnected from Universal Robot (${connectionId})`)
     } catch (error) {
-      console.error(`Error disconnecting from Universal Robot: ${error.message}`)
+      console.error(`Error disconnecting from Universal Robot: ${(error as Error).message}`)
       throw error
     }
   }
@@ -116,38 +128,38 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       let result: any
 
       switch (command.type) {
-        case 'START':
+        case RobotCommandType.START:
           result = await this.dashboardClient.play()
           break
 
-        case 'STOP':
+        case RobotCommandType.STOP:
           result = await this.dashboardClient.stop()
           break
 
-        case 'PAUSE':
+        case RobotCommandType.PAUSE:
           result = await this.dashboardClient.pause()
           break
 
-        case 'RESUME':
+        case RobotCommandType.RESUME:
           result = await this.dashboardClient.play()
           break
 
-        case 'EMERGENCY_STOP':
+        case RobotCommandType.EMERGENCY_STOP:
           result = await this.dashboardClient.emergencyStop()
           break
 
-        case 'RESET':
+        case RobotCommandType.RESET:
           result = await this.dashboardClient.unlockProtectiveStop()
           break
 
-        case 'MOVE_TO_POSITION':
+        case RobotCommandType.MOVE_TO_POSITION:
           if (!command.payload?.position) {
             throw new Error('Position is required for MOVE_TO_POSITION command')
           }
           result = await this.dashboardClient.moveToPosition(command.payload.position)
           break
 
-        case 'RUN_PROGRAM':
+        case RobotCommandType.RUN_PROGRAM:
           if (!command.payload?.programName) {
             throw new Error('Program name is required for RUN_PROGRAM command')
           }
@@ -157,7 +169,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
           }
           break
 
-        case 'SET_SPEED':
+        case RobotCommandType.SET_SPEED:
           if (!command.payload?.speed) {
             throw new Error('Speed is required for SET_SPEED command')
           }
@@ -183,7 +195,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       return {
         success: false,
         commandId: command.id || `cmd-${Date.now()}`,
-        error: error.message,
+        error: (error as Error).message,
         executionTime,
         timestamp: new Date(),
       }
@@ -200,7 +212,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       const robotState = await this.realTimeClient.getRobotState()
       return this.convertToStandardTelemetry(connection.robotId, robotState)
     } catch (error) {
-      throw new Error(`Failed to get telemetry: ${error.message}`)
+      throw new Error(`Failed to get telemetry: ${(error as Error).message}`)
     }
   }
 
@@ -222,12 +234,15 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
         manufacturer: 'Universal Robots',
         capabilities: this.getCapabilities(robotInfo.model),
         specifications: this.getSpecifications(robotInfo.model),
-        status: this.mapRobotStatus(robotInfo.robotMode, safetyInfo.safetyMode),
+        status: this.mapRobotStatus(
+          Number(robotInfo.robotMode) || 0,
+          Number(safetyInfo.safetyMode) || 0
+        ),
         lastMaintenance: robotInfo.lastMaintenance,
         nextMaintenance: robotInfo.nextMaintenance,
       }
     } catch (error) {
-      throw new Error(`Failed to get robot info: ${error.message}`)
+      throw new Error(`Failed to get robot info: ${(error as Error).message}`)
     }
   }
 
@@ -244,9 +259,16 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
 
     const subscription: EventSubscription = {
       id: subscriptionId,
+      userId: '',
+      organizationId: '',
+      name: `UR Events ${connectionId}`,
+      filter: { types: [] },
+      channels: [],
+      enabled: true,
       connectionId,
-      callback,
       active: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     }
 
     // Set up real-time data streaming
@@ -346,7 +368,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
           rx: robotState.tool_vector_actual[3],
           ry: robotState.tool_vector_actual[4],
           rz: robotState.tool_vector_actual[5],
-          frame: 'base',
+          frame: CoordinateFrame.BASE,
         },
         jointAngles: {
           joint1: robotState.q_actual[0],
@@ -355,7 +377,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
           joint4: robotState.q_actual[3],
           joint5: robotState.q_actual[4],
           joint6: robotState.q_actual[5],
-          unit: 'radians',
+          unit: AngleUnit.RADIANS,
         },
         velocity: {
           linear: {
@@ -367,13 +389,13 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
                 robotState.tcp_speed_actual[1] ** 2 +
                 robotState.tcp_speed_actual[2] ** 2
             ),
-            unit: 'm/s',
+            unit: VelocityUnit.METERS_PER_SECOND,
           },
           angular: {
             rx: robotState.tcp_speed_actual[3],
             ry: robotState.tcp_speed_actual[4],
             rz: robotState.tcp_speed_actual[5],
-            unit: 'rad/s',
+            unit: AngularVelocityUnit.RADIANS_PER_SECOND,
           },
           joint: {
             joint1: robotState.qd_actual[0],
@@ -382,7 +404,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
             joint4: robotState.qd_actual[3],
             joint5: robotState.qd_actual[4],
             joint6: robotState.qd_actual[5],
-            unit: 'rad/s',
+            unit: AngularVelocityUnit.RADIANS_PER_SECOND,
           },
         },
         force: {
@@ -394,7 +416,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
               robotState.tcp_force[1] ** 2 +
               robotState.tcp_force[2] ** 2
           ),
-          unit: 'N',
+          unit: ForceUnit.NEWTONS,
         },
         torque: {
           rx: robotState.tcp_force[3],
@@ -405,7 +427,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
               robotState.tcp_force[4] ** 2 +
               robotState.tcp_force[5] ** 2
           ),
-          unit: 'Nm',
+          unit: TorqueUnit.NEWTON_METERS,
         },
         temperature: {
           motor: {
@@ -416,7 +438,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
             joint5: robotState.motor_temperatures[4],
             joint6: robotState.motor_temperatures[5],
           },
-          unit: '°C',
+          unit: TemperatureUnit.CELSIUS,
         },
         voltage: {
           supply: robotState.v_main,
@@ -428,7 +450,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
             joint5: robotState.v_actual[4],
             joint6: robotState.v_actual[5],
           },
-          unit: 'V',
+          unit: VoltageUnit.VOLTS,
         },
         current: {
           total: robotState.i_robot,
@@ -440,7 +462,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
             joint5: robotState.i_actual[4],
             joint6: robotState.i_actual[5],
           },
-          unit: 'A',
+          unit: CurrentUnit.AMPERES,
         },
         safety: {
           emergencyStop:
@@ -452,8 +474,8 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
         },
       },
       metadata: {
-        source: 'robot_controller',
-        quality: 'high',
+        source: TelemetrySource.ROBOT_CONTROLLER,
+        quality: DataQuality.HIGH,
         samplingRate: 125, // UR robots typically sample at 125 Hz
       },
     }
@@ -465,7 +487,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       safetyMode === URSafetyMode.SAFETY_MODE_ROBOT_EMERGENCY_STOP ||
       safetyMode === URSafetyMode.SAFETY_MODE_SYSTEM_EMERGENCY_STOP
     ) {
-      return RobotStatus.EMERGENCY_STOP
+      return 'emergency_stop' as RobotStatus
     }
 
     if (
@@ -473,39 +495,39 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
       safetyMode === URSafetyMode.SAFETY_MODE_VIOLATION ||
       safetyMode === URSafetyMode.SAFETY_MODE_FAULT
     ) {
-      return RobotStatus.ERROR
+      return 'error' as RobotStatus
     }
 
     // Robot mode mapping
     switch (robotMode) {
       case URRobotMode.ROBOT_MODE_RUNNING:
-        return RobotStatus.RUNNING
+        return 'running' as RobotStatus
       case URRobotMode.ROBOT_MODE_IDLE:
-        return RobotStatus.IDLE
+        return 'idle' as RobotStatus
       case URRobotMode.ROBOT_MODE_POWER_OFF:
       case URRobotMode.ROBOT_MODE_DISCONNECTED:
-        return RobotStatus.OFFLINE
+        return 'offline' as RobotStatus
       case URRobotMode.ROBOT_MODE_POWER_ON:
       case URRobotMode.ROBOT_MODE_BOOTING:
-        return RobotStatus.IDLE
+        return 'idle' as RobotStatus
       default:
-        return RobotStatus.OFFLINE
+        return 'offline' as RobotStatus
     }
   }
 
   private getCapabilities(model?: string): RobotCapability[] {
     // All UR robots support these basic capabilities
-    const baseCapabilities = [
-      RobotCapability.ASSEMBLY,
-      RobotCapability.MATERIAL_HANDLING,
-      RobotCapability.MACHINE_TENDING,
-      RobotCapability.PACKAGING,
-      RobotCapability.INSPECTION,
+    const baseCapabilities: RobotCapability[] = [
+      'assembly' as RobotCapability,
+      'material_handling' as RobotCapability,
+      'machine_tending' as RobotCapability,
+      'packaging' as RobotCapability,
+      'inspection' as RobotCapability,
     ]
 
     // Add model-specific capabilities
     if (model?.includes('UR5') || model?.includes('UR10') || model?.includes('UR16')) {
-      baseCapabilities.push(RobotCapability.WELDING, RobotCapability.PAINTING)
+      baseCapabilities.push('welding' as RobotCapability, 'painting' as RobotCapability)
     }
 
     return baseCapabilities
@@ -570,7 +592,7 @@ export class UniversalRobotsAdapter extends BaseVendorAdapter implements IRobotV
     return specs
   }
 
-  private extractEvents(robotId: string, robotState: URRobotState): any[] {
+  private extractEvents(_robotId: string, _robotState: URRobotState): any[] {
     const events: any[] = []
 
     // Add logic to detect events from robot state changes

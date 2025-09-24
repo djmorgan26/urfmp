@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "types": ["vitest/globals", "node"]
+  },
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/tests/**/*", "src/vite-env.d.ts"],
+  "exclude": []
+}

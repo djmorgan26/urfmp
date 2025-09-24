@@ -61,7 +61,7 @@ router.post(
     } catch (error) {
       logger.warn('Login failed', {
         email: loginRequest.email,
-        error: error.message,
+        error: (error as Error).message,
         traceId: req.traceId,
       })
       throw error
@@ -108,7 +108,7 @@ router.post(
     } catch (error) {
       logger.warn('Logout failed', {
         userId,
-        error: error.message,
+        error: (error as Error).message,
         traceId: req.traceId,
       })
       throw error
@@ -166,10 +166,10 @@ router.post(
         },
       }
 
-      res.json(response)
+      return res.json(response)
     } catch (error) {
       logger.warn('Token refresh failed', {
-        error: error.message,
+        error: (error as Error).message,
         traceId: req.traceId,
       })
       throw error
@@ -233,7 +233,7 @@ router.post(
     } catch (error) {
       logger.warn('User registration failed', {
         email: registrationData.email,
-        error: error.message,
+        error: (error as Error).message,
         traceId: req.traceId,
       })
       throw error

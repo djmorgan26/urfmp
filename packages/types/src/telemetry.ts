@@ -355,23 +355,23 @@ export enum AggregationType {
 
 // GPS and Geospatial Types
 export interface GPSPosition {
-  latitude: number          // WGS84 latitude in decimal degrees
-  longitude: number         // WGS84 longitude in decimal degrees
-  altitude?: number         // Height above sea level in meters
-  heading?: number          // True heading in degrees (0-360)
-  speed?: number           // Ground speed in m/s
-  accuracy?: GPSAccuracy   // GPS accuracy information
-  timestamp: Date          // GPS fix timestamp
-  satelliteCount?: number  // Number of satellites used
-  hdop?: number           // Horizontal dilution of precision
-  fix?: GPSFixType        // Type of GPS fix
+  latitude: number // WGS84 latitude in decimal degrees
+  longitude: number // WGS84 longitude in decimal degrees
+  altitude?: number // Height above sea level in meters
+  heading?: number // True heading in degrees (0-360)
+  speed?: number // Ground speed in m/s
+  accuracy?: GPSAccuracy // GPS accuracy information
+  timestamp: Date // GPS fix timestamp
+  satelliteCount?: number // Number of satellites used
+  hdop?: number // Horizontal dilution of precision
+  fix?: GPSFixType // Type of GPS fix
 }
 
 export interface GPSAccuracy {
-  horizontal: number       // Horizontal accuracy in meters
-  vertical?: number        // Vertical accuracy in meters
-  speed?: number          // Speed accuracy in m/s
-  heading?: number        // Heading accuracy in degrees
+  horizontal: number // Horizontal accuracy in meters
+  vertical?: number // Vertical accuracy in meters
+  speed?: number // Speed accuracy in m/s
+  heading?: number // Heading accuracy in degrees
 }
 
 export enum GPSFixType {
@@ -387,9 +387,9 @@ export interface NavigationData {
   waypoints?: Waypoint[]
   currentWaypoint?: number
   targetPosition?: GPSPosition
-  pathDeviation?: number    // Distance from planned path in meters
-  estimatedTimeToTarget?: number  // ETA in seconds
-  missionProgress?: number  // Completion percentage (0-100)
+  pathDeviation?: number // Distance from planned path in meters
+  estimatedTimeToTarget?: number // ETA in seconds
+  missionProgress?: number // Completion percentage (0-100)
   obstacleDetected?: boolean
   pathPlanningStatus?: PathPlanningStatus
 }
@@ -398,8 +398,8 @@ export interface Waypoint {
   id: string
   position: GPSPosition
   type: WaypointType
-  radius?: number          // Acceptance radius in meters
-  speed?: number           // Target speed at waypoint in m/s
+  radius?: number // Acceptance radius in meters
+  speed?: number // Target speed at waypoint in m/s
   actions?: WaypointAction[]
   visited?: boolean
   visitedAt?: Date
@@ -419,7 +419,7 @@ export enum WaypointType {
 export interface WaypointAction {
   type: WaypointActionType
   parameters?: Record<string, any>
-  duration?: number        // Action duration in seconds
+  duration?: number // Action duration in seconds
 }
 
 export enum WaypointActionType {
@@ -448,17 +448,17 @@ export interface GeofenceZone {
   id: string
   name: string
   type: GeofenceType
-  coordinates: GPSPosition[]  // Polygon vertices
+  coordinates: GPSPosition[] // Polygon vertices
   active: boolean
   actions: GeofenceAction[]
   metadata?: Record<string, any>
 }
 
 export enum GeofenceType {
-  INCLUSION = 'inclusion',    // Robot must stay inside
-  EXCLUSION = 'exclusion',    // Robot must stay outside
-  WARNING = 'warning',        // Trigger warning when entered
-  WORK_ZONE = 'work_zone',    // Designated work area
+  INCLUSION = 'inclusion', // Robot must stay inside
+  EXCLUSION = 'exclusion', // Robot must stay outside
+  WARNING = 'warning', // Trigger warning when entered
+  WORK_ZONE = 'work_zone', // Designated work area
   CHARGING_ZONE = 'charging_zone',
   SAFETY_ZONE = 'safety_zone',
 }
@@ -472,7 +472,7 @@ export interface GeofenceAction {
 export enum GeofenceTrigger {
   ENTER = 'enter',
   EXIT = 'exit',
-  DWELL = 'dwell',           // Stay inside for duration
+  DWELL = 'dwell', // Stay inside for duration
 }
 
 export enum GeofenceActionType {
@@ -498,8 +498,8 @@ export interface Formation {
   type: FormationType
   role: FormationRole
   relativePosition?: RelativePosition
-  leader?: string          // Leader robot ID
-  followers?: string[]     // Follower robot IDs
+  leader?: string // Leader robot ID
+  followers?: string[] // Follower robot IDs
 }
 
 export enum FormationType {
@@ -518,9 +518,9 @@ export enum FormationRole {
 }
 
 export interface RelativePosition {
-  distance: number         // Distance from reference point in meters
-  bearing: number          // Bearing in degrees
-  elevation?: number       // Elevation difference in meters
+  distance: number // Distance from reference point in meters
+  bearing: number // Bearing in degrees
+  elevation?: number // Elevation difference in meters
 }
 
 export enum CommunicationStatus {
@@ -534,7 +534,7 @@ export interface SharedResource {
   type: ResourceType
   id: string
   available: boolean
-  reservedBy?: string      // Robot ID
+  reservedBy?: string // Robot ID
   reservedUntil?: Date
 }
 

@@ -213,6 +213,8 @@ export interface EventSubscription {
   filter: EventFilter
   channels: NotificationChannel[]
   enabled: boolean
+  connectionId?: string
+  active?: boolean
   createdAt: Date
   updatedAt: Date
 }

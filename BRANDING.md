@@ -5,11 +5,13 @@ This project supports dynamic company branding that can be changed in one place 
 ## Quick Start
 
 1. Copy the example environment file:
+
    ```bash
    cp .env.example .env
    ```
 
 2. Edit the `.env` file with your company information:
+
    ```bash
    # Change these values to your company branding
    VITE_COMPANY_NAME=YourCompany
@@ -24,6 +26,7 @@ This project supports dynamic company branding that can be changed in one place 
 ## Environment Variables
 
 ### Frontend (Vite) Variables
+
 - `VITE_COMPANY_NAME` - Short company/product name (e.g., "URFMP")
 - `VITE_COMPANY_NAME_SHORT` - Even shorter version for mobile displays
 - `VITE_PRODUCT_NAME` - Product name (e.g., "URFMP")
@@ -32,6 +35,7 @@ This project supports dynamic company branding that can be changed in one place 
 - `VITE_DESCRIPTION` - Product description (e.g., "Monitor any robot in 7 lines of code")
 
 ### Backend Variables
+
 - `COMPANY_NAME` - Short company/product name
 - `PRODUCT_NAME` - Product name
 - `PRODUCT_FULL_NAME` - Full product name
@@ -43,15 +47,18 @@ This project supports dynamic company branding that can be changed in one place 
 When you change the environment variables, the following will automatically update:
 
 ### Frontend
+
 - Browser tab title
 - Meta description for SEO
 - Any React component using the `useBrand()` hook
 
 ### Backend
+
 - API server name and description
 - Mock server responses
 
 ### HTML
+
 - Page title in `index.html`
 - Meta description in `index.html`
 
@@ -110,6 +117,7 @@ DESCRIPTION=Comprehensive robot fleet management and monitoring
 ```
 
 This will automatically update:
+
 - Browser tab title to "RoboFleet - RoboFleet Management Platform"
 - Meta description to "Your Robot Management Solution - Comprehensive robot fleet management and monitoring"
 - API responses to show "RoboFleet API (Mock)"

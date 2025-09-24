@@ -1,8 +1,22 @@
 import { Router } from 'express'
 import { asyncHandler } from '../middleware/error.middleware'
 import { requirePermission } from '../middleware/auth.middleware'
-import { Permission, ApiResponse, Robot, RobotCommand, CommandResult, RobotCommandType, CommandPriority, CommandStatus } from '@urfmp/types'
-import { robotService, CreateRobotRequest, UpdateRobotRequest, RobotFilters } from '../services/robot.service'
+import {
+  Permission,
+  ApiResponse,
+  Robot,
+  RobotCommand,
+  CommandResult,
+  RobotCommandType,
+  CommandPriority,
+  CommandStatus,
+} from '@urfmp/types'
+import {
+  robotService,
+  CreateRobotRequest,
+  UpdateRobotRequest,
+  RobotFilters,
+} from '../services/robot.service'
 import { logger } from '../config/logger'
 import { getWebSocketService } from '../services/websocket.service'
 
@@ -365,7 +379,7 @@ router.post(
       id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: command.type || RobotCommandType.CUSTOM,
       priority: command.priority || CommandPriority.NORMAL,
-      parameters: (command as any).parameters || {},
+      payload: (command as any).parameters || (command as any).payload || {},
       status: CommandStatus.PENDING,
       createdAt: new Date(),
       createdBy: req.user!.sub,
@@ -396,12 +410,12 @@ router.post(
         organizationId,
         command: commandWithMetadata,
         result,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
     } catch (error) {
       logger.warn('Failed to broadcast robot command', {
         robotId,
-        error: (error as Error).message
+        error: (error as Error).message,
       })
     }
 

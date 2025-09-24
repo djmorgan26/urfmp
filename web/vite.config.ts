@@ -8,8 +8,18 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@urfmp/types': resolve(__dirname, process.env.NODE_ENV === 'production' ? './src/lib/types/index.ts' : '../packages/types/src/index.ts'),
-      '@urfmp/sdk': resolve(__dirname, process.env.NODE_ENV === 'production' ? './src/lib/sdk/index.ts' : '../packages/sdk/src/index.ts'),
+      '@urfmp/types': resolve(
+        __dirname,
+        process.env.NODE_ENV === 'production'
+          ? './src/lib/types/index.ts'
+          : '../packages/types/src/index.ts'
+      ),
+      '@urfmp/sdk': resolve(
+        __dirname,
+        process.env.NODE_ENV === 'production'
+          ? './src/lib/sdk/index.ts'
+          : '../packages/sdk/src/index.ts'
+      ),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
@@ -40,7 +50,7 @@ export default defineConfig({
           proxy.on('proxyReq', (proxyReq, req, res) => {
             proxyReq.setHeader('origin', 'https://eoimages.gsfc.nasa.gov')
           })
-        }
+        },
       },
       // CORS proxy for ESA imagery
       '/esa-proxy': {
@@ -51,7 +61,7 @@ export default defineConfig({
           proxy.on('proxyReq', (proxyReq, req, res) => {
             proxyReq.setHeader('origin', 'https://s2maps-tiles.eu')
           })
-        }
+        },
       },
     },
   },

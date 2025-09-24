@@ -15,6 +15,7 @@ npm run dev         # Start API and web dashboard
 ```
 
 Your platform is now running:
+
 - 🌐 Dashboard: http://localhost:3000
 - 🔌 API: http://localhost:3001
 - 📚 API Docs: http://localhost:3001/docs
@@ -69,18 +70,18 @@ urfmp/
 ## 🔌 SDK Usage - 7 Lines to Production
 
 ```javascript
-const URFMP = require('@urfmp/sdk');
-const fleet = new URFMP.Fleet('YOUR_API_KEY');
+const URFMP = require('@urfmp/sdk')
+const fleet = new URFMP.Fleet('YOUR_API_KEY')
 
 // Connect and monitor a robot in 7 lines
 fleet.on('robot.error', (robot) => {
-  console.log(`Robot ${robot.id} needs attention`);
-});
+  console.log(`Robot ${robot.id} needs attention`)
+})
 
 await fleet.monitor({
   vendor: 'universal-robots',
-  ip: '192.168.1.100'
-});
+  ip: '192.168.1.100',
+})
 ```
 
 ## 🚦 Development Workflow

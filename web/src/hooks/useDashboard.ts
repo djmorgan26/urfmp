@@ -61,8 +61,9 @@ export function useDashboard(): DashboardData {
     if (robots.length === 0) return
 
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
@@ -103,11 +104,14 @@ export function useDashboard(): DashboardData {
             robotId: robot.id,
             timestamp: new Date(),
             data: {
-              temperature: { ambient: 20 + Math.random() * 15, controller: 30 + Math.random() * 20 },
+              temperature: {
+                ambient: 20 + Math.random() * 15,
+                controller: 30 + Math.random() * 20,
+              },
               power: { total: 80 + Math.random() * 40 },
               utilization: Math.random() * 100,
-              errors: Math.floor(Math.random() * 3)
-            }
+              errors: Math.floor(Math.random() * 3),
+            },
           }
           robotTelemetryMap.set(robot.id, mockTelemetry)
         }

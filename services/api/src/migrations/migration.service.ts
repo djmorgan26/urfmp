@@ -39,9 +39,7 @@ export class MigrationService {
   async getMigrationFiles(): Promise<Migration[]> {
     try {
       const files = await fs.readdir(this.migrationsPath)
-      const migrationFiles = files
-        .filter(file => file.endsWith('.up.sql'))
-        .sort()
+      const migrationFiles = files.filter((file) => file.endsWith('.up.sql')).sort()
 
       const migrations: Migration[] = []
 
@@ -64,13 +62,13 @@ export class MigrationService {
           name: id.replace(/^\d{4}-\d{2}-\d{2}-\d{6}-/, ''),
           up,
           down,
-          timestamp: new Date()
+          timestamp: new Date(),
         })
       }
 
       return migrations
     } catch (error) {
-      logger.error('Error reading migration files', { error: error.message })
+      logger.error('Error reading migration files', { error: (error as Error).message })
       return []
     }
   }
@@ -81,9 +79,9 @@ export class MigrationService {
   async getExecutedMigrations(): Promise<string[]> {
     try {
       const result = await query('SELECT id FROM migrations ORDER BY id')
-      return result.rows.map(row => row.id)
+      return result.rows.map((row: any) => row.id)
     } catch (error) {
-      logger.error('Error getting executed migrations', { error: error.message })
+      logger.error('Error getting executed migrations', { error: (error as Error).message })
       return []
     }
   }
@@ -98,7 +96,7 @@ export class MigrationService {
     const executedMigrations = await getExecutedMigrations()
 
     const pendingMigrations = allMigrations.filter(
-      migration => !executedMigrations.includes(migration.id)
+      (migration) => !executedMigrations.includes(migration.id)
     )
 
     if (pendingMigrations.length === 0) {
@@ -116,10 +114,10 @@ export class MigrationService {
         await query(migration.up)
 
         // Record the migration
-        await query(
-          'INSERT INTO migrations (id, name) VALUES ($1, $2)',
-          [migration.id, migration.name]
-        )
+        await query('INSERT INTO migrations (id, name) VALUES ($1, $2)', [
+          migration.id,
+          migration.name,
+        ])
 
         await query('COMMIT')
 
@@ -127,8 +125,8 @@ export class MigrationService {
       } catch (error) {
         await query('ROLLBACK')
         logger.error(`❌ Migration failed: ${migration.id}`, {
-          error: error.message,
-          migration: migration.id
+          error: (error as Error).message,
+          migration: migration.id,
         })
         throw error
       }
@@ -150,7 +148,7 @@ export class MigrationService {
 
     const lastMigrationId = executedMigrations[executedMigrations.length - 1]
     const allMigrations = await this.getMigrationFiles()
-    const migration = allMigrations.find(m => m.id === lastMigrationId)
+    const migration = allMigrations.find((m) => m.id === lastMigrationId)
 
     if (!migration) {
       throw new Error(`Migration file not found: ${lastMigrationId}`)
@@ -175,7 +173,7 @@ export class MigrationService {
     } catch (error) {
       await query('ROLLBACK')
       logger.error(`❌ Rollback failed: ${migration.id}`, {
-        error: error.message
+        error: (error as Error).message,
       })
       throw error
     }
@@ -193,13 +191,13 @@ export class MigrationService {
     const executedMigrations = await this.getExecutedMigrations()
 
     const pendingMigrations = allMigrations
-      .filter(migration => !executedMigrations.includes(migration.id))
-      .map(migration => migration.id)
+      .filter((migration) => !executedMigrations.includes(migration.id))
+      .map((migration) => migration.id)
 
     return {
       total: allMigrations.length,
       executed: executedMigrations.length,
-      pending: pendingMigrations
+      pending: pendingMigrations,
     }
   }
 
@@ -248,7 +246,7 @@ export const migrationService = new MigrationService()
 async function getExecutedMigrations(): Promise<string[]> {
   try {
     const result = await query('SELECT id FROM migrations ORDER BY id')
-    return result.rows.map(row => row.id)
+    return result.rows.map((row: any) => row.id)
   } catch (error) {
     return []
   }

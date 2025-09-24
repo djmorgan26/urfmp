@@ -24,7 +24,7 @@ export class URDashboardClient {
 
       this.socket.on('error', (error) => {
         this.connected = false
-        reject(new Error(`Dashboard connection failed: ${error.message}`))
+        reject(new Error(`Dashboard connection failed: ${(error as Error).message}`))
       })
 
       this.socket.on('close', () => {
@@ -81,7 +81,7 @@ export class URDashboardClient {
       const response = await this.sendCommand('play')
       return { success: response.includes('Starting program') }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -90,7 +90,7 @@ export class URDashboardClient {
       const response = await this.sendCommand('stop')
       return { success: response.includes('Stopped') }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -99,16 +99,16 @@ export class URDashboardClient {
       const response = await this.sendCommand('pause')
       return { success: response.includes('Paused') }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
   async emergencyStop(): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await this.sendCommand('shutdown')
+      const _response = await this.sendCommand('shutdown')
       return { success: true }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -117,7 +117,7 @@ export class URDashboardClient {
       const response = await this.sendCommand('unlock protective stop')
       return { success: response.includes('Protective stop releasing') }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -142,7 +142,7 @@ export class URDashboardClient {
         nextMaintenance: undefined,
       }
     } catch (error) {
-      throw new Error(`Failed to get robot info: ${error.message}`)
+      throw new Error(`Failed to get robot info: ${(error as Error).message}`)
     }
   }
 
@@ -158,7 +158,7 @@ export class URDashboardClient {
         protectiveStopTriggered: safetystatus.includes('PROTECTIVE'),
       }
     } catch (error) {
-      throw new Error(`Failed to get safety info: ${error.message}`)
+      throw new Error(`Failed to get safety info: ${(error as Error).message}`)
     }
   }
 
@@ -176,7 +176,7 @@ export class URDashboardClient {
         remainingTime: undefined,
       }
     } catch (error) {
-      throw new Error(`Failed to get program info: ${error.message}`)
+      throw new Error(`Failed to get program info: ${(error as Error).message}`)
     }
   }
 
@@ -187,7 +187,7 @@ export class URDashboardClient {
       const response = await this.sendCommand(`load ${programName}`)
       return { success: response.includes('Loading program') }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -213,7 +213,7 @@ export class URDashboardClient {
     // This would typically require loading and running a custom script
     // For now, return a placeholder implementation
     try {
-      const script = `
+      const _script = `
         movej(p[${position.x}, ${position.y}, ${position.z}, ${position.rx || 0}, ${position.ry || 0}, ${position.rz || 0}], a=1.2, v=0.25)
       `
 
@@ -221,7 +221,7 @@ export class URDashboardClient {
       // For now, we'll simulate success
       return { success: true, message: 'Move command sent' }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 
@@ -231,7 +231,7 @@ export class URDashboardClient {
       // This is a placeholder implementation
       return { success: true, message: `Speed set to ${speed}%` }
     } catch (error) {
-      return { success: false, message: error.message }
+      return { success: false, message: (error as Error).message }
     }
   }
 

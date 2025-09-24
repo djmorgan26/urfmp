@@ -43,7 +43,7 @@ export const connectRabbitMQ = async (): Promise<void> => {
     await channel.bindQueue(QUEUES.MAINTENANCE, EXCHANGES.EVENTS, 'maintenance.*')
 
     // Set up error handlers
-    connection.on('error', (error) => {
+    connection.on('error', (error: Error) => {
       logger.error('RabbitMQ connection error', { error: (error as Error).message })
     })
 
@@ -52,7 +52,7 @@ export const connectRabbitMQ = async (): Promise<void> => {
     })
 
     if (channel) {
-      channel.on('error', (error) => {
+      channel.on('error', (error: Error) => {
         logger.error('RabbitMQ channel error', { error: (error as Error).message })
       })
     }

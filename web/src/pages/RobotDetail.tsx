@@ -295,9 +295,7 @@ export function RobotDetail() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Max Payload</span>
                   <span className="font-medium">
-                    {robot.configuration?.payload
-                      ? `${robot.configuration.payload} kg`
-                      : 'N/A'}
+                    {robot.configuration?.payload ? `${robot.configuration.payload} kg` : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -313,13 +311,23 @@ export function RobotDetail() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(typeof robot.createdAt === 'string' ? parseISO(robot.createdAt) : robot.createdAt, { addSuffix: true })}
+                    {formatDistanceToNow(
+                      typeof robot.createdAt === 'string'
+                        ? parseISO(robot.createdAt)
+                        : robot.createdAt,
+                      { addSuffix: true }
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Updated</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(typeof robot.updatedAt === 'string' ? parseISO(robot.updatedAt) : robot.updatedAt, { addSuffix: true })}
+                    {formatDistanceToNow(
+                      typeof robot.updatedAt === 'string'
+                        ? parseISO(robot.updatedAt)
+                        : robot.updatedAt,
+                      { addSuffix: true }
+                    )}
                   </span>
                 </div>
               </div>

@@ -8,7 +8,7 @@ const router = Router()
 router.get(
   '/',
   requirePermission(Permission.MAINTENANCE_VIEW),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const response: ApiResponse = {
       success: true,
       data: { message: 'Maintenance endpoints - implementation pending' },

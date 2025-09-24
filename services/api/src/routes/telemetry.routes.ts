@@ -74,12 +74,12 @@ router.post(
         robotId,
         organizationId,
         telemetry: telemetryRecord,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
     } catch (error) {
       logger.warn('Failed to broadcast telemetry update', {
         robotId,
-        error: error.message
+        error: (error as Error).message,
       })
     }
 
@@ -93,7 +93,7 @@ router.post(
       },
     }
 
-    res.status(201).json(response)
+    return res.status(201).json(response)
   })
 )
 
@@ -323,7 +323,7 @@ router.get(
       },
     }
 
-    res.json(response)
+    return res.json(response)
   })
 )
 

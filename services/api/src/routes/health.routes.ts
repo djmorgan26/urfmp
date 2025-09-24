@@ -140,7 +140,7 @@ router.get(
  *       200:
  *         description: Service is alive
  */
-router.get('/live', (req, res) => {
+router.get('/live', (_req, res) => {
   res.status(200).json({ status: 'alive', timestamp: new Date() })
 })
 
@@ -159,7 +159,7 @@ router.get('/live', (req, res) => {
  */
 router.get(
   '/ready',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     // Quick check of essential services
     const [dbHealth, redisHealth] = await Promise.allSettled([
       checkDatabaseHealth(),

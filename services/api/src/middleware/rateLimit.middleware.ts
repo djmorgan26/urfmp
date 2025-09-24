@@ -16,7 +16,6 @@ class RedisStore {
     const redis = this.getRedisInstance()
     const redisKey = this.prefix + key
     const window = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000')
-    const _limit = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100')
 
     try {
       const multi = redis.multi()

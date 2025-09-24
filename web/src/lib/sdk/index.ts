@@ -27,8 +27,8 @@ export class URFMP {
         voltage: { supply: 48.2 },
         current: { total: 2.15 },
         power: { total: 103.5 },
-        safety: { emergencyStop: false, protectiveStop: false }
-      }
+        safety: { emergencyStop: false, protectiveStop: false },
+      },
     }
   }
 
@@ -40,10 +40,14 @@ export class URFMP {
         robotId,
         timestamp: new Date(Date.now() - i * 60 * 60 * 1000),
         data: {
-          position: { x: 125 + Math.random() * 10, y: 245 + Math.random() * 10, z: 300 + Math.random() * 5 },
+          position: {
+            x: 125 + Math.random() * 10,
+            y: 245 + Math.random() * 10,
+            z: 300 + Math.random() * 5,
+          },
           temperature: { ambient: 20 + Math.random() * 10, controller: 30 + Math.random() * 15 },
-          power: { total: 80 + Math.random() * 40 }
-        }
+          power: { total: 80 + Math.random() * 40 },
+        },
       })
     }
     return history
@@ -58,7 +62,7 @@ export class URFMP {
     // Return mock aggregated data
     return [
       { timestamp: new Date(), value: 100 + Math.random() * 50 },
-      { timestamp: new Date(Date.now() - 3600000), value: 95 + Math.random() * 50 }
+      { timestamp: new Date(Date.now() - 3600000), value: 95 + Math.random() * 50 },
     ]
   }
 

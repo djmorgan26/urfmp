@@ -34,9 +34,11 @@ URFMP (Universal Robot Fleet Management Platform) is a modern web application fo
 ## Component Details
 
 ### Frontend (web/)
+
 **Technology**: React 18, TypeScript, Tailwind CSS, Vite
 
 **Structure**:
+
 ```
 web/src/
 ├── components/           # Reusable UI components
@@ -50,15 +52,18 @@ web/src/
 ```
 
 **Key Features**:
+
 - Theme system (light/dark/system)
 - Real-time updates via WebSocket
 - Responsive design
 - Component-based architecture
 
 ### API Server (services/api/)
+
 **Technology**: Node.js, Express.js, TypeScript
 
 **Structure**:
+
 ```
 services/api/src/
 ├── routes/              # API route handlers
@@ -70,6 +75,7 @@ services/api/src/
 ```
 
 **Features**:
+
 - RESTful API design
 - JWT authentication
 - WebSocket support
@@ -80,9 +86,11 @@ services/api/src/
 ### Shared Packages
 
 #### Types Package (packages/types/)
+
 **Purpose**: Shared TypeScript interfaces and types
 
 **Key Types**:
+
 - `Robot` - Robot entity definition
 - `User` - User and authentication types
 - `RobotTelemetry` - Time-series data structures
@@ -90,9 +98,11 @@ services/api/src/
 - `WebSocketMessage` - Real-time message formats
 
 #### SDK Package (packages/sdk/)
+
 **Purpose**: Client SDK for API interaction
 
 **Features**:
+
 - Type-safe API client
 - WebSocket connection management
 - Authentication handling
@@ -101,24 +111,31 @@ services/api/src/
 ### Database Layer
 
 #### PostgreSQL (Primary Database)
+
 **Usage**:
+
 - User accounts and authentication
 - Robot configurations and metadata
 - Maintenance schedules and history
 - System configuration
 
 **Extensions**:
+
 - TimescaleDB for time-series telemetry data
 
 #### Redis (Cache & Sessions)
+
 **Usage**:
+
 - Session storage
 - API response caching
 - Real-time data caching
 - Rate limiting counters
 
 #### ClickHouse (Analytics - Optional)
+
 **Usage**:
+
 - High-volume telemetry analytics
 - Performance metrics aggregation
 - Historical data analysis
@@ -126,20 +143,25 @@ services/api/src/
 ### Message Queue System
 
 #### RabbitMQ (Primary Queue)
+
 **Usage**:
+
 - Robot command dispatching
 - Alert notifications
 - Maintenance task scheduling
 - Inter-service communication
 
 **Exchanges & Queues**:
+
 - `urfmp_events` - Main event exchange
 - `robot_telemetry` - Telemetry data queue
 - `robot_commands` - Command execution queue
 - `notifications` - Alert notifications
 
 #### Kafka (High-throughput Streaming - Optional)
+
 **Usage**:
+
 - High-volume telemetry streaming
 - Event sourcing
 - Analytics data pipeline
@@ -147,9 +169,11 @@ services/api/src/
 ### Robot Adapters (adapters/)
 
 #### Purpose
+
 Vendor-specific integrations for different robot manufacturers.
 
 #### Structure
+
 ```
 adapters/
 ├── universal-robots/    # Universal Robots integration
@@ -159,7 +183,9 @@ adapters/
 ```
 
 #### Interface
+
 All adapters implement the `IRobotVendorAdapter` interface:
+
 - `connect()` - Establish connection to robot
 - `disconnect()` - Close connection
 - `sendCommand()` - Execute robot commands
@@ -169,6 +195,7 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Data Flow
 
 ### Robot Telemetry Flow
+
 1. Robot generates telemetry data
 2. Vendor adapter collects and normalizes data
 3. Data sent to RabbitMQ telemetry queue
@@ -177,6 +204,7 @@ All adapters implement the `IRobotVendorAdapter` interface:
 6. Frontend updates real-time displays
 
 ### Command Execution Flow
+
 1. User initiates command via frontend
 2. Frontend sends API request to server
 3. API validates and queues command in RabbitMQ
@@ -186,6 +214,7 @@ All adapters implement the `IRobotVendorAdapter` interface:
 7. Frontend displays command result
 
 ### Authentication Flow
+
 1. User submits credentials
 2. API validates against database
 3. JWT token generated and returned
@@ -196,18 +225,21 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Security Architecture
 
 ### Authentication & Authorization
+
 - JWT-based authentication
 - Role-based access control (RBAC)
 - API key authentication for external services
 - Session management via Redis
 
 ### API Security
+
 - Rate limiting per API key/user
 - Input validation and sanitization
 - CORS configuration
 - Helmet.js security headers
 
 ### Data Security
+
 - Encrypted database connections
 - Environment-based configuration
 - Secrets management
@@ -216,12 +248,14 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Deployment Architecture
 
 ### Development Environment
+
 - Docker Compose orchestration
 - Hot reload for development
 - Mock data and auth bypass
 - Local service mesh
 
 ### Production Considerations
+
 - Container orchestration (Kubernetes)
 - Load balancing
 - Database clustering
@@ -232,18 +266,21 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Performance Considerations
 
 ### Frontend Optimization
+
 - Code splitting and lazy loading
 - Component memoization
 - Virtual scrolling for large lists
 - Image optimization
 
 ### Backend Optimization
+
 - Database indexing strategy
 - Connection pooling
 - Caching layers
 - Query optimization
 
 ### Real-time Performance
+
 - WebSocket connection management
 - Data compression
 - Selective data streaming
@@ -252,18 +289,21 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Monitoring & Observability
 
 ### Metrics Collection
+
 - Application performance metrics
 - Database performance
 - Message queue metrics
 - Robot connectivity status
 
 ### Logging Strategy
+
 - Structured logging (JSON)
 - Centralized log aggregation
 - Log levels and filtering
 - Error tracking and alerting
 
 ### Health Checks
+
 - Service health endpoints
 - Database connectivity
 - External service dependencies
@@ -272,22 +312,25 @@ All adapters implement the `IRobotVendorAdapter` interface:
 ## Scalability Patterns
 
 ### Horizontal Scaling
+
 - Stateless API servers
 - Database read replicas
 - Message queue clustering
 - CDN for static assets
 
 ### Vertical Scaling
+
 - Resource optimization
 - Connection pooling
 - Caching strategies
 - Database optimization
 
 ### Data Partitioning
+
 - Time-based telemetry partitioning
 - Robot-based data sharding
 - Geographic distribution
 
 ---
 
-*This document should be updated as the architecture evolves*
+_This document should be updated as the architecture evolves_

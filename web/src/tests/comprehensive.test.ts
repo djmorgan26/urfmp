@@ -21,38 +21,34 @@ import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from 'vites
 import { URFMP } from '@urfmp/sdk'
 
 describe('URFMP Comprehensive Test Suite', () => {
-
   describe('Core System Functionality', () => {
     it('should have all required environment variables', () => {
       // Test critical environment variables
-      const requiredEnvVars = [
-        'VITE_COMPANY_NAME',
-        'VITE_PRODUCT_NAME',
-        'VITE_URFMP_API_KEY'
-      ]
+      const requiredEnvVars = ['VITE_COMPANY_NAME', 'VITE_PRODUCT_NAME', 'VITE_URFMP_API_KEY']
 
-      requiredEnvVars.forEach(envVar => {
-        expect(import.meta.env[envVar]).toBeDefined()
+      requiredEnvVars.forEach((envVar) => {
+        expect((import.meta as any).env[envVar]).toBeDefined()
       })
     })
 
     it('should validate API endpoints are configured', () => {
       // Test API configuration
-      expect(import.meta.env.VITE_URFMP_API_KEY).toMatch(/^urfmp_/)
-      expect(import.meta.env.VITE_COMPANY_NAME).toBe('URFMP')
+      expect((import.meta as any).env.VITE_URFMP_API_KEY).toMatch(/^urfmp_/)
+      expect((import.meta as any).env.VITE_COMPANY_NAME).toBe('URFMP')
     })
   })
 
   describe('Authentication System', () => {
     it('should validate JWT token structure', () => {
       // Mock JWT token validation
-      const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+      const mockToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
       const parts = mockToken.split('.')
       expect(parts).toHaveLength(3)
     })
 
     it('should validate API key format', () => {
-      const apiKey = import.meta.env.VITE_URFMP_API_KEY
+      const apiKey = (import.meta as any).env.VITE_URFMP_API_KEY
       expect(apiKey).toMatch(/^urfmp_[a-zA-Z0-9_]+$/)
     })
 
@@ -61,12 +57,16 @@ describe('URFMP Comprehensive Test Suite', () => {
         email: 'admin@urfmp.com',
         password: 'admin123',
         userId: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
-        organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+        organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
       }
 
-      expect(testUser.email).toMatch(/^[\w\.-]+@[\w\.-]+\.\w+$/)
-      expect(testUser.userId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
-      expect(testUser.organizationId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+      expect(testUser.email).toMatch(/^[\w.-]+@[\w.-]+\.\w+$/)
+      expect(testUser.userId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      )
+      expect(testUser.organizationId).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      )
     })
   })
 
@@ -83,7 +83,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         color: '#ef4444',
         strokeWidth: 2,
         fillOpacity: 0.2,
-        robotIds: ['robot-1']
+        robotIds: ['robot-1'],
       }
 
       expect(mockGeofence.id).toBeDefined()
@@ -103,11 +103,13 @@ describe('URFMP Comprehensive Test Suite', () => {
         coordinates: { latitude: 40.7589, longitude: -73.9851, altitude: 10 },
         radius: 5,
         actions: [],
-        isActive: true
+        isActive: true,
       }
 
       expect(mockWaypoint.id).toBeDefined()
-      expect(['pickup', 'dropoff', 'checkpoint', 'charging', 'maintenance', 'custom']).toContain(mockWaypoint.type)
+      expect(['pickup', 'dropoff', 'checkpoint', 'charging', 'maintenance', 'custom']).toContain(
+        mockWaypoint.type
+      )
       expect(mockWaypoint.coordinates).toHaveProperty('latitude')
       expect(mockWaypoint.coordinates).toHaveProperty('longitude')
       expect(typeof mockWaypoint.radius).toBe('number')
@@ -123,7 +125,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         status: 'active',
         totalDistance: 250,
         estimatedTime: 300,
-        isActive: true
+        isActive: true,
       }
 
       expect(mockPath.id).toBeDefined()
@@ -138,10 +140,10 @@ describe('URFMP Comprehensive Test Suite', () => {
         { latitude: 40.7589, longitude: -73.9851 }, // NYC
         { latitude: 37.7749, longitude: -122.4194 }, // SF
         { latitude: 51.5074, longitude: -0.1278 }, // London
-        { latitude: 35.6762, longitude: 139.6503 } // Tokyo
+        { latitude: 35.6762, longitude: 139.6503 }, // Tokyo
       ]
 
-      validCoordinates.forEach(coord => {
+      validCoordinates.forEach((coord) => {
         expect(coord.latitude).toBeGreaterThanOrEqual(-90)
         expect(coord.latitude).toBeLessThanOrEqual(90)
         expect(coord.longitude).toBeGreaterThanOrEqual(-180)
@@ -161,12 +163,14 @@ describe('URFMP Comprehensive Test Suite', () => {
         powerConsumption: 150,
         efficiency: 85,
         lastSeen: new Date(),
-        organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+        organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
       }
 
       expect(mockRobot.id).toBeDefined()
       expect(mockRobot.name).toBeDefined()
-      expect(['online', 'offline', 'error', 'idle', 'running', 'charging']).toContain(mockRobot.status)
+      expect(['online', 'offline', 'error', 'idle', 'running', 'charging']).toContain(
+        mockRobot.status
+      )
       expect(typeof mockRobot.powerConsumption).toBe('number')
       expect(typeof mockRobot.efficiency).toBe('number')
       expect(mockRobot.efficiency).toBeGreaterThanOrEqual(0)
@@ -183,12 +187,12 @@ describe('URFMP Comprehensive Test Suite', () => {
             latitude: 40.7589,
             longitude: -73.9851,
             altitude: 10.5,
-            accuracy: { horizontal: 3.5, vertical: 5.0 }
+            accuracy: { horizontal: 3.5, vertical: 5.0 },
           },
           temperature: { ambient: 25.3, controller: 35.7 },
           power: { voltage: 48.2, current: 2.15, total: 103.5 },
-          safety: { emergencyStop: false, protectiveStop: false }
-        }
+          safety: { emergencyStop: false, protectiveStop: false },
+        },
       }
 
       expect(mockTelemetry.robotId).toBeDefined()
@@ -209,9 +213,9 @@ describe('URFMP Comprehensive Test Suite', () => {
           activeRobots: 4,
           averageEfficiency: 87.5,
           totalPowerConsumption: 750,
-          alertCount: 2
+          alertCount: 2,
         },
-        timeRange: '7d'
+        timeRange: '7d',
       }
 
       expect(typeof mockAnalytics.fleetMetrics.totalRobots).toBe('number')
@@ -226,10 +230,15 @@ describe('URFMP Comprehensive Test Suite', () => {
         reportType: 'fleet-overview',
         format: 'csv',
         dateRange: { from: new Date('2025-09-15'), to: new Date('2025-09-22') },
-        filters: ['status:online', 'efficiency:>80']
+        filters: ['status:online', 'efficiency:>80'],
       }
 
-      expect(['fleet-overview', 'performance-analysis', 'maintenance-report', 'power-consumption']).toContain(mockExportData.reportType)
+      expect([
+        'fleet-overview',
+        'performance-analysis',
+        'maintenance-report',
+        'power-consumption',
+      ]).toContain(mockExportData.reportType)
       expect(['csv', 'json', 'pdf']).toContain(mockExportData.format)
       expect(mockExportData.dateRange.from).toBeInstanceOf(Date)
       expect(mockExportData.dateRange.to).toBeInstanceOf(Date)
@@ -248,7 +257,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         healthScore: 75,
         predictedFailureDate: new Date('2025-10-15'),
         estimatedCost: 500,
-        recommendation: 'Replace joint bearing within 3 weeks'
+        recommendation: 'Replace joint bearing within 3 weeks',
       }
 
       expect(mockMaintenanceTask.id).toBeDefined()
@@ -266,10 +275,12 @@ describe('URFMP Comprehensive Test Suite', () => {
         confidence: 0.85,
         message: 'Joint 1 showing signs of wear',
         recommendations: ['Schedule inspection', 'Monitor temperature'],
-        costOptimization: { potentialSavings: 1200, timeframe: '30 days' }
+        costOptimization: { potentialSavings: 1200, timeframe: '30 days' },
       }
 
-      expect(['component_degradation', 'performance_decline', 'failure_prediction']).toContain(mockAIInsight.type)
+      expect(['component_degradation', 'performance_decline', 'failure_prediction']).toContain(
+        mockAIInsight.type
+      )
       expect(mockAIInsight.confidence).toBeGreaterThanOrEqual(0)
       expect(mockAIInsight.confidence).toBeLessThanOrEqual(1)
       expect(mockAIInsight.recommendations).toBeInstanceOf(Array)
@@ -283,10 +294,15 @@ describe('URFMP Comprehensive Test Suite', () => {
         type: 'robot_telemetry_update',
         robotId: 'robot-test-1',
         timestamp: new Date().toISOString(),
-        data: { temperature: 26.5, status: 'running' }
+        data: { temperature: 26.5, status: 'running' },
       }
 
-      expect(['robot_telemetry_update', 'geofence_violation', 'maintenance_alert', 'status_change']).toContain(mockWebSocketEvent.type)
+      expect([
+        'robot_telemetry_update',
+        'geofence_violation',
+        'maintenance_alert',
+        'status_change',
+      ]).toContain(mockWebSocketEvent.type)
       expect(mockWebSocketEvent.robotId).toBeDefined()
       expect(mockWebSocketEvent.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
       expect(mockWebSocketEvent.data).toBeDefined()
@@ -301,7 +317,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         message: 'Robot exited safety zone',
         timestamp: new Date(),
         acknowledged: false,
-        actionTaken: null
+        actionTaken: null,
       }
 
       expect(['info', 'warning', 'error', 'critical']).toContain(mockAlert.severity)
@@ -318,7 +334,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         geofences: [],
         waypoints: [],
         paths: [],
-        onRobotSelect: vi.fn()
+        onRobotSelect: vi.fn(),
       }
 
       expect(mockMapProps.robots).toBeInstanceOf(Array)
@@ -331,8 +347,8 @@ describe('URFMP Comprehensive Test Suite', () => {
     it('should validate GPS trail data', () => {
       const mockGPSTrail = [
         { latitude: 40.7589, longitude: -73.9851, timestamp: new Date('2025-09-22T10:00:00Z') },
-        { latitude: 40.7590, longitude: -73.9850, timestamp: new Date('2025-09-22T10:01:00Z') },
-        { latitude: 40.7591, longitude: -73.9849, timestamp: new Date('2025-09-22T10:02:00Z') }
+        { latitude: 40.759, longitude: -73.985, timestamp: new Date('2025-09-22T10:01:00Z') },
+        { latitude: 40.7591, longitude: -73.9849, timestamp: new Date('2025-09-22T10:02:00Z') },
       ]
 
       expect(mockGPSTrail).toHaveLength(3)
@@ -344,7 +360,9 @@ describe('URFMP Comprehensive Test Suite', () => {
         expect(point.timestamp).toBeInstanceOf(Date)
 
         if (index > 0) {
-          expect(point.timestamp.getTime()).toBeGreaterThan(mockGPSTrail[index - 1].timestamp.getTime())
+          expect(point.timestamp.getTime()).toBeGreaterThan(
+            mockGPSTrail[index - 1].timestamp.getTime()
+          )
         }
       })
     })
@@ -353,7 +371,8 @@ describe('URFMP Comprehensive Test Suite', () => {
   describe('Performance & Security', () => {
     it('should validate data sanitization', () => {
       const unsafeInput = '<script>alert("xss")</script>'
-      const mockSanitize = (input: string) => input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      const mockSanitize = (input: string) =>
+        input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
 
       expect(mockSanitize(unsafeInput)).toBe('')
     })
@@ -363,7 +382,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         maxRequests: 1000,
         windowMs: 900000, // 15 minutes
         skipSuccessfulRequests: false,
-        skipFailedRequests: false
+        skipFailedRequests: false,
       }
 
       expect(typeof mockRateLimit.maxRequests).toBe('number')
@@ -378,7 +397,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         limit: 50,
         total: 250,
         hasNextPage: true,
-        hasPrevPage: false
+        hasPrevPage: false,
       }
 
       expect(mockPagination.page).toBeGreaterThan(0)
@@ -401,10 +420,10 @@ describe('URFMP Comprehensive Test Suite', () => {
         '/api/v1/geofencing/waypoints',
         '/api/v1/geofencing/paths',
         '/api/v1/analytics/fleet-metrics',
-        '/api/v1/maintenance/tasks'
+        '/api/v1/maintenance/tasks',
       ]
 
-      endpoints.forEach(endpoint => {
+      endpoints.forEach((endpoint) => {
         expect(endpoint).toMatch(/^\//)
         if (endpoint.includes(':')) {
           expect(endpoint).toMatch(/:[a-zA-Z][a-zA-Z0-9]*/)
@@ -416,7 +435,7 @@ describe('URFMP Comprehensive Test Suite', () => {
       const validStatusCodes = [200, 201, 204, 400, 401, 403, 404, 409, 422, 429, 500, 503]
       const testCodes = [200, 201, 400, 401, 404, 500]
 
-      testCodes.forEach(code => {
+      testCodes.forEach((code) => {
         expect(validStatusCodes).toContain(code)
       })
     })
@@ -427,12 +446,12 @@ describe('URFMP Comprehensive Test Suite', () => {
       const testUUIDs = [
         '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
         'd8077863-d602-45fd-a253-78ee0d3d49a8',
-        '123e4567-e89b-12d3-a456-426614174000'
+        '123e4567-e89b-12d3-a456-426614174000',
       ]
 
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-      testUUIDs.forEach(uuid => {
+      testUUIDs.forEach((uuid) => {
         expect(uuid).toMatch(uuidRegex)
       })
     })
@@ -441,13 +460,13 @@ describe('URFMP Comprehensive Test Suite', () => {
       const validEmails = ['admin@urfmp.com', 'user@example.org', 'test.user@domain.co.uk']
       const invalidEmails = ['invalid-email', '@domain.com', 'user@', 'user@domain']
 
-      const emailRegex = /^[\w\.-]+@[\w\.-]+\.\w+$/
+      const emailRegex = /^[\w.-]+@[\w.-]+\.\w+$/
 
-      validEmails.forEach(email => {
+      validEmails.forEach((email) => {
         expect(email).toMatch(emailRegex)
       })
 
-      invalidEmails.forEach(email => {
+      invalidEmails.forEach((email) => {
         expect(email).not.toMatch(emailRegex)
       })
     })
@@ -477,7 +496,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         apiKey: testApiKey,
         baseUrl: baseUrl,
         websocketUrl: 'ws://localhost:3000/ws',
-        timeout: 5000
+        timeout: 5000,
       })
     })
 
@@ -539,7 +558,15 @@ describe('URFMP Comprehensive Test Suite', () => {
             expect(robot).toHaveProperty('name')
             expect(robot).toHaveProperty('status')
             expect(robot).toHaveProperty('organizationId')
-            expect(['online', 'offline', 'error', 'idle', 'running', 'charging', 'maintenance']).toContain(robot.status)
+            expect([
+              'online',
+              'offline',
+              'error',
+              'idle',
+              'running',
+              'charging',
+              'maintenance',
+            ]).toContain(robot.status)
           }
         } catch (error) {
           console.warn('Robot API not available for testing:', error)
@@ -556,7 +583,9 @@ describe('URFMP Comprehensive Test Suite', () => {
 
             // Validate required fields
             expect(typeof robot.id).toBe('string')
-            expect(robot.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
+            expect(robot.id).toMatch(
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+            )
             expect(typeof robot.name).toBe('string')
             expect(robot.name.length).toBeGreaterThan(0)
             expect(typeof robot.organizationId).toBe('string')
@@ -661,7 +690,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         const invalidClient = new URFMP({
           apiKey: 'invalid_key',
           baseUrl: baseUrl,
-          timeout: 2000
+          timeout: 2000,
         })
 
         try {
@@ -685,7 +714,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         const timeoutClient = new URFMP({
           apiKey: testApiKey,
           baseUrl: 'http://localhost:9999', // Non-existent endpoint
-          timeout: 1000
+          timeout: 1000,
         })
 
         try {
@@ -714,7 +743,7 @@ describe('URFMP Comprehensive Test Suite', () => {
           id: '123e4567-e89b-12d3-a456-426614174000',
           name: 'Test Robot',
           organizationId: '123e4567-e89b-12d3-a456-426614174001',
-          status: 'online'
+          status: 'online',
         }
         expect(validateRobotData(validRobot)).toBe(true)
 
@@ -727,7 +756,7 @@ describe('URFMP Comprehensive Test Suite', () => {
           { id: 123, name: 'test', organizationId: 'org' }, // wrong types
         ]
 
-        invalidRobots.forEach(robot => {
+        invalidRobots.forEach((robot) => {
           expect(validateRobotData(robot)).toBe(false)
         })
       })
@@ -740,7 +769,7 @@ describe('URFMP Comprehensive Test Suite', () => {
         const config = {
           apiKey: 'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678',
           baseUrl: 'http://localhost:3000',
-          websocketUrl: 'ws://localhost:3000/ws'
+          websocketUrl: 'ws://localhost:3000/ws',
         }
 
         expect(config.apiKey).toMatch(/^urfmp_/)
@@ -762,18 +791,26 @@ describe('URFMP Comprehensive Test Suite', () => {
               facility: 'Demo Factory',
               area: 'Production Floor',
               cell: 'Assembly Line A',
-              coordinates: { x: 125.5, y: 245.8, z: 300.2 }
+              coordinates: { x: 125.5, y: 245.8, z: 300.2 },
             },
-            organizationId: 'demo-org'
-          }
+            organizationId: 'demo-org',
+          },
         ]
 
-        mockRobots.forEach(robot => {
+        mockRobots.forEach((robot) => {
           expect(robot).toHaveProperty('id')
           expect(robot).toHaveProperty('name')
           expect(robot).toHaveProperty('status')
           expect(robot).toHaveProperty('organizationId')
-          expect(['online', 'offline', 'error', 'idle', 'running', 'charging', 'maintenance']).toContain(robot.status)
+          expect([
+            'online',
+            'offline',
+            'error',
+            'idle',
+            'running',
+            'charging',
+            'maintenance',
+          ]).toContain(robot.status)
 
           if (robot.batteryLevel !== undefined) {
             expect(robot.batteryLevel).toBeGreaterThanOrEqual(0)
@@ -799,7 +836,7 @@ describe('URFMP Comprehensive Test Suite', () => {
           totalTelemetryPoints: 1000,
           avgPowerConsumption: 125.5,
           avgEfficiency: 87.3,
-          criticalAlerts: 2
+          criticalAlerts: 2,
         }
 
         expect(typeof mockMetrics.totalRobots).toBe('number')
@@ -811,7 +848,8 @@ describe('URFMP Comprehensive Test Suite', () => {
         expect(mockMetrics.avgEfficiency).toBeLessThanOrEqual(100)
 
         // Validate total consistency
-        const totalAccountedRobots = mockMetrics.robotsOnline + mockMetrics.robotsOffline + mockMetrics.robotsInError
+        const totalAccountedRobots =
+          mockMetrics.robotsOnline + mockMetrics.robotsOffline + mockMetrics.robotsInError
         expect(totalAccountedRobots).toBeLessThanOrEqual(mockMetrics.totalRobots)
       })
 
@@ -822,7 +860,7 @@ describe('URFMP Comprehensive Test Suite', () => {
           powerConsumption: 150.2,
           voltage: 48.1,
           current: 3.1,
-          efficiency: 89.5
+          efficiency: 89.5,
         }
 
         expect(mockTelemetryPoint.timestamp).toBeInstanceOf(Date)

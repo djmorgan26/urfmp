@@ -34,7 +34,9 @@ global.IntersectionObserver = class IntersectionObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
-  takeRecords() { return [] }
+  takeRecords() {
+    return []
+  }
 } as any
 
 // Mock WebSocket
@@ -74,8 +76,12 @@ global.HTMLCanvasElement = class HTMLCanvasElement {
       translate: () => {},
     }
   }
-  toDataURL() { return '' }
-  getBoundingClientRect() { return { top: 0, left: 0, width: 0, height: 0 } }
+  toDataURL() {
+    return ''
+  }
+  getBoundingClientRect() {
+    return { top: 0, left: 0, width: 0, height: 0 }
+  }
 } as any
 
 // Clean up after each test

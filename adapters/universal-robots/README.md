@@ -6,45 +6,46 @@ This adapter implements the complete URFMP vendor interface for Universal Robots
 
 ## 🤖 Supported Models
 
-| Model | Payload | Reach | Status |
-|-------|---------|-------|--------|
-| UR3e  | 3 kg    | 500 mm | ✅ Full Support |
-| UR5e  | 5 kg    | 850 mm | ✅ Full Support |
-| UR10e | 10 kg   | 1300 mm | ✅ Full Support |
-| UR16e | 16 kg   | 900 mm | ✅ Full Support |
-| UR20  | 20 kg   | 1750 mm | ✅ Full Support |
-| UR3   | 3 kg    | 500 mm | ✅ Legacy Support |
-| UR5   | 5 kg    | 850 mm | ✅ Legacy Support |
+| Model | Payload | Reach   | Status            |
+| ----- | ------- | ------- | ----------------- |
+| UR3e  | 3 kg    | 500 mm  | ✅ Full Support   |
+| UR5e  | 5 kg    | 850 mm  | ✅ Full Support   |
+| UR10e | 10 kg   | 1300 mm | ✅ Full Support   |
+| UR16e | 16 kg   | 900 mm  | ✅ Full Support   |
+| UR20  | 20 kg   | 1750 mm | ✅ Full Support   |
+| UR3   | 3 kg    | 500 mm  | ✅ Legacy Support |
+| UR5   | 5 kg    | 850 mm  | ✅ Legacy Support |
 | UR10  | 10 kg   | 1300 mm | ✅ Legacy Support |
 
 ## 🚀 Quick Start
 
 ```javascript
-import { UniversalRobotsAdapter } from '@urfmp/adapter-universal-robots';
-import { URFMP } from '@urfmp/sdk';
+import { UniversalRobotsAdapter } from '@urfmp/adapter-universal-robots'
+import { URFMP } from '@urfmp/sdk'
 
 // Using URFMP SDK (recommended)
-const urfmp = new URFMP({ apiKey: 'your-api-key' });
+const urfmp = new URFMP({ apiKey: 'your-api-key' })
 const { robot } = await urfmp.quickStart({
   name: 'Production UR10e',
   vendor: 'universal_robots',
   model: 'UR10e',
-  host: '192.168.1.100'
-});
+  host: '192.168.1.100',
+})
 
 // Direct adapter usage (advanced)
-const adapter = new UniversalRobotsAdapter();
+const adapter = new UniversalRobotsAdapter()
 const connection = await adapter.connect({
   host: '192.168.1.100',
   port: 29999,
   protocol: 'tcp',
-  timeout: 5000
-});
+  timeout: 5000,
+})
 ```
 
 ## 📊 Features
 
 ### Real-time Data Streaming
+
 - **125 Hz telemetry** from UR real-time interface (port 30003)
 - **Joint positions, velocities, currents** for all 6 axes
 - **TCP position and orientation** in base frame
@@ -53,6 +54,7 @@ const connection = await adapter.connect({
 - **Motor temperatures** and electrical data
 
 ### Robot Control
+
 - **Program execution** (play, pause, stop)
 - **Emergency stop** and protective stop handling
 - **Move commands** via URScript injection
@@ -60,6 +62,7 @@ const connection = await adapter.connect({
 - **Safety configuration** monitoring
 
 ### Advanced Features
+
 - **Automatic reconnection** with exponential backoff
 - **Error recovery** and protective stop unlocking
 - **Program state monitoring**
@@ -69,18 +72,20 @@ const connection = await adapter.connect({
 ## 🔧 Configuration
 
 ### Basic Configuration
+
 ```javascript
 const config = {
-  host: '192.168.1.100',           // Robot IP address
-  dashboardPort: 29999,            // Dashboard server port (default)
-  realTimePort: 30003,             // Real-time interface port (default)
-  primaryPort: 30001,              // Primary interface port (default)
-  secondaryPort: 30002,            // Secondary interface port (default)
-  timeout: 5000                    // Connection timeout (ms)
-};
+  host: '192.168.1.100', // Robot IP address
+  dashboardPort: 29999, // Dashboard server port (default)
+  realTimePort: 30003, // Real-time interface port (default)
+  primaryPort: 30001, // Primary interface port (default)
+  secondaryPort: 30002, // Secondary interface port (default)
+  timeout: 5000, // Connection timeout (ms)
+}
 ```
 
 ### With Authentication (if configured)
+
 ```javascript
 const config = {
   host: '192.168.1.100',
@@ -88,10 +93,10 @@ const config = {
     type: 'basic',
     credentials: {
       username: 'operator',
-      password: 'password'
-    }
-  }
-};
+      password: 'password',
+    },
+  },
+}
 ```
 
 ## 📡 Real-time Data Format
@@ -180,49 +185,52 @@ The adapter provides standardized telemetry data:
 ## 🎛️ Supported Commands
 
 ### Basic Control
+
 ```javascript
 // Start/stop program execution
-await adapter.sendCommand(connectionId, { type: 'START' });
-await adapter.sendCommand(connectionId, { type: 'STOP' });
-await adapter.sendCommand(connectionId, { type: 'PAUSE' });
-await adapter.sendCommand(connectionId, { type: 'RESUME' });
+await adapter.sendCommand(connectionId, { type: 'START' })
+await adapter.sendCommand(connectionId, { type: 'STOP' })
+await adapter.sendCommand(connectionId, { type: 'PAUSE' })
+await adapter.sendCommand(connectionId, { type: 'RESUME' })
 
 // Emergency stop
 await adapter.sendCommand(connectionId, {
   type: 'EMERGENCY_STOP',
-  priority: 'CRITICAL'
-});
+  priority: 'CRITICAL',
+})
 
 // Reset from protective stop
-await adapter.sendCommand(connectionId, { type: 'RESET' });
+await adapter.sendCommand(connectionId, { type: 'RESET' })
 ```
 
 ### Motion Control
+
 ```javascript
 // Move to position
 await adapter.sendCommand(connectionId, {
   type: 'MOVE_TO_POSITION',
   payload: {
-    position: { x: 0.1, y: 0.2, z: 0.3, rx: 0, ry: 0, rz: 0 }
-  }
-});
+    position: { x: 0.1, y: 0.2, z: 0.3, rx: 0, ry: 0, rz: 0 },
+  },
+})
 
 // Load and run program
 await adapter.sendCommand(connectionId, {
   type: 'RUN_PROGRAM',
-  payload: { programName: 'pick_and_place.urp' }
-});
+  payload: { programName: 'pick_and_place.urp' },
+})
 
 // Set speed scaling
 await adapter.sendCommand(connectionId, {
   type: 'SET_SPEED',
-  payload: { speed: 75 }  // 75% of max speed
-});
+  payload: { speed: 75 }, // 75% of max speed
+})
 ```
 
 ## 🔒 Safety Features
 
 ### Automatic Safety Monitoring
+
 - **Real-time safety status** monitoring
 - **Protective stop detection** and recovery
 - **Emergency stop handling**
@@ -230,76 +238,79 @@ await adapter.sendCommand(connectionId, {
 - **Reduced mode** detection
 
 ### Error Recovery
+
 ```javascript
 // Monitor for protective stops
 adapter.on('robot:protective_stop', async (event) => {
-  console.log('Protective stop triggered:', event.reason);
+  console.log('Protective stop triggered:', event.reason)
 
   // Wait for manual intervention
-  await waitForOperatorClearance();
+  await waitForOperatorClearance()
 
   // Attempt recovery
-  await adapter.sendCommand(connectionId, { type: 'RESET' });
-});
+  await adapter.sendCommand(connectionId, { type: 'RESET' })
+})
 ```
 
 ## 🔧 Integration Examples
 
 ### With URFMP SDK
-```javascript
-import { URFMP } from '@urfmp/sdk';
 
-const urfmp = new URFMP({ apiKey: process.env.URFMP_API_KEY });
+```javascript
+import { URFMP } from '@urfmp/sdk'
+
+const urfmp = new URFMP({ apiKey: process.env.URFMP_API_KEY })
 
 // Quick setup for Universal Robot
 const { robot, monitor } = await urfmp.quickStart({
   name: 'Welding Cell UR10e',
   vendor: 'universal_robots',
   model: 'UR10e',
-  host: '192.168.1.100'
-});
+  host: '192.168.1.100',
+})
 
 // Monitor for alerts
 urfmp.on('robot:alert', (alert) => {
   if (alert.severity === 'critical') {
-    sendSlackAlert(alert);
+    sendSlackAlert(alert)
   }
-});
+})
 ```
 
 ### Direct Integration
-```javascript
-import { UniversalRobotsAdapter } from '@urfmp/adapter-universal-robots';
 
-const adapter = new UniversalRobotsAdapter();
+```javascript
+import { UniversalRobotsAdapter } from '@urfmp/adapter-universal-robots'
+
+const adapter = new UniversalRobotsAdapter()
 
 const connection = await adapter.connect({
   host: '192.168.1.100',
-  timeout: 10000
-});
+  timeout: 10000,
+})
 
 // Subscribe to real-time events
 await adapter.subscribeToEvents(connection.id, (event) => {
-  console.log('Robot event:', event);
-});
+  console.log('Robot event:', event)
+})
 
 // Get current telemetry
-const telemetry = await adapter.getTelemetry(connection.id);
-console.log('Current position:', telemetry.data.position);
+const telemetry = await adapter.getTelemetry(connection.id)
+console.log('Current position:', telemetry.data.position)
 ```
 
 ## 🚨 Error Handling
 
 ```javascript
 try {
-  const connection = await adapter.connect(config);
+  const connection = await adapter.connect(config)
 } catch (error) {
   if (error.message.includes('ECONNREFUSED')) {
-    console.error('Robot is not reachable. Check network connection.');
+    console.error('Robot is not reachable. Check network connection.')
   } else if (error.message.includes('timeout')) {
-    console.error('Connection timeout. Robot may be busy.');
+    console.error('Connection timeout. Robot may be busy.')
   } else {
-    console.error('Connection failed:', error.message);
+    console.error('Connection failed:', error.message)
   }
 }
 ```

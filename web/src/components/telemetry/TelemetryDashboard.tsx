@@ -75,8 +75,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
 
   const loadTelemetryData = async () => {
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     if (!isDemo && !urfmp) return
 
@@ -93,10 +94,14 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
             data: {
               temperature: { ambient: 20 + Math.random() * 15 },
               power: { total: 80 + Math.random() * 40 },
-              position: { x: 125 + Math.random() * 10, y: 245 + Math.random() * 10, z: 300 + Math.random() * 5 },
+              position: {
+                x: 125 + Math.random() * 10,
+                y: 245 + Math.random() * 10,
+                z: 300 + Math.random() * 5,
+              },
               voltage: { supply: 48 + Math.random() * 2 },
-              current: { total: 2 + Math.random() * 0.5 }
-            }
+              current: { total: 2 + Math.random() * 0.5 },
+            },
           })
         }
       } else {
@@ -118,8 +123,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
 
   const loadAvailableMetrics = async () => {
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     if (!isDemo && !urfmp) return
 
@@ -139,8 +145,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
 
   const loadLatestTelemetry = async () => {
     // Check if we're in demo mode
-    const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' ||
-                  (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo =
+      import.meta.env.VITE_DEMO_MODE === 'true' ||
+      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     if (!isDemo && !urfmp) return
 
@@ -158,8 +165,8 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
             voltage: { supply: 48.2 },
             current: { total: 2.15 },
             speed: { linear: 0.5, angular: 0.1 },
-            force: { tcp: 12.5 }
-          }
+            force: { tcp: 12.5 },
+          },
         }
       } else {
         latest = await urfmp.getLatestTelemetry(robotId)

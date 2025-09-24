@@ -2,14 +2,7 @@ import { WebSocketServer, WebSocket } from 'ws'
 import { IncomingMessage } from 'http'
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  WebSocketMessage,
-  WebSocketMessageType,
-  WebSocketConnection,
-  WebSocketSubscription,
-  ChannelType,
-  AuthPayload,
-} from '@urfmp/types'
+import { WebSocketMessage, WebSocketMessageType, AuthPayload } from '@urfmp/types'
 import { logger, logWebSocketEvent } from '../config/logger'
 import { pubsub } from '../config/redis'
 
@@ -25,8 +18,8 @@ interface ExtendedWebSocket extends WebSocket {
 class WebSocketService {
   private wss: WebSocketServer
   private clients = new Map<string, ExtendedWebSocket>()
-  private heartbeatInterval: NodeJS.Timeout
-  private cleanupInterval: NodeJS.Timeout
+  private heartbeatInterval!: NodeJS.Timeout
+  private cleanupInterval!: NodeJS.Timeout
 
   constructor(wss: WebSocketServer) {
     this.wss = wss
@@ -40,7 +33,7 @@ class WebSocketService {
     this.wss.on('connection', this.handleConnection.bind(this))
 
     this.wss.on('error', (error) => {
-      logger.error('WebSocket server error', { error: error.message })
+      logger.error('WebSocket server error', { error: (error as Error).message })
     })
 
     logger.info('WebSocket server initialized')
@@ -67,7 +60,7 @@ class WebSocketService {
     })
 
     // Set up message handling
-    extendedWs.on('message', (data) => this.handleMessage(extendedWs, data))
+    extendedWs.on('message', (data) => this.handleMessage(extendedWs, Buffer.from(data as any)))
 
     extendedWs.on('close', () => this.handleDisconnection(extendedWs))
 
@@ -75,7 +68,7 @@ class WebSocketService {
       logger.error('WebSocket connection error', {
         socketId,
         userId: extendedWs.userId,
-        error: error.message,
+        error: (error as Error).message,
       })
     })
 
@@ -118,7 +111,7 @@ class WebSocketService {
     } catch (error) {
       logger.warn('WebSocket authentication failed', {
         socketId: ws.id,
-        error: error.message,
+        error: (error as Error).message,
       })
       // Allow unauthenticated connections for public data
     }
@@ -160,7 +153,7 @@ class WebSocketService {
     } catch (error) {
       logger.error('WebSocket message parsing error', {
         socketId: ws.id,
-        error: error.message,
+        error: (error as Error).message,
       })
 
       this.sendError(ws, 'Invalid message format')
@@ -168,7 +161,7 @@ class WebSocketService {
   }
 
   private handleSubscription(ws: ExtendedWebSocket, message: WebSocketMessage): void {
-    const { event, data } = message
+    const { data } = message
 
     if (!data.channel) {
       return this.sendError(ws, 'Channel is required for subscription')

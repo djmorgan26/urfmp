@@ -1,5 +1,13 @@
 // Minimal types for production build without full packages
-export type RobotStatus = 'online' | 'offline' | 'error' | 'maintenance' | 'running' | 'idle' | 'stopped' | 'emergency_stop'
+export type RobotStatus =
+  | 'online'
+  | 'offline'
+  | 'error'
+  | 'maintenance'
+  | 'running'
+  | 'idle'
+  | 'stopped'
+  | 'emergency_stop'
 
 export interface Robot {
   id: string
@@ -46,7 +54,8 @@ export interface BrandConfig {
 export const getBrandConfig = (): BrandConfig => ({
   companyName: import.meta.env.VITE_COMPANY_NAME || 'URFMP',
   productName: import.meta.env.VITE_PRODUCT_NAME || 'URFMP',
-  productFullName: import.meta.env.VITE_PRODUCT_FULL_NAME || 'Universal Robot Fleet Management Platform',
+  productFullName:
+    import.meta.env.VITE_PRODUCT_FULL_NAME || 'Universal Robot Fleet Management Platform',
   tagline: import.meta.env.VITE_TAGLINE || 'The Stripe of Robotics',
   description: import.meta.env.VITE_DESCRIPTION || 'Monitor any robot in 7 lines of code',
 })
