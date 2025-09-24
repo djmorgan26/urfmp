@@ -74,7 +74,7 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction) =
 
 // Middleware to log sensitive operations
 export const auditLogger = (operation: string) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const userId = (req as any).user?.id
     const organizationId = (req as any).user?.organizationId
 

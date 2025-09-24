@@ -12,7 +12,7 @@ export const errorHandler = (
   error: CustomError,
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   const traceId = (req.headers['x-trace-id'] as string) || 'unknown'
 

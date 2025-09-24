@@ -116,7 +116,7 @@ export const apiKeyMiddleware = async (req: Request, _res: Response, next: NextF
 }
 
 // Required authentication (supports both JWT tokens and API keys)
-export const requiredAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const requiredAuth = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     // Development bypass when using mock robots
     if (process.env.NODE_ENV === 'development' && process.env.DEV_MOCK_ROBOTS === 'true') {
@@ -204,7 +204,7 @@ export const requiredAuth = async (req: Request, res: Response, next: NextFuncti
 }
 
 // Optional authentication (allows both authenticated and anonymous access)
-export const optionalAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const optionalAuth = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     const token = extractToken(req)
     const apiKey = req.headers['x-api-key'] as string
@@ -254,7 +254,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 
 // Permission check middleware
 export const requirePermission = (permission: Permission) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
       return next(new UnauthorizedError())
     }
@@ -278,7 +278,7 @@ export const requirePermission = (permission: Permission) => {
 
 // Role check middleware
 export const requireRole = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
       return next(new UnauthorizedError())
     }
@@ -301,7 +301,7 @@ export const requireRole = (roles: string[]) => {
 }
 
 // Organization access middleware
-export const requireOrgAccess = (req: Request, res: Response, next: NextFunction) => {
+export const requireOrgAccess = (req: Request, _res: Response, next: NextFunction) => {
   if (!req.user) {
     return next(new UnauthorizedError())
   }
@@ -414,7 +414,7 @@ async function updateApiKeyLastUsed(keyId: string): Promise<void> {
   } catch (error) {
     logger.error('Failed to update API key last used timestamp', {
       keyId,
-      error: error.message,
+      error: (error as Error).message,
     })
   }
 }

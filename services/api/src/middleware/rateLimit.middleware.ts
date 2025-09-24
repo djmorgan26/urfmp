@@ -16,7 +16,7 @@ class RedisStore {
     const redis = this.getRedisInstance()
     const redisKey = this.prefix + key
     const window = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000')
-    const limit = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100')
+    const _limit = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100')
 
     try {
       const multi = redis.multi()
@@ -30,7 +30,7 @@ class RedisStore {
 
       return { totalHits, resetTime }
     } catch (error) {
-      logger.error('Redis rate limit error', { error: error.message, key })
+      logger.error('Redis rate limit error', { error: (error as Error).message, key })
       // Fallback to allowing the request if Redis fails
       return { totalHits: 1 }
     }
@@ -42,7 +42,7 @@ class RedisStore {
     try {
       await redis.decr(redisKey)
     } catch (error) {
-      logger.error('Redis rate limit decrement error', { error: error.message, key })
+      logger.error('Redis rate limit decrement error', { error: (error as Error).message, key })
     }
   }
 
@@ -52,7 +52,7 @@ class RedisStore {
     try {
       await redis.del(redisKey)
     } catch (error) {
-      logger.error('Redis rate limit reset error', { error: error.message, key })
+      logger.error('Redis rate limit reset error', { error: (error as Error).message, key })
     }
   }
 }
@@ -83,7 +83,7 @@ export const rateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore() as any,
   keyGenerator: createKeyGenerator(),
-  handler: (req: Request, res: Response) => {
+  handler: (req: Request, _res: Response) => {
     const error = new TooManyRequestsError('Rate limit exceeded. Please try again later.')
 
     logger.warn('Rate limit exceeded', {
@@ -111,7 +111,7 @@ export const authRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore() as any,
   keyGenerator: createKeyGenerator('auth'),
-  handler: (req: Request, res: Response) => {
+  handler: (req: Request, _res: Response) => {
     const error = new TooManyRequestsError(
       'Too many authentication attempts. Please try again in 15 minutes.'
     )
@@ -135,7 +135,7 @@ export const apiRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore() as any,
   keyGenerator: createKeyGenerator('api'),
-  handler: (req: Request, res: Response) => {
+  handler: (req: Request, _res: Response) => {
     const error = new TooManyRequestsError('API rate limit exceeded.')
 
     logger.warn('API rate limit exceeded', {
@@ -158,7 +158,7 @@ export const telemetryRateLimiter = rateLimit({
   legacyHeaders: false,
   store: new RedisStore() as any,
   keyGenerator: createKeyGenerator('telemetry'),
-  handler: (req: Request, res: Response) => {
+  handler: (req: Request, _res: Response) => {
     const error = new TooManyRequestsError('Telemetry burst limit exceeded.')
 
     logger.warn('Telemetry rate limit exceeded', {

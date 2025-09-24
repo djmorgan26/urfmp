@@ -13,7 +13,7 @@
     "dev": "docker-compose up -d && npm run dev:api",
     "dev:api": "npm run dev --workspace=@urfmp/api",
     "dev:web": "npm run dev --workspace=@urfmp/web",
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspace=@urfmp/types && npm run build --workspace=@urfmp/sdk && npm run build --workspace=@urfmp/api",
     "build:vercel": "cd web && npm ci && vite build",
     "test": "npm run test --workspaces",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
