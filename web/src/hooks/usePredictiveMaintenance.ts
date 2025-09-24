@@ -146,7 +146,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
 
         try {
           // Add delay between API calls to avoid hitting rate limits
-          await new Promise((resolve) => setTimeout(resolve, 1000))
+          await new Promise((resolve) => setTimeout(resolve, 3000))
 
           // Get latest telemetry for health analysis
           let latestTelemetry
@@ -182,10 +182,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
           console.warn(`Failed to analyze maintenance data for robot ${robot.id}:`, err)
 
           // Check for rate limiting and stop immediately
-          if (
-            err instanceof Error &&
-            (err.message.includes('429') || err.message.includes('Too Many Requests'))
-          ) {
+          if ((err as any)?.response?.status === 429 || (err as any)?.status === 429) {
             console.log('Rate limited detected, stopping all maintenance analysis')
             rateLimitHit = true
             setError('Rate limited - reducing analysis frequency')
@@ -227,8 +224,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
   useEffect(() => {
     fetchMaintenanceData()
 
-    // Reduce refresh frequency to every 10 minutes to minimize API calls
-    const interval = setInterval(fetchMaintenanceData, 600000)
+    // Reduce refresh frequency to every 30 minutes to minimize API calls
+    const interval = setInterval(fetchMaintenanceData, 1800000)
     return () => clearInterval(interval)
   }, [urfmp, robots])
 

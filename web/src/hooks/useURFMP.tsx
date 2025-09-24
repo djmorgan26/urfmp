@@ -141,7 +141,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       const client = new URFMP({
         apiKey: import.meta.env.VITE_URFMP_API_KEY || 'demo-api-key',
         baseUrl: import.meta.env.VITE_URFMP_API_URL || 'http://localhost:3000',
-        websocketUrl: import.meta.env.VITE_URFMP_WS_URL || 'ws://localhost:3000',
+        websocketUrl: import.meta.env.VITE_URFMP_WS_URL || 'ws://localhost:3000/ws',
       })
 
       setUrfmp(client)

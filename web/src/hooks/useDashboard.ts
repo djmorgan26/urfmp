@@ -120,7 +120,7 @@ export function useDashboard(): DashboardData {
           } catch (err) {
             console.warn(`Failed to get telemetry for robot ${robot.id}:`, err)
             // Stop fetching more telemetry if we get rate limited
-            if (err instanceof Error && err.message.includes('429')) {
+            if ((err as any)?.response?.status === 429 || (err as any)?.status === 429) {
               console.log('Rate limited, stopping telemetry fetch')
               break
             }
@@ -314,8 +314,8 @@ export function useDashboard(): DashboardData {
   useEffect(() => {
     fetchDashboardData()
 
-    // Refresh dashboard data every 2 minutes to reduce API calls
-    const interval = setInterval(fetchDashboardData, 120000)
+    // Refresh dashboard data every 5 minutes to reduce API calls
+    const interval = setInterval(fetchDashboardData, 300000)
     return () => clearInterval(interval)
   }, [urfmp, robots, maintenanceAlerts])
 

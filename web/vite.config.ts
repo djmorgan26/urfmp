@@ -18,6 +18,10 @@ export default defineConfig({
   },
   server: {
     port: 3001,
+    host: true, // Allow access from any IP (required for Docker)
+    hmr: {
+      port: 3001, // Ensure HMR uses the same port
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
