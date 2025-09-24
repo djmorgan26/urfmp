@@ -1,8 +1,8 @@
-import amqp, { Connection, Channel } from 'amqplib'
+import * as amqp from 'amqplib'
 import { logger } from './logger'
 
-let connection: Connection
-let channel: Channel
+let connection: amqp.Connection | null = null
+let channel: amqp.Channel | null = null
 
 const EXCHANGES = {
   EVENTS: process.env.RABBITMQ_EXCHANGE || 'urfmp_events',
@@ -56,7 +56,7 @@ export const connectRabbitMQ = async (): Promise<void> => {
   }
 }
 
-export const getRabbitMQ = (): { connection: Connection; channel: Channel } => {
+export const getRabbitMQ = (): { connection: amqp.Connection; channel: amqp.Channel } => {
   if (!connection || !channel) {
     throw new Error('RabbitMQ not initialized. Call connectRabbitMQ first.')
   }
@@ -178,6 +178,7 @@ export const checkRabbitMQHealth = async (): Promise<{
     }
 
     // Try to create a temporary channel to test connectivity
+    if (!connection) throw new Error('No connection available')
     const testChannel = await connection.createChannel()
     await testChannel.close()
 

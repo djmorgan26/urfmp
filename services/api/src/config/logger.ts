@@ -51,7 +51,11 @@ export const logger = winston.createLogger({
 // File logging in production
 if (process.env.NODE_ENV === 'production' && process.env.LOG_FILE_ENABLED === 'true') {
   const logFilePath = process.env.LOG_FILE_PATH || './logs/urfmp.log'
-  const maxSize = process.env.LOG_FILE_MAX_SIZE || '10m'
+  const maxSizeStr = process.env.LOG_FILE_MAX_SIZE || '10m'
+  // Convert string like '10m' to bytes (10 * 1024 * 1024)
+  const maxSize = maxSizeStr.endsWith('m')
+    ? parseInt(maxSizeStr.slice(0, -1)) * 1024 * 1024
+    : parseInt(maxSizeStr)
   const maxFiles = parseInt(process.env.LOG_FILE_MAX_FILES || '5')
 
   logger.add(

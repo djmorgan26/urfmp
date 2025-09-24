@@ -18,9 +18,9 @@ async function startServer() {
     await connectDatabase()
     logger.info('✅ Database connected successfully')
 
-    // Run database migrations (disabled temporarily)
-    // await migrationService.runMigrations()
-    // logger.info('✅ Database migrations completed')
+    // Run database migrations
+    await migrationService.runMigrations()
+    logger.info('✅ Database migrations completed')
 
     // Initialize Redis connection
     await connectRedis()

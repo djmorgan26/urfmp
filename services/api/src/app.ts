@@ -134,7 +134,7 @@ app.use('/api/v1/users', requiredAuth, userRoutes)
 app.use('/api/v1/maintenance', requiredAuth, maintenanceRoutes)
 
 // API root
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.json({
     name: 'URFMP API',
     version: '1.0.0',
@@ -153,7 +153,7 @@ app.get('/', (req, res) => {
 })
 
 // Handle 404
-app.use('*', (req, res) => {
+app.use('*', (_req, res) => {
   res.status(404).json({
     success: false,
     error: {
@@ -166,5 +166,7 @@ app.use('*', (req, res) => {
 
 // Error handling middleware (must be last)
 app.use(errorHandler)
+
+logger.info('Express application configured successfully')
 
 export default app
