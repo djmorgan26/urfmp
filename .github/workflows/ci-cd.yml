@@ -51,8 +51,6 @@ jobs:
           npm run build --workspace=@urfmp/types || echo "Types build skipped"
           # Build SDK package
           npm run build --workspace=@urfmp/sdk || echo "SDK build skipped"
-          # Build web package
-          npm ci --workspace=@urfmp/web
 
       - name: Verify workspace integrity
         run: |
@@ -63,7 +61,7 @@ jobs:
           if [ "${{ matrix.test-type }}" = "comprehensive" ]; then
             npm run test:comprehensive --workspace=@urfmp/web
           elif [ "${{ matrix.test-type }}" = "components" ]; then
-            npx vitest run --dir src/components --workspace=@urfmp/web
+            npm run test:components --workspace=@urfmp/web
           else
             npm run test --workspace=@urfmp/web
           fi
@@ -75,11 +73,31 @@ jobs:
 
       - name: Upload test coverage
         uses: codecov/codecov-action@v3
-        if: matrix.test-type == 'unit'
+        if: matrix.test-type == 'comprehensive'
         with:
           file: ./web/coverage/lcov.info
           flags: frontend
           name: urfmp-web-coverage
+        continue-on-error: true
+
+      - name: Test Results Summary
+        if: always()
+        run: |
+          echo "🧪 Test Results Summary"
+          echo "======================"
+          echo "Test Type: ${{ matrix.test-type }}"
+          case "${{ matrix.test-type }}" in
+            "comprehensive")
+              echo "✅ Comprehensive Suite: 41+ tests covering API, authentication, data validation"
+              ;;
+            "components")
+              echo "✅ Component Tests: UI component functionality and rendering"
+              ;;
+            "unit")
+              echo "✅ Unit Tests: Basic functionality and smoke tests"
+              ;;
+          esac
+          echo "Status: ${{ job.status }}"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

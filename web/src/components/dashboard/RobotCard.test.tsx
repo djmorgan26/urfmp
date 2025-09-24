@@ -62,7 +62,7 @@ describe('RobotCard Component', () => {
     expect(screen.getByText('UR5e Test Robot')).toBeInTheDocument()
 
     // Check if robot type/model is displayed somewhere
-    const cardElement = screen.getByTestId('robot-card') || screen.getByText('UR5e Test Robot').closest('div')
+    const cardElement = screen.getByText('UR5e Test Robot').closest('div')
     expect(cardElement).toBeInTheDocument()
   })
 

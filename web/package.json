@@ -15,6 +15,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "test:comprehensive": "vitest src/tests/comprehensive.test.ts",
+    "test:components": "vitest src/components/",
     "test:ci": "node test-runner.js --ci --coverage --bail",
     "test:all": "node test-runner.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
