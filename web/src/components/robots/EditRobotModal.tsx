@@ -23,7 +23,7 @@ interface EditRobotFormData {
     cell: string
   }
   configuration: {
-    maxPayload: number
+    payload: number
     reach: number
     joints: number
   }
@@ -44,7 +44,7 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
       cell: '',
     },
     configuration: {
-      maxPayload: 0,
+      payload: 0,
       reach: 0,
       joints: 6,
     },
@@ -65,9 +65,9 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
           cell: robot.location?.cell || '',
         },
         configuration: {
-          maxPayload: robot.configuration?.maxPayload || 0,
+          payload: robot.configuration?.payload || 0,
           reach: robot.configuration?.reach || 0,
-          joints: robot.configuration?.joints || 6,
+          joints: robot.configuration?.axes || 6,
         },
       })
     }
@@ -251,9 +251,9 @@ export function EditRobotModal({ isOpen, onClose, onSuccess, robot }: EditRobotM
                   type="number"
                   min="0"
                   step="0.1"
-                  value={formData.configuration.maxPayload}
+                  value={formData.configuration.payload}
                   onChange={(e) =>
-                    handleInputChange('configuration.maxPayload', Number(e.target.value))
+                    handleInputChange('configuration.payload', Number(e.target.value))
                   }
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 />

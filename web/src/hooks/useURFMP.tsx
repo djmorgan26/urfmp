@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { URFMP } from '@urfmp/sdk'
 import { Robot, RobotTelemetry } from '@urfmp/types'
+import type { RobotVendor } from '@urfmp/types'
 import { toast } from 'sonner'
 
 // Mock data for demo mode
@@ -8,11 +9,10 @@ const generateMockRobots = (): Robot[] => [
   {
     id: 'demo-robot-1',
     name: 'UR5e Production Line Alpha',
-    type: 'UR5e',
     model: 'UR5e',
-    vendor: 'Universal_Robots',
+    serialNumber: 'UR5E-2024-001',
+    vendor: 'Universal Robots' as RobotVendor,
     status: 'online' as any,
-    batteryLevel: 85,
     location: {
       facility: 'Demo Factory',
       area: 'Production Floor',
@@ -20,27 +20,25 @@ const generateMockRobots = (): Robot[] => [
       coordinates: { x: 125.5, y: 245.8, z: 300.2 }
     },
     configuration: {
+      axes: 6,
       payload: 5.0,
       reach: 850,
-      repeatability: 0.03,
-      joints: 6
+      capabilities: [],
+      customSettings: {}
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date(),
     lastSeen: new Date(),
     firmwareVersion: '5.15.0',
-    capabilities: ['pick_and_place', 'welding', 'assembly'],
-    ipAddress: '192.168.1.100'
   },
   {
     id: 'demo-robot-2',
     name: 'UR10e Packaging Station',
-    type: 'UR10e',
     model: 'UR10e',
-    vendor: 'Universal_Robots',
+    serialNumber: 'UR10E-2024-002',
+    vendor: 'Universal Robots' as RobotVendor,
     status: 'idle' as any,
-    batteryLevel: 92,
     location: {
       facility: 'Demo Factory',
       area: 'Production Floor',
@@ -48,27 +46,25 @@ const generateMockRobots = (): Robot[] => [
       coordinates: { x: 200.1, y: 180.5, z: 285.0 }
     },
     configuration: {
+      axes: 6,
       payload: 10.0,
       reach: 1300,
-      repeatability: 0.05,
-      joints: 6
+      capabilities: [],
+      customSettings: {}
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-02-20'),
     updatedAt: new Date(),
     lastSeen: new Date(),
     firmwareVersion: '5.15.0',
-    capabilities: ['palletizing', 'packaging', 'quality_control'],
-    ipAddress: '192.168.1.101'
   },
   {
     id: 'demo-robot-3',
     name: 'UR16e Heavy Lifting Unit',
-    type: 'UR16e',
     model: 'UR16e',
-    vendor: 'Universal_Robots',
+    serialNumber: 'UR16E-2024-003',
+    vendor: 'Universal Robots' as RobotVendor,
     status: 'maintenance' as any,
-    batteryLevel: 45,
     location: {
       facility: 'Demo Factory',
       area: 'Production Floor',
@@ -76,18 +72,17 @@ const generateMockRobots = (): Robot[] => [
       coordinates: { x: 75.2, y: 320.1, z: 250.5 }
     },
     configuration: {
+      axes: 6,
       payload: 16.0,
       reach: 900,
-      repeatability: 0.05,
-      joints: 6
+      capabilities: [],
+      customSettings: {}
     },
     organizationId: 'demo-org',
     createdAt: new Date('2024-03-10'),
     updatedAt: new Date(),
     lastSeen: new Date(Date.now() - 300000), // 5 minutes ago
     firmwareVersion: '5.14.2',
-    capabilities: ['heavy_lifting', 'material_handling', 'machine_tending'],
-    ipAddress: '192.168.1.102'
   }
 ]
 

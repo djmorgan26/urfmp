@@ -113,10 +113,17 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
 
-    // Aggressive rate limiting: prevent fetches within 5 minutes
+    // Very aggressive rate limiting: prevent fetches within 30 minutes
     const now = Date.now()
-    if (now - lastFetch < 300000 && alerts.length > 0) {
-      console.log('Predictive Maintenance: skipping fetch due to rate limiting (5min cooldown)')
+    const timeSinceLastFetch = now - lastFetch
+    if (timeSinceLastFetch < 1800000) { // 30 minutes
+      console.log(`Predictive Maintenance: skipping fetch due to rate limiting (need ${Math.ceil((1800000 - timeSinceLastFetch) / 60000)} more minutes)`)
+      return
+    }
+
+    // Additional check: if there's been any 429 error in the last hour, skip
+    if (error && error.includes('Rate limited') && timeSinceLastFetch < 3600000) {
+      console.log('Predictive Maintenance: previous rate limit error, extending wait time')
       return
     }
 
@@ -130,8 +137,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
       const generatedSchedule: MaintenanceSchedule[] = []
       const generatedComponentHealth: ComponentHealth[] = []
 
-      // Only analyze first 2 robots to minimize API load
-      const robotsToAnalyze = robots.slice(0, 2)
+      // Only analyze first robot to minimize API load
+      const robotsToAnalyze = robots.slice(0, 1)
       console.log(
         `Predictive Maintenance: analyzing ${robotsToAnalyze.length} of ${robots.length} robots`
       )
@@ -145,8 +152,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
         }
 
         try {
-          // Add delay between API calls to avoid hitting rate limits
-          await new Promise((resolve) => setTimeout(resolve, 3000))
+          // Add significant delay between API calls to avoid hitting rate limits
+          await new Promise((resolve) => setTimeout(resolve, 10000))
 
           // Get latest telemetry for health analysis
           let latestTelemetry
@@ -182,10 +189,12 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
           console.warn(`Failed to analyze maintenance data for robot ${robot.id}:`, err)
 
           // Check for rate limiting and stop immediately
-          if ((err as any)?.response?.status === 429 || (err as any)?.status === 429) {
+          if ((err as any)?.response?.status === 429 || (err as any)?.status === 429 ||
+              (err as any)?.message?.includes('429')) {
             console.log('Rate limited detected, stopping all maintenance analysis')
             rateLimitHit = true
-            setError('Rate limited - reducing analysis frequency')
+            setError('Rate limited - will retry in 1 hour')
+            setLastFetch(now - 1800000 + 3600000) // Set last fetch to force 1 hour delay
             break
           }
 
@@ -222,12 +231,32 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
   }
 
   useEffect(() => {
-    fetchMaintenanceData()
+    // Only run if we have URFMP instance and it's been more than 30 minutes
+    if (!urfmp) return
 
-    // Reduce refresh frequency to every 30 minutes to minimize API calls
-    const interval = setInterval(fetchMaintenanceData, 1800000)
+    const now = Date.now()
+    if (now - lastFetch < 1800000) { // 30 minutes
+      console.log('Predictive Maintenance: skipping fetch due to recent update')
+      return
+    }
+
+    fetchMaintenanceData()
+  }, [urfmp]) // Remove robots dependency to prevent excessive re-runs
+
+  // Separate effect for periodic updates
+  useEffect(() => {
+    if (!urfmp) return
+
+    // Set up interval for periodic updates (every 30 minutes)
+    const interval = setInterval(() => {
+      const now = Date.now()
+      if (now - lastFetch >= 1800000) { // Only if it's been 30+ minutes
+        fetchMaintenanceData()
+      }
+    }, 1800000)
+
     return () => clearInterval(interval)
-  }, [urfmp, robots])
+  }, [urfmp])
 
   return {
     alerts,

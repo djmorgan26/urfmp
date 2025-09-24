@@ -90,7 +90,6 @@ export function LoadingChart({ className, height = 200 }: LoadingChartProps) {
                 <LoadingSkeleton
                   key={j}
                   className="flex-1"
-                  style={{ height: `${Math.random() * 100 + 20}%` }}
                 />
               ))}
             </div>

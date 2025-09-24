@@ -295,8 +295,8 @@ export function RobotDetail() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Max Payload</span>
                   <span className="font-medium">
-                    {robot.configuration?.maxPayload
-                      ? `${robot.configuration.maxPayload} kg`
+                    {robot.configuration?.payload
+                      ? `${robot.configuration.payload} kg`
                       : 'N/A'}
                   </span>
                 </div>
@@ -308,7 +308,7 @@ export function RobotDetail() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Joints</span>
-                  <span className="font-medium">{robot.configuration?.joints || 'N/A'}</span>
+                  <span className="font-medium">{robot.configuration?.axes || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Created</span>

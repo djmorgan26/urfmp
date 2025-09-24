@@ -75,7 +75,7 @@ export function useRealTimeAlerts(): UseRealTimeAlertsReturn {
       data: {
         component: alert.component,
         confidence: alert.confidence,
-        recommendedAction: alert.recommendedAction,
+        recommendation: alert.recommendation,
       },
       acknowledged: false,
       dismissible: true,
@@ -249,15 +249,15 @@ export function useRealTimeAlerts(): UseRealTimeAlertsReturn {
     }
 
     // Subscribe to WebSocket events
-    if (urfmp.ws) {
-      urfmp.ws.on('telemetry:update', handleTelemetryUpdate)
-      urfmp.ws.on('robot:status:change', handleRobotStatusChange)
+    if (urfmp && typeof urfmp.on === 'function') {
+      urfmp.on('telemetry:update', handleTelemetryUpdate)
+      urfmp.on('robot:status:change', handleRobotStatusChange)
     }
 
     return () => {
-      if (urfmp.ws) {
-        urfmp.ws.off('telemetry:update', handleTelemetryUpdate)
-        urfmp.ws.off('robot:status:change', handleRobotStatusChange)
+      if (urfmp && typeof urfmp.off === 'function') {
+        urfmp.off('telemetry:update', handleTelemetryUpdate)
+        urfmp.off('robot:status:change', handleRobotStatusChange)
       }
     }
   }, [urfmp, isConnected, robots, subscribedRobots])
@@ -285,8 +285,8 @@ export function useRealTimeAlerts(): UseRealTimeAlertsReturn {
 
     // Optionally sync with backend
     try {
-      if (urfmp) {
-        await urfmp.acknowledgeAlert?.(alertId)
+      if (urfmp && 'acknowledgeAlert' in urfmp && typeof (urfmp as any).acknowledgeAlert === 'function') {
+        await (urfmp as any).acknowledgeAlert(alertId)
       }
     } catch (error) {
       console.warn('Failed to acknowledge alert on server:', error)
