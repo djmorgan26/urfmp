@@ -17,12 +17,13 @@
     "test:comprehensive": "vitest src/tests/comprehensive.test.ts",
     "test:components": "vitest src/components/",
     "test:ci": "node test-runner.js --ci --coverage --bail",
+    "reality-check": "node scripts/reality-check.cjs",
     "test:all": "node test-runner.js",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext ts,tsx --fix",
     "typecheck": "tsc --noEmit",
     "typecheck:ci": "tsc --project tsconfig.ci.json --noEmit",
-    "quality": "npm run typecheck && npm run lint && npm run test"
+    "quality": "npm run typecheck && npm run lint && npm run test && npm run reality-check"
   },
   "dependencies": {
     "@tanstack/react-query": "^4.24.6",
