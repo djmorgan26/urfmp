@@ -52,9 +52,9 @@ async function main() {
   } catch (error) {
     logger.error('Migration command failed', {
       command,
-      error: error.message
+      error: (error as Error).message
     })
-    console.error(`Error: ${error.message}`)
+    console.error(`Error: ${(error as Error).message}`)
     process.exit(1)
   }
 }

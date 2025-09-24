@@ -20,7 +20,7 @@ export const connectRedis = async (): Promise<void> => {
     })
 
     redis.on('error', (error) => {
-      logger.error('Redis connection error', { error: error.message })
+      logger.error('Redis connection error', { error: (error as Error).message })
     })
 
     redis.on('close', () => {
@@ -38,7 +38,7 @@ export const connectRedis = async (): Promise<void> => {
 
     logger.info('Redis connected successfully')
   } catch (error) {
-    logger.error('Failed to connect to Redis', { error: error.message })
+    logger.error('Failed to connect to Redis', { error: (error as Error).message })
     throw error
   }
 }
@@ -57,7 +57,7 @@ export const cache = {
       const value = await redis.get(key)
       return value ? JSON.parse(value) : null
     } catch (error) {
-      logger.error('Cache get error', { key, error: error.message })
+      logger.error('Cache get error', { key, error: (error as Error).message })
       return null
     }
   },
@@ -72,7 +72,7 @@ export const cache = {
       }
       return true
     } catch (error) {
-      logger.error('Cache set error', { key, error: error.message })
+      logger.error('Cache set error', { key, error: (error as Error).message })
       return false
     }
   },
@@ -82,7 +82,7 @@ export const cache = {
       await redis.del(key)
       return true
     } catch (error) {
-      logger.error('Cache delete error', { key, error: error.message })
+      logger.error('Cache delete error', { key, error: (error as Error).message })
       return false
     }
   },
@@ -92,7 +92,7 @@ export const cache = {
       const result = await redis.exists(key)
       return result === 1
     } catch (error) {
-      logger.error('Cache exists error', { key, error: error.message })
+      logger.error('Cache exists error', { key, error: (error as Error).message })
       return false
     }
   },
@@ -105,7 +105,7 @@ export const pubsub = {
       await redis.publish(channel, JSON.stringify(message))
       return true
     } catch (error) {
-      logger.error('PubSub publish error', { channel, error: error.message })
+      logger.error('PubSub publish error', { channel, error: (error as Error).message })
       return false
     }
   },
@@ -127,7 +127,7 @@ export const pubsub = {
           const parsed = JSON.parse(message)
           callback(parsed)
         } catch (error) {
-          logger.error('PubSub message parse error', { channel, error: error.message })
+          logger.error('PubSub message parse error', { channel, error: (error as Error).message })
         }
       }
     })
@@ -155,7 +155,7 @@ export const checkRedisHealth = async (): Promise<{
     return {
       status: 'unhealthy',
       details: {
-        error: error.message,
+        error: (error as Error).message,
         connected: false,
       },
     }

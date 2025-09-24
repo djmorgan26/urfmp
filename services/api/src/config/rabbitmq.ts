@@ -1,7 +1,7 @@
 import * as amqp from 'amqplib'
 import { logger } from './logger'
 
-let connection: amqp.Connection | null = null
+let connection: any = null
 let channel: amqp.Channel | null = null
 
 const EXCHANGES = {
@@ -20,7 +20,13 @@ export const connectRabbitMQ = async (): Promise<void> => {
     const url = process.env.RABBITMQ_URL || 'amqp://urfmp:urfmp-dev-2024@localhost:5672'
 
     connection = await amqp.connect(url)
-    channel = await connection.createChannel()
+    if (!connection) {
+      throw new Error('Failed to establish RabbitMQ connection')
+    }
+    channel = await (connection as any).createChannel()
+    if (!channel) {
+      throw new Error('Failed to create RabbitMQ channel')
+    }
 
     // Create exchanges
     await channel.assertExchange(EXCHANGES.EVENTS, 'topic', { durable: true })
@@ -45,9 +51,11 @@ export const connectRabbitMQ = async (): Promise<void> => {
       logger.warn('RabbitMQ connection closed')
     })
 
-    channel.on('error', (error) => {
-      logger.error('RabbitMQ channel error', { error: (error as Error).message })
-    })
+    if (channel) {
+      channel.on('error', (error) => {
+        logger.error('RabbitMQ channel error', { error: (error as Error).message })
+      })
+    }
 
     logger.info('RabbitMQ connected successfully')
   } catch (error) {
@@ -56,7 +64,7 @@ export const connectRabbitMQ = async (): Promise<void> => {
   }
 }
 
-export const getRabbitMQ = (): { connection: amqp.Connection; channel: amqp.Channel } => {
+export const getRabbitMQ = (): { connection: any; channel: amqp.Channel } => {
   if (!connection || !channel) {
     throw new Error('RabbitMQ not initialized. Call connectRabbitMQ first.')
   }
@@ -70,6 +78,10 @@ export const publishEvent = async (
   options: { persistent?: boolean } = {}
 ): Promise<boolean> => {
   try {
+    if (!channel) {
+      throw new Error('RabbitMQ channel not initialized')
+    }
+
     const messageBuffer = Buffer.from(
       JSON.stringify({
         ...message,
@@ -103,6 +115,10 @@ export const publishToQueue = async (
   options: { persistent?: boolean; priority?: number } = {}
 ): Promise<boolean> => {
   try {
+    if (!channel) {
+      throw new Error('RabbitMQ channel not initialized')
+    }
+
     const messageBuffer = Buffer.from(
       JSON.stringify({
         ...message,
@@ -138,10 +154,14 @@ export const consumeQueue = async (
   options: { prefetch?: number } = {}
 ): Promise<void> => {
   try {
+    if (!channel) {
+      throw new Error('RabbitMQ channel not initialized')
+    }
+
     await channel.prefetch(options.prefetch ?? 1)
 
     await channel.consume(queueName, async (msg) => {
-      if (!msg) return
+      if (!msg || !channel) return
 
       try {
         const content = JSON.parse(msg.content.toString())
@@ -179,7 +199,7 @@ export const checkRabbitMQHealth = async (): Promise<{
 
     // Try to create a temporary channel to test connectivity
     if (!connection) throw new Error('No connection available')
-    const testChannel = await connection.createChannel()
+    const testChannel = await (connection as any).createChannel()
     await testChannel.close()
 
     return {
@@ -208,7 +228,7 @@ export const closeRabbitMQ = async (): Promise<void> => {
       await channel.close()
     }
     if (connection) {
-      await connection.close()
+      await (connection as any).close()
     }
     logger.info('RabbitMQ connection closed')
   } catch (error) {
