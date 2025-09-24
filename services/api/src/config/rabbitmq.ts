@@ -38,7 +38,7 @@ export const connectRabbitMQ = async (): Promise<void> => {
 
     // Set up error handlers
     connection.on('error', (error) => {
-      logger.error('RabbitMQ connection error', { error: error.message })
+      logger.error('RabbitMQ connection error', { error: (error as Error).message })
     })
 
     connection.on('close', () => {
@@ -46,12 +46,12 @@ export const connectRabbitMQ = async (): Promise<void> => {
     })
 
     channel.on('error', (error) => {
-      logger.error('RabbitMQ channel error', { error: error.message })
+      logger.error('RabbitMQ channel error', { error: (error as Error).message })
     })
 
     logger.info('RabbitMQ connected successfully')
   } catch (error) {
-    logger.error('Failed to connect to RabbitMQ', { error: error.message })
+    logger.error('Failed to connect to RabbitMQ', { error: (error as Error).message })
     throw error
   }
 }
@@ -91,7 +91,7 @@ export const publishEvent = async (
   } catch (error) {
     logger.error('Failed to publish event', {
       routingKey,
-      error: error.message,
+      error: (error as Error).message,
     })
     return false
   }
@@ -125,7 +125,7 @@ export const publishToQueue = async (
   } catch (error) {
     logger.error('Failed to send message to queue', {
       queueName,
-      error: error.message,
+      error: (error as Error).message,
     })
     return false
   }
@@ -150,7 +150,7 @@ export const consumeQueue = async (
       } catch (error) {
         logger.error('Message processing failed', {
           queueName,
-          error: error.message,
+          error: (error as Error).message,
         })
         // Reject and requeue the message (could add retry logic here)
         channel.nack(msg, false, true)
@@ -161,7 +161,7 @@ export const consumeQueue = async (
   } catch (error) {
     logger.error('Failed to start consumer', {
       queueName,
-      error: error.message,
+      error: (error as Error).message,
     })
     throw error
   }
@@ -173,8 +173,8 @@ export const checkRabbitMQHealth = async (): Promise<{
   details: any
 }> => {
   try {
-    if (!connection || connection.connection.stream.destroyed) {
-      throw new Error('Connection not established or destroyed')
+    if (!connection) {
+      throw new Error('Connection not established')
     }
 
     // Try to create a temporary channel to test connectivity
@@ -194,7 +194,7 @@ export const checkRabbitMQHealth = async (): Promise<{
       status: 'unhealthy',
       details: {
         connected: false,
-        error: error.message,
+        error: (error as Error).message,
       },
     }
   }
@@ -211,7 +211,7 @@ export const closeRabbitMQ = async (): Promise<void> => {
     }
     logger.info('RabbitMQ connection closed')
   } catch (error) {
-    logger.error('Error closing RabbitMQ connection', { error: error.message })
+    logger.error('Error closing RabbitMQ connection', { error: (error as Error).message })
   }
 }
 

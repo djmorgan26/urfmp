@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { asyncHandler } from '../middleware/error.middleware'
 import { requirePermission } from '../middleware/auth.middleware'
-import { Permission, ApiResponse, Robot, RobotCommand, CommandResult } from '@urfmp/types'
+import { Permission, ApiResponse, Robot, RobotCommand, CommandResult, RobotCommandType, CommandPriority, CommandStatus } from '@urfmp/types'
 import { robotService, CreateRobotRequest, UpdateRobotRequest, RobotFilters } from '../services/robot.service'
 import { logger } from '../config/logger'
 import { getWebSocketService } from '../services/websocket.service'
@@ -139,7 +139,7 @@ router.get(
       },
     }
 
-    res.json(response)
+    return res.json(response)
   })
 )
 
@@ -363,10 +363,10 @@ router.post(
     // Create command with metadata
     const commandWithMetadata: RobotCommand = {
       id: `cmd_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type: command.type || 'CUSTOM',
-      priority: command.priority || 'NORMAL',
-      parameters: command.parameters || {},
-      status: 'PENDING',
+      type: command.type || RobotCommandType.CUSTOM,
+      priority: command.priority || CommandPriority.NORMAL,
+      parameters: (command as any).parameters || {},
+      status: CommandStatus.PENDING,
       createdAt: new Date(),
       createdBy: req.user!.sub,
       robotId,
@@ -384,6 +384,7 @@ router.post(
         executedAt: new Date(),
       },
       executionTime: Math.random() * 1000 + 100, // 100-1100ms
+      timestamp: new Date(),
     }
 
     // Broadcast command via WebSocket
@@ -400,7 +401,7 @@ router.post(
     } catch (error) {
       logger.warn('Failed to broadcast robot command', {
         robotId,
-        error: error.message
+        error: (error as Error).message
       })
     }
 
@@ -423,7 +424,7 @@ router.post(
       traceId: req.traceId,
     })
 
-    res.json(response)
+    return res.json(response)
   })
 )
 

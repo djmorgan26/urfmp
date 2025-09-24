@@ -68,7 +68,7 @@ export class RobotMonitor {
    * Send telemetry data for this robot
    */
   async sendTelemetry(data: any): Promise<void> {
-    return this.client.sendTelemetry(this.robot.id, {
+    await this.client.sendTelemetry(this.robot.id, {
       ...data,
       timestamp: new Date(),
       robotId: this.robot.id,
@@ -78,7 +78,7 @@ export class RobotMonitor {
   /**
    * Get the latest telemetry data
    */
-  async getLatestTelemetry(): Promise<RobotTelemetry> {
+  async getLatestTelemetry(): Promise<RobotTelemetry | null> {
     return this.client.getLatestTelemetry(this.robot.id)
   }
 
