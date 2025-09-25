@@ -2,6 +2,20 @@
 
 This file contains all essential information for Claude to efficiently work on the URFMP (Universal Robot Fleet Management Platform) codebase.
 
+## 🎯 Project Goals and Standards
+
+### Code Quality Objectives
+- **Zero-warning deployments**: All CI/CD pipelines must pass without warnings or fallback handling
+- **Clean test suite**: Every package should have proper test scripts, no "graceful failures"
+- **Modern dependencies**: Keep all npm packages up-to-date, eliminate deprecation warnings
+- **Production-ready builds**: TypeScript compilation must succeed without errors
+
+### Developer Experience Goals
+- **Self-service development**: Claude can check deployment status and resolve issues autonomously
+- **Transparent progress**: Use GitHub CLI to monitor CI/CD pipeline health without manual intervention
+- **Proactive maintenance**: Identify and fix potential issues before they impact users
+- **Documentation-driven**: Maintain comprehensive knowledge base for consistent development practices
+
 ## 🚀 Quick Start Commands
 
 ### Development Commands
@@ -14,6 +28,27 @@ This file contains all essential information for Claude to efficiently work on t
 - `docker-compose down` - Stop all services
 - `docker logs urfmp-api --tail 50` - Check API logs
 - `docker logs urfmp-web --tail 50` - Check web logs
+
+### GitHub CLI Deployment Monitoring
+
+- `gh run list --limit 5` - List recent GitHub Actions runs
+- `gh run view [RUN_ID] --log` - View detailed deployment logs
+- `gh run view [RUN_ID] --log | grep -E "(✓|✗|FAILED|SUCCESS|ERROR|WARN)"` - Extract key status indicators
+- `gh workflow run ci-cd.yml` - Manually trigger CI/CD pipeline
+
+#### Deployment Health Checks
+Always verify deployment success by checking:
+1. **Overall status**: All jobs should show "success" not just "completed"
+2. **Build artifacts**: TypeScript compilation without errors
+3. **Test results**: All test suites pass without fallbacks
+4. **Dependency warnings**: No npm deprecation warnings
+5. **Production URL**: Final deployment accessible and functional
+
+#### GitHub CLI Integration Notes
+- Claude is configured to proactively check deployment logs after making changes
+- Use GitHub CLI to verify fixes work before requiring manual verification
+- Parse logs to identify specific issues (missing tests, dependency errors, build failures)
+- Provide deployment status updates without requiring user intervention
 
 ### Testing API
 

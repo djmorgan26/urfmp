@@ -467,7 +467,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [api, sdk, types]
+        service: [types, sdk, api]
 
     steps:
       - name: Checkout code
@@ -479,23 +479,39 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Test ${{ matrix.service }}
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Build dependencies in order
         run: |
-          if [ -d "${{ matrix.service }}" ]; then
-            cd ${{ matrix.service }}
-            npm ci
-            npm test || echo "No tests configured for ${{ matrix.service }}"
-            npm run build || echo "No build script for ${{ matrix.service }}"
-          elif [ -d "packages/${{ matrix.service }}" ]; then
-            cd packages/${{ matrix.service }}
-            npm ci
-            npm test || echo "No tests configured for ${{ matrix.service }}"
-            npm run build || echo "No build script for ${{ matrix.service }}"
-          elif [ -d "services/${{ matrix.service }}" ]; then
-            cd services/${{ matrix.service }}
-            npm ci
-            npm test || echo "No tests configured for ${{ matrix.service }}"
-            npm run build || echo "No build script for ${{ matrix.service }}"
+          echo "Building dependencies for ${{ matrix.service }}..."
+          # Always build types first if not building types itself
+          if [ "${{ matrix.service }}" != "types" ]; then
+            echo "Building @urfmp/types..."
+            npm run build --workspace=@urfmp/types
+          fi
+
+          # Build SDK if testing API (API depends on SDK in some cases)
+          if [ "${{ matrix.service }}" == "api" ]; then
+            echo "Building @urfmp/sdk..."
+            npm run build --workspace=@urfmp/sdk
+          fi
+
+      - name: Test and Build ${{ matrix.service }}
+        run: |
+          if [ "${{ matrix.service }}" == "types" ]; then
+            echo "Testing and building @urfmp/types..."
+            npm run test --workspace=@urfmp/types
+            npm run build --workspace=@urfmp/types
+          elif [ "${{ matrix.service }}" == "sdk" ]; then
+            echo "Testing and building @urfmp/sdk..."
+            npm run test --workspace=@urfmp/sdk
+            npm run build --workspace=@urfmp/sdk
+          elif [ "${{ matrix.service }}" == "api" ]; then
+            echo "Testing and building @urfmp/api..."
+            npm run test --workspace=@urfmp/api
+            npm run build --workspace=@urfmp/api
           else
-            echo "Service ${{ matrix.service }} not found"
+            echo "Unknown service: ${{ matrix.service }}"
+            exit 1
           fi
