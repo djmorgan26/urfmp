@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { X, AlertTriangle, AlertCircle, Info, Bell } from 'lucide-react'
+import { X, AlertTriangle, AlertCircle, Info } from 'lucide-react'
 import { useRealTimeAlerts, RealTimeAlert } from '@/hooks/useRealTimeAlerts'
 import { cn } from '@/utils/cn'
 import { formatDistanceToNow } from 'date-fns'

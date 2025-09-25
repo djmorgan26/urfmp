@@ -321,7 +321,7 @@ export function useDashboard(): DashboardData {
     // Refresh dashboard data every 5 minutes to reduce API calls
     const interval = setInterval(fetchDashboardData, 300000)
     return () => clearInterval(interval)
-  }, [urfmp, robots, maintenanceAlerts])
+  }, [urfmp, robots, maintenanceAlerts, fetchDashboardData])
 
   // Calculate real-time metrics
   const metrics: DashboardMetrics = {

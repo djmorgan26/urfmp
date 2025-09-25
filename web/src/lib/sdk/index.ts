@@ -1,6 +1,6 @@
 // Minimal SDK stub for production build
 export class URFMP {
-  constructor(config: { apiKey?: string; baseUrl?: string; websocketUrl?: string }) {
+  constructor(_config: { apiKey?: string; baseUrl?: string; websocketUrl?: string }) {
     // Demo mode stub
   }
 

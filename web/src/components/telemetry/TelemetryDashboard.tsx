@@ -71,7 +71,15 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
       loadAvailableMetrics()
       loadLatestTelemetry()
     }
-  }, [urfmp, robotId, selectedTimeRange, selectedAggregation])
+  }, [
+    urfmp,
+    robotId,
+    selectedTimeRange,
+    selectedAggregation,
+    loadTelemetryData,
+    loadAvailableMetrics,
+    loadLatestTelemetry,
+  ])
 
   const loadTelemetryData = async () => {
     // Check if we're in demo mode

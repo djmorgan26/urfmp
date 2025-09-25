@@ -68,7 +68,7 @@ export function Layout({ children }: LayoutProps) {
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, robots])
+  }, [searchQuery, robots, performSearch])
 
   // Click outside to close search results
   useEffect(() => {
@@ -177,7 +177,7 @@ export function Layout({ children }: LayoutProps) {
                       </div>
                     ) : (
                       <div className="py-2">
-                        {searchResults.map((result, index) => (
+                        {searchResults.map((result, _index) => (
                           <a
                             key={`${result.type}-${result.id}`}
                             href={result.href}

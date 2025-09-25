@@ -268,7 +268,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     }, 1800000)
 
     return () => clearInterval(interval)
-  }, [urfmp])
+  }, [urfmp, fetchMaintenanceData, lastFetch])
 
   return {
     alerts,

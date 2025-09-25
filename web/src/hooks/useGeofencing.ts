@@ -341,7 +341,7 @@ export function useGeofencing(): GeofencingData {
 
   useEffect(() => {
     fetchGeofencingData()
-  }, [urfmp, robots])
+  }, [urfmp, robots, fetchGeofencingData])
 
   return {
     waypoints,

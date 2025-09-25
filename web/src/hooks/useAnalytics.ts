@@ -305,7 +305,7 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
   useEffect(() => {
     fetchAnalyticsData()
-  }, [urfmp, robots, timeRange])
+  }, [urfmp, robots, timeRange, fetchAnalyticsData])
 
   return {
     fleetMetrics,
