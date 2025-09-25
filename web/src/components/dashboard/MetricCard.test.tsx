@@ -9,7 +9,7 @@ describe('MetricCard Component', () => {
     value: '42',
     icon: Users,
     trend: '+12% vs last month',
-    color: 'blue' as const
+    color: 'blue' as const,
   }
 
   it('should render metric title and value', () => {
@@ -29,7 +29,7 @@ describe('MetricCard Component', () => {
   it('should display different trend text', () => {
     const propsWithDifferentTrend = {
       ...defaultProps,
-      trend: '-8% vs last week'
+      trend: '-8% vs last week',
     }
 
     render(<MetricCard {...propsWithDifferentTrend} />)
@@ -42,7 +42,7 @@ describe('MetricCard Component', () => {
       title: 'Total Robots',
       value: '42',
       icon: Users,
-      color: 'blue' as const
+      color: 'blue' as const,
     }
 
     render(<MetricCard {...propsWithoutTrend} />)
@@ -55,7 +55,7 @@ describe('MetricCard Component', () => {
   it('should handle large numbers formatting', () => {
     const propsWithLargeNumber = {
       ...defaultProps,
-      value: '1,234,567'
+      value: '1,234,567',
     }
 
     render(<MetricCard {...propsWithLargeNumber} />)
@@ -85,7 +85,7 @@ describe('MetricCard Component', () => {
     const propsWithZero = {
       ...defaultProps,
       value: '0',
-      trend: '0% no change'
+      trend: '0% no change',
     }
 
     render(<MetricCard {...propsWithZero} />)
@@ -98,7 +98,7 @@ describe('MetricCard Component', () => {
     const colorVariants = [
       { ...defaultProps, color: 'green' as const },
       { ...defaultProps, color: 'red' as const },
-      { ...defaultProps, color: 'yellow' as const }
+      { ...defaultProps, color: 'yellow' as const },
     ]
 
     colorVariants.forEach((props) => {
@@ -115,7 +115,7 @@ describe('MetricCard Component', () => {
   it('should handle different icon types', () => {
     const iconVariants = [
       { ...defaultProps, icon: Activity },
-      { ...defaultProps, icon: Zap }
+      { ...defaultProps, icon: Zap },
     ]
 
     iconVariants.forEach((props) => {

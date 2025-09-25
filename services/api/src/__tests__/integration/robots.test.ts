@@ -1,5 +1,11 @@
 import request from 'supertest'
-import { setupTestEnvironment, teardownTestEnvironment, resetTestDatabase, TEST_API_KEY, type TestSetup } from '../setup'
+import {
+  setupTestEnvironment,
+  teardownTestEnvironment,
+  resetTestDatabase,
+  TEST_API_KEY,
+  type TestSetup,
+} from '../setup'
 
 describe('Robots API Integration Tests', () => {
   let setup: TestSetup
@@ -10,12 +16,10 @@ describe('Robots API Integration Tests', () => {
 
     // Get auth token for authenticated tests
     try {
-      const loginResponse = await request(setup.app)
-        .post('/api/v1/auth/login')
-        .send({
-          email: 'admin@urfmp.com',
-          password: 'admin123'
-        })
+      const loginResponse = await request(setup.app).post('/api/v1/auth/login').send({
+        email: 'admin@urfmp.com',
+        password: 'admin123',
+      })
 
       if (loginResponse.status === 200) {
         authToken = loginResponse.body.tokens.accessToken
@@ -72,9 +76,7 @@ describe('Robots API Integration Tests', () => {
     })
 
     it('should reject requests without authentication', async () => {
-      const response = await request(setup.app)
-        .get('/api/v1/robots')
-        .expect(401)
+      const response = await request(setup.app).get('/api/v1/robots').expect(401)
 
       expect(response.body).toHaveProperty('error')
       expect(response.body.error.code).toBe('MISSING_TOKEN')
@@ -180,14 +182,14 @@ describe('Robots API Integration Tests', () => {
           reach: 850,
           capabilities: ['welding', 'assembly'],
           customSettings: {
-            safetyMode: 'collaborative'
-          }
+            safetyMode: 'collaborative',
+          },
         },
         location: {
           facility: 'Test Factory',
           area: 'Assembly Line 1',
-          cell: 'Cell A1'
-        }
+          cell: 'Cell A1',
+        },
       }
 
       const response = await request(setup.app)
@@ -235,8 +237,8 @@ describe('Robots API Integration Tests', () => {
           payload: 5.0,
           reach: 850,
           capabilities: [],
-          customSettings: {}
-        }
+          customSettings: {},
+        },
       }
 
       const response = await request(setup.app)

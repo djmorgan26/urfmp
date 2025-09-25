@@ -14,9 +14,7 @@ describe('Health API Integration Tests', () => {
 
   describe('GET /health', () => {
     it('should return health status without authentication', async () => {
-      const response = await request(setup.app)
-        .get('/health')
-        .expect(200)
+      const response = await request(setup.app).get('/health').expect(200)
 
       expect(response.body).toHaveProperty('status', 'ok')
       expect(response.body).toHaveProperty('timestamp')
@@ -25,9 +23,7 @@ describe('Health API Integration Tests', () => {
     })
 
     it('should include service dependencies in health check', async () => {
-      const response = await request(setup.app)
-        .get('/health')
-        .expect(200)
+      const response = await request(setup.app).get('/health').expect(200)
 
       expect(response.body).toHaveProperty('dependencies')
       expect(response.body.dependencies).toHaveProperty('database')
@@ -42,9 +38,7 @@ describe('Health API Integration Tests', () => {
     })
 
     it('should include version information', async () => {
-      const response = await request(setup.app)
-        .get('/health')
-        .expect(200)
+      const response = await request(setup.app).get('/health').expect(200)
 
       expect(response.body.version).toBeDefined()
       expect(typeof response.body.version).toBe('string')
@@ -52,9 +46,7 @@ describe('Health API Integration Tests', () => {
     })
 
     it('should include uptime in seconds', async () => {
-      const response = await request(setup.app)
-        .get('/health')
-        .expect(200)
+      const response = await request(setup.app).get('/health').expect(200)
 
       expect(response.body.uptime).toBeDefined()
       expect(typeof response.body.uptime).toBe('number')
@@ -74,9 +66,7 @@ describe('Health API Integration Tests', () => {
     it('should respond quickly', async () => {
       const startTime = Date.now()
 
-      await request(setup.app)
-        .get('/health')
-        .expect(200)
+      await request(setup.app).get('/health').expect(200)
 
       const responseTime = Date.now() - startTime
       expect(responseTime).toBeLessThan(1000) // Less than 1 second

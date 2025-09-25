@@ -1,5 +1,11 @@
 import request from 'supertest'
-import { setupTestEnvironment, teardownTestEnvironment, resetTestDatabase, TEST_API_KEY, type TestSetup } from '../setup'
+import {
+  setupTestEnvironment,
+  teardownTestEnvironment,
+  resetTestDatabase,
+  TEST_API_KEY,
+  type TestSetup,
+} from '../setup'
 
 describe('Telemetry API Integration Tests', () => {
   let setup: TestSetup
@@ -41,7 +47,7 @@ describe('Telemetry API Integration Tests', () => {
             z: 300.2,
             rx: 0.1,
             ry: 0.2,
-            rz: 0.3
+            rz: 0.3,
           },
           jointAngles: {
             joint1: 0.1,
@@ -50,19 +56,19 @@ describe('Telemetry API Integration Tests', () => {
             joint4: 0.4,
             joint5: 0.5,
             joint6: 0.6,
-            unit: 'radians'
+            unit: 'radians',
           },
           temperature: {
             ambient: 25.3,
             controller: 35.7,
-            unit: 'celsius'
+            unit: 'celsius',
           },
           power: {
             voltage: 48.2,
             current: 2.15,
-            unit: 'watts'
-          }
-        }
+            unit: 'watts',
+          },
+        },
       }
 
       const response = await request(setup.app)
@@ -81,8 +87,8 @@ describe('Telemetry API Integration Tests', () => {
     it('should reject telemetry without authentication', async () => {
       const telemetryData = {
         data: {
-          position: { x: 0, y: 0, z: 0 }
-        }
+          position: { x: 0, y: 0, z: 0 },
+        },
       }
 
       const response = await request(setup.app)
@@ -98,8 +104,8 @@ describe('Telemetry API Integration Tests', () => {
       const invalidRobotId = 'invalid-robot-id'
       const telemetryData = {
         data: {
-          position: { x: 0, y: 0, z: 0 }
-        }
+          position: { x: 0, y: 0, z: 0 },
+        },
       }
 
       const response = await request(setup.app)
@@ -164,7 +170,7 @@ describe('Telemetry API Integration Tests', () => {
           page: 1,
           limit: 10,
           from: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 24 hours ago
-          to: new Date().toISOString()
+          to: new Date().toISOString(),
         })
         .set('X-API-Key', TEST_API_KEY)
         .expect(200)
@@ -181,7 +187,7 @@ describe('Telemetry API Integration Tests', () => {
       const response = await request(setup.app)
         .get(`/api/v1/telemetry/${testRobotId}/history`)
         .query({
-          metrics: 'position,temperature'
+          metrics: 'position,temperature',
         })
         .set('X-API-Key', TEST_API_KEY)
         .expect(200)
@@ -195,7 +201,7 @@ describe('Telemetry API Integration Tests', () => {
         .get(`/api/v1/telemetry/${testRobotId}/history`)
         .query({
           from: 'invalid-date',
-          to: new Date().toISOString()
+          to: new Date().toISOString(),
         })
         .set('X-API-Key', TEST_API_KEY)
         .expect(400)
@@ -231,7 +237,7 @@ describe('Telemetry API Integration Tests', () => {
         .get('/api/v1/telemetry/aggregated')
         .query({
           timeWindow: '1h',
-          aggregation: 'average'
+          aggregation: 'average',
         })
         .set('X-API-Key', TEST_API_KEY)
         .expect(200)
@@ -248,7 +254,7 @@ describe('Telemetry API Integration Tests', () => {
         .get('/api/v1/telemetry/aggregated')
         .query({
           timeWindow: 'invalid',
-          aggregation: 'invalid'
+          aggregation: 'invalid',
         })
         .set('X-API-Key', TEST_API_KEY)
         .expect(400)

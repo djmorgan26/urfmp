@@ -1,5 +1,10 @@
 import request from 'supertest'
-import { setupTestEnvironment, teardownTestEnvironment, resetTestDatabase, type TestSetup } from '../setup'
+import {
+  setupTestEnvironment,
+  teardownTestEnvironment,
+  resetTestDatabase,
+  type TestSetup,
+} from '../setup'
 
 describe('Auth API Integration Tests', () => {
   let setup: TestSetup
@@ -20,7 +25,7 @@ describe('Auth API Integration Tests', () => {
     it('should login with valid credentials', async () => {
       const loginData = {
         email: 'admin@urfmp.com',
-        password: 'admin123'
+        password: 'admin123',
       }
 
       const response = await request(setup.app)
@@ -47,7 +52,9 @@ describe('Auth API Integration Tests', () => {
       expect(response.body.tokens).toHaveProperty('expiresIn')
 
       // JWT token format validation
-      expect(response.body.tokens.accessToken).toMatch(/^eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/)
+      expect(response.body.tokens.accessToken).toMatch(
+        /^eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/
+      )
 
       // Organization validation
       expect(response.body.organization).toHaveProperty('id')
@@ -57,7 +64,7 @@ describe('Auth API Integration Tests', () => {
     it('should reject invalid credentials', async () => {
       const invalidLogin = {
         email: 'admin@urfmp.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       }
 
       const response = await request(setup.app)
@@ -73,7 +80,7 @@ describe('Auth API Integration Tests', () => {
     it('should reject invalid email format', async () => {
       const invalidEmailLogin = {
         email: 'invalid-email',
-        password: 'admin123'
+        password: 'admin123',
       }
 
       const response = await request(setup.app)
@@ -87,7 +94,7 @@ describe('Auth API Integration Tests', () => {
 
     it('should reject missing required fields', async () => {
       const incompleteLogin = {
-        email: 'admin@urfmp.com'
+        email: 'admin@urfmp.com',
         // missing password
       }
 
@@ -103,7 +110,7 @@ describe('Auth API Integration Tests', () => {
     it('should have proper security headers', async () => {
       const loginData = {
         email: 'admin@urfmp.com',
-        password: 'admin123'
+        password: 'admin123',
       }
 
       const response = await request(setup.app)
@@ -127,7 +134,7 @@ describe('Auth API Integration Tests', () => {
         .post('/api/v1/auth/login')
         .send({
           email: 'admin@urfmp.com',
-          password: 'admin123'
+          password: 'admin123',
         })
         .expect(200)
 
@@ -138,7 +145,7 @@ describe('Auth API Integration Tests', () => {
       const response = await request(setup.app)
         .post('/api/v1/auth/refresh')
         .send({
-          refreshToken: validRefreshToken
+          refreshToken: validRefreshToken,
         })
         .expect(200)
 
@@ -156,7 +163,7 @@ describe('Auth API Integration Tests', () => {
       const response = await request(setup.app)
         .post('/api/v1/auth/refresh')
         .send({
-          refreshToken: 'invalid-refresh-token'
+          refreshToken: 'invalid-refresh-token',
         })
         .expect(401)
 
@@ -165,10 +172,7 @@ describe('Auth API Integration Tests', () => {
     })
 
     it('should reject missing refresh token', async () => {
-      const response = await request(setup.app)
-        .post('/api/v1/auth/refresh')
-        .send({})
-        .expect(400)
+      const response = await request(setup.app).post('/api/v1/auth/refresh').send({}).expect(400)
 
       expect(response.body).toHaveProperty('error')
       expect(response.body.error.message).toMatch(/refreshToken/i)
@@ -183,7 +187,7 @@ describe('Auth API Integration Tests', () => {
         .post('/api/v1/auth/login')
         .send({
           email: 'admin@urfmp.com',
-          password: 'admin123'
+          password: 'admin123',
         })
         .expect(200)
 
@@ -201,9 +205,7 @@ describe('Auth API Integration Tests', () => {
     })
 
     it('should reject logout without token', async () => {
-      const response = await request(setup.app)
-        .post('/api/v1/auth/logout')
-        .expect(401)
+      const response = await request(setup.app).post('/api/v1/auth/logout').expect(401)
 
       expect(response.body).toHaveProperty('error')
       expect(response.body.error.code).toBe('MISSING_TOKEN')

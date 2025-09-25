@@ -77,7 +77,9 @@ describe('ErrorBoundary Component', () => {
     )
 
     expect(screen.queryByText('Error Details:')).not.toBeInTheDocument()
-    expect(screen.getByText('An unexpected error occurred. Please try refreshing the page.')).toBeInTheDocument()
+    expect(
+      screen.getByText('An unexpected error occurred. Please try refreshing the page.')
+    ).toBeInTheDocument()
 
     // Restore environment
     vi.unstubAllEnvs()
@@ -134,7 +136,10 @@ describe('ErrorBoundary Component', () => {
       </ErrorBoundary>
     )
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('ErrorBoundary caught an error:', expect.any(Error))
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'ErrorBoundary caught an error:',
+      expect.any(Error)
+    )
 
     consoleErrorSpy.mockRestore()
   })
@@ -151,7 +156,7 @@ describe('ErrorBoundary Component', () => {
     expect(onErrorCallback).toHaveBeenCalledWith(
       expect.any(Error),
       expect.objectContaining({
-        componentStack: expect.any(String)
+        componentStack: expect.any(String),
       })
     )
   })
@@ -161,7 +166,7 @@ describe('ErrorBoundary Component', () => {
       new Error('Standard error'),
       new TypeError('Type error'),
       new ReferenceError('Reference error'),
-      'String error'
+      'String error',
     ]
 
     errorTypes.forEach((error, index) => {

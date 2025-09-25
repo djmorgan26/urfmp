@@ -18,6 +18,7 @@
     "allowSyntheticDefaultImports": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "composite": true,
     "types": ["node", "jest"]
   },
   "include": ["src/**/*"],

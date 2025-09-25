@@ -199,7 +199,7 @@ export class TelemetryService {
   ): Promise<RobotTelemetry | null> {
     // Try cache first
     const cacheKey = `telemetry:latest:${robotId}`
-    let cachedTelemetry = await cache.get(cacheKey)
+    const cachedTelemetry = await cache.get(cacheKey)
     if (cachedTelemetry) {
       return cachedTelemetry
     }
