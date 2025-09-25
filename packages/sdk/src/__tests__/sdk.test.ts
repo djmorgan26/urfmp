@@ -20,9 +20,9 @@ jest.mock('axios', () => ({
     delete: jest.fn(),
     interceptors: {
       request: { use: jest.fn() },
-      response: { use: jest.fn() }
-    }
-  }))
+      response: { use: jest.fn() },
+    },
+  })),
 }))
 
 describe('URFMP SDK', () => {
@@ -44,6 +44,7 @@ describe('URFMP SDK', () => {
 
     it('should export all types from @urfmp/types', () => {
       // Test that we can import the types namespace
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const types = require('@urfmp/types')
 
       expect(types.RobotStatus).toBeDefined()
@@ -56,7 +57,7 @@ describe('URFMP SDK', () => {
     it('should accept valid configuration', () => {
       const config: URFMPConfig = {
         apiKey: 'test-key',
-        baseUrl: 'http://localhost:3000'
+        baseUrl: 'http://localhost:3000',
       }
 
       expect(() => new URFMP(config)).not.toThrow()
@@ -64,7 +65,7 @@ describe('URFMP SDK', () => {
 
     it('should create client with minimal configuration', () => {
       const config: URFMPConfig = {
-        apiKey: 'test-key'
+        apiKey: 'test-key',
       }
 
       expect(() => new URFMP(config)).not.toThrow()
@@ -79,7 +80,7 @@ describe('URFMP SDK', () => {
       const config: URFMPConfig = {
         apiKey: 'test-key',
         timeout: 5000,
-        retries: 5
+        retries: 5,
       }
 
       expect(() => new URFMP(config)).not.toThrow()
@@ -92,7 +93,7 @@ describe('URFMP SDK', () => {
     beforeEach(() => {
       client = new URFMP({
         apiKey: 'test-key',
-        baseUrl: 'http://localhost:3000'
+        baseUrl: 'http://localhost:3000',
       })
     })
 
@@ -142,7 +143,7 @@ describe('URFMP SDK', () => {
         configuration: {},
         createdAt: new Date(),
         updatedAt: new Date(),
-        lastSeen: new Date()
+        lastSeen: new Date(),
       }
     })
 
@@ -226,7 +227,7 @@ describe('SDK Integration Patterns', () => {
       configuration: {},
       createdAt: new Date(),
       updatedAt: new Date(),
-      lastSeen: new Date()
+      lastSeen: new Date(),
     }
     const monitor = new RobotMonitor(client, mockRobot as any)
 
@@ -242,7 +243,7 @@ describe('SDK Integration Patterns', () => {
     // Test that SDK creates properly
     const client = new URFMP({
       apiKey: 'urfmp_test_12345',
-      baseUrl: 'http://localhost:3000'
+      baseUrl: 'http://localhost:3000',
     })
 
     expect(client).toBeInstanceOf(URFMP)

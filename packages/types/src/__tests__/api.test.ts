@@ -5,7 +5,7 @@ describe('API Types', () => {
     it('should accept successful response with data', () => {
       const successResponse: ApiResponse<{ name: string }> = {
         success: true,
-        data: { name: 'Test Data' }
+        data: { name: 'Test Data' },
       }
 
       expect(successResponse.success).toBe(true)
@@ -21,8 +21,8 @@ describe('API Types', () => {
           message: 'Invalid input data',
           details: { field: 'name is required' },
           traceId: 'trace-123',
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       }
 
       expect(errorResponse.success).toBe(false)
@@ -41,8 +41,8 @@ describe('API Types', () => {
           total: 100,
           totalPages: 10,
           hasNext: true,
-          hasPrev: false
-        }
+          hasPrev: false,
+        },
       }
 
       expect(paginatedResponse.pagination?.page).toBe(1)
@@ -57,7 +57,7 @@ describe('API Types', () => {
       const minimalError: ApiError = {
         code: 'INTERNAL_ERROR',
         message: 'Something went wrong',
-        timestamp: new Date()
+        timestamp: new Date(),
       }
 
       expect(minimalError.code).toBe('INTERNAL_ERROR')
@@ -73,10 +73,10 @@ describe('API Types', () => {
         message: 'Multiple validation errors',
         details: {
           name: 'Name is required',
-          email: 'Invalid email format'
+          email: 'Invalid email format',
         },
         traceId: 'trace-abc-123',
-        timestamp: new Date()
+        timestamp: new Date(),
       }
 
       expect(detailedError.details?.name).toBe('Name is required')
@@ -92,7 +92,7 @@ describe('API Types', () => {
         total: 25,
         totalPages: 3,
         hasNext: true,
-        hasPrev: true
+        hasPrev: true,
       }
 
       expect(pagination.page).toBe(2)
@@ -110,7 +110,7 @@ describe('API Types', () => {
         total: 25,
         totalPages: 3,
         hasNext: true,
-        hasPrev: false
+        hasPrev: false,
       }
 
       expect(firstPage.page).toBe(1)
@@ -125,7 +125,7 @@ describe('API Types', () => {
         total: 25,
         totalPages: 3,
         hasNext: false,
-        hasPrev: true
+        hasPrev: true,
       }
 
       expect(lastPage.page).toBe(3)

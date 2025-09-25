@@ -4,7 +4,7 @@ import {
   AngleUnit,
   VelocityUnit,
   CoordinateFrame,
-  TelemetrySource
+  TelemetrySource,
 } from '../telemetry'
 
 describe('Telemetry Types', () => {
@@ -42,8 +42,8 @@ describe('Telemetry Types', () => {
         position: {
           x: 100,
           y: 200,
-          z: 300
-        }
+          z: 300,
+        },
       }
 
       expect(minimalData.position?.x).toBe(100)
@@ -60,8 +60,8 @@ describe('Telemetry Types', () => {
           rx: 0.1,
           ry: 0.2,
           rz: 0.3,
-          frame: CoordinateFrame.BASE
-        }
+          frame: CoordinateFrame.BASE,
+        },
       }
 
       expect(positionData.position?.x).toBe(125.5)
@@ -78,8 +78,8 @@ describe('Telemetry Types', () => {
           joint4: 0.4,
           joint5: 0.5,
           joint6: 0.6,
-          unit: AngleUnit.RADIANS
-        }
+          unit: AngleUnit.RADIANS,
+        },
       }
 
       expect(jointData.jointAngles?.joint1).toBe(0.1)
@@ -98,14 +98,14 @@ describe('Telemetry Types', () => {
           position: {
             x: 125.5,
             y: 245.8,
-            z: 300.2
-          }
+            z: 300.2,
+          },
         },
         metadata: {
           source: TelemetrySource.ROBOT_CONTROLLER,
           quality: 'good' as any,
-          samplingRate: 10
-        }
+          samplingRate: 10,
+        },
       }
 
       expect(telemetry.robotId).toBe('robot-456')
@@ -120,8 +120,8 @@ describe('Telemetry Types', () => {
         robotId: 'robot-123',
         timestamp: new Date(),
         data: {
-          position: { x: 0, y: 0, z: 0 }
-        }
+          position: { x: 0, y: 0, z: 0 },
+        },
       }
 
       expect(simpleTelemetry.metadata).toBeUndefined()
@@ -138,10 +138,10 @@ describe('Telemetry Types', () => {
         { latitude: 35.6762, longitude: 139.6503 }, // Tokyo
         { latitude: 0, longitude: 0 }, // Null Island
         { latitude: 90, longitude: 180 }, // North Pole, Date Line
-        { latitude: -90, longitude: -180 } // South Pole, Date Line
+        { latitude: -90, longitude: -180 }, // South Pole, Date Line
       ]
 
-      validCoordinates.forEach(coord => {
+      validCoordinates.forEach((coord) => {
         expect(coord.latitude).toBeGreaterThanOrEqual(-90)
         expect(coord.latitude).toBeLessThanOrEqual(90)
         expect(coord.longitude).toBeGreaterThanOrEqual(-180)

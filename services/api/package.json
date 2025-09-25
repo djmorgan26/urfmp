@@ -65,6 +65,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@urfmp/types$": "<rootDir>/../../packages/types/src/index.ts"
+    },
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/*.d.ts",

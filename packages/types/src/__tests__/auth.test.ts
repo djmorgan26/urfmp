@@ -6,7 +6,7 @@ describe('Auth Types', () => {
     it('should accept valid login credentials', () => {
       const loginRequest: LoginRequest = {
         email: 'admin@urfmp.com',
-        password: 'admin123'
+        password: 'admin123',
       }
 
       expect(loginRequest.email).toBe('admin@urfmp.com')
@@ -19,7 +19,7 @@ describe('Auth Types', () => {
         password: 'admin123',
         organizationSlug: 'urfmp-demo',
         rememberMe: true,
-        mfaToken: '123456'
+        mfaToken: '123456',
       }
 
       expect(loginWithOptions.organizationSlug).toBe('urfmp-demo')
@@ -37,21 +37,21 @@ describe('Auth Types', () => {
           firstName: 'Admin',
           lastName: 'User',
           role: 'admin',
-          permissions: ['robot.view', 'robot.create']
+          permissions: ['robot.view', 'robot.create'],
         },
         organization: {
           id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
           name: 'URFMP Demo',
           slug: 'urfmp-demo',
-          plan: 'enterprise'
+          plan: 'enterprise',
         },
         tokens: {
           accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
           refreshToken: 'refresh-token-123',
           tokenType: 'Bearer',
           expiresIn: 3600,
-          scope: ['robot.view', 'robot.create']
-        }
+          scope: ['robot.view', 'robot.create'],
+        },
       }
 
       expect(loginResponse.user.email).toBe('admin@urfmp.com')
@@ -68,23 +68,23 @@ describe('Auth Types', () => {
           firstName: 'Admin',
           lastName: 'User',
           role: 'admin',
-          permissions: []
+          permissions: [],
         },
         organization: {
           id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
           name: 'URFMP Demo',
           slug: 'urfmp-demo',
-          plan: 'enterprise'
+          plan: 'enterprise',
         },
         tokens: {
           accessToken: 'temp-token',
           refreshToken: 'temp-refresh',
           tokenType: 'Bearer',
           expiresIn: 300,
-          scope: []
+          scope: [],
         },
         requiresMfa: true,
-        mfaQrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSU...'
+        mfaQrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSU...',
       }
 
       expect(mfaResponse.requiresMfa).toBe(true)
@@ -99,7 +99,7 @@ describe('Auth Types', () => {
         refreshToken: 'refresh-token-abc123',
         tokenType: 'Bearer',
         expiresIn: 3600,
-        scope: ['robot.view', 'telemetry.write']
+        scope: ['robot.view', 'telemetry.write'],
       }
 
       expect(authToken.accessToken).toMatch(/^eyJ/)
@@ -132,10 +132,10 @@ describe('Auth Types', () => {
     it('should validate JWT token structure', () => {
       const mockTokens = [
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.Gf15KZ4KY9_EZGr9jJ5jBFJhOz9_QT4f4fwpMeJf36POk6'
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.Gf15KZ4KY9_EZGr9jJ5jBFJhOz9_QT4f4fwpMeJf36POk6',
       ]
 
-      mockTokens.forEach(token => {
+      mockTokens.forEach((token) => {
         const parts = token.split('.')
         expect(parts).toHaveLength(3)
         expect(parts[0]).toMatch(/^eyJ/) // Header starts with eyJ

@@ -1,4 +1,12 @@
-import { Robot, RobotVendor, RobotStatus, RobotCommandType, CommandStatus, CommandPriority, RobotCapability } from '../robot'
+import {
+  Robot,
+  RobotVendor,
+  RobotStatus,
+  RobotCommandType,
+  CommandStatus,
+  CommandPriority,
+  RobotCapability,
+} from '../robot'
 
 describe('Robot Types', () => {
   describe('RobotVendor enum', () => {
@@ -99,12 +107,12 @@ describe('Robot Types', () => {
           capabilities: [RobotCapability.WELDING, RobotCapability.ASSEMBLY],
           customSettings: {
             safetyMode: 'collaborative',
-            speedLimit: 100
-          }
+            speedLimit: 100,
+          },
         },
         lastSeen: new Date(),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }
 
       expect(validRobot.id).toBe('robot-123')
@@ -132,19 +140,19 @@ describe('Robot Types', () => {
           coordinates: {
             x: 125.5,
             y: 245.8,
-            z: 300.2
-          }
+            z: 300.2,
+          },
         },
         configuration: {
           axes: 6,
           payload: 5.0,
           reach: 850,
           capabilities: [],
-          customSettings: {}
+          customSettings: {},
         },
         lastSeen: new Date(),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       }
 
       expect(robotWithLocation.location).toBeDefined()

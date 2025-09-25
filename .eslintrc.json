@@ -45,7 +45,7 @@
   },
   "overrides": [
     {
-      "files": ["**/*.test.ts", "**/*.test.tsx", "**/tests/**/*"],
+      "files": ["web/**/*.test.ts", "web/**/*.test.tsx", "web/**/tests/**/*"],
       "parserOptions": {
         "project": ["./web/tsconfig.test.json"]
       },
@@ -53,7 +53,21 @@
         "@typescript-eslint/no-unused-vars": "off",
         "@typescript-eslint/no-explicit-any": "off"
       }
+    },
+    {
+      "files": ["packages/**/*.test.ts", "services/**/*.test.ts", "adapters/**/*.test.ts"],
+      "parserOptions": {
+        "project": [
+          "./packages/*/tsconfig.json",
+          "./services/*/tsconfig.json",
+          "./adapters/*/tsconfig.json"
+        ]
+      },
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
     }
   ],
-  "ignorePatterns": ["dist/", "node_modules/", "build/", "coverage/"]
+  "ignorePatterns": ["dist/", "node_modules/", "build/", "coverage/", "scripts/"]
 }
