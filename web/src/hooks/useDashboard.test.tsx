@@ -9,19 +9,17 @@ vi.mock('@urfmp/sdk', () => ({
   URFMP: vi.fn().mockImplementation(() => ({
     getRobots: vi.fn(),
     getTelemetry: vi.fn(),
-    health: vi.fn()
-  }))
+    health: vi.fn(),
+  })),
 }))
 
 describe('useDashboard Hook', () => {
   let queryClient: QueryClient
 
   // Create wrapper component for React Query
-  const createWrapper = () => {
+  const createWrapper = (client: QueryClient) => {
     const TestWrapper = ({ children }: { children: ReactNode }) => (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
     )
     return TestWrapper
   }
@@ -40,7 +38,7 @@ describe('useDashboard Hook', () => {
 
   it('should initialize with default state', () => {
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     expect(result.current.metrics).toEqual({
@@ -51,7 +49,7 @@ describe('useDashboard Hook', () => {
       totalPowerConsumption: 0,
       averageEfficiency: 0,
       uptimePercentage: 0,
-      totalTasksCompleted: 0
+      totalTasksCompleted: 0,
     })
 
     expect(result.current.isLoading).toBe(true)
@@ -68,7 +66,7 @@ describe('useDashboard Hook', () => {
         status: 'online',
         powerConsumption: 100,
         efficiency: 85,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       },
       {
         id: '2',
@@ -76,8 +74,8 @@ describe('useDashboard Hook', () => {
         status: 'offline',
         powerConsumption: 0,
         efficiency: 0,
-        lastSeen: new Date()
-      }
+        lastSeen: new Date(),
+      },
     ]
 
     const mockSDK = await import('@urfmp/sdk')
@@ -85,11 +83,11 @@ describe('useDashboard Hook', () => {
     mockURFMP.mockImplementation(() => ({
       getRobots: vi.fn().mockResolvedValue({ data: mockRobots }),
       getTelemetry: vi.fn().mockResolvedValue({ data: [] }),
-      health: vi.fn().mockResolvedValue({ status: 'ok' })
+      health: vi.fn().mockResolvedValue({ status: 'ok' }),
     }))
 
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     await waitFor(() => {
@@ -110,7 +108,7 @@ describe('useDashboard Hook', () => {
         status: 'running',
         powerConsumption: 150,
         efficiency: 90,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       },
       {
         id: '2',
@@ -118,7 +116,7 @@ describe('useDashboard Hook', () => {
         status: 'running',
         powerConsumption: 120,
         efficiency: 80,
-        lastSeen: new Date()
+        lastSeen: new Date(),
       },
       {
         id: '3',
@@ -126,8 +124,8 @@ describe('useDashboard Hook', () => {
         status: 'idle',
         powerConsumption: 50,
         efficiency: 95,
-        lastSeen: new Date()
-      }
+        lastSeen: new Date(),
+      },
     ]
 
     const mockSDK = await import('@urfmp/sdk')
@@ -135,11 +133,11 @@ describe('useDashboard Hook', () => {
     mockURFMP.mockImplementation(() => ({
       getRobots: vi.fn().mockResolvedValue({ data: mockRobots }),
       getTelemetry: vi.fn().mockResolvedValue({ data: [] }),
-      health: vi.fn().mockResolvedValue({ status: 'ok' })
+      health: vi.fn().mockResolvedValue({ status: 'ok' }),
     }))
 
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     await waitFor(() => {
@@ -158,11 +156,11 @@ describe('useDashboard Hook', () => {
     mockURFMP.mockImplementation(() => ({
       getRobots: vi.fn().mockRejectedValue(new Error('API Error')),
       getTelemetry: vi.fn().mockRejectedValue(new Error('API Error')),
-      health: vi.fn().mockRejectedValue(new Error('API Error'))
+      health: vi.fn().mockRejectedValue(new Error('API Error')),
     }))
 
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     await waitFor(() => {
@@ -182,11 +180,11 @@ describe('useDashboard Hook', () => {
     mockURFMP.mockImplementation(() => ({
       getRobots: mockGetRobots,
       getTelemetry: vi.fn().mockResolvedValue({ data: [] }),
-      health: vi.fn().mockResolvedValue({ status: 'ok' })
+      health: vi.fn().mockResolvedValue({ status: 'ok' }),
     }))
 
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     await waitFor(() => {
@@ -207,7 +205,7 @@ describe('useDashboard Hook', () => {
       { id: '2', name: 'Robot 2', status: 'offline', powerConsumption: 0, efficiency: 0 },
       { id: '3', name: 'Robot 3', status: 'error', powerConsumption: 0, efficiency: 0 },
       { id: '4', name: 'Robot 4', status: 'running', powerConsumption: 150, efficiency: 90 },
-      { id: '5', name: 'Robot 5', status: 'idle', powerConsumption: 20, efficiency: 95 }
+      { id: '5', name: 'Robot 5', status: 'idle', powerConsumption: 20, efficiency: 95 },
     ]
 
     const mockSDK = await import('@urfmp/sdk')
@@ -215,11 +213,11 @@ describe('useDashboard Hook', () => {
     mockURFMP.mockImplementation(() => ({
       getRobots: vi.fn().mockResolvedValue({ data: mockRobots }),
       getTelemetry: vi.fn().mockResolvedValue({ data: [] }),
-      health: vi.fn().mockResolvedValue({ status: 'ok' })
+      health: vi.fn().mockResolvedValue({ status: 'ok' }),
     }))
 
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     await waitFor(() => {
@@ -233,7 +231,7 @@ describe('useDashboard Hook', () => {
 
   it('should handle empty robot arrays', () => {
     const { result } = renderHook(() => useDashboard(), {
-      wrapper: createWrapper()
+      wrapper: createWrapper(queryClient),
     })
 
     expect(result.current.metrics.totalRobots).toBe(0)

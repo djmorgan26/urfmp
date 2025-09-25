@@ -2,6 +2,50 @@ import { Client } from 'pg'
 import app from '../app'
 import type { Application } from 'express'
 
+// Mock PostgreSQL for CI environment
+jest.mock('pg', () => {
+  const mockQuery = jest.fn().mockResolvedValue({ rows: [], rowCount: 0 })
+  const mockConnect = jest.fn().mockResolvedValue(undefined)
+  const mockEnd = jest.fn().mockResolvedValue(undefined)
+
+  return {
+    Client: jest.fn().mockImplementation(() => ({
+      connect: mockConnect,
+      end: mockEnd,
+      query: mockQuery,
+      on: jest.fn(),
+      removeListener: jest.fn(),
+    })),
+    Pool: jest.fn().mockImplementation(() => ({
+      connect: jest.fn().mockResolvedValue({
+        query: mockQuery,
+        release: jest.fn(),
+      }),
+      end: mockEnd,
+      query: mockQuery,
+      on: jest.fn(),
+    })),
+  }
+})
+
+// Mock database configuration for CI environment
+jest.mock('../config/database', () => ({
+  pool: {
+    connect: jest.fn().mockResolvedValue({
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+      release: jest.fn(),
+    }),
+    end: jest.fn().mockResolvedValue(undefined),
+    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+  },
+  query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+  connect: jest.fn().mockResolvedValue({
+    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    release: jest.fn(),
+  }),
+  ensureDatabaseConnection: jest.fn().mockResolvedValue(undefined),
+}))
+
 // Mock Redis for CI environment
 jest.mock('../config/redis', () => ({
   connectRedis: jest.fn().mockResolvedValue(undefined),
@@ -17,22 +61,22 @@ jest.mock('../config/redis', () => ({
       subscribe: jest.fn(),
       on: jest.fn(),
     }),
-    status: 'ready'
+    status: 'ready',
   }),
   cache: {
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue(true),
     del: jest.fn().mockResolvedValue(true),
-    exists: jest.fn().mockResolvedValue(false)
+    exists: jest.fn().mockResolvedValue(false),
   },
   pubsub: {
     publish: jest.fn().mockResolvedValue(true),
-    subscribe: jest.fn()
+    subscribe: jest.fn(),
   },
   checkRedisHealth: jest.fn().mockResolvedValue({
     status: 'healthy',
-    details: { responseTime: 1, connected: true }
-  })
+    details: { responseTime: 1, connected: true },
+  }),
 }))
 
 export interface TestSetup {

@@ -16,7 +16,7 @@ async function main() {
         await migrationService.rollbackLastMigration()
         break
 
-      case 'status':
+      case 'status': {
         const status = await migrationService.getMigrationStatus()
         console.log('Migration Status:')
         console.log(`  Total migrations: ${status.total}`)
@@ -27,8 +27,9 @@ async function main() {
           status.pending.forEach((id) => console.log(`    - ${id}`))
         }
         break
+      }
 
-      case 'create':
+      case 'create': {
         const name = process.argv[3]
         if (!name) {
           console.error('Usage: migrate create <migration-name>')
@@ -37,6 +38,7 @@ async function main() {
         const migrationId = await migrationService.createMigration(name)
         console.log(`Created migration: ${migrationId}`)
         break
+      }
 
       default:
         console.log('Usage: migrate <command>')

@@ -1,4 +1,5 @@
 import * as amqp from 'amqplib'
+import { v4 as uuidv4 } from 'uuid'
 import { logger } from './logger'
 
 let connection: any = null
@@ -86,7 +87,7 @@ export const publishEvent = async (
       JSON.stringify({
         ...message,
         timestamp: new Date().toISOString(),
-        id: require('uuid').v4(),
+        id: uuidv4(),
       })
     )
 
@@ -123,7 +124,7 @@ export const publishToQueue = async (
       JSON.stringify({
         ...message,
         timestamp: new Date().toISOString(),
-        id: require('uuid').v4(),
+        id: uuidv4(),
       })
     )
 
