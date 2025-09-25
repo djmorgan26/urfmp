@@ -11,9 +11,10 @@ This file contains all essential information for Claude to efficiently work on t
 - **Production-ready builds**: TypeScript compilation must succeed without errors
 
 ### Developer Experience Goals
-- **Self-service development**: Claude can check deployment status and resolve issues autonomously
-- **Transparent progress**: Use GitHub CLI to monitor CI/CD pipeline health without manual intervention
-- **Proactive maintenance**: Identify and fix potential issues before they impact users
+- **Local-first testing**: Prioritize local simulation and testing to validate changes before deployment
+- **Efficient iteration**: Use local builds and test runs to catch issues quickly without deployment overhead
+- **Strategic deployment verification**: Use GitHub CLI sparingly for final verification or complex issues
+- **Self-service development**: Claude can resolve most issues through local testing and logical analysis
 - **Documentation-driven**: Maintain comprehensive knowledge base for consistent development practices
 
 ## 🚀 Quick Start Commands
@@ -29,26 +30,48 @@ This file contains all essential information for Claude to efficiently work on t
 - `docker logs urfmp-api --tail 50` - Check API logs
 - `docker logs urfmp-web --tail 50` - Check web logs
 
-### GitHub CLI Deployment Monitoring
+### Local Testing & Validation
 
-- `gh run list --limit 5` - List recent GitHub Actions runs
-- `gh run view [RUN_ID] --log` - View detailed deployment logs
-- `gh run view [RUN_ID] --log | grep -E "(✓|✗|FAILED|SUCCESS|ERROR|WARN)"` - Extract key status indicators
-- `gh workflow run ci-cd.yml` - Manually trigger CI/CD pipeline
+**Primary Development Workflow (Fast & Efficient):**
+- `npm run build` - Build all packages locally to catch TypeScript errors
+- `npm run typecheck` - Validate TypeScript without building
+- `npm run lint` - Check code style and catch common issues
+- `npm run test` - Run all local test suites
+- `npm ci` - Validate package-lock.json integrity
+- `npm ls --workspaces` - Verify workspace dependency resolution
 
-#### Deployment Health Checks
-Always verify deployment success by checking:
-1. **Overall status**: All jobs should show "success" not just "completed"
-2. **Build artifacts**: TypeScript compilation without errors
-3. **Test results**: All test suites pass without fallbacks
-4. **Dependency warnings**: No npm deprecation warnings
-5. **Production URL**: Final deployment accessible and functional
+**Package-specific validation:**
+- `npm run build --workspace=@urfmp/types` - Test types package build
+- `npm run build --workspace=@urfmp/sdk` - Test SDK build (depends on types)
+- `npm run build --workspace=@urfmp/api` - Test API build (depends on types)
+- `npm run test --workspace=@urfmp/web` - Run web app tests
 
-#### GitHub CLI Integration Notes
-- Claude is configured to proactively check deployment logs after making changes
-- Use GitHub CLI to verify fixes work before requiring manual verification
-- Parse logs to identify specific issues (missing tests, dependency errors, build failures)
-- Provide deployment status updates without requiring user intervention
+### GitHub CLI Deployment Monitoring (Strategic Use Only)
+
+**When to use GitHub CLI deployment checking:**
+- ✅ Final verification after major architectural changes
+- ✅ Complex dependency issues that can't be reproduced locally
+- ✅ Platform-specific deployment issues (Vercel, production environment)
+- ✅ When local tests pass but production behavior differs
+- ❌ Routine changes that can be validated locally
+- ❌ Simple package.json updates or basic TypeScript fixes
+
+**GitHub CLI Commands (Use Sparingly):**
+- `gh run list --limit 3` - Check recent deployment status
+- `gh run view [RUN_ID] --log | grep -E "(✓|✗|ERROR|FAILED)"` - Extract key issues
+- `gh workflow run ci-cd.yml` - Manual deployment trigger (rare)
+
+#### Deployment Health Validation Priority
+1. **Local validation first** - Build, typecheck, test locally
+2. **Simulate CI conditions** - Run `npm ci` to match deployment environment
+3. **Logical analysis** - Review error patterns and dependency chains
+4. **GitHub CLI verification** - Only when local validation is insufficient
+
+#### Development Philosophy
+- **Fast feedback loops**: Local testing provides immediate results
+- **Deployment confidence**: Only deploy when local validation passes
+- **GitHub CLI as safety net**: Use for edge cases and final verification
+- **Time efficiency**: Avoid waiting for 6-7 minute deployments for routine fixes
 
 ### Testing API
 
@@ -691,36 +714,196 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 - `/geofencing` - **🆕 Geofencing & Waypoint Management** with automated navigation control
 - `/settings` - System configuration
 
-## 🛠️ Development Workflows
+## 🧪 Local Testing & Deployment Simulation
 
-### Adding New Features
+### Pre-Deployment Validation Checklist
 
-1. Check types package for required interfaces
-2. Add API endpoint in `services/api/src/routes/`
-3. Update frontend components in `web/src/`
-4. Add to navigation if needed
-5. Test with Docker environment
+**Before making any changes, run:**
+```bash
+# 1. Verify current state
+npm ci                    # Ensure clean dependency state
+npm ls --workspaces       # Check workspace integrity
+npm run typecheck         # Validate TypeScript
+
+# 2. Test builds in dependency order
+npm run build --workspace=@urfmp/types
+npm run build --workspace=@urfmp/sdk
+npm run build --workspace=@urfmp/api
+
+# 3. Run tests
+npm run test --workspace=@urfmp/web
+
+# 4. Final validation
+npm run lint              # Style and quality checks
+```
+
+**After making changes, simulate CI environment:**
+```bash
+# Simulate exactly what CI does
+rm -rf node_modules */node_modules */*/node_modules
+npm ci                    # Match CI's npm ci behavior
+npm run build --workspace=@urfmp/types
+npm run test --workspace=@urfmp/types
+npm run build --workspace=@urfmp/sdk
+npm run test --workspace=@urfmp/sdk
+npm run build --workspace=@urfmp/api
+npm run test --workspace=@urfmp/api
+npm run test --workspace=@urfmp/web
+```
+
+### Test Simulation Best Practices
+
+1. **Dependency Resolution Testing**
+   - Always run `npm ci` after package.json changes
+   - Check for ERESOLVE warnings that might cause CI failures
+   - Verify workspace dependencies resolve correctly
+
+2. **TypeScript Build Validation**
+   - Build packages in correct order (types → sdk → api)
+   - Watch for module resolution errors early
+   - Test both incremental and clean builds
+
+3. **Local Environment Matching CI**
+   - Use Node.js 20 (matches CI NODE_VERSION)
+   - Clear caches between builds when testing fixes
+   - Simulate timeout conditions for long-running processes
+
+### Common Issue Patterns & Local Detection
+
+**Package-lock.json Sync Issues:**
+```bash
+# Detect locally before CI fails
+npm ci  # Will fail with specific package version mismatches
+```
+
+**TypeScript Module Resolution:**
+```bash
+# Test dependency chain
+npm run build --workspace=@urfmp/types    # Must succeed first
+npm run build --workspace=@urfmp/sdk      # May fail if types build failed
+```
+
+**Missing Test Scripts:**
+```bash
+# Verify all packages have test scripts
+npm run test --workspace=@urfmp/types     # Should exit cleanly
+npm run test --workspace=@urfmp/sdk       # Should exit cleanly
+npm run test --workspace=@urfmp/api       # Should exit cleanly
+```
+
+## 🛠️ Development Workflows & Team Standards
+
+### Git Workflow Standards
+
+**Branch Naming Conventions:**
+- `feature/[ticket-id]-brief-description` - New features
+- `fix/[ticket-id]-brief-description` - Bug fixes
+- `refactor/brief-description` - Code refactoring
+- `docs/brief-description` - Documentation updates
+
+**Commit Message Standards:**
+```
+type(scope): Brief description
+
+Detailed explanation if needed
+
+🚀 Generated with [Claude Code](https://claude.ai/code)
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+**Code Review Guidelines:**
+- All changes require review before merging to main
+- Focus on: security, performance, maintainability, test coverage
+- Check for proper error handling and input validation
+- Verify database migrations are reversible
+- Ensure TypeScript strict mode compliance
+
+### Feature Development Workflow
+
+1. **Planning Phase**
+   - Review requirements and create technical design
+   - Check types package for required interfaces
+   - Plan database schema changes (migrations)
+   - Design API endpoints and contracts
+
+2. **Implementation Phase**
+   - Start with types: Add interfaces to `packages/types/src/`
+   - Add database migrations if needed
+   - Implement API endpoints in `services/api/src/routes/`
+   - Create frontend components in `web/src/`
+   - Add to navigation and routing if needed
+
+3. **Testing Phase**
+   - Run full local validation checklist
+   - Test with Docker environment
+   - Verify authentication and authorization
+   - Test error conditions and edge cases
+
+4. **Integration Phase**
+   - Create feature branch and push changes
+   - Open pull request with detailed description
+   - Address code review feedback
+   - Merge only after all checks pass
+
+### Testing Strategy
+
+**Unit Testing:**
+- All utility functions must have unit tests
+- Test error conditions and edge cases
+- Use Jest for JavaScript/TypeScript testing
+- Maintain >80% code coverage for critical paths
+
+**Integration Testing:**
+- Test API endpoints with real database
+- Test WebSocket connections and real-time features
+- Test authentication flows end-to-end
+- Use supertest for API integration tests
+
+**Frontend Testing:**
+- Component testing with React Testing Library
+- Test user interactions and state management
+- Mock external API calls
+- Test responsive design and accessibility
+
+**Local Testing Requirements:**
+- All tests must pass locally before committing
+- Run `npm run test` across all workspaces
+- Verify builds succeed in dependency order
+- Test Docker environment startup
 
 ### Working with Types
 
-- All shared types in `packages/types/src/`
-- Export new types in `packages/types/src/index.ts`
-- Rebuild types: `npm run build --workspace=@urfmp/types`
+- **All shared types** in `packages/types/src/`
+- **Export new types** in `packages/types/src/index.ts`
+- **Version types carefully** - breaking changes require major version bump
+- **Document complex types** with TSDoc comments
+- **Rebuild types**: `npm run build --workspace=@urfmp/types`
 
 ### Working with API
 
-- Routes in `services/api/src/routes/`
-- Middleware in `services/api/src/middleware/`
-- Use `asyncHandler` for async routes
-- Follow existing patterns for error handling
+- **Routes** in `services/api/src/routes/`
+- **Middleware** in `services/api/src/middleware/`
+- **Use `asyncHandler`** for async routes to handle promise rejections
+- **Input validation** with Zod schemas for all endpoints
+- **Error handling** - consistent error responses with proper HTTP codes
+- **Authentication** - verify JWT tokens or API keys on protected routes
 
 ### Working with Frontend
 
-- Components in `web/src/components/`
-- Pages in `web/src/pages/`
-- Hooks in `web/src/hooks/`
-- Use Tailwind for styling
-- Follow existing patterns for state management
+- **Components** in `web/src/components/` (organized by feature/domain)
+- **Pages** in `web/src/pages/` (route-level components)
+- **Hooks** in `web/src/hooks/` (reusable stateful logic)
+- **Styling** with Tailwind CSS - avoid custom CSS when possible
+- **State management** with React hooks and context
+- **Error boundaries** for all route components
+
+### Database Development
+
+- **Schema changes** via migration files only
+- **Migration naming** `YYYYMMDD-HHMMSS-description.up.sql`
+- **Reversible migrations** - always include rollback logic
+- **Test migrations** locally before committing
+- **Seed data** for development and testing environments
 
 ## 🐛 Common Issues & Solutions
 
@@ -743,28 +926,127 @@ curl -X POST -H "Content-Type: application/json" -H "X-API-Key: $API_KEY" \
 - Database admin at `http://localhost:8080` (Adminer)
 - RabbitMQ management at `http://localhost:15672`
 
-## 📝 Code Standards
+## 📝 Code Standards & Best Practices
 
-### TypeScript
+### TypeScript Standards
 
-- Strict mode enabled
-- Use interfaces for object shapes
-- Export types from centralized location
-- Use proper error handling
+- **Strict mode enabled** - All TypeScript files use strict type checking
+- **Interface-first design** - Use interfaces for object shapes, avoid `any` type
+- **Centralized type exports** - All types exported from `packages/types/src/index.ts`
+- **Proper error handling** - Use Result<T, E> pattern for fallible operations
+- **Consistent naming** - PascalCase for types, camelCase for variables/functions
 
-### React
+### React Best Practices
 
-- Functional components with hooks
-- Use TypeScript for all components
-- Follow naming conventions (PascalCase for components)
-- Use custom hooks for logic
+- **Functional components with hooks** - No class components
+- **TypeScript for all components** - Strict typing with proper prop interfaces
+- **Component naming** - PascalCase for components, kebab-case for files
+- **Custom hooks for logic** - Extract complex logic into reusable hooks
+- **Error boundaries** - Wrap route components with error boundaries
+- **Performance optimization** - Use React.memo, useMemo, useCallback appropriately
 
-### API
+### API Design Standards
 
-- RESTful endpoints
-- Consistent error responses
-- Use middleware for common functionality
-- Proper HTTP status codes
+- **RESTful endpoints** - Follow REST conventions for resource-based APIs
+- **Consistent error responses** - Standardized error format with error codes
+- **Middleware patterns** - Use middleware for auth, validation, logging
+- **HTTP status codes** - Proper status codes (200, 201, 400, 401, 403, 404, 500)
+- **Input validation** - Use Zod schemas for all API input validation
+- **Rate limiting** - Implement rate limiting for all public endpoints
+
+### Security Best Practices
+
+- **No hardcoded secrets** - All secrets via environment variables
+- **Input sanitization** - Sanitize all user inputs to prevent XSS/injection
+- **SQL injection prevention** - Use parameterized queries, never string concatenation
+- **CORS configuration** - Proper CORS setup for production
+- **Security headers** - Helmet middleware for security headers
+- **Authentication patterns** - JWT with refresh tokens, proper session management
+
+### Database Standards
+
+- **Migration-based schema** - All schema changes via versioned migrations
+- **Parameterized queries** - No direct SQL string concatenation
+- **Connection pooling** - Use connection pooling for performance
+- **Transaction patterns** - Use transactions for multi-table operations
+- **Index optimization** - Proper indexing for query performance
+- **Data validation** - Database-level constraints + application validation
+
+### Error Handling Patterns
+
+- **Consistent error types** - Standardized error interfaces across packages
+- **Error boundaries** - React error boundaries for UI error recovery
+- **Logging standards** - Structured logging with correlation IDs
+- **Graceful degradation** - Handle service failures gracefully
+- **Error monitoring** - Integration with error tracking services
+
+### Performance Standards
+
+- **Bundle size limits** - Web bundle < 2MB, individual chunks < 500KB
+- **Database query optimization** - All queries < 100ms, proper indexing
+- **Memory management** - Avoid memory leaks in WebSocket connections
+- **Caching strategies** - Redis for session data, browser caching for assets
+- **API response times** - All API endpoints < 200ms average response time
+
+### Monitoring & Observability
+
+**Application Monitoring:**
+- **Health checks** - Comprehensive health endpoints for all services
+- **Metrics collection** - Key performance indicators and business metrics
+- **Error tracking** - Integration with error monitoring services
+- **Performance monitoring** - Real-time performance metrics and alerts
+- **Log aggregation** - Centralized logging with structured format
+
+**Database Monitoring:**
+- **Query performance** - Monitor slow queries and execution plans
+- **Connection pooling** - Track connection usage and pool health
+- **Storage metrics** - Monitor disk usage, growth rates
+- **Backup verification** - Automated backup testing and validation
+
+**Infrastructure Monitoring:**
+- **Resource utilization** - CPU, memory, disk, network monitoring
+- **Service availability** - Uptime monitoring for all critical services
+- **Alert thresholds** - Proper alerting for critical issues
+- **Response time SLAs** - Define and monitor service level objectives
+
+### Dependency Management
+
+**Package Security:**
+- **Regular updates** - Monthly dependency updates with security patches
+- **Vulnerability scanning** - Automated vulnerability detection
+- **License compliance** - Track and verify package licenses
+- **Audit procedures** - Regular `npm audit` and resolution of issues
+
+**Version Management:**
+- **Semantic versioning** - Follow semver for all internal packages
+- **Breaking change policy** - Major version bumps for breaking changes
+- **Update strategy** - Staged rollouts for major dependency updates
+- **Rollback procedures** - Quick rollback for problematic updates
+
+**Development Dependencies:**
+- **Tool consistency** - Lock tool versions across team (Node.js, npm)
+- **Environment parity** - Match development and production environments
+- **Docker images** - Use specific versions, avoid `latest` tags
+
+### Production Deployment Standards
+
+**Environment Configuration:**
+- **Environment separation** - Clear dev/staging/production boundaries
+- **Secret management** - Proper secret rotation and access controls
+- **Feature flags** - Use feature flags for gradual rollouts
+- **Configuration validation** - Validate all environment variables on startup
+
+**Deployment Process:**
+- **Zero-downtime deployments** - Blue-green or rolling deployment strategy
+- **Database migrations** - Safe, reversible migration procedures
+- **Rollback capability** - Quick rollback within 5 minutes of deployment
+- **Health verification** - Automated health checks post-deployment
+
+**Disaster Recovery:**
+- **Backup procedures** - Regular, tested backups of all critical data
+- **Recovery testing** - Regular disaster recovery drills
+- **Data retention** - Clear data retention and archival policies
+- **Business continuity** - Plans for service degradation scenarios
 
 ## 🔍 Debugging Tools
 
@@ -796,8 +1078,50 @@ docker exec -it urfmp-redis redis-cli
 
 ---
 
-## 🎉 URFMP Development Complete
+## 📚 Documentation Coverage & Themes
 
+This CLAUDE.md file is organized into comprehensive sections covering all aspects of URFMP development:
+
+### 🎯 **Strategic Guidance**
+- Project goals and quality standards
+- Local-first development philosophy
+- Zero-warning deployment objectives
+
+### 🏗️ **Technical Architecture**
+- Monorepo structure and tech stack
+- Database schema and migration system
+- Authentication and security patterns
+
+### 🚀 **Feature Documentation**
+- Complete API endpoint reference
+- Advanced analytics and reporting
+- AI-powered predictive maintenance
+- GPS visualization and geofencing
+- Real-time telemetry system
+
+### 💻 **Development Practices**
+- Local testing and CI simulation
+- Git workflow and code review standards
+- TypeScript and React best practices
+- Security and performance guidelines
+
+### 🛠️ **Operational Excellence**
+- Monitoring and observability
+- Dependency management
+- Production deployment standards
+- Error handling and disaster recovery
+
+### 🧪 **Quality Assurance**
+- Testing strategies (unit, integration, E2E)
+- Code standards and conventions
+- Performance benchmarks
+- Security best practices
+
+---
+
+## 🎉 URFMP Platform Status
+
+### ✅ **Feature Development: COMPLETE**
 **URFMP is now a fully-featured, production-ready robot fleet management platform with:**
 
 - ✅ Complete authentication and security system
@@ -807,6 +1131,26 @@ docker exec -it urfmp-redis redis-cli
 - ✅ Comprehensive geofencing and navigation
 - ✅ 2D/3D GPS visualization system
 - ✅ Enterprise-grade data export capabilities
+- ✅ Zero-warning CI/CD deployment pipeline
 
-_Last Updated: September 20, 2025 - All Advanced Features Completed_
-_This file has been updated to reflect the completion of all major URFMP features_
+### 🏗️ **Engineering Standards: ESTABLISHED**
+**Comprehensive development guidelines now cover:**
+
+- ✅ Software engineering best practices
+- ✅ Team collaboration workflows
+- ✅ Security and performance standards
+- ✅ Testing and quality assurance
+- ✅ Production deployment procedures
+- ✅ Monitoring and observability
+
+### 🎯 **Next Phase: Implementation**
+**Key areas for ongoing development:**
+
+- 🔄 **Implement comprehensive test suites** - Unit, integration, and E2E tests
+- 🔄 **Establish monitoring infrastructure** - Error tracking, performance monitoring
+- 🔄 **Enhance security measures** - Input validation, rate limiting, security headers
+- 🔄 **Optimize performance** - Bundle analysis, database query optimization
+- 🔄 **Production readiness** - Disaster recovery, backup procedures, scaling
+
+_Last Updated: September 25, 2025 - Feature Complete + Engineering Standards Established_
+_This documentation provides everything needed for enterprise-scale development and team scaling_
