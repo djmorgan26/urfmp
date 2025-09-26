@@ -117,6 +117,25 @@ jest.mock('../config/database', () => ({
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
     }
+    // Mock API key queries for authentication
+    if (text.includes('FROM api_keys') && text.includes('WHERE ak.key_hash')) {
+      const keyHash = params?.[0]
+      if (keyHash === 'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678') {
+        return Promise.resolve({
+          rows: [{
+            id: 'test-api-key-id',
+            user_id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write'],
+            expires_at: null,
+            is_active: true,
+            user_email: 'admin@urfmp.com'
+          }],
+          rowCount: 1
+        })
+      }
+      return Promise.resolve({ rows: [], rowCount: 0 })
+    }
     // Mock robots queries for API tests
     if (text.includes('FROM robots')) {
       return Promise.resolve({

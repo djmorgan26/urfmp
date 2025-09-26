@@ -22,7 +22,7 @@ describe('Robots API Integration Tests', () => {
       })
 
       if (loginResponse.status === 200) {
-        authToken = loginResponse.body.tokens.accessToken
+        authToken = loginResponse.body.data.tokens.accessToken
       }
     } catch (error) {
       console.warn('Could not get auth token for tests:', error)
