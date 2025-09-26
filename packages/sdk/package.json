@@ -39,6 +39,13 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "dist/",
+      "node_modules/"
+    ],
+    "testMatch": [
+      "**/src/**/*.test.ts"
+    ],
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/*.d.ts",

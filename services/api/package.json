@@ -72,7 +72,12 @@
     },
     "testPathIgnorePatterns": [
       "dist/",
-      "node_modules/"
+      "node_modules/",
+      "src/__tests__/setup.ts"
+    ],
+    "testMatch": [
+      "**/src/**/*.test.ts",
+      "!**/src/__tests__/setup.ts"
     ],
     "collectCoverageFrom": [
       "src/**/*.ts",
