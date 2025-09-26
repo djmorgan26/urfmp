@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useURFMP } from './useURFMP'
 import {
   GeofenceMonitor,
@@ -142,7 +142,16 @@ export function useGeofencing(): GeofencingData {
   const [error, setError] = useState<string | null>(null)
   const geofenceMonitorRef = useRef<GeofenceMonitor | null>(null)
 
-  const fetchGeofencingData = async () => {
+  const handleViolationDetected = useCallback((violations: any[]) => {
+    // Convert violations to events and add to current events
+    const robotNames = new Map(robots.map((r) => [r.id, r.name]))
+    const geofenceNames = new Map(geofences.map((g) => [g.id, g.name]))
+    const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
+
+    setEvents((prev) => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
+  }, [robots, geofences])
+
+  const fetchGeofencingData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
     if (robots.length === 0) return
 
@@ -191,7 +200,7 @@ export function useGeofencing(): GeofencingData {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [urfmp, robots, handleViolationDetected])
 
   const createWaypoint = async (waypointData: Omit<Waypoint, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newWaypoint: Waypoint = {
@@ -304,14 +313,6 @@ export function useGeofencing(): GeofencingData {
     geofenceMonitorRef.current?.clearHistory()
   }
 
-  const handleViolationDetected = (violations: any[]) => {
-    // Convert violations to events and add to current events
-    const robotNames = new Map(robots.map((r) => [r.id, r.name]))
-    const geofenceNames = new Map(geofences.map((g) => [g.id, g.name]))
-    const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
-
-    setEvents((prev) => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
-  }
 
   // Simulate robot position updates for demo purposes
   useEffect(() => {

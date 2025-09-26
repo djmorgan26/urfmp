@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useURFMP } from './useURFMP'
 
 export interface MaintenanceAlert {
@@ -102,7 +102,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
   const [error, setError] = useState<string | null>(null)
   const [lastFetch, setLastFetch] = useState<number>(0)
 
-  const fetchMaintenanceData = async () => {
+  const fetchMaintenanceData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
     if (robots.length === 0) return
 
@@ -238,7 +238,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [urfmp, robots, lastFetch])
 
   useEffect(() => {
     // Only run if we have URFMP instance and it's been more than 30 minutes
@@ -252,7 +252,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     }
 
     fetchMaintenanceData()
-  }, [urfmp]) // Remove robots dependency to prevent excessive re-runs
+  }, [urfmp, fetchMaintenanceData]) // Include fetchMaintenanceData
 
   // Separate effect for periodic updates
   useEffect(() => {

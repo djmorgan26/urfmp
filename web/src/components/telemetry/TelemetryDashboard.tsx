@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   LineChart,
   Line,
@@ -65,23 +65,7 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
   const [latestTelemetry, setLatestTelemetry] = useState<any>(null)
   const [metrics, setMetrics] = useState<MetricCard[]>([])
 
-  useEffect(() => {
-    if (urfmp && robotId) {
-      loadTelemetryData()
-      loadAvailableMetrics()
-      loadLatestTelemetry()
-    }
-  }, [
-    urfmp,
-    robotId,
-    selectedTimeRange,
-    selectedAggregation,
-    loadTelemetryData,
-    loadAvailableMetrics,
-    loadLatestTelemetry,
-  ])
-
-  const loadTelemetryData = async () => {
+  const loadTelemetryData = useCallback(async () => {
     // Check if we're in demo mode
     const isDemo =
       import.meta.env.VITE_DEMO_MODE === 'true' ||
@@ -127,9 +111,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [urfmp, robotId, selectedTimeRange, selectedAggregation])
 
-  const loadAvailableMetrics = async () => {
+  const loadAvailableMetrics = useCallback(async () => {
     // Check if we're in demo mode
     const isDemo =
       import.meta.env.VITE_DEMO_MODE === 'true' ||
@@ -149,9 +133,9 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
     } catch (error) {
       console.error('Failed to load available metrics:', error)
     }
-  }
+  }, [urfmp])
 
-  const loadLatestTelemetry = async () => {
+  const loadLatestTelemetry = useCallback(async () => {
     // Check if we're in demo mode
     const isDemo =
       import.meta.env.VITE_DEMO_MODE === 'true' ||
@@ -187,7 +171,23 @@ export function TelemetryDashboard({ robotId, className }: TelemetryDashboardPro
     } catch (error) {
       console.error('Failed to load latest telemetry:', error)
     }
-  }
+  }, [urfmp, robotId])
+
+  useEffect(() => {
+    if (urfmp && robotId) {
+      loadTelemetryData()
+      loadAvailableMetrics()
+      loadLatestTelemetry()
+    }
+  }, [
+    urfmp,
+    robotId,
+    selectedTimeRange,
+    selectedAggregation,
+    loadTelemetryData,
+    loadAvailableMetrics,
+    loadLatestTelemetry,
+  ])
 
   const updateMetricsCards = (data: any) => {
     const newMetrics: MetricCard[] = []

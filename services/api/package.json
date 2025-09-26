@@ -65,14 +65,21 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "testTimeout": 10000,
+    "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"],
     "moduleNameMapper": {
       "^@urfmp/types$": "<rootDir>/../../packages/types/src/index.ts"
     },
+    "testPathIgnorePatterns": [
+      "dist/",
+      "node_modules/"
+    ],
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/*.d.ts",
       "!src/migrations/**",
-      "!src/index.ts"
+      "!src/index.ts",
+      "!src/__tests__/**"
     ],
     "coverageDirectory": "coverage",
     "coverageReporters": [

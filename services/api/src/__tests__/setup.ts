@@ -2,6 +2,24 @@ import { Client } from 'pg'
 import app from '../app'
 import type { Application } from 'express'
 
+// Mock bcrypt for CI environment
+jest.mock('bcrypt', () => ({
+  compare: jest.fn().mockImplementation((password: string, _hash: string) => {
+    // Mock bcrypt comparison - in tests, accept 'admin123' for any hash
+    return Promise.resolve(password === 'admin123')
+  }),
+  hash: jest.fn().mockResolvedValue('$2b$10$test.hash.for.admin123'),
+}))
+
+// Also mock bcryptjs since auth service imports bcryptjs
+jest.mock('bcryptjs', () => ({
+  compare: jest.fn().mockImplementation((password: string, _hash: string) => {
+    // Mock bcrypt comparison - in tests, accept 'admin123' for any hash
+    return Promise.resolve(password === 'admin123')
+  }),
+  hash: jest.fn().mockResolvedValue('$2b$10$test.hash.for.admin123'),
+}))
+
 // Mock PostgreSQL for CI environment
 jest.mock('pg', () => {
   const mockQuery = jest.fn().mockResolvedValue({ rows: [], rowCount: 0 })
@@ -37,13 +55,101 @@ jest.mock('../config/database', () => ({
     }),
     end: jest.fn().mockResolvedValue(undefined),
     query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    totalCount: 0,
+    idleCount: 0,
+    waitingCount: 0,
   },
-  query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
-  connect: jest.fn().mockResolvedValue({
-    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
-    release: jest.fn(),
+  query: jest.fn().mockImplementation((text: string, params: any[] = []) => {
+    // Mock different queries based on SQL content
+    if (text.includes('SELECT NOW() as timestamp')) {
+      return Promise.resolve({ rows: [{ timestamp: new Date(), version: 'PostgreSQL 14.0' }], rowCount: 1 })
+    }
+    if (text.includes('FROM users') && text.includes('JOIN organizations') && text.includes('WHERE')) {
+      // Mock user authentication query with organization JOIN
+      const email = params?.[0] || params?.find?.(p => typeof p === 'string' && p.includes('@'))
+      if (email === 'admin@urfmp.com') {
+        return Promise.resolve({
+          rows: [{
+            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+            email: 'admin@urfmp.com',
+            password_hash: '$2b$10$test.hash.for.admin123',
+            first_name: 'Admin',
+            last_name: 'User',
+            role: 'admin',
+            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write'],
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            org_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            org_name: 'URFMP Demo',
+            org_slug: 'urfmp-demo',
+            org_plan: 'enterprise'
+          }],
+          rowCount: 1
+        })
+      }
+      return Promise.resolve({ rows: [], rowCount: 0 })
+    }
+    if (text.includes('FROM users') && text.includes('WHERE email')) {
+      // Mock simple user query
+      const email = params?.[0] || params?.find?.(p => typeof p === 'string' && p.includes('@'))
+      if (email === 'admin@urfmp.com') {
+        return Promise.resolve({
+          rows: [{
+            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+            email: 'admin@urfmp.com',
+            password_hash: '$2b$10$test.hash.for.admin123',
+            first_name: 'Admin',
+            last_name: 'User',
+            role: 'admin',
+            email_verified: true,
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write']
+          }],
+          rowCount: 1
+        })
+      }
+      return Promise.resolve({ rows: [], rowCount: 0 })
+    }
+    // Mock robots queries for API tests
+    if (text.includes('FROM robots')) {
+      return Promise.resolve({
+        rows: [{
+          id: 'test-robot-id',
+          name: 'Test Robot',
+          vendor: 'universal_robots',
+          model: 'UR5e',
+          serial_number: 'UR12345',
+          status: 'online',
+          created_at: new Date(),
+          updated_at: new Date(),
+          organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+        }],
+        rowCount: 1
+      })
+    }
+    // Default mock response
+    return Promise.resolve({ rows: [], rowCount: 0 })
   }),
-  ensureDatabaseConnection: jest.fn().mockResolvedValue(undefined),
+  transaction: jest.fn().mockImplementation(async (callback) => callback({
+    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+  })),
+  connectDatabase: jest.fn().mockResolvedValue(undefined),
+  getDatabase: jest.fn().mockReturnValue({
+    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+  }),
+  checkDatabaseHealth: jest.fn().mockResolvedValue({
+    status: 'healthy',
+    details: {
+      timestamp: new Date(),
+      version: 'PostgreSQL 14.0',
+      responseTime: 10,
+      totalConnections: 0,
+      idleConnections: 0,
+      waitingConnections: 0,
+    },
+  }),
+  closeDatabase: jest.fn().mockResolvedValue(undefined),
+  createHypertable: jest.fn().mockResolvedValue(undefined),
+  createIndex: jest.fn().mockResolvedValue(undefined),
 }))
 
 // Mock Redis for CI environment
@@ -57,6 +163,13 @@ jest.mock('../config/redis', () => ({
     del: jest.fn().mockResolvedValue(1),
     exists: jest.fn().mockResolvedValue(0),
     publish: jest.fn().mockResolvedValue(1),
+    multi: jest.fn().mockReturnValue({
+      get: jest.fn().mockReturnThis(),
+      set: jest.fn().mockReturnThis(),
+      incr: jest.fn().mockReturnThis(),
+      expire: jest.fn().mockReturnThis(),
+      exec: jest.fn().mockResolvedValue([null, 1]),
+    }),
     duplicate: jest.fn().mockReturnValue({
       subscribe: jest.fn(),
       on: jest.fn(),
@@ -77,6 +190,27 @@ jest.mock('../config/redis', () => ({
     status: 'healthy',
     details: { responseTime: 1, connected: true },
   }),
+}))
+
+// Mock RabbitMQ for CI environment
+jest.mock('../config/rabbitmq', () => ({
+  connectRabbitMQ: jest.fn().mockResolvedValue(undefined),
+  getRabbitMQ: jest.fn().mockReturnValue({
+    connection: { close: jest.fn() },
+    channel: {
+      assertQueue: jest.fn().mockResolvedValue({ queue: 'test' }),
+      sendToQueue: jest.fn().mockResolvedValue(true),
+      consume: jest.fn().mockResolvedValue({ consumerTag: 'test' }),
+      ack: jest.fn(),
+      nack: jest.fn(),
+      close: jest.fn(),
+    },
+  }),
+  checkRabbitMQHealth: jest.fn().mockResolvedValue({
+    status: 'healthy',
+    details: { connected: true },
+  }),
+  closeRabbitMQ: jest.fn().mockResolvedValue(undefined),
 }))
 
 export interface TestSetup {

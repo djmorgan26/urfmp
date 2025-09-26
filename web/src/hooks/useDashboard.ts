@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useURFMP } from './useURFMP'
 import { usePredictiveMaintenance } from './usePredictiveMaintenance'
 
@@ -56,7 +56,7 @@ export function useDashboard(): DashboardData {
   const [error, setError] = useState<string | null>(null)
   const [lastFetch, setLastFetch] = useState<number>(0)
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
     if (robots.length === 0) return
 
@@ -313,7 +313,7 @@ export function useDashboard(): DashboardData {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [urfmp, robots, maintenanceAlerts])
 
   useEffect(() => {
     fetchDashboardData()

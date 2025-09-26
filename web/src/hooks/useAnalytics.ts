@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useURFMP } from './useURFMP'
 
 export interface FleetMetrics {
@@ -70,7 +70,7 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchAnalyticsData = async () => {
+  const fetchAnalyticsData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
     if (robots.length === 0) return
 
@@ -228,9 +228,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [urfmp, robots, timeRange])
 
-  const fetchAggregatedMetric = async (
+  const fetchAggregatedMetric = useCallback(async (
     metric: string,
     aggregation: string,
     timeWindow: string,
@@ -265,9 +265,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
       console.warn(`Failed to fetch aggregated metric ${metric}:`, err)
       return []
     }
-  }
+  }, [robots, urfmp])
 
-  const getDaysFromTimeRange = (range: TimeRange): number => {
+  const getDaysFromTimeRange = useCallback((range: TimeRange): number => {
     switch (range) {
       case '7d':
         return 7
@@ -280,9 +280,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
       default:
         return 30
     }
-  }
+  }, [])
 
-  const generateFleetTrendData = (range: TimeRange): FleetTrendData[] => {
+  const generateFleetTrendData = useCallback((range: TimeRange): FleetTrendData[] => {
     const days = getDaysFromTimeRange(range)
     const data: FleetTrendData[] = []
 
@@ -301,7 +301,7 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     }
 
     return data
-  }
+  }, [getDaysFromTimeRange])
 
   useEffect(() => {
     fetchAnalyticsData()
