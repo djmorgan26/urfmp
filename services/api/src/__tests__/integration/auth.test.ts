@@ -185,7 +185,7 @@ describe('Auth API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.message).toMatch(/refreshToken/i)
+      expect(response.body.error.message).toMatch(/refresh.*token.*required/i)
     })
   })
 

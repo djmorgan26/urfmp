@@ -1,3 +1,11 @@
+// Set test environment variables BEFORE any imports to ensure proper service initialization
+process.env.NODE_ENV = 'test'
+process.env.DATABASE_URL =
+  process.env.TEST_DATABASE_URL || 'postgresql://urfmp:urfmp-dev-2024@localhost:5432/urfmp_test'
+process.env.JWT_SECRET = 'test-jwt-secret'
+process.env.JWT_REFRESH_SECRET = 'test-jwt-refresh-secret'
+process.env.REDIS_URL = 'redis://localhost:6379/1' // Use test Redis DB
+
 import { Client } from 'pg'
 import app from '../app'
 import type { Application } from 'express'
@@ -177,9 +185,24 @@ jest.mock('../config/redis', () => ({
     status: 'ready',
   }),
   cache: {
-    get: jest.fn().mockResolvedValue(null),
-    set: jest.fn().mockResolvedValue(true),
-    del: jest.fn().mockResolvedValue(true),
+    get: jest.fn().mockImplementation(async (key: string) => {
+      // Use a simple in-memory store for tests
+      const store = (global as any).__testCacheStore__ || {}
+      return store[key] || null
+    }),
+    set: jest.fn().mockImplementation(async (key: string, value: string, _ttl?: number) => {
+      // Store in global test cache
+      const store = (global as any).__testCacheStore__ || {}
+      store[key] = value
+      ;(global as any).__testCacheStore__ = store
+      return true
+    }),
+    del: jest.fn().mockImplementation(async (key: string) => {
+      const store = (global as any).__testCacheStore__ || {}
+      delete store[key]
+      ;(global as any).__testCacheStore__ = store
+      return true
+    }),
     exists: jest.fn().mockResolvedValue(false),
   },
   pubsub: {
@@ -219,12 +242,7 @@ export interface TestSetup {
 }
 
 export async function setupTestEnvironment(): Promise<TestSetup> {
-  // Set test environment variables
-  process.env.NODE_ENV = 'test'
-  process.env.DATABASE_URL =
-    process.env.TEST_DATABASE_URL || 'postgresql://urfmp:urfmp-dev-2024@localhost:5432/urfmp_test'
-  process.env.JWT_SECRET = 'test-jwt-secret'
-  process.env.REDIS_URL = 'redis://localhost:6379/1' // Use test Redis DB
+  // Environment variables are already set at the top of this file
 
   // Create test database client
   const dbClient = new Client({
