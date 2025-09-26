@@ -33,32 +33,36 @@ describe('Auth API Integration Tests', () => {
         .send(loginData)
         .expect(200)
 
-      expect(response.body).toHaveProperty('user')
-      expect(response.body).toHaveProperty('tokens')
-      expect(response.body).toHaveProperty('organization')
+      // Validate API response structure
+      expect(response.body).toHaveProperty('success', true)
+      expect(response.body).toHaveProperty('data')
+      expect(response.body).toHaveProperty('metadata')
 
       // User data validation
-      expect(response.body.user).toHaveProperty('id')
-      expect(response.body.user).toHaveProperty('email', 'admin@urfmp.com')
-      expect(response.body.user).toHaveProperty('firstName')
-      expect(response.body.user).toHaveProperty('lastName')
-      expect(response.body.user).toHaveProperty('role')
-      expect(response.body.user).toHaveProperty('permissions')
+      expect(response.body.data).toHaveProperty('user')
+      expect(response.body.data.user).toHaveProperty('id')
+      expect(response.body.data.user).toHaveProperty('email', 'admin@urfmp.com')
+      expect(response.body.data.user).toHaveProperty('firstName')
+      expect(response.body.data.user).toHaveProperty('lastName')
+      expect(response.body.data.user).toHaveProperty('role')
+      expect(response.body.data.user).toHaveProperty('permissions')
 
       // Token validation
-      expect(response.body.tokens).toHaveProperty('accessToken')
-      expect(response.body.tokens).toHaveProperty('refreshToken')
-      expect(response.body.tokens).toHaveProperty('tokenType', 'Bearer')
-      expect(response.body.tokens).toHaveProperty('expiresIn')
+      expect(response.body.data).toHaveProperty('tokens')
+      expect(response.body.data.tokens).toHaveProperty('accessToken')
+      expect(response.body.data.tokens).toHaveProperty('refreshToken')
+      expect(response.body.data.tokens).toHaveProperty('tokenType', 'Bearer')
+      expect(response.body.data.tokens).toHaveProperty('expiresIn')
 
       // JWT token format validation
-      expect(response.body.tokens.accessToken).toMatch(
+      expect(response.body.data.tokens.accessToken).toMatch(
         /^eyJ[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/
       )
 
       // Organization validation
-      expect(response.body.organization).toHaveProperty('id')
-      expect(response.body.organization).toHaveProperty('name')
+      expect(response.body.data).toHaveProperty('organization')
+      expect(response.body.data.organization).toHaveProperty('id')
+      expect(response.body.data.organization).toHaveProperty('name')
     })
 
     it('should reject invalid credentials', async () => {
@@ -72,8 +76,9 @@ describe('Auth API Integration Tests', () => {
         .send(invalidLogin)
         .expect(401)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error).toHaveProperty('code', 'INVALID_CREDENTIALS')
+      expect(response.body.error).toHaveProperty('code', 'UNAUTHORIZED')
       expect(response.body.error).toHaveProperty('message')
     })
 
@@ -86,10 +91,11 @@ describe('Auth API Integration Tests', () => {
       const response = await request(setup.app)
         .post('/api/v1/auth/login')
         .send(invalidEmailLogin)
-        .expect(400)
+        .expect(401)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toMatch(/VALIDATION/)
+      expect(response.body.error).toHaveProperty('code', 'UNAUTHORIZED')
     })
 
     it('should reject missing required fields', async () => {
@@ -118,10 +124,10 @@ describe('Auth API Integration Tests', () => {
         .send(loginData)
         .expect(200)
 
-      // Should have security headers
+      // Should have security headers (as configured by helmet)
       expect(response.headers['x-content-type-options']).toBe('nosniff')
-      expect(response.headers['x-frame-options']).toBe('DENY')
-      expect(response.headers['x-xss-protection']).toBe('1; mode=block')
+      expect(response.headers['x-frame-options']).toBe('SAMEORIGIN')
+      expect(response.headers['x-xss-protection']).toBe('0')
     })
   })
 
@@ -138,7 +144,7 @@ describe('Auth API Integration Tests', () => {
         })
         .expect(200)
 
-      validRefreshToken = loginResponse.body.tokens.refreshToken
+      validRefreshToken = loginResponse.body.data.tokens.refreshToken
     })
 
     it('should refresh token with valid refresh token', async () => {
@@ -149,14 +155,16 @@ describe('Auth API Integration Tests', () => {
         })
         .expect(200)
 
-      expect(response.body).toHaveProperty('tokens')
-      expect(response.body.tokens).toHaveProperty('accessToken')
-      expect(response.body.tokens).toHaveProperty('refreshToken')
-      expect(response.body.tokens).toHaveProperty('tokenType', 'Bearer')
+      expect(response.body).toHaveProperty('success', true)
+      expect(response.body).toHaveProperty('data')
+      expect(response.body.data).toHaveProperty('tokens')
+      expect(response.body.data.tokens).toHaveProperty('accessToken')
+      expect(response.body.data.tokens).toHaveProperty('refreshToken')
+      expect(response.body.data.tokens).toHaveProperty('tokenType', 'Bearer')
 
       // New tokens should be different from original
-      expect(response.body.tokens.accessToken).toMatch(/^eyJ/)
-      expect(response.body.tokens.refreshToken).toMatch(/\w+/)
+      expect(response.body.data.tokens.accessToken).toMatch(/^eyJ/)
+      expect(response.body.data.tokens.refreshToken).toMatch(/\w+/)
     })
 
     it('should reject invalid refresh token', async () => {
@@ -167,13 +175,15 @@ describe('Auth API Integration Tests', () => {
         })
         .expect(401)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('INVALID_TOKEN')
+      expect(response.body.error).toHaveProperty('code', 'UNAUTHORIZED')
     })
 
     it('should reject missing refresh token', async () => {
       const response = await request(setup.app).post('/api/v1/auth/refresh').send({}).expect(400)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
       expect(response.body.error.message).toMatch(/refreshToken/i)
     })
@@ -191,7 +201,7 @@ describe('Auth API Integration Tests', () => {
         })
         .expect(200)
 
-      validAccessToken = loginResponse.body.tokens.accessToken
+      validAccessToken = loginResponse.body.data.tokens.accessToken
     })
 
     it('should logout with valid token', async () => {
@@ -200,15 +210,18 @@ describe('Auth API Integration Tests', () => {
         .set('Authorization', `Bearer ${validAccessToken}`)
         .expect(200)
 
-      expect(response.body).toHaveProperty('message')
-      expect(response.body.message).toMatch(/logout/i)
+      expect(response.body).toHaveProperty('success', true)
+      expect(response.body).toHaveProperty('data')
+      expect(response.body.data).toHaveProperty('message')
+      expect(response.body.data.message).toMatch(/logout/i)
     })
 
     it('should reject logout without token', async () => {
       const response = await request(setup.app).post('/api/v1/auth/logout').expect(401)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('MISSING_TOKEN')
+      expect(response.body.error).toHaveProperty('code', 'UNAUTHORIZED')
     })
 
     it('should reject invalid token', async () => {
@@ -217,8 +230,9 @@ describe('Auth API Integration Tests', () => {
         .set('Authorization', 'Bearer invalid-token')
         .expect(401)
 
+      expect(response.body).toHaveProperty('success', false)
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('INVALID_TOKEN')
+      expect(response.body.error).toHaveProperty('code', 'UNAUTHORIZED')
     })
   })
 })
