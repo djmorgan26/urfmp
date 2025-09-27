@@ -117,6 +117,40 @@ jest.mock('../config/database', () => ({
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
     }
+    if (text.includes('FROM users') && text.includes('WHERE id')) {
+      // Mock user lookup by ID for refresh token validation
+      const userId = params?.[0]
+      if (userId === '3885c041-ebf4-4fdd-a6ec-7d88216ded2d') {
+        return Promise.resolve({
+          rows: [{
+            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+            email: 'admin@urfmp.com',
+            first_name: 'Admin',
+            last_name: 'User',
+            role: 'admin',
+            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write']
+          }],
+          rowCount: 1
+        })
+      }
+      return Promise.resolve({ rows: [], rowCount: 0 })
+    }
+    if (text.includes('FROM organizations') && text.includes('WHERE id')) {
+      // Mock organization lookup by ID for refresh token validation
+      const orgId = params?.[0]
+      if (orgId === 'd8077863-d602-45fd-a253-78ee0d3d49a8') {
+        return Promise.resolve({
+          rows: [{
+            id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            name: 'URFMP Demo',
+            slug: 'urfmp-demo',
+            plan: 'enterprise'
+          }],
+          rowCount: 1
+        })
+      }
+      return Promise.resolve({ rows: [], rowCount: 0 })
+    }
     // Mock API key queries for authentication
     if (text.includes('FROM api_keys') && text.includes('WHERE ak.key_hash')) {
       const keyHash = params?.[0]
@@ -217,7 +251,14 @@ jest.mock('../config/redis', () => ({
     get: jest.fn().mockImplementation(async (key: string) => {
       // Use a simple in-memory store for tests
       const store = (global as any).__testCacheStore__ || {}
-      return store[key] || null
+      const value = store[key]
+
+      // Special handling for authentication cache keys
+      if (key.startsWith('blacklisted_token:')) {
+        return null // Never blacklisted in tests
+      }
+
+      return value || null
     }),
     set: jest.fn().mockImplementation(async (key: string, value: string, _ttl?: number) => {
       // Store in global test cache
