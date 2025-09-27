@@ -46,10 +46,11 @@ describe('Robots API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body).toHaveProperty('data')
-      expect(Array.isArray(response.body.data)).toBe(true)
+      expect(response.body.data).toHaveProperty('robots')
+      expect(Array.isArray(response.body.data.robots)).toBe(true)
 
-      if (response.body.data.length > 0) {
-        const robot = response.body.data[0]
+      if (response.body.data.robots.length > 0) {
+        const robot = response.body.data.robots[0]
         expect(robot).toHaveProperty('id')
         expect(robot).toHaveProperty('name')
         expect(robot).toHaveProperty('model')
@@ -72,14 +73,15 @@ describe('Robots API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body).toHaveProperty('data')
-      expect(Array.isArray(response.body.data)).toBe(true)
+      expect(response.body.data).toHaveProperty('robots')
+      expect(Array.isArray(response.body.data.robots)).toBe(true)
     })
 
     it('should reject requests without authentication', async () => {
       const response = await request(setup.app).get('/api/v1/robots').expect(401)
 
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('MISSING_TOKEN')
+      expect(response.body.error.code).toBe('UNAUTHORIZED')
     })
 
     it('should support pagination parameters', async () => {
@@ -106,9 +108,10 @@ describe('Robots API Integration Tests', () => {
 
       expect(response.body).toHaveProperty('success', true)
       expect(response.body).toHaveProperty('data')
+      expect(response.body.data).toHaveProperty('robots')
 
       // All returned robots should have 'online' status
-      response.body.data.forEach((robot: any) => {
+      response.body.data.robots.forEach((robot: any) => {
         expect(robot.status).toBe('online')
       })
     })
@@ -122,12 +125,12 @@ describe('Robots API Integration Tests', () => {
         .set('X-API-Key', TEST_API_KEY)
         .expect(200)
 
-      if (listResponse.body.data.length === 0) {
+      if (listResponse.body.data.robots.length === 0) {
         console.warn('No robots found for individual robot test')
         return
       }
 
-      const robotId = listResponse.body.data[0].id
+      const robotId = listResponse.body.data.robots[0].id
 
       const response = await request(setup.app)
         .get(`/api/v1/robots/${robotId}`)

@@ -172,20 +172,67 @@ jest.mock('../config/database', () => ({
     }
     // Mock robots queries for API tests
     if (text.includes('FROM robots')) {
-      return Promise.resolve({
-        rows: [{
-          id: 'test-robot-id',
-          name: 'Test Robot',
-          vendor: 'universal_robots',
-          model: 'UR5e',
-          serial_number: 'UR12345',
-          status: 'online',
-          created_at: new Date(),
-          updated_at: new Date(),
-          organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
-        }],
-        rowCount: 1
-      })
+      // Handle specific robot ID queries
+      if (text.includes('WHERE id = $1') || text.includes('WHERE r.id = $1')) {
+        const robotId = params?.[0]
+        if (robotId === 'test-robot-id') {
+          return Promise.resolve({
+            rows: [{
+              id: 'test-robot-id',
+              name: 'Test Robot',
+              vendor: 'universal_robots',
+              model: 'UR5e',
+              serial_number: 'UR12345',
+              status: 'online',
+              created_at: new Date(),
+              updated_at: new Date(),
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+            }],
+            rowCount: 1
+          })
+        }
+        // Return empty for non-existent robot IDs (should trigger 404)
+        return Promise.resolve({ rows: [], rowCount: 0 })
+      }
+
+      // Handle serial number uniqueness checks for robot creation
+      if (text.includes('WHERE serial_number = $1')) {
+        const serialNumber = params?.[0]
+        if (serialNumber === 'UR12345') {
+          // Return existing robot to simulate "already exists" scenario
+          return Promise.resolve({
+            rows: [{
+              id: 'test-robot-id',
+              serial_number: 'UR12345',
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+            }],
+            rowCount: 1
+          })
+        }
+        // Return empty for new serial numbers (allow creation)
+        return Promise.resolve({ rows: [], rowCount: 0 })
+      }
+
+      // Handle robot list queries (no WHERE clause for specific ID)
+      if (!text.includes('WHERE id = $1') && !text.includes('WHERE serial_number = $1')) {
+        return Promise.resolve({
+          rows: [{
+            id: 'test-robot-id',
+            name: 'Test Robot',
+            vendor: 'universal_robots',
+            model: 'UR5e',
+            serial_number: 'UR12345',
+            status: 'online',
+            created_at: new Date(),
+            updated_at: new Date(),
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+          }],
+          rowCount: 1
+        })
+      }
+
+      // Default fallback
+      return Promise.resolve({ rows: [], rowCount: 0 })
     }
     // Default mock response
     return Promise.resolve({ rows: [], rowCount: 0 })
