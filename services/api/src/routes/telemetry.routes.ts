@@ -177,13 +177,51 @@ router.get(
     const { robotId } = req.params
     const organizationId = req.user!.org
 
+    // Extract pagination parameters
+    const page = req.query.page ? parseInt(req.query.page as string) : 1
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 1000
+
+    // Validate date parameters
+    let fromDate: Date | undefined
+    let toDate: Date | undefined
+
+    if (req.query.from) {
+      fromDate = new Date(req.query.from as string)
+      if (isNaN(fromDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid from date format',
+            traceId: req.traceId,
+            timestamp: new Date(),
+          },
+        })
+      }
+    }
+
+    if (req.query.to) {
+      toDate = new Date(req.query.to as string)
+      if (isNaN(toDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid to date format',
+            traceId: req.traceId,
+            timestamp: new Date(),
+          },
+        })
+      }
+    }
+
     const query: TelemetryQuery = {
       robotId,
       organizationId,
       metric: req.query.metric as string,
-      from: req.query.from ? new Date(req.query.from as string) : undefined,
-      to: req.query.to ? new Date(req.query.to as string) : undefined,
-      limit: req.query.limit ? parseInt(req.query.limit as string) : 1000,
+      from: fromDate,
+      to: toDate,
+      limit,
     }
 
     const telemetryData = await telemetryService.getTelemetryData(query)
@@ -191,6 +229,14 @@ router.get(
     const response: ApiResponse<RobotTelemetry[]> = {
       success: true,
       data: telemetryData,
+      pagination: {
+        page,
+        limit,
+        total: telemetryData.length, // This should ideally come from a count query
+        totalPages: Math.ceil(telemetryData.length / limit),
+        hasNext: telemetryData.length === limit,
+        hasPrev: page > 1,
+      },
       metadata: {
         requestId: req.traceId,
         timestamp: new Date(),
@@ -198,7 +244,7 @@ router.get(
       },
     }
 
-    res.json(response)
+    return res.json(response)
   })
 )
 
@@ -227,7 +273,7 @@ router.get(
 
     const metrics = await telemetryService.getAvailableMetrics(robotId, organizationId)
 
-    const response: ApiResponse<string[]> = {
+    const response: ApiResponse<any[]> = {
       success: true,
       data: metrics,
       metadata: {
@@ -315,7 +361,12 @@ router.get(
 
     const response: ApiResponse = {
       success: true,
-      data: aggregatedData,
+      data: {
+        timeWindow: filters.timeWindow,
+        aggregation: filters.aggregation,
+        metric: filters.metric,
+        metrics: aggregatedData,
+      },
       metadata: {
         requestId: req.traceId,
         timestamp: new Date(),
