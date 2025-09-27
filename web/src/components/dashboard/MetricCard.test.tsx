@@ -17,7 +17,9 @@ describe('MetricCard Component', () => {
 
     expect(screen.getByText('Total Robots')).toBeInTheDocument()
     expect(screen.getByText('42')).toBeInTheDocument()
-    expect(screen.getByRole('img')).toBeInTheDocument() // Lucide icons have role="img"
+    // Check for the SVG element instead of role="img"
+    const svgElement = document.querySelector('svg')
+    expect(svgElement).toBeInTheDocument()
   })
 
   it('should display trend correctly', () => {
@@ -119,8 +121,9 @@ describe('MetricCard Component', () => {
     ]
 
     iconVariants.forEach((props) => {
-      render(<MetricCard {...props} />)
-      expect(screen.getByRole('img')).toBeInTheDocument()
+      const { container } = render(<MetricCard {...props} />)
+      const svgElement = container.querySelector('svg')
+      expect(svgElement).toBeInTheDocument()
     })
   })
 })
