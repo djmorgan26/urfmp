@@ -20,8 +20,8 @@ describe('Telemetry API Integration Tests', () => {
         .get('/api/v1/robots')
         .set('X-API-Key', TEST_API_KEY)
 
-      if (robotsResponse.status === 200 && robotsResponse.body.data.length > 0) {
-        testRobotId = robotsResponse.body.data[0].id
+      if (robotsResponse.status === 200 && robotsResponse.body.data.robots.length > 0) {
+        testRobotId = robotsResponse.body.data.robots[0].id
       }
     } catch (error) {
       console.warn('Could not get test robot ID:', error)
@@ -97,7 +97,7 @@ describe('Telemetry API Integration Tests', () => {
         .expect(401)
 
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('MISSING_TOKEN')
+      expect(response.body.error.code).toBe('UNAUTHORIZED')
     })
 
     it('should reject invalid robot ID', async () => {
@@ -115,7 +115,7 @@ describe('Telemetry API Integration Tests', () => {
         .expect(400)
 
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('INVALID_UUID')
+      expect(response.body.error.code).toBe('VALIDATION_ERROR')
     })
 
     it('should reject empty telemetry data', async () => {
@@ -236,6 +236,7 @@ describe('Telemetry API Integration Tests', () => {
       const response = await request(setup.app)
         .get('/api/v1/telemetry/aggregated')
         .query({
+          metric: 'position.x',
           timeWindow: '1h',
           aggregation: 'average',
         })

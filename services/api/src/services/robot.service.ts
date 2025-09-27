@@ -2,7 +2,7 @@ import { query } from '../config/database'
 import { cache } from '../config/redis'
 import { logger } from '../config/logger'
 import { getWebSocketService } from './websocket.service'
-import { Robot, PaginationOptions, PaginationResult } from '@urfmp/types'
+import { Robot, PaginationOptions, PaginationResult, RobotVendor } from '@urfmp/types'
 import { ValidationError, NotFoundError } from '../middleware/error.middleware'
 
 export interface CreateRobotRequest {
@@ -181,6 +181,12 @@ export class RobotService {
     // Validate input
     if (!robotData.name || !robotData.model || !robotData.vendor || !robotData.serialNumber) {
       throw new ValidationError('Name, model, vendor, and serial number are required')
+    }
+
+    // Validate vendor against enum
+    const validVendors = Object.values(RobotVendor)
+    if (!validVendors.includes(robotData.vendor as RobotVendor)) {
+      throw new ValidationError(`Invalid vendor. Must be one of: ${validVendors.join(', ')}`)
     }
 
     // Check if serial number is unique within organization

@@ -68,6 +68,13 @@ jest.mock('../config/database', () => ({
     waitingCount: 0,
   },
   query: jest.fn().mockImplementation((text: string, params: any[] = []) => {
+    // Debug logging for robot creation
+    if (text.includes('INSERT INTO robots')) {
+      console.log('DEBUG: INSERT query detected')
+      console.log('DEBUG: Has RETURNING:', text.includes('RETURNING'))
+      console.log('DEBUG: Params length:', params?.length)
+    }
+
     // Mock different queries based on SQL content
     if (text.includes('SELECT NOW() as timestamp')) {
       return Promise.resolve({ rows: [{ timestamp: new Date(), version: 'PostgreSQL 14.0' }], rowCount: 1 })
@@ -170,6 +177,139 @@ jest.mock('../config/database', () => ({
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
     }
+    // Handle robot creation (INSERT) queries FIRST - before other robot queries
+    if (text.includes('INSERT INTO robots') && text.includes('RETURNING')) {
+      console.log('DEBUG: Robot INSERT mock triggered!')
+
+
+      const createdRobotId = 'newly-created-robot-id'
+      return Promise.resolve({
+        rows: [{
+          id: createdRobotId,
+          organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+          name: 'Test Robot UR5e',
+          model: 'UR5e',
+          vendor: 'universal_robots',
+          serial_number: 'TEST123456',
+          firmware_version: '5.11.0',
+          status: 'offline',
+          location: '{"facility":"Test Factory","area":"Assembly Line 1","cell":"Cell A1"}',
+          configuration: '{"axes":6,"payload":5.0,"reach":850,"capabilities":["welding","assembly"],"customSettings":{"safetyMode":"collaborative"}}',
+          last_seen: null,
+          created_at: new Date(),
+          updated_at: new Date()
+        }],
+        rowCount: 1
+      })
+    }
+
+    // Handle robot statistics query (COUNT with FILTER)
+    if (text.includes('COUNT(*)') && text.includes('FILTER') && text.includes('vendor') && text.includes('status')) {
+      console.log('DEBUG: Robot stats query mock triggered!')
+      return Promise.resolve({
+        rows: [
+          { total: '3', online: '2', offline: '1', error: '0', vendor: 'universal_robots', status: 'online' },
+          { total: '3', online: '2', offline: '1', error: '0', vendor: 'universal_robots', status: 'offline' }
+        ],
+        rowCount: 2
+      })
+    }
+
+    // Handle robot existence check for telemetry
+    if (text.includes('SELECT id FROM robots WHERE id = $1 AND organization_id = $2')) {
+      const robotId = params?.[0]
+      console.log('DEBUG: Robot existence check for telemetry:', robotId)
+
+      // Valid robot IDs that should exist
+      if (robotId === 'test-robot-id' || robotId === '00000000-0000-4000-8000-123456789012') {
+        return Promise.resolve({
+          rows: [{ id: robotId }],
+          rowCount: 1
+        })
+      }
+
+      // Invalid or non-existent robot IDs
+      return Promise.resolve({
+        rows: [],
+        rowCount: 0
+      })
+    }
+
+    // Handle telemetry queries
+    if (text.includes('robot_telemetry')) {
+      // Handle telemetry INSERT
+      if (text.includes('INSERT INTO robot_telemetry')) {
+        console.log('DEBUG: Telemetry INSERT mock triggered!')
+        return Promise.resolve({
+          rows: [],
+          rowCount: 1
+        })
+      }
+
+      // Handle aggregated telemetry queries (time_bucket)
+      if (text.includes('time_bucket') || text.includes('GROUP BY')) {
+        console.log('DEBUG: Aggregated telemetry mock triggered!')
+        return Promise.resolve({
+          rows: [
+            {
+              time_bucket: new Date(),
+              robot_id: 'test-robot-id',
+              value: 125.5
+            },
+            {
+              time_bucket: new Date(Date.now() - 3600000), // 1 hour ago
+              robot_id: 'test-robot-id',
+              value: 130.2
+            }
+          ],
+          rowCount: 2
+        })
+      }
+
+      // Handle telemetry SELECT queries
+      if (text.includes('SELECT') && text.includes('FROM robot_telemetry')) {
+        console.log('DEBUG: Telemetry SELECT mock triggered!')
+
+        // Check if it's a metrics list query (DISTINCT metric_name)
+        if (text.includes('DISTINCT metric_name')) {
+          // Return metric names with units for the service to transform
+          return Promise.resolve({
+            rows: [
+              { metric_name: 'position.x', unit: 'mm' },
+              { metric_name: 'position.y', unit: 'mm' },
+              { metric_name: 'position.z', unit: 'mm' },
+              { metric_name: 'temperature.joint1', unit: 'celsius' },
+              { metric_name: 'power.consumption', unit: 'watts' }
+            ],
+            rowCount: 5
+          })
+        }
+
+        // Return mock telemetry data for other queries
+        return Promise.resolve({
+          rows: [
+            {
+              time: new Date(),
+              robot_id: params?.[0] || 'test-robot-id',
+              metric_name: 'position.x',
+              value: 125.5,
+              unit: 'mm',
+              metadata: JSON.stringify({})
+            },
+            {
+              time: new Date(Date.now() - 1000),
+              robot_id: params?.[0] || 'test-robot-id',
+              metric_name: 'position.y',
+              value: 245.8,
+              unit: 'mm',
+              metadata: JSON.stringify({})
+            }
+          ],
+          rowCount: 2
+        })
+      }
+    }
+
     // Mock robots queries for API tests
     if (text.includes('FROM robots')) {
       // Handle specific robot ID queries
@@ -227,25 +367,6 @@ jest.mock('../config/database', () => ({
             model: 'UR5e',
             serial_number: 'UR12345',
             status: 'online',
-            created_at: new Date(),
-            updated_at: new Date(),
-            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
-          }],
-          rowCount: 1
-        })
-      }
-
-      // Handle robot creation (INSERT) queries
-      if (text.includes('INSERT INTO robots')) {
-        const createdRobotId = 'newly-created-robot-id'
-        return Promise.resolve({
-          rows: [{
-            id: createdRobotId,
-            name: 'Test Robot UR5e',
-            vendor: 'universal_robots',
-            model: 'UR5e',
-            serial_number: 'TEST123456',
-            status: 'offline',
             created_at: new Date(),
             updated_at: new Date(),
             organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'

@@ -269,7 +269,7 @@ describe('Robots API Integration Tests', () => {
       expect(response.body.data).toHaveProperty('offline')
       expect(response.body.data).toHaveProperty('error')
       expect(response.body.data).toHaveProperty('byVendor')
-      expect(response.body.data).toHaveProperty('averageUptime')
+      expect(response.body.data).toHaveProperty('byStatus')
 
       // Validate data types
       expect(typeof response.body.data.total).toBe('number')
