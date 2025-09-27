@@ -196,8 +196,8 @@ jest.mock('../config/database', () => ({
       }
 
       // Handle serial number uniqueness checks for robot creation
-      if (text.includes('WHERE serial_number = $1')) {
-        const serialNumber = params?.[0]
+      if (text.includes('WHERE organization_id = $1 AND serial_number = $2')) {
+        const serialNumber = params?.[1]
         if (serialNumber === 'UR12345') {
           // Return existing robot to simulate "already exists" scenario
           return Promise.resolve({
@@ -209,12 +209,16 @@ jest.mock('../config/database', () => ({
             rowCount: 1
           })
         }
+        // Allow TEST123456 for robot creation tests
+        if (serialNumber === 'TEST123456') {
+          return Promise.resolve({ rows: [], rowCount: 0 })
+        }
         // Return empty for new serial numbers (allow creation)
         return Promise.resolve({ rows: [], rowCount: 0 })
       }
 
       // Handle robot list queries (no WHERE clause for specific ID)
-      if (!text.includes('WHERE id = $1') && !text.includes('WHERE serial_number = $1')) {
+      if (!text.includes('WHERE id = $1') && !text.includes('WHERE organization_id = $1 AND serial_number = $2')) {
         return Promise.resolve({
           rows: [{
             id: 'test-robot-id',
@@ -223,6 +227,25 @@ jest.mock('../config/database', () => ({
             model: 'UR5e',
             serial_number: 'UR12345',
             status: 'online',
+            created_at: new Date(),
+            updated_at: new Date(),
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
+          }],
+          rowCount: 1
+        })
+      }
+
+      // Handle robot creation (INSERT) queries
+      if (text.includes('INSERT INTO robots')) {
+        const createdRobotId = 'newly-created-robot-id'
+        return Promise.resolve({
+          rows: [{
+            id: createdRobotId,
+            name: 'Test Robot UR5e',
+            vendor: 'universal_robots',
+            model: 'UR5e',
+            serial_number: 'TEST123456',
+            status: 'offline',
             created_at: new Date(),
             updated_at: new Date(),
             organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'

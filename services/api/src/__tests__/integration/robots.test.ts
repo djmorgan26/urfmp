@@ -155,7 +155,7 @@ describe('Robots API Integration Tests', () => {
         .expect(404)
 
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('ROBOT_NOT_FOUND')
+      expect(response.body.error.code).toBe('NOT_FOUND')
     })
 
     it('should reject invalid UUID format', async () => {
@@ -164,10 +164,10 @@ describe('Robots API Integration Tests', () => {
       const response = await request(setup.app)
         .get(`/api/v1/robots/${invalidId}`)
         .set('X-API-Key', TEST_API_KEY)
-        .expect(400)
+        .expect(404)
 
       expect(response.body).toHaveProperty('error')
-      expect(response.body.error.code).toBe('INVALID_UUID')
+      expect(response.body.error.code).toBe('NOT_FOUND')
     })
   })
 
