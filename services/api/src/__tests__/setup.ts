@@ -184,9 +184,16 @@ jest.mock('../config/redis', () => ({
   connectRedis: jest.fn().mockResolvedValue(undefined),
   getRedis: jest.fn().mockReturnValue({
     ping: jest.fn().mockResolvedValue('PONG'),
-    get: jest.fn().mockResolvedValue(null),
+    get: jest.fn().mockImplementation(async (key: string) => {
+      // For rate limiting keys, return a number as string
+      if (key.includes('rate-limit') || key.includes('rl:')) {
+        return '1'
+      }
+      return null
+    }),
     set: jest.fn().mockResolvedValue('OK'),
     setex: jest.fn().mockResolvedValue('OK'),
+    incr: jest.fn().mockResolvedValue(1), // Return positive integer for rate limiting
     del: jest.fn().mockResolvedValue(1),
     exists: jest.fn().mockResolvedValue(0),
     publish: jest.fn().mockResolvedValue(1),
@@ -195,7 +202,10 @@ jest.mock('../config/redis', () => ({
       set: jest.fn().mockReturnThis(),
       incr: jest.fn().mockReturnThis(),
       expire: jest.fn().mockReturnThis(),
-      exec: jest.fn().mockResolvedValue([null, 1]),
+      exec: jest.fn().mockResolvedValue([
+        [null, 1], // Result for incr operation (totalHits)
+        [null, 1], // Result for expire operation
+      ]),
     }),
     duplicate: jest.fn().mockReturnValue({
       subscribe: jest.fn(),
