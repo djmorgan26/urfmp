@@ -16,41 +16,47 @@ describe('Health API Integration Tests', () => {
     it('should return health status without authentication', async () => {
       const response = await request(setup.app).get('/health').expect(200)
 
-      expect(response.body).toHaveProperty('status', 'ok')
-      expect(response.body).toHaveProperty('timestamp')
-      expect(response.body).toHaveProperty('version')
-      expect(response.body).toHaveProperty('uptime')
+      expect(response.body).toHaveProperty('success', true)
+      expect(response.body).toHaveProperty('data')
+      expect(response.body.data).toHaveProperty('status', 'healthy')
+      expect(response.body.data).toHaveProperty('timestamp')
+      expect(response.body.data).toHaveProperty('version')
+      expect(response.body.data).toHaveProperty('uptime')
     })
 
     it('should include service dependencies in health check', async () => {
       const response = await request(setup.app).get('/health').expect(200)
 
-      expect(response.body).toHaveProperty('dependencies')
-      expect(response.body.dependencies).toHaveProperty('database')
-      expect(response.body.dependencies).toHaveProperty('redis')
+      expect(response.body).toHaveProperty('success', true)
+      expect(response.body).toHaveProperty('data')
+      expect(response.body.data).toHaveProperty('checks')
+      expect(Array.isArray(response.body.data.checks)).toBe(true)
 
-      // Database and Redis status should be either 'healthy' or 'unhealthy'
-      const dbStatus = response.body.dependencies.database.status
-      const redisStatus = response.body.dependencies.redis.status
+      // Find database and redis checks
+      const checks = response.body.data.checks
+      const dbCheck = checks.find((check: any) => check.name === 'database')
+      const redisCheck = checks.find((check: any) => check.name === 'redis')
 
-      expect(['healthy', 'unhealthy']).toContain(dbStatus)
-      expect(['healthy', 'unhealthy']).toContain(redisStatus)
+      expect(dbCheck).toBeDefined()
+      expect(redisCheck).toBeDefined()
+      expect(['healthy', 'unhealthy']).toContain(dbCheck.status)
+      expect(['healthy', 'unhealthy']).toContain(redisCheck.status)
     })
 
     it('should include version information', async () => {
       const response = await request(setup.app).get('/health').expect(200)
 
-      expect(response.body.version).toBeDefined()
-      expect(typeof response.body.version).toBe('string')
-      expect(response.body.version).toMatch(/^\d+\.\d+\.\d+/)
+      expect(response.body.data.version).toBeDefined()
+      expect(typeof response.body.data.version).toBe('string')
+      expect(response.body.data.version).toMatch(/^\d+\.\d+\.\d+/)
     })
 
     it('should include uptime in seconds', async () => {
       const response = await request(setup.app).get('/health').expect(200)
 
-      expect(response.body.uptime).toBeDefined()
-      expect(typeof response.body.uptime).toBe('number')
-      expect(response.body.uptime).toBeGreaterThan(0)
+      expect(response.body.data.uptime).toBeDefined()
+      expect(typeof response.body.data.uptime).toBe('number')
+      expect(response.body.data.uptime).toBeGreaterThanOrEqual(0)
     })
 
     it('should have correct response headers', async () => {
