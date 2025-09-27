@@ -77,49 +77,74 @@ jest.mock('../config/database', () => ({
 
     // Mock different queries based on SQL content
     if (text.includes('SELECT NOW() as timestamp')) {
-      return Promise.resolve({ rows: [{ timestamp: new Date(), version: 'PostgreSQL 14.0' }], rowCount: 1 })
+      return Promise.resolve({
+        rows: [{ timestamp: new Date(), version: 'PostgreSQL 14.0' }],
+        rowCount: 1,
+      })
     }
-    if (text.includes('FROM users') && text.includes('JOIN organizations') && text.includes('WHERE')) {
+    if (
+      text.includes('FROM users') &&
+      text.includes('JOIN organizations') &&
+      text.includes('WHERE')
+    ) {
       // Mock user authentication query with organization JOIN
-      const email = params?.[0] || params?.find?.(p => typeof p === 'string' && p.includes('@'))
+      const email = params?.[0] || params?.find?.((p) => typeof p === 'string' && p.includes('@'))
       if (email === 'admin@urfmp.com') {
         return Promise.resolve({
-          rows: [{
-            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
-            email: 'admin@urfmp.com',
-            password_hash: '$2b$10$test.hash.for.admin123',
-            first_name: 'Admin',
-            last_name: 'User',
-            role: 'admin',
-            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write'],
-            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-            org_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-            org_name: 'URFMP Demo',
-            org_slug: 'urfmp-demo',
-            org_plan: 'enterprise'
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+              email: 'admin@urfmp.com',
+              password_hash: '$2b$10$test.hash.for.admin123',
+              first_name: 'Admin',
+              last_name: 'User',
+              role: 'admin',
+              permissions: [
+                'robot.view',
+                'robot.create',
+                'robot.update',
+                'robot.delete',
+                'telemetry.view',
+                'telemetry.write',
+              ],
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              org_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              org_name: 'URFMP Demo',
+              org_slug: 'urfmp-demo',
+              org_plan: 'enterprise',
+            },
+          ],
+          rowCount: 1,
         })
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
     }
     if (text.includes('FROM users') && text.includes('WHERE email')) {
       // Mock simple user query
-      const email = params?.[0] || params?.find?.(p => typeof p === 'string' && p.includes('@'))
+      const email = params?.[0] || params?.find?.((p) => typeof p === 'string' && p.includes('@'))
       if (email === 'admin@urfmp.com') {
         return Promise.resolve({
-          rows: [{
-            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
-            email: 'admin@urfmp.com',
-            password_hash: '$2b$10$test.hash.for.admin123',
-            first_name: 'Admin',
-            last_name: 'User',
-            role: 'admin',
-            email_verified: true,
-            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write']
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+              email: 'admin@urfmp.com',
+              password_hash: '$2b$10$test.hash.for.admin123',
+              first_name: 'Admin',
+              last_name: 'User',
+              role: 'admin',
+              email_verified: true,
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              permissions: [
+                'robot.view',
+                'robot.create',
+                'robot.update',
+                'robot.delete',
+                'telemetry.view',
+                'telemetry.write',
+              ],
+            },
+          ],
+          rowCount: 1,
         })
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
@@ -129,15 +154,24 @@ jest.mock('../config/database', () => ({
       const userId = params?.[0]
       if (userId === '3885c041-ebf4-4fdd-a6ec-7d88216ded2d') {
         return Promise.resolve({
-          rows: [{
-            id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
-            email: 'admin@urfmp.com',
-            first_name: 'Admin',
-            last_name: 'User',
-            role: 'admin',
-            permissions: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write']
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+              email: 'admin@urfmp.com',
+              first_name: 'Admin',
+              last_name: 'User',
+              role: 'admin',
+              permissions: [
+                'robot.view',
+                'robot.create',
+                'robot.update',
+                'robot.delete',
+                'telemetry.view',
+                'telemetry.write',
+              ],
+            },
+          ],
+          rowCount: 1,
         })
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
@@ -147,13 +181,15 @@ jest.mock('../config/database', () => ({
       const orgId = params?.[0]
       if (orgId === 'd8077863-d602-45fd-a253-78ee0d3d49a8') {
         return Promise.resolve({
-          rows: [{
-            id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-            name: 'URFMP Demo',
-            slug: 'urfmp-demo',
-            plan: 'enterprise'
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              name: 'URFMP Demo',
+              slug: 'urfmp-demo',
+              plan: 'enterprise',
+            },
+          ],
+          rowCount: 1,
         })
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
@@ -163,16 +199,25 @@ jest.mock('../config/database', () => ({
       const keyHash = params?.[0]
       if (keyHash === 'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678') {
         return Promise.resolve({
-          rows: [{
-            id: 'test-api-key-id',
-            user_id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
-            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-            scope: ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write'],
-            expires_at: null,
-            is_active: true,
-            user_email: 'admin@urfmp.com'
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: 'test-api-key-id',
+              user_id: '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              scope: [
+                'robot.view',
+                'robot.create',
+                'robot.update',
+                'robot.delete',
+                'telemetry.view',
+                'telemetry.write',
+              ],
+              expires_at: null,
+              is_active: true,
+              user_email: 'admin@urfmp.com',
+            },
+          ],
+          rowCount: 1,
         })
       }
       return Promise.resolve({ rows: [], rowCount: 0 })
@@ -181,37 +226,58 @@ jest.mock('../config/database', () => ({
     if (text.includes('INSERT INTO robots') && text.includes('RETURNING')) {
       console.log('DEBUG: Robot INSERT mock triggered!')
 
-
       const createdRobotId = 'newly-created-robot-id'
       return Promise.resolve({
-        rows: [{
-          id: createdRobotId,
-          organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-          name: 'Test Robot UR5e',
-          model: 'UR5e',
-          vendor: 'universal_robots',
-          serial_number: 'TEST123456',
-          firmware_version: '5.11.0',
-          status: 'offline',
-          location: '{"facility":"Test Factory","area":"Assembly Line 1","cell":"Cell A1"}',
-          configuration: '{"axes":6,"payload":5.0,"reach":850,"capabilities":["welding","assembly"],"customSettings":{"safetyMode":"collaborative"}}',
-          last_seen: null,
-          created_at: new Date(),
-          updated_at: new Date()
-        }],
-        rowCount: 1
+        rows: [
+          {
+            id: createdRobotId,
+            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            name: 'Test Robot UR5e',
+            model: 'UR5e',
+            vendor: 'universal_robots',
+            serial_number: 'TEST123456',
+            firmware_version: '5.11.0',
+            status: 'offline',
+            location: '{"facility":"Test Factory","area":"Assembly Line 1","cell":"Cell A1"}',
+            configuration:
+              '{"axes":6,"payload":5.0,"reach":850,"capabilities":["welding","assembly"],"customSettings":{"safetyMode":"collaborative"}}',
+            last_seen: null,
+            created_at: new Date(),
+            updated_at: new Date(),
+          },
+        ],
+        rowCount: 1,
       })
     }
 
     // Handle robot statistics query (COUNT with FILTER)
-    if (text.includes('COUNT(*)') && text.includes('FILTER') && text.includes('vendor') && text.includes('status')) {
+    if (
+      text.includes('COUNT(*)') &&
+      text.includes('FILTER') &&
+      text.includes('vendor') &&
+      text.includes('status')
+    ) {
       console.log('DEBUG: Robot stats query mock triggered!')
       return Promise.resolve({
         rows: [
-          { total: '3', online: '2', offline: '1', error: '0', vendor: 'universal_robots', status: 'online' },
-          { total: '3', online: '2', offline: '1', error: '0', vendor: 'universal_robots', status: 'offline' }
+          {
+            total: '3',
+            online: '2',
+            offline: '1',
+            error: '0',
+            vendor: 'universal_robots',
+            status: 'online',
+          },
+          {
+            total: '3',
+            online: '2',
+            offline: '1',
+            error: '0',
+            vendor: 'universal_robots',
+            status: 'offline',
+          },
         ],
-        rowCount: 2
+        rowCount: 2,
       })
     }
 
@@ -224,14 +290,14 @@ jest.mock('../config/database', () => ({
       if (robotId === 'test-robot-id' || robotId === '00000000-0000-4000-8000-123456789012') {
         return Promise.resolve({
           rows: [{ id: robotId }],
-          rowCount: 1
+          rowCount: 1,
         })
       }
 
       // Invalid or non-existent robot IDs
       return Promise.resolve({
         rows: [],
-        rowCount: 0
+        rowCount: 0,
       })
     }
 
@@ -242,7 +308,7 @@ jest.mock('../config/database', () => ({
         console.log('DEBUG: Telemetry INSERT mock triggered!')
         return Promise.resolve({
           rows: [],
-          rowCount: 1
+          rowCount: 1,
         })
       }
 
@@ -254,15 +320,15 @@ jest.mock('../config/database', () => ({
             {
               time_bucket: new Date(),
               robot_id: 'test-robot-id',
-              value: 125.5
+              value: 125.5,
             },
             {
               time_bucket: new Date(Date.now() - 3600000), // 1 hour ago
               robot_id: 'test-robot-id',
-              value: 130.2
-            }
+              value: 130.2,
+            },
           ],
-          rowCount: 2
+          rowCount: 2,
         })
       }
 
@@ -279,9 +345,9 @@ jest.mock('../config/database', () => ({
               { metric_name: 'position.y', unit: 'mm' },
               { metric_name: 'position.z', unit: 'mm' },
               { metric_name: 'temperature.joint1', unit: 'celsius' },
-              { metric_name: 'power.consumption', unit: 'watts' }
+              { metric_name: 'power.consumption', unit: 'watts' },
             ],
-            rowCount: 5
+            rowCount: 5,
           })
         }
 
@@ -294,7 +360,7 @@ jest.mock('../config/database', () => ({
               metric_name: 'position.x',
               value: 125.5,
               unit: 'mm',
-              metadata: JSON.stringify({})
+              metadata: JSON.stringify({}),
             },
             {
               time: new Date(Date.now() - 1000),
@@ -302,10 +368,10 @@ jest.mock('../config/database', () => ({
               metric_name: 'position.y',
               value: 245.8,
               unit: 'mm',
-              metadata: JSON.stringify({})
-            }
+              metadata: JSON.stringify({}),
+            },
           ],
-          rowCount: 2
+          rowCount: 2,
         })
       }
     }
@@ -317,18 +383,20 @@ jest.mock('../config/database', () => ({
         const robotId = params?.[0]
         if (robotId === 'test-robot-id') {
           return Promise.resolve({
-            rows: [{
-              id: 'test-robot-id',
-              name: 'Test Robot',
-              vendor: 'universal_robots',
-              model: 'UR5e',
-              serial_number: 'UR12345',
-              status: 'online',
-              created_at: new Date(),
-              updated_at: new Date(),
-              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
-            }],
-            rowCount: 1
+            rows: [
+              {
+                id: 'test-robot-id',
+                name: 'Test Robot',
+                vendor: 'universal_robots',
+                model: 'UR5e',
+                serial_number: 'UR12345',
+                status: 'online',
+                created_at: new Date(),
+                updated_at: new Date(),
+                organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              },
+            ],
+            rowCount: 1,
           })
         }
         // Return empty for non-existent robot IDs (should trigger 404)
@@ -341,12 +409,14 @@ jest.mock('../config/database', () => ({
         if (serialNumber === 'UR12345') {
           // Return existing robot to simulate "already exists" scenario
           return Promise.resolve({
-            rows: [{
-              id: 'test-robot-id',
-              serial_number: 'UR12345',
-              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
-            }],
-            rowCount: 1
+            rows: [
+              {
+                id: 'test-robot-id',
+                serial_number: 'UR12345',
+                organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+              },
+            ],
+            rowCount: 1,
           })
         }
         // Allow TEST123456 for robot creation tests
@@ -358,20 +428,25 @@ jest.mock('../config/database', () => ({
       }
 
       // Handle robot list queries (no WHERE clause for specific ID)
-      if (!text.includes('WHERE id = $1') && !text.includes('WHERE organization_id = $1 AND serial_number = $2')) {
+      if (
+        !text.includes('WHERE id = $1') &&
+        !text.includes('WHERE organization_id = $1 AND serial_number = $2')
+      ) {
         return Promise.resolve({
-          rows: [{
-            id: 'test-robot-id',
-            name: 'Test Robot',
-            vendor: 'universal_robots',
-            model: 'UR5e',
-            serial_number: 'UR12345',
-            status: 'online',
-            created_at: new Date(),
-            updated_at: new Date(),
-            organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8'
-          }],
-          rowCount: 1
+          rows: [
+            {
+              id: 'test-robot-id',
+              name: 'Test Robot',
+              vendor: 'universal_robots',
+              model: 'UR5e',
+              serial_number: 'UR12345',
+              status: 'online',
+              created_at: new Date(),
+              updated_at: new Date(),
+              organization_id: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+            },
+          ],
+          rowCount: 1,
         })
       }
 
@@ -381,9 +456,11 @@ jest.mock('../config/database', () => ({
     // Default mock response
     return Promise.resolve({ rows: [], rowCount: 0 })
   }),
-  transaction: jest.fn().mockImplementation(async (callback) => callback({
-    query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
-  })),
+  transaction: jest.fn().mockImplementation(async (callback) =>
+    callback({
+      query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    })
+  ),
   connectDatabase: jest.fn().mockResolvedValue(undefined),
   getDatabase: jest.fn().mockReturnValue({
     query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }),

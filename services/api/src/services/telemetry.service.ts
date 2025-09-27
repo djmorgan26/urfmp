@@ -243,7 +243,7 @@ export class TelemetryService {
     return result.rows.map((row: any) => ({
       name: row.metric_name,
       type: this.inferMetricType(row.metric_name),
-      unit: row.unit || 'none'
+      unit: row.unit || 'none',
     }))
   }
 

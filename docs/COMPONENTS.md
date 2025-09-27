@@ -205,7 +205,6 @@ Class name utility function for conditional styling.
 
 ```tsx
 import { cn } from '@/utils/cn'
-
 ;<div className={cn('base-classes', condition && 'conditional-classes', 'always-applied')} />
 ```
 
@@ -267,7 +266,6 @@ Consistent icon library used throughout the application.
 
 ```tsx
 import { Activity, Bot } from 'lucide-react'
-
 ;<Activity className="h-5 w-5" />
 ```
 

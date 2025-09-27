@@ -5,12 +5,14 @@ This file contains all essential information for Claude to efficiently work on t
 ## 🎯 Project Goals and Standards
 
 ### Code Quality Objectives
+
 - **Zero-warning deployments**: All CI/CD pipelines must pass without warnings or fallback handling
 - **Clean test suite**: Every package should have proper test scripts, no "graceful failures"
 - **Modern dependencies**: Keep all npm packages up-to-date, eliminate deprecation warnings
 - **Production-ready builds**: TypeScript compilation must succeed without errors
 
 ### Developer Experience Goals
+
 - **Local-first testing**: Prioritize local simulation and testing to validate changes before deployment
 - **Efficient iteration**: Use local builds and test runs to catch issues quickly without deployment overhead
 - **Strategic deployment verification**: Use GitHub CLI sparingly for final verification or complex issues
@@ -33,6 +35,7 @@ This file contains all essential information for Claude to efficiently work on t
 ### Local Testing & Validation
 
 **Primary Development Workflow (Fast & Efficient):**
+
 - `npm run build` - Build all packages locally to catch TypeScript errors
 - `npm run typecheck` - Validate TypeScript without building
 - `npm run lint` - Check code style and catch common issues
@@ -41,6 +44,7 @@ This file contains all essential information for Claude to efficiently work on t
 - `npm ls --workspaces` - Verify workspace dependency resolution
 
 **Package-specific validation:**
+
 - `npm run build --workspace=@urfmp/types` - Test types package build
 - `npm run build --workspace=@urfmp/sdk` - Test SDK build (depends on types)
 - `npm run build --workspace=@urfmp/api` - Test API build (depends on types)
@@ -49,6 +53,7 @@ This file contains all essential information for Claude to efficiently work on t
 ### GitHub CLI Deployment Monitoring (Strategic Use Only)
 
 **When to use GitHub CLI deployment checking:**
+
 - ✅ Final verification after major architectural changes
 - ✅ Complex dependency issues that can't be reproduced locally
 - ✅ Platform-specific deployment issues (Vercel, production environment)
@@ -57,17 +62,20 @@ This file contains all essential information for Claude to efficiently work on t
 - ❌ Simple package.json updates or basic TypeScript fixes
 
 **GitHub CLI Commands (Use Sparingly):**
+
 - `gh run list --limit 3` - Check recent deployment status
 - `gh run view [RUN_ID] --log | grep -E "(✓|✗|ERROR|FAILED)"` - Extract key issues
 - `gh workflow run ci-cd.yml` - Manual deployment trigger (rare)
 
 #### Deployment Health Validation Priority
+
 1. **Local validation first** - Build, typecheck, test locally
 2. **Simulate CI conditions** - Run `npm ci` to match deployment environment
 3. **Logical analysis** - Review error patterns and dependency chains
 4. **GitHub CLI verification** - Only when local validation is insufficient
 
 #### Development Philosophy
+
 - **Fast feedback loops**: Local testing provides immediate results
 - **Deployment confidence**: Only deploy when local validation passes
 - **GitHub CLI as safety net**: Use for edge cases and final verification
@@ -328,12 +336,14 @@ Production-ready telemetry system with real-time data ingestion, storage, and vi
 **Supported Data Types:** Position, GPS, navigation, joint angles, temperature, power metrics, velocity, force/torque, safety status, custom metrics.
 
 **Key Features:**
+
 - Real-time metric cards with trend indicators
 - Interactive charts and time range selection
 - Live WebSocket updates and channel-based subscriptions
 - SDK integration for telemetry operations
 
 **API Endpoints:**
+
 ```bash
 # Send telemetry
 curl -X POST -H "X-API-Key: $API_KEY" -d '{"data":{...}}' http://localhost:3000/api/v1/telemetry/ROBOT_ID
@@ -347,6 +357,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/telemetry/ROBOT_ID/la
 **Production-ready analytics dashboard (`/analytics`) with enterprise-grade reporting capabilities.**
 
 **Key Features:**
+
 - Custom report generation (Fleet Overview, Performance Analysis, Maintenance, Power Consumption)
 - Smart date range picker with presets (7d, 30d, 90d, 1y)
 - Multi-dimensional filtering (status, efficiency, power, robot types)
@@ -360,6 +371,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/telemetry/ROBOT_ID/la
 **Revolutionary predictive maintenance system (`/maintenance`) with AI-powered insights and automated scheduling.**
 
 **Core Features:**
+
 - Predictive Analytics Dashboard with tabbed interface (Analytics, Tasks, History)
 - Component health monitoring with real-time scores (0-100%)
 - AI failure detection (temperature trends, vibration patterns, usage cycles, joint wear)
@@ -374,16 +386,19 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/telemetry/ROBOT_ID/la
 **Comprehensive geofencing and waypoint system (`/geofencing`) for automated robot navigation and boundary management.**
 
 **Waypoint Management:**
+
 - Multiple types (pickup, dropoff, charging, maintenance, checkpoint, custom)
 - Automated actions (pause, notify, execute_command, capture_data, wait)
 - Radius-based triggers (1-50 meters)
 
 **Geofencing Capabilities:**
+
 - Multiple fence types (circle, polygon, rectangle)
 - Advanced rule system (triggers: enter/exit/dwell/speed_limit, actions: alert/stop/redirect)
 - Real-time event monitoring with severity levels
 
 **Path Planning:**
+
 - Automated path generation with distance optimization
 - AI-powered route improvement (up to 10% efficiency gains)
 - Multi-robot support and fleet coordination
@@ -396,11 +411,13 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/telemetry/ROBOT_ID/la
 **Interactive robot mapping system with comprehensive GPS visualization capabilities for real-time robot fleet tracking.**
 
 **Key Components:**
+
 - `SimpleRobotMap.tsx` - 2D GPS visualization with OpenStreetMap interface
 - `RobotMap3D.tsx` - 3D globe visualization using CesiumJS and Resium
 - `RobotMapPage.tsx` - Unified GPS dashboard at `/map` route with 2D/3D toggle
 
 **Features:**
+
 - Real-time robot positioning with trail rendering
 - Interactive robot selection with detailed GPS info
 - WebSocket integration for live coordinate streaming
@@ -444,6 +461,7 @@ curl -H "X-API-Key: $API_KEY" http://localhost:3000/api/v1/telemetry/ROBOT_ID/la
 ### Pre-Deployment Validation Checklist
 
 **Before making any changes, run:**
+
 ```bash
 # 1. Verify current state
 npm ci                    # Ensure clean dependency state
@@ -463,6 +481,7 @@ npm run lint              # Style and quality checks
 ```
 
 **After making changes, simulate CI environment:**
+
 ```bash
 # Simulate exactly what CI does
 rm -rf node_modules */node_modules */*/node_modules
@@ -496,12 +515,14 @@ npm run test --workspace=@urfmp/web
 ### Common Issue Patterns & Local Detection
 
 **Package-lock.json Sync Issues:**
+
 ```bash
 # Detect locally before CI fails
 npm ci  # Will fail with specific package version mismatches
 ```
 
 **TypeScript Module Resolution:**
+
 ```bash
 # Test dependency chain
 npm run build --workspace=@urfmp/types    # Must succeed first
@@ -509,6 +530,7 @@ npm run build --workspace=@urfmp/sdk      # May fail if types build failed
 ```
 
 **Missing Test Scripts:**
+
 ```bash
 # Verify all packages have test scripts
 npm run test --workspace=@urfmp/types     # Should exit cleanly
@@ -521,12 +543,14 @@ npm run test --workspace=@urfmp/api       # Should exit cleanly
 ### Git Workflow Standards
 
 **Branch Naming Conventions:**
+
 - `feature/[ticket-id]-brief-description` - New features
 - `fix/[ticket-id]-brief-description` - Bug fixes
 - `refactor/brief-description` - Code refactoring
 - `docs/brief-description` - Documentation updates
 
 **Commit Message Standards:**
+
 ```
 type(scope): Brief description
 
@@ -537,6 +561,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 **Code Review Guidelines:**
+
 - All changes require review before merging to main
 - Focus on: security, performance, maintainability, test coverage
 - Check for proper error handling and input validation
@@ -571,6 +596,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
    - Merge only after all checks pass
 
 ### Testing Strategy
+
 - **Unit Testing:** Jest for JS/TS, >80% coverage for critical paths
 - **Integration Testing:** API endpoints with real DB, WebSocket connections, supertest
 - **Frontend Testing:** React Testing Library, user interactions, mocked API calls
@@ -667,6 +693,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - **API response times** - All API endpoints < 200ms average response time
 
 ### Monitoring & Observability
+
 - Health checks for all services
 - Metrics collection and error tracking
 - Performance monitoring with alerts
@@ -674,12 +701,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - Resource utilization tracking
 
 ### Dependency Management
+
 - Monthly security updates and vulnerability scanning
 - Semantic versioning for internal packages
 - Tool consistency (Node.js, npm versions)
 - Environment parity across dev/staging/production
 
 ### Production Deployment Standards
+
 - Environment separation and secret management
 - Zero-downtime deployments with rollback capability
 - Database migrations (safe, reversible)
@@ -721,16 +750,19 @@ docker exec -it urfmp-redis redis-cli
 This CLAUDE.md file is organized into comprehensive sections covering all aspects of URFMP development:
 
 ### 🎯 **Strategic Guidance**
+
 - Project goals and quality standards
 - Local-first development philosophy
 - Zero-warning deployment objectives
 
 ### 🏗️ **Technical Architecture**
+
 - Monorepo structure and tech stack
 - Database schema and migration system
 - Authentication and security patterns
 
 ### 🚀 **Feature Documentation**
+
 - Complete API endpoint reference
 - Advanced analytics and reporting
 - AI-powered predictive maintenance
@@ -738,18 +770,21 @@ This CLAUDE.md file is organized into comprehensive sections covering all aspect
 - Real-time telemetry system
 
 ### 💻 **Development Practices**
+
 - Local testing and CI simulation
 - Git workflow and code review standards
 - TypeScript and React best practices
 - Security and performance guidelines
 
 ### 🛠️ **Operational Excellence**
+
 - Monitoring and observability
 - Dependency management
 - Production deployment standards
 - Error handling and disaster recovery
 
 ### 🧪 **Quality Assurance**
+
 - Testing strategies (unit, integration, E2E)
 - Code standards and conventions
 - Performance benchmarks
@@ -760,6 +795,7 @@ This CLAUDE.md file is organized into comprehensive sections covering all aspect
 ## 🎉 URFMP Platform Status
 
 ### ✅ **Feature Development: COMPLETE**
+
 **URFMP is now a fully-featured, production-ready robot fleet management platform with:**
 
 - ✅ Complete authentication and security system
@@ -772,6 +808,7 @@ This CLAUDE.md file is organized into comprehensive sections covering all aspect
 - ✅ Zero-warning CI/CD deployment pipeline
 
 ### 🏗️ **Engineering Standards: ESTABLISHED**
+
 **Comprehensive development guidelines now cover:**
 
 - ✅ Software engineering best practices
@@ -782,6 +819,7 @@ This CLAUDE.md file is organized into comprehensive sections covering all aspect
 - ✅ Monitoring and observability
 
 ### 🎯 **Next Phase: Implementation**
+
 **Key areas for ongoing development:**
 
 - 🔄 **Implement comprehensive test suites** - Unit, integration, and E2E tests

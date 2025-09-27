@@ -366,10 +366,10 @@ API Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
 
 ## 📋 **Test Execution Log**
 
-**Test Date:** ******\_\_\_******
-**Tester:** ******\_\_\_******
-**Environment:** ******\_\_\_******
-**URFMP Version:** ******\_\_\_******
+**Test Date:** **\*\***\_\_\_**\*\***
+**Tester:** **\*\***\_\_\_**\*\***
+**Environment:** **\*\***\_\_\_**\*\***
+**URFMP Version:** **\*\***\_\_\_**\*\***
 
 ### Summary
 
@@ -386,9 +386,9 @@ API Key: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
 
 ### Sign-off
 
-- [ ] **QA Lead Approval:** ******\_\_\_******
-- [ ] **Product Owner Approval:** ******\_\_\_******
-- [ ] **Ready for Deployment:** ******\_\_\_******
+- [ ] **QA Lead Approval:** **\*\***\_\_\_**\*\***
+- [ ] **Product Owner Approval:** **\*\***\_\_\_**\*\***
+- [ ] **Ready for Deployment:** **\*\***\_\_\_**\*\***
 
 ---
 

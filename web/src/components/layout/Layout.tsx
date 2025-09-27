@@ -54,47 +54,51 @@ export function Layout({ children }: LayoutProps) {
   const activeRobots = robots.filter((r) => r.status === 'running' || r.status === 'online').length
   const totalRobots = robots.length
 
-  const performSearch = useCallback((query: string) => {
-    const results = []
-    const lowerQuery = query.toLowerCase()
+  const performSearch = useCallback(
+    (query: string) => {
+      const results = []
+      const lowerQuery = query.toLowerCase()
 
-    // Search robots
-    const robotResults = robots
-      .filter((robot) =>
-        robot.name.toLowerCase().includes(lowerQuery) ||
-        robot.vendor.toLowerCase().includes(lowerQuery) ||
-        robot.model.toLowerCase().includes(lowerQuery) ||
-        robot.status.toLowerCase().includes(lowerQuery)
-      )
-      .map((robot) => ({
-        type: 'robot',
-        id: robot.id,
-        title: robot.name,
-        subtitle: `${robot.vendor} ${robot.model} - ${robot.status}`,
-        href: `/robots/${robot.id}`,
-        icon: Bot,
-      }))
+      // Search robots
+      const robotResults = robots
+        .filter(
+          (robot) =>
+            robot.name.toLowerCase().includes(lowerQuery) ||
+            robot.vendor.toLowerCase().includes(lowerQuery) ||
+            robot.model.toLowerCase().includes(lowerQuery) ||
+            robot.status.toLowerCase().includes(lowerQuery)
+        )
+        .map((robot) => ({
+          type: 'robot',
+          id: robot.id,
+          title: robot.name,
+          subtitle: `${robot.vendor} ${robot.model} - ${robot.status}`,
+          href: `/robots/${robot.id}`,
+          icon: Bot,
+        }))
 
-    results.push(...robotResults)
+      results.push(...robotResults)
 
-    // Search navigation items
-    const navResults = navigation
-      .filter((nav) => nav.name.toLowerCase().includes(lowerQuery))
-      .map((nav) => ({
-        type: 'navigation',
-        id: nav.href,
-        title: nav.name,
-        subtitle: 'Navigate to page',
-        href: nav.href,
-        icon: nav.icon,
-      }))
+      // Search navigation items
+      const navResults = navigation
+        .filter((nav) => nav.name.toLowerCase().includes(lowerQuery))
+        .map((nav) => ({
+          type: 'navigation',
+          id: nav.href,
+          title: nav.name,
+          subtitle: 'Navigate to page',
+          href: nav.href,
+          icon: nav.icon,
+        }))
 
-    results.push(...navResults)
+      results.push(...navResults)
 
-    setSearchResults(results)
-    setShowSearchResults(true)
-    setIsSearching(false)
-  }, [robots])
+      setSearchResults(results)
+      setShowSearchResults(true)
+      setIsSearching(false)
+    },
+    [robots]
+  )
 
   // Search function with debouncing
   useEffect(() => {

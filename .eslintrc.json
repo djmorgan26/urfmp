@@ -55,13 +55,14 @@
       }
     },
     {
-      "files": ["packages/**/*.test.ts", "services/**/*.test.ts", "adapters/**/*.test.ts"],
+      "files": [
+        "packages/**/*.test.ts",
+        "packages/**/__tests__/**/*",
+        "services/**/*.test.ts",
+        "adapters/**/*.test.ts"
+      ],
       "parserOptions": {
-        "project": [
-          "./packages/*/tsconfig.json",
-          "./services/*/tsconfig.json",
-          "./adapters/*/tsconfig.json"
-        ]
+        "project": ["./tsconfig.test.json"]
       },
       "rules": {
         "@typescript-eslint/no-unused-vars": "off",

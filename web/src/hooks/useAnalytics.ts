@@ -230,42 +230,45 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     }
   }, [urfmp, robots, timeRange])
 
-  const fetchAggregatedMetric = useCallback(async (
-    metric: string,
-    aggregation: string,
-    timeWindow: string,
-    from: Date
-  ): Promise<{ value: number; robotId?: string }[]> => {
-    try {
-      // Check if we're in demo mode
-      const isDemo =
-        import.meta.env.VITE_DEMO_MODE === 'true' ||
-        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+  const fetchAggregatedMetric = useCallback(
+    async (
+      metric: string,
+      aggregation: string,
+      timeWindow: string,
+      from: Date
+    ): Promise<{ value: number; robotId?: string }[]> => {
+      try {
+        // Check if we're in demo mode
+        const isDemo =
+          import.meta.env.VITE_DEMO_MODE === 'true' ||
+          (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
-      if (isDemo) {
-        // Return mock aggregated data for demo mode
-        return robots.map((robot) => ({
-          value: 50 + Math.random() * 100,
-          robotId: robot.id,
-        }))
+        if (isDemo) {
+          // Return mock aggregated data for demo mode
+          return robots.map((robot) => ({
+            value: 50 + Math.random() * 100,
+            robotId: robot.id,
+          }))
+        }
+
+        if (!urfmp) return []
+
+        // Use the SDK's aggregation method
+        const result = await urfmp.getAggregatedTelemetry({
+          metric,
+          aggregation: aggregation as 'avg' | 'min' | 'max' | 'sum' | 'count',
+          timeWindow: timeWindow as '1m' | '5m' | '15m' | '1h' | '1d',
+          from,
+        })
+
+        return result || []
+      } catch (err) {
+        console.warn(`Failed to fetch aggregated metric ${metric}:`, err)
+        return []
       }
-
-      if (!urfmp) return []
-
-      // Use the SDK's aggregation method
-      const result = await urfmp.getAggregatedTelemetry({
-        metric,
-        aggregation: aggregation as 'avg' | 'min' | 'max' | 'sum' | 'count',
-        timeWindow: timeWindow as '1m' | '5m' | '15m' | '1h' | '1d',
-        from,
-      })
-
-      return result || []
-    } catch (err) {
-      console.warn(`Failed to fetch aggregated metric ${metric}:`, err)
-      return []
-    }
-  }, [robots, urfmp])
+    },
+    [robots, urfmp]
+  )
 
   const getDaysFromTimeRange = useCallback((range: TimeRange): number => {
     switch (range) {
@@ -282,26 +285,29 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
     }
   }, [])
 
-  const generateFleetTrendData = useCallback((range: TimeRange): FleetTrendData[] => {
-    const days = getDaysFromTimeRange(range)
-    const data: FleetTrendData[] = []
+  const generateFleetTrendData = useCallback(
+    (range: TimeRange): FleetTrendData[] => {
+      const days = getDaysFromTimeRange(range)
+      const data: FleetTrendData[] = []
 
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date()
+        date.setDate(date.getDate() - i)
 
-      data.push({
-        date: date.toISOString().split('T')[0],
-        utilization: Math.floor(Math.random() * 20) + 80,
-        efficiency: Math.floor(Math.random() * 15) + 85,
-        downtime: Math.random() * 3 + 0.5,
-        powerConsumption: Math.floor(Math.random() * 500) + 1000,
-        cycleCount: Math.floor(Math.random() * 200) + 300,
-      })
-    }
+        data.push({
+          date: date.toISOString().split('T')[0],
+          utilization: Math.floor(Math.random() * 20) + 80,
+          efficiency: Math.floor(Math.random() * 15) + 85,
+          downtime: Math.random() * 3 + 0.5,
+          powerConsumption: Math.floor(Math.random() * 500) + 1000,
+          cycleCount: Math.floor(Math.random() * 200) + 300,
+        })
+      }
 
-    return data
-  }, [getDaysFromTimeRange])
+      return data
+    },
+    [getDaysFromTimeRange]
+  )
 
   useEffect(() => {
     fetchAnalyticsData()

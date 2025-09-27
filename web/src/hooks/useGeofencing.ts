@@ -142,14 +142,17 @@ export function useGeofencing(): GeofencingData {
   const [error, setError] = useState<string | null>(null)
   const geofenceMonitorRef = useRef<GeofenceMonitor | null>(null)
 
-  const handleViolationDetected = useCallback((violations: any[]) => {
-    // Convert violations to events and add to current events
-    const robotNames = new Map(robots.map((r) => [r.id, r.name]))
-    const geofenceNames = new Map(geofences.map((g) => [g.id, g.name]))
-    const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
+  const handleViolationDetected = useCallback(
+    (violations: any[]) => {
+      // Convert violations to events and add to current events
+      const robotNames = new Map(robots.map((r) => [r.id, r.name]))
+      const geofenceNames = new Map(geofences.map((g) => [g.id, g.name]))
+      const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
 
-    setEvents((prev) => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
-  }, [robots, geofences])
+      setEvents((prev) => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
+    },
+    [robots, geofences]
+  )
 
   const fetchGeofencingData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
@@ -312,7 +315,6 @@ export function useGeofencing(): GeofencingData {
     setEvents([])
     geofenceMonitorRef.current?.clearHistory()
   }
-
 
   // Simulate robot position updates for demo purposes
   useEffect(() => {

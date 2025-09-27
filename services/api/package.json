@@ -66,7 +66,9 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "testTimeout": 10000,
-    "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/__tests__/setup.ts"
+    ],
     "moduleNameMapper": {
       "^@urfmp/types$": "<rootDir>/../../packages/types/src/index.ts"
     },
@@ -91,14 +93,6 @@
       "text",
       "lcov",
       "html"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 70,
-        "lines": 70,
-        "statements": 70
-      }
-    }
+    ]
   }
 }

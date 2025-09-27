@@ -10,7 +10,6 @@ Basic skeleton for any content:
 
 ```tsx
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
-
 ;<LoadingSkeleton className="h-4 w-48" />
 ```
 
@@ -20,7 +19,6 @@ For card-like content:
 
 ```tsx
 import { LoadingCard } from '@/components/ui/LoadingSkeleton'
-
 ;<LoadingCard rows={3} />
 ```
 
@@ -30,7 +28,6 @@ For data tables:
 
 ```tsx
 import { LoadingTable } from '@/components/ui/LoadingSkeleton'
-
 ;<LoadingTable columns={5} rows={8} />
 ```
 
@@ -40,7 +37,6 @@ For analytics charts:
 
 ```tsx
 import { LoadingChart } from '@/components/ui/LoadingSkeleton'
-
 ;<LoadingChart height={300} />
 ```
 
@@ -81,7 +77,6 @@ Wrap components to catch JavaScript errors:
 
 ```tsx
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
-
 ;<ErrorBoundary>
   <MyComponent />
 </ErrorBoundary>
@@ -93,7 +88,6 @@ For API/data loading errors:
 
 ```tsx
 import { ErrorState } from '@/components/ui/ErrorBoundary'
-
 ;<ErrorState
   title="Failed to load robots"
   message="Unable to fetch robot data from the server."
@@ -107,7 +101,6 @@ For network connectivity issues:
 
 ```tsx
 import { NetworkError } from '@/components/ui/ErrorBoundary'
-
 ;<NetworkError onRetry={retryFunction} />
 ```
 
@@ -118,7 +111,6 @@ For when there's no data:
 ```tsx
 import { EmptyState } from '@/components/ui/ErrorBoundary'
 import { Bot } from 'lucide-react'
-
 ;<EmptyState
   title="No robots found"
   message="Add your first robot to get started."
