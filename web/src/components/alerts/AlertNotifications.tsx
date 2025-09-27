@@ -44,7 +44,7 @@ export interface AlertNotificationsProps {
   // Props are now optional as settings come from useAlertNotificationSettings
 }
 
-export function AlertNotifications(props: AlertNotificationsProps = {}) {
+export function AlertNotifications(_props: AlertNotificationsProps = {}) {
   const { settings } = useAlertNotificationSettings()
 
   // Use settings from hook, fallback to defaults

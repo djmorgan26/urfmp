@@ -124,9 +124,12 @@ describe('useDashboard Hook', () => {
       wrapper: createWrapper(queryClient),
     })
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        expect(result.current.isLoading).toBe(false)
+      },
+      { timeout: 1000 }
+    )
 
     // Should have refresh function
     expect(typeof result.current.refresh).toBe('function')
@@ -140,9 +143,12 @@ describe('useDashboard Hook', () => {
       wrapper: createWrapper(queryClient),
     })
 
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        expect(result.current.isLoading).toBe(false)
+      },
+      { timeout: 1000 }
+    )
 
     // Should have proper status distribution
     expect(result.current.robotStatusDistribution).toBeDefined()

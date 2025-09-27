@@ -246,7 +246,7 @@ function generateRobotPerformanceHTML(data: ExportData): string {
   `
 }
 
-function generateFleetTrendsHTML(data: ExportData): string {
+function generateFleetTrendsHTML(_data: ExportData): string {
   return `<div class="section"><h3>Fleet Trends</h3><p>Trend data visualization would be displayed here in a full implementation.</p></div>`
 }
 
@@ -275,19 +275,19 @@ function generateErrorDistributionHTML(data: ExportData): string {
   `
 }
 
-function generatePowerTrendsHTML(data: ExportData): string {
+function generatePowerTrendsHTML(_data: ExportData): string {
   return `<div class="section"><h3>Power Trends</h3><p>Power consumption trends would be displayed here.</p></div>`
 }
 
-function generateHealthScoresHTML(data: ExportData): string {
+function generateHealthScoresHTML(_data: ExportData): string {
   return `<div class="section"><h3>Health Scores</h3><p>Robot health scoring data would be displayed here.</p></div>`
 }
 
-function generateMaintenanceAlertsHTML(data: ExportData): string {
+function generateMaintenanceAlertsHTML(_data: ExportData): string {
   return `<div class="section"><h3>Maintenance Alerts</h3><p>Active maintenance alerts and recommendations would be displayed here.</p></div>`
 }
 
-function generateRecommendationsHTML(data: ExportData): string {
+function generateRecommendationsHTML(_data: ExportData): string {
   return `<div class="section"><h3>AI Recommendations</h3><p>AI-generated fleet optimization recommendations would be displayed here.</p></div>`
 }
 

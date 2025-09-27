@@ -11,7 +11,7 @@ import {
   Square,
   MoreVertical,
 } from 'lucide-react'
-import { Robot, RobotStatus } from '@urfmp/types'
+import { Robot } from '@urfmp/types'
 import { useURFMP } from '@/hooks/useURFMP'
 import { cn } from '@/utils/cn'
 import { formatDistanceToNow, parseISO } from 'date-fns'

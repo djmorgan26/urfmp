@@ -77,9 +77,7 @@ describe('ErrorBoundary Component', () => {
     )
 
     expect(screen.queryByText('Error Details (Development)')).not.toBeInTheDocument()
-    expect(
-      screen.getByText(/We encountered an unexpected error/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/We encountered an unexpected error/)).toBeInTheDocument()
 
     // Restore environment
     process.env.NODE_ENV = originalEnv
