@@ -36,14 +36,15 @@ npm install -g @railway/cli
 In your Railway project dashboard, add these environment variables:
 
 ```env
-# Database Configuration
+# Database Configuration - Railway will provide DATABASE_URL automatically
+# But you can also set these if needed:
 DATABASE_NAME=urfmp
 DATABASE_USER=urfmp
 DATABASE_PASSWORD=urfmp-production-secure-2024
 
-# Message Queue
-RABBITMQ_USER=urfmp
-RABBITMQ_PASSWORD=rabbitmq-production-secure-2024
+# Message Queue - Railway doesn't have built-in RabbitMQ, so we'll skip for now
+# RABBITMQ_USER=urfmp
+# RABBITMQ_PASSWORD=rabbitmq-production-secure-2024
 
 # JWT Secrets (CHANGE THESE!)
 JWT_SECRET=your-super-secure-jwt-secret-key-here-change-me

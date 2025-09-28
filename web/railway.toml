@@ -1,0 +1,9 @@
+# Railway Configuration for Web Service
+[build]
+builder = "dockerfile"
+dockerfilePath = "web/Dockerfile.prod"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"

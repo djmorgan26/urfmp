@@ -1,11 +1,9 @@
+# Railway Configuration for API Service
 [build]
-builder = "dockercompose"
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "docker-compose up"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-
-# Railway will automatically detect and deploy your docker-compose.yml
-# This configuration tells Railway to use Docker Compose for the entire stack
