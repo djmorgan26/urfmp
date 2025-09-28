@@ -1,0 +1,68 @@
+# Production API Dockerfile
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY services/api/package*.json ./services/api/
+COPY packages/types/package*.json ./packages/types/
+COPY packages/sdk/package*.json ./packages/sdk/
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Build stage
+FROM base AS builder
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY services/api/package*.json ./services/api/
+COPY packages/types/package*.json ./packages/types/
+COPY packages/sdk/package*.json ./packages/sdk/
+
+# Install all dependencies (including dev dependencies)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build types package first
+RUN npm run build --workspace=@urfmp/types
+
+# Build SDK package
+RUN npm run build --workspace=@urfmp/sdk
+
+# Build API (if it has a build step)
+RUN cd services/api && npm run build || echo "No build script, using source directly"
+
+# Production stage
+FROM base AS runner
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 urfmp
+
+# Copy built application
+COPY --from=deps --chown=urfmp:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=urfmp:nodejs /app/packages ./packages
+COPY --from=builder --chown=urfmp:nodejs /app/services/api ./services/api
+COPY --from=builder --chown=urfmp:nodejs /app/package*.json ./
+
+# Add health check script
+RUN apk add --no-cache curl
+
+USER urfmp
+
+EXPOSE 3000
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Start the application
+CMD ["npx", "tsx", "services/api/src/index.ts"]
