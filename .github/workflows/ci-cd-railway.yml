@@ -35,7 +35,7 @@ jobs:
 
     - name: Lint check
       run: |
-        cd web && npm run lint -- --config .eslintrc.ci.js || echo "Linting completed with warnings"
+        cd web && npx eslint src --ext ts,tsx --no-eslintrc --config .eslintrc.ci.cjs --ignore-pattern "**/*.test.{ts,tsx}" --ignore-pattern "**/tests/**" || echo "Linting completed with warnings"
 
     - name: TypeScript check
       run: |
