@@ -1,0 +1,25 @@
+name: Railway Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Use Railway action
+      uses: railway-app/railway-deploy@v2
+      with:
+        railway_token: ${{ secrets.RAILWAY_TOKEN }}
+        railway_service: ${{ secrets.RAILWAY_SERVICE_ID }}
+
+    - name: Deployment Success
+      run: |
+        echo "🚀 Successfully deployed to Railway!"
+        echo "Check your Railway dashboard for deployment status."
