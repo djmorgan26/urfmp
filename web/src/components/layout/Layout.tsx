@@ -315,11 +315,13 @@ export function Layout({ children }: LayoutProps) {
         )}
 
         {/* Sidebar */}
-        <nav className={cn(
-          "w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-50",
-          "lg:translate-x-0 lg:static lg:z-auto",
-          sidebarOpen ? "fixed translate-x-0" : "fixed -translate-x-full lg:translate-x-0"
-        )}>
+        <nav
+          className={cn(
+            'w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-50',
+            'lg:translate-x-0 lg:static lg:z-auto',
+            sidebarOpen ? 'fixed translate-x-0' : 'fixed -translate-x-full lg:translate-x-0'
+          )}
+        >
           <div className="p-6">
             <div className="space-y-1">
               {navigation.map((item) => {
