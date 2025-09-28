@@ -35,7 +35,7 @@ jobs:
 
     - name: Lint check
       run: |
-        npm run lint --workspace=@urfmp/web || echo "Linting completed with warnings"
+        cd web && npm run lint -- --config .eslintrc.ci.js || echo "Linting completed with warnings"
 
     - name: TypeScript check
       run: |

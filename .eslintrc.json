@@ -47,7 +47,7 @@
     {
       "files": ["web/**/*.test.ts", "web/**/*.test.tsx", "web/**/tests/**/*"],
       "parserOptions": {
-        "project": ["./web/tsconfig.test.json"]
+        "project": ["web/tsconfig.test.json"]
       },
       "rules": {
         "@typescript-eslint/no-unused-vars": "off",
