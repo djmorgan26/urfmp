@@ -1,5 +1,5 @@
 import { ReactNode, useState, useEffect, useRef, useCallback } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, Link } from 'react-router-dom'
 import {
   Activity,
   Bot,
@@ -14,6 +14,8 @@ import {
   Moon,
   MapPin,
   Shield,
+  Menu,
+  X,
 } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
 import { useRealTimeAlerts } from '../../hooks/useRealTimeAlerts'
@@ -42,6 +44,7 @@ export function Layout({ children }: LayoutProps) {
   const { setTheme, isDark } = useTheme()
   const location = useLocation()
   const [showAlertPanel, setShowAlertPanel] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('')
@@ -139,21 +142,29 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-        <div className="flex h-16 items-center px-6">
+        <div className="flex h-16 items-center px-4 lg:px-6">
           <div className="flex items-center space-x-4">
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-md hover:bg-accent lg:hidden"
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Zap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-xl font-bold">URFMP</h1>
                 <p className="text-xs text-muted-foreground">The Stripe of Robotics</p>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center px-6">
-            <div className="w-full max-w-lg" ref={searchRef}>
+          <div className="flex-1 flex items-center justify-center px-2 lg:px-6">
+            <div className="w-full max-w-lg hidden md:block" ref={searchRef}>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -181,9 +192,9 @@ export function Layout({ children }: LayoutProps) {
                     ) : (
                       <div className="py-2">
                         {searchResults.map((result, _index) => (
-                          <a
+                          <Link
                             key={`${result.type}-${result.id}`}
-                            href={result.href}
+                            to={result.href}
                             className="flex items-center px-4 py-2 hover:bg-muted transition-colors"
                             onClick={() => setShowSearchResults(false)}
                           >
@@ -216,7 +227,7 @@ export function Layout({ children }: LayoutProps) {
                                 </div>
                               )}
                             </div>
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     )}
@@ -226,9 +237,9 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            {/* Connection Status */}
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 lg:space-x-4">
+            {/* Connection Status - hidden on small screens */}
+            <div className="hidden lg:flex items-center space-x-2">
               <div
                 className={cn(
                   'h-2 w-2 rounded-full',
@@ -240,11 +251,11 @@ export function Layout({ children }: LayoutProps) {
               </span>
             </div>
 
-            {/* Fleet Status */}
+            {/* Fleet Status - simplified on mobile */}
             <div className="flex items-center space-x-2 text-sm">
-              <span className="text-muted-foreground">Fleet:</span>
+              <span className="text-muted-foreground hidden sm:inline">Fleet:</span>
               <span className="font-medium">
-                {activeRobots}/{totalRobots} active
+                {activeRobots}/{totalRobots}
               </span>
             </div>
 
@@ -283,20 +294,32 @@ export function Layout({ children }: LayoutProps) {
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
-            {/* User Menu */}
+            {/* User Menu - simplified on mobile */}
             <button className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent">
               <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                 DM
               </div>
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="h-4 w-4 hidden sm:block" />
             </button>
           </div>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
-        <nav className="w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)]">
+        <nav className={cn(
+          "w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-50",
+          "lg:translate-x-0 lg:static lg:z-auto",
+          sidebarOpen ? "fixed translate-x-0" : "fixed -translate-x-full lg:translate-x-0"
+        )}>
           <div className="p-6">
             <div className="space-y-1">
               {navigation.map((item) => {
@@ -305,6 +328,7 @@ export function Layout({ children }: LayoutProps) {
                   <NavLink
                     key={item.name}
                     to={item.href}
+                    onClick={() => setSidebarOpen(false)} // Close mobile menu on navigation
                     className={cn(
                       'flex items-center space-x-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                       isActive
@@ -364,8 +388,8 @@ export function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-6">{children}</div>
+        <main className="flex-1 overflow-auto lg:ml-0">
+          <div className="p-4 lg:p-6">{children}</div>
         </main>
       </div>
 

@@ -66,10 +66,10 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fleet Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Fleet Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Real-time monitoring and control for your robot fleet
           </p>
         </div>
@@ -87,9 +87,10 @@ export function Dashboard() {
           </select>
           <button
             onClick={refresh}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
+            className="px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
           >
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
+            <span className="sm:hidden">↻</span>
           </button>
         </div>
       </div>
@@ -132,22 +133,24 @@ export function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Fleet Utilization Over Time */}
-        <div className="lg:col-span-2 bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="lg:col-span-2 bg-card rounded-lg border border-border p-4 lg:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
             <h3 className="text-lg font-semibold">Fleet Performance</h3>
             <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-blue-500" />
-                <span>Utilization</span>
+                <span className="hidden sm:inline">Utilization</span>
+                <span className="sm:hidden">Util</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
-                <span>Temperature</span>
+                <span className="hidden sm:inline">Temperature</span>
+                <span className="sm:hidden">Temp</span>
               </div>
             </div>
           </div>
 
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart data={telemetryData}>
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
               <XAxis dataKey="time" />
