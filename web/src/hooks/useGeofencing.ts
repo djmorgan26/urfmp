@@ -142,17 +142,24 @@ export function useGeofencing(): GeofencingData {
   const [error, setError] = useState<string | null>(null)
   const geofenceMonitorRef = useRef<GeofenceMonitor | null>(null)
 
-  const handleViolationDetected = useCallback(
-    (violations: any[]) => {
-      // Convert violations to events and add to current events
-      const robotNames = new Map(robots.map((r) => [r.id, r.name]))
-      const geofenceNames = new Map(geofences.map((g) => [g.id, g.name]))
-      const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
+  // Use refs to store current values for the violation handler
+  const robotsRef = useRef(robots)
+  const geofencesRef = useRef(geofences)
 
-      setEvents((prev) => [...newEvents, ...prev].slice(0, 100)) // Keep last 100 events
-    },
-    [robots, geofences]
-  )
+  // Update refs when values change
+  robotsRef.current = robots
+  geofencesRef.current = geofences
+
+  const handleViolationDetected = useCallback((violations: any[]) => {
+    // Convert violations to events and add to current events
+    // Use refs to get current values without dependency issues
+    setEvents((prev) => {
+      const robotNames = new Map(robotsRef.current.map((r) => [r.id, r.name]))
+      const geofenceNames = new Map(geofencesRef.current.map((g) => [g.id, g.name]))
+      const newEvents = violationsToEvents(violations, robotNames, geofenceNames)
+      return [...newEvents, ...prev].slice(0, 100) // Keep last 100 events
+    })
+  }, [])
 
   const fetchGeofencingData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
@@ -203,7 +210,7 @@ export function useGeofencing(): GeofencingData {
     } finally {
       setIsLoading(false)
     }
-  }, [urfmp, robots, handleViolationDetected])
+  }, [urfmp, robots])
 
   const createWaypoint = async (waypointData: Omit<Waypoint, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newWaypoint: Waypoint = {
@@ -318,11 +325,15 @@ export function useGeofencing(): GeofencingData {
 
   // Simulate robot position updates for demo purposes
   useEffect(() => {
-    if (!geofenceMonitorRef.current || geofences.length === 0 || robots.length === 0) return
-
     const interval = setInterval(() => {
+      // Use refs to get current values
+      const currentGeofences = geofencesRef.current
+      const currentRobots = robotsRef.current
+
+      if (!geofenceMonitorRef.current || currentGeofences.length === 0 || currentRobots.length === 0) return
+
       // Simulate robot movement and check for violations
-      robots.forEach((robot) => {
+      currentRobots.forEach((robot) => {
         // Generate mock GPS position near the geofences for demonstration
         const mockPosition = {
           latitude: 40.7589 + (Math.random() - 0.5) * 0.003, // Small area around NYC coordinates
@@ -333,18 +344,18 @@ export function useGeofencing(): GeofencingData {
       })
 
       // Check for violations
-      const newViolations = geofenceMonitorRef.current?.checkViolations(geofences) || []
+      const newViolations = geofenceMonitorRef.current?.checkViolations(currentGeofences) || []
       if (newViolations.length > 0) {
         console.log('Geofence violations detected:', newViolations)
       }
     }, 5000) // Check every 5 seconds
 
     return () => clearInterval(interval)
-  }, [geofences, robots])
+  }, []) // No dependencies - runs once and uses refs for current values
 
   useEffect(() => {
     fetchGeofencingData()
-  }, [urfmp, robots, fetchGeofencingData])
+  }, [fetchGeofencingData])
 
   return {
     waypoints,

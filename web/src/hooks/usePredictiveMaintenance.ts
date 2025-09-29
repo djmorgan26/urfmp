@@ -114,20 +114,14 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
 
-    // Very aggressive rate limiting: prevent fetches within 30 minutes
+    // Rate limiting: prevent fetches within 1 minute (for demo purposes)
     const now = Date.now()
     const timeSinceLastFetch = now - lastFetch
-    if (timeSinceLastFetch < 1800000) {
-      // 30 minutes
+    if (timeSinceLastFetch < 60000 && lastFetch > 0) {
+      // 1 minute, but allow first fetch
       console.log(
-        `Predictive Maintenance: skipping fetch due to rate limiting (need ${Math.ceil((1800000 - timeSinceLastFetch) / 60000)} more minutes)`
+        `Predictive Maintenance: skipping fetch due to rate limiting (need ${Math.ceil((60000 - timeSinceLastFetch) / 1000)} more seconds)`
       )
-      return
-    }
-
-    // Additional check: if there's been any 429 error in the last hour, skip
-    if (error && error.includes('Rate limited') && timeSinceLastFetch < 3600000) {
-      console.log('Predictive Maintenance: previous rate limit error, extending wait time')
       return
     }
 
@@ -156,8 +150,8 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
         }
 
         try {
-          // Add significant delay between API calls to avoid hitting rate limits
-          await new Promise((resolve) => setTimeout(resolve, 10000))
+          // Add small delay between API calls for demo purposes
+          await new Promise((resolve) => setTimeout(resolve, 100))
 
           // Get latest telemetry for health analysis
           let latestTelemetry
@@ -195,20 +189,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
         } catch (err) {
           console.warn(`Failed to analyze maintenance data for robot ${robot.id}:`, err)
 
-          // Check for rate limiting and stop immediately
-          if (
-            (err as any)?.response?.status === 429 ||
-            (err as any)?.status === 429 ||
-            (err as any)?.message?.includes('429')
-          ) {
-            console.log('Rate limited detected, stopping all maintenance analysis')
-            rateLimitHit = true
-            setError('Rate limited - will retry in 1 hour')
-            setLastFetch(now - 1800000 + 3600000) // Set last fetch to force 1 hour delay
-            break
-          }
-
-          // For non-rate-limit errors, continue with next robot but generate fallback data
+          // For any errors, continue with next robot and generate fallback data
           console.log(`Generating fallback data for robot ${robot.id}`)
           const fallbackSchedule = generateMaintenanceSchedule(robot)
           generatedSchedule.push(...fallbackSchedule)
@@ -238,37 +219,24 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     } finally {
       setIsLoading(false)
     }
-  }, [urfmp, robots, lastFetch])
+  }, [urfmp, robots])
 
   useEffect(() => {
-    // Only run if we have URFMP instance and it's been more than 30 minutes
-    if (!urfmp) return
-
-    const now = Date.now()
-    if (now - lastFetch < 1800000) {
-      // 30 minutes
-      console.log('Predictive Maintenance: skipping fetch due to recent update')
-      return
-    }
-
+    // Initial data load - run once when we have robots or urfmp available
     fetchMaintenanceData()
-  }, [urfmp, fetchMaintenanceData]) // Include fetchMaintenanceData
+  }, [fetchMaintenanceData])
 
   // Separate effect for periodic updates
   useEffect(() => {
     if (!urfmp) return
 
-    // Set up interval for periodic updates (every 30 minutes)
+    // Set up interval for periodic updates (every 10 minutes for demo)
     const interval = setInterval(() => {
-      const now = Date.now()
-      if (now - lastFetch >= 1800000) {
-        // Only if it's been 30+ minutes
-        fetchMaintenanceData()
-      }
-    }, 1800000)
+      fetchMaintenanceData()
+    }, 600000) // 10 minutes
 
     return () => clearInterval(interval)
-  }, [urfmp, fetchMaintenanceData, lastFetch])
+  }, [urfmp, fetchMaintenanceData])
 
   return {
     alerts,
