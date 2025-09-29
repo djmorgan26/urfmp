@@ -60,12 +60,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Deploy to Railway
-      uses: bervProject/railway-deploy@main
+      run: |
+        curl -fsSL https://railway.app/install.sh | sh
+        railway up --service ${{ secrets.RAILWAY_SERVICE_ID }}
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      with:
-        service: ${{ secrets.RAILWAY_SERVICE_ID }}
-        detach: true
 
     - name: Deployment notification
       run: |
