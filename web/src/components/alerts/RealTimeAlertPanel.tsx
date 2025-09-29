@@ -158,9 +158,7 @@ export function RealTimeAlertPanel({
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-semibold truncate">
-                Real-time Alerts
-              </h3>
+              <h3 className="text-base sm:text-lg font-semibold truncate">Real-time Alerts</h3>
               {alertStats.unacknowledged > 0 && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1 sm:mt-0 sm:ml-2">
                   {alertStats.unacknowledged} new
