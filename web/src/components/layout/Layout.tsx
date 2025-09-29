@@ -282,7 +282,10 @@ export function Layout({ children }: LayoutProps) {
               {/* Alert Panel Dropdown */}
               {showAlertPanel && (
                 <div className="absolute right-0 top-full mt-2 z-50">
-                  <RealTimeAlertPanel className="w-96 max-h-[70vh] shadow-lg" showFilters={true} />
+                  <RealTimeAlertPanel
+                    className="w-80 sm:w-96 max-h-[70vh] shadow-lg max-w-[calc(100vw-2rem)]"
+                    showFilters={true}
+                  />
                 </div>
               )}
             </div>

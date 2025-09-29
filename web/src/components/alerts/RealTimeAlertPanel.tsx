@@ -114,8 +114,9 @@ export function RealTimeAlertPanel({
         <button
           key="ack"
           onClick={() => handleAcknowledge(alert)}
-          className="p-1 hover:bg-white rounded-full transition-colors"
+          className="p-1.5 hover:bg-white rounded-full transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
           title="Acknowledge alert"
+          aria-label="Acknowledge alert"
         >
           <Check className="h-4 w-4 text-green-600" />
         </button>
@@ -127,8 +128,9 @@ export function RealTimeAlertPanel({
         <button
           key="dismiss"
           onClick={() => handleDismiss(alert)}
-          className="p-1 hover:bg-white rounded-full transition-colors"
+          className="p-1.5 hover:bg-white rounded-full transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
           title="Dismiss alert"
+          aria-label="Dismiss alert"
         >
           <X className="h-4 w-4 text-gray-600" />
         </button>
@@ -142,9 +144,9 @@ export function RealTimeAlertPanel({
     <div className={cn('bg-card rounded-lg border border-border', className)}>
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-center space-x-2 min-w-0">
+            <div className="relative flex-shrink-0">
               <Bell className="h-5 w-5 text-foreground" />
               <div
                 className={cn(
@@ -155,25 +157,28 @@ export function RealTimeAlertPanel({
                 <div className="h-1.5 w-1.5 bg-white rounded-full" />
               </div>
             </div>
-            <h3 className="text-lg font-semibold">
-              Real-time Alerts
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base sm:text-lg font-semibold truncate">
+                Real-time Alerts
+              </h3>
               {alertStats.unacknowledged > 0 && (
-                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1 sm:mt-0 sm:ml-2">
                   {alertStats.unacknowledged} new
                 </span>
               )}
-            </h3>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {showFilters && (
               <button
                 onClick={() => setShowFiltersPanel(!showFiltersPanel)}
                 className={cn(
-                  'p-2 rounded-md transition-colors',
+                  'p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center',
                   showFiltersPanel ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                 )}
                 title="Filter alerts"
+                aria-label="Filter alerts"
               >
                 <Filter className="h-4 w-4" />
               </button>
@@ -182,8 +187,9 @@ export function RealTimeAlertPanel({
             {alerts.length > 0 && (
               <button
                 onClick={clearAllAlerts}
-                className="p-2 hover:bg-muted rounded-md transition-colors"
+                className="p-2 hover:bg-muted rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                 title="Clear all alerts"
+                aria-label="Clear all alerts"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -192,22 +198,22 @@ export function RealTimeAlertPanel({
         </div>
 
         {/* Alert Statistics */}
-        <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-          <span>Total: {alertStats.total}</span>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-sm text-muted-foreground">
+          <span className="flex-shrink-0">Total: {alertStats.total}</span>
           {alertStats.critical > 0 && (
-            <span className="flex items-center space-x-1">
+            <span className="flex items-center space-x-1 flex-shrink-0">
               <div className="w-2 h-2 rounded-full bg-red-700" />
               <span>Critical: {alertStats.critical}</span>
             </span>
           )}
           {alertStats.error > 0 && (
-            <span className="flex items-center space-x-1">
+            <span className="flex items-center space-x-1 flex-shrink-0">
               <div className="w-2 h-2 rounded-full bg-red-500" />
               <span>Error: {alertStats.error}</span>
             </span>
           )}
           {alertStats.warning > 0 && (
-            <span className="flex items-center space-x-1">
+            <span className="flex items-center space-x-1 flex-shrink-0">
               <div className="w-2 h-2 rounded-full bg-yellow-500" />
               <span>Warning: {alertStats.warning}</span>
             </span>
@@ -228,7 +234,7 @@ export function RealTimeAlertPanel({
                     key={severity}
                     onClick={() => handleSeverityFilter(severity)}
                     className={cn(
-                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors',
+                      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px]',
                       filters.severity?.includes(severity)
                         ? cn(severityConfig[severity].badgeColor, 'text-white')
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -249,7 +255,7 @@ export function RealTimeAlertPanel({
                     key={type}
                     onClick={() => handleTypeFilter(type)}
                     className={cn(
-                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors',
+                      'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px]',
                       filters.type?.includes(type)
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -346,7 +352,7 @@ export function RealTimeAlertPanel({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center space-x-1 ml-4">
+                        <div className="flex items-center space-x-1 mt-2 sm:mt-0 sm:ml-4 flex-shrink-0">
                           {getAlertActions(alert)}
                         </div>
                       </div>
