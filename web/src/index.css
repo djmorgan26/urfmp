@@ -132,6 +132,26 @@
   z-index: 100 !important;
 }
 
+/* Mobile-specific map adjustments */
+@media (max-width: 768px) {
+  .leaflet-container {
+    height: 100% !important;
+  }
+
+  .leaflet-control-zoom {
+    margin-left: 10px !important;
+    margin-top: 10px !important;
+  }
+
+  /* Better touch targets for map controls */
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 42px !important;
+    font-size: 20px !important;
+  }
+}
+
 /* Chart styles */
 .recharts-tooltip-content {
   @apply bg-card border border-border rounded-lg shadow-lg;
@@ -152,5 +172,43 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Mobile touch targets and accessibility */
+@media (max-width: 480px) {
+  /* Ensure minimum touch target sizes on mobile */
+  button, [role="button"], input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better text readability on mobile */
+  .text-xs {
+    font-size: 0.8rem;
+  }
+
+  /* Stack form elements on very small screens */
+  .grid-cols-1 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Extra utilities for mobile-specific hiding/showing */
+@media (max-width: 400px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
+}
+
+@media (min-width: 400px) {
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
   }
 }

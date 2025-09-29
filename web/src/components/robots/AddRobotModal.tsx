@@ -172,7 +172,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
   const getInputClassName = (fieldName: string) => {
     const baseClass =
-      'w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2'
+      'w-full rounded-md border px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 min-h-[44px]'
     const errorClass = errors[fieldName]
       ? 'border-red-500 focus:ring-red-500'
       : 'border-input bg-background focus:ring-ring'
@@ -209,7 +209,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Basic Information</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Name *</label>
                 <input
@@ -229,7 +229,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
                   required
                   value={formData.vendor}
                   onChange={(e) => handleInputChange('vendor', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
                 >
                   <option value="">Select vendor</option>
                   <option value="Universal Robots">Universal Robots</option>
@@ -282,7 +282,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Location</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Facility</label>
                 <input
@@ -311,7 +311,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Configuration</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Max Payload (kg)</label>
                 <input

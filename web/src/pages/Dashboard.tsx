@@ -96,7 +96,7 @@ export function Dashboard() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <MetricCard
           title="Total Robots"
           value={metrics.totalRobots.toString()}
@@ -131,7 +131,7 @@ export function Dashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Fleet Utilization Over Time */}
         <div className="lg:col-span-2 bg-card rounded-lg border border-border p-4 lg:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
@@ -229,7 +229,7 @@ export function Dashboard() {
       </div>
 
       {/* Robots and Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Robot Cards */}
         <div className="lg:col-span-2 bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-4">
@@ -240,7 +240,7 @@ export function Dashboard() {
           </div>
 
           {robots.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {robots.slice(0, 6).map((robot) => (
                 <RobotCard key={robot.id} robot={robot} />
               ))}

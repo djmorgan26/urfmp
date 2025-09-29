@@ -60,49 +60,49 @@ export function RobotMapPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           {/* Layer Toggles */}
-          <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+          <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-x-auto">
             {/* Geofence Toggle */}
             <button
               onClick={() => setShowGeofences(!showGeofences)}
               className={cn(
-                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors min-h-[36px] whitespace-nowrap',
                 showGeofences
                   ? 'bg-blue-500 dark:bg-blue-600 text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
               )}
             >
-              <Shield className="w-3 h-3" />
-              Geofences
+              <Shield className="w-3 h-3 flex-shrink-0" />
+              <span className="hidden xs:inline">Geofences</span>
             </button>
 
             {/* Waypoint Toggle */}
             <button
               onClick={() => setShowWaypoints(!showWaypoints)}
               className={cn(
-                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors min-h-[36px] whitespace-nowrap',
                 showWaypoints
                   ? 'bg-green-500 dark:bg-green-600 text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
               )}
             >
-              <MapPin className="w-3 h-3" />
-              Waypoints
+              <MapPin className="w-3 h-3 flex-shrink-0" />
+              <span className="hidden xs:inline">Waypoints</span>
             </button>
 
             {/* Paths Toggle */}
             <button
               onClick={() => setShowPaths(!showPaths)}
               className={cn(
-                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors',
+                'px-2 py-1 rounded flex items-center gap-1 text-xs font-medium transition-colors min-h-[36px] whitespace-nowrap',
                 showPaths
                   ? 'bg-purple-500 dark:bg-purple-600 text-white'
                   : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
               )}
             >
-              <GitBranch className="w-3 h-3" />
-              Paths
+              <GitBranch className="w-3 h-3 flex-shrink-0" />
+              <span className="hidden xs:inline">Paths</span>
             </button>
           </div>
 
@@ -111,11 +111,14 @@ export function RobotMapPage() {
             onClick={refreshRobots}
             disabled={isLoading}
             className={cn(
-              'px-2 py-1 transition-colors',
-              isDark ? 'text-gray-300 hover:text-gray-100' : 'text-gray-600 hover:text-gray-900'
+              'px-2 py-1 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center rounded',
+              isDark
+                ? 'text-gray-300 hover:text-gray-100 hover:bg-gray-700'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             )}
+            aria-label="Refresh robot data"
           >
-            <RefreshCw className={cn('w-3 h-3', isLoading && 'animate-spin')} />
+            <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
           </button>
         </div>
       </div>

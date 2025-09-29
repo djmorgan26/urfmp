@@ -147,7 +147,8 @@ export function Layout({ children }: LayoutProps) {
             {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-md hover:bg-accent lg:hidden"
+              className="p-2 rounded-md hover:bg-accent lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Toggle navigation menu"
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -164,7 +165,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
 
           <div className="flex-1 flex items-center justify-center px-2 lg:px-6">
-            <div className="w-full max-w-lg hidden md:block" ref={searchRef}>
+            <div className="w-full max-w-lg hidden sm:block" ref={searchRef}>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -264,10 +265,11 @@ export function Layout({ children }: LayoutProps) {
               <button
                 onClick={() => setShowAlertPanel(!showAlertPanel)}
                 className={cn(
-                  'relative p-2 rounded-md transition-colors',
+                  'relative p-2 rounded-md transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center',
                   showAlertPanel ? 'bg-accent' : 'hover:bg-accent'
                 )}
                 title="View real-time alerts"
+                aria-label="View real-time alerts"
               >
                 <Bell className="h-5 w-5" />
                 {alertStats.unacknowledged > 0 && (
@@ -288,14 +290,18 @@ export function Layout({ children }: LayoutProps) {
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className="p-2 rounded-md hover:bg-accent"
+              className="p-2 rounded-md hover:bg-accent min-h-[44px] min-w-[44px] flex items-center justify-center"
               title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
             >
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
             {/* User Menu - simplified on mobile */}
-            <button className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent">
+            <button
+              className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent min-h-[44px]"
+              aria-label="User menu"
+            >
               <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                 DM
               </div>

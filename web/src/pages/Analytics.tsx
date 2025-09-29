@@ -131,72 +131,77 @@ export function Analytics() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Analytics</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Performance insights and trends for your robot fleet
           </p>
         </div>
 
-        <div className="flex items-center space-x-4 flex-wrap">
-          <DateRangePicker
-            value={dateRange}
-            onChange={(range) => {
-              setDateRange(range)
-              // Map to TimeRange for analytics hook
-              const days = Math.ceil(
-                (range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24)
-              )
-              if (days <= 7) setSelectedTimeRange('7d')
-              else if (days <= 30) setSelectedTimeRange('30d')
-              else if (days <= 90) setSelectedTimeRange('90d')
-              else setSelectedTimeRange('1y')
-            }}
-          />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {/* Mobile: Stack controls vertically, Desktop: Horizontal layout */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) => {
+                setDateRange(range)
+                // Map to TimeRange for analytics hook
+                const days = Math.ceil(
+                  (range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24)
+                )
+                if (days <= 7) setSelectedTimeRange('7d')
+                else if (days <= 30) setSelectedTimeRange('30d')
+                else if (days <= 90) setSelectedTimeRange('90d')
+                else setSelectedTimeRange('1y')
+              }}
+            />
 
-          <select
-            value={selectedMetric}
-            onChange={(e) => setSelectedMetric(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="all">All Metrics</option>
-            <option value="utilization">Utilization</option>
-            <option value="efficiency">Efficiency</option>
-            <option value="power">Power Consumption</option>
-            <option value="cycles">Cycle Count</option>
-          </select>
+            <select
+              value={selectedMetric}
+              onChange={(e) => setSelectedMetric(e.target.value)}
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm w-full sm:w-auto min-h-[44px]"
+            >
+              <option value="all">All Metrics</option>
+              <option value="utilization">Utilization</option>
+              <option value="efficiency">Efficiency</option>
+              <option value="power">Power Consumption</option>
+              <option value="cycles">Cycle Count</option>
+            </select>
+          </div>
 
-          <AdvancedFilters
-            filterGroups={filterGroups}
-            activeFilters={activeFilters}
-            onFiltersChange={setActiveFilters}
-          />
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <AdvancedFilters
+              filterGroups={filterGroups}
+              activeFilters={activeFilters}
+              onFiltersChange={setActiveFilters}
+            />
 
-          <button
-            onClick={refresh}
-            disabled={isLoading}
-            className={cn(
-              'flex items-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors',
-              isLoading && 'opacity-50 cursor-not-allowed'
-            )}
-          >
-            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-            <span>{isLoading ? 'Refreshing...' : 'Refresh'}</span>
-          </button>
+            <button
+              onClick={refresh}
+              disabled={isLoading}
+              className={cn(
+                'flex items-center justify-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors min-h-[44px]',
+                isLoading && 'opacity-50 cursor-not-allowed'
+              )}
+            >
+              <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+              <span className="hidden sm:inline">{isLoading ? 'Refreshing...' : 'Refresh'}</span>
+            </button>
 
-          <ReportGenerator
-            analyticsData={{
-              fleetMetrics,
-              robotPerformance: filteredRobotPerformance,
-              fleetTrends,
-              errorDistribution,
-              isLoading,
-              error,
-              refresh,
-            }}
-            timeRange={dateRange.label}
-          />
+            <ReportGenerator
+              analyticsData={{
+                fleetMetrics,
+                robotPerformance: filteredRobotPerformance,
+                fleetTrends,
+                errorDistribution,
+                isLoading,
+                error,
+                refresh,
+              }}
+              timeRange={dateRange.label}
+            />
+          </div>
         </div>
       </div>
 
@@ -220,7 +225,7 @@ export function Analytics() {
       )}
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-6">
         <div className="bg-card rounded-lg border border-border p-6">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-medium text-muted-foreground">Total Cycles</p>
