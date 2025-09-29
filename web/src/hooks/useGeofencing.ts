@@ -330,7 +330,12 @@ export function useGeofencing(): GeofencingData {
       const currentGeofences = geofencesRef.current
       const currentRobots = robotsRef.current
 
-      if (!geofenceMonitorRef.current || currentGeofences.length === 0 || currentRobots.length === 0) return
+      if (
+        !geofenceMonitorRef.current ||
+        currentGeofences.length === 0 ||
+        currentRobots.length === 0
+      )
+        return
 
       // Simulate robot movement and check for violations
       currentRobots.forEach((robot) => {

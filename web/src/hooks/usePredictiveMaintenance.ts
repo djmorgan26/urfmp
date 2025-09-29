@@ -141,7 +141,7 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
         `Predictive Maintenance: analyzing ${robotsToAnalyze.length} of ${robots.length} robots`
       )
 
-      let rateLimitHit = false
+      const rateLimitHit = false
 
       for (const robot of robotsToAnalyze) {
         if (rateLimitHit) {
