@@ -20,6 +20,7 @@ import organizationRoutes from './routes/organization.routes'
 import userRoutes from './routes/user.routes'
 import maintenanceRoutes from './routes/maintenance.routes'
 import healthRoutes from './routes/health.routes'
+import adminRoutes from './routes/admin.routes'
 
 const app = express()
 
@@ -130,6 +131,9 @@ if (process.env.NODE_ENV === 'development' || process.env.DEV_ENABLE_SWAGGER ===
 
 // Health check route (no auth required)
 app.use('/health', healthRoutes)
+
+// Admin routes (no auth for migrations - secured by internal access only)
+app.use('/admin', adminRoutes)
 
 // Public routes (no auth required)
 app.use('/api/v1/auth', authRoutes)
