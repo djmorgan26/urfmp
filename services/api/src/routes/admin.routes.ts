@@ -3,6 +3,7 @@ import { migrationService } from '../migrations/migration.service'
 import { asyncHandler } from '../middleware/error.middleware'
 import { ApiResponse } from '@urfmp/types'
 import { logger } from '../config/logger'
+import { query } from '../config/database'
 
 const router = Router()
 
@@ -131,9 +132,6 @@ router.get(
     const startTime = Date.now()
 
     try {
-      // Import query function
-      const { query } = await import('../config/database')
-
       const result = await query(`
         SELECT table_name, table_schema
         FROM information_schema.tables
