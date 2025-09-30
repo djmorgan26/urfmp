@@ -90,8 +90,8 @@ INSERT INTO robots (
     connection_config,
     is_active
 )
-SELECT 
-    'demo-robot-001',
+SELECT
+    'dddddddd-dddd-dddd-dddd-000000000001',
     'd8077863-d602-45fd-a253-78ee0d3d49a8',
     'Demo Robot UR5e',
     'UR5e',

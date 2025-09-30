@@ -4,6 +4,7 @@ import { asyncHandler } from '../middleware/error.middleware'
 import { ApiResponse } from '@urfmp/types'
 import { logger } from '../config/logger'
 import { query } from '../config/database'
+import '../middleware/requestLogger.middleware' // Import to get Request interface extension
 
 const router = Router()
 

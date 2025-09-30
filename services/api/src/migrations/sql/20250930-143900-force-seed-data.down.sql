@@ -4,7 +4,7 @@
 BEGIN;
 
 -- Remove demo robot
-DELETE FROM robots WHERE id = 'demo-robot-001';
+DELETE FROM robots WHERE id = 'dddddddd-dddd-dddd-dddd-000000000001';
 
 -- Remove API key
 DELETE FROM api_keys WHERE id = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
