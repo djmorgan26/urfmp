@@ -238,6 +238,9 @@ router.post(
     try {
       logger.info('Force inserting seed data via admin endpoint')
 
+      const bcrypt = require('bcryptjs')
+      const correctPasswordHash = await bcrypt.hash('admin123', 12)
+
       // Insert organization
       await query(`
         INSERT INTO organizations (id, name, slug, description, plan, is_active)
@@ -252,7 +255,7 @@ router.post(
         true
       ])
 
-      // Insert admin user
+      // Insert admin user with correct password hash
       await query(`
         INSERT INTO users (
           id, email, password_hash, first_name, last_name, role,
@@ -263,7 +266,7 @@ router.post(
       `, [
         '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
         'admin@urfmp.com',
-        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj8xOx9HAZGa',
+        correctPasswordHash,
         'Admin',
         'User',
         'admin',
@@ -313,6 +316,64 @@ router.post(
         success: false,
         error: {
           code: 'SEED_ERROR',
+          message: (error as Error).message,
+          traceId: req.traceId,
+          timestamp: new Date(),
+        },
+      }
+
+      res.status(500).json(response)
+    }
+  })
+)
+
+/**
+ * @swagger
+ * /admin/fix-password:
+ *   post:
+ *     summary: Fix admin password hash
+ *     description: Updates admin password hash to correct bcrypt format
+ *     tags: [Admin]
+ */
+router.post(
+  '/fix-password',
+  asyncHandler(async (req, res) => {
+    const startTime = Date.now()
+
+    try {
+      logger.info('Fixing admin password hash')
+
+      const bcrypt = require('bcryptjs')
+      const correctPasswordHash = await bcrypt.hash('admin123', 12)
+
+      // Update admin user password hash
+      const result = await query(`
+        UPDATE users SET password_hash = $1 WHERE email = $2
+      `, [correctPasswordHash, 'admin@urfmp.com'])
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: {
+          message: 'Admin password hash fixed successfully',
+          rowsUpdated: result.rowCount,
+          timestamp: new Date(),
+        },
+        metadata: {
+          requestId: req.traceId,
+          timestamp: new Date(),
+          version: '1.0.0',
+          executionTime: Date.now() - startTime,
+        },
+      }
+
+      res.status(200).json(response)
+    } catch (error) {
+      logger.error('Failed to fix password hash', { error: (error as Error).message })
+
+      const response: ApiResponse<any> = {
+        success: false,
+        error: {
+          code: 'PASSWORD_FIX_ERROR',
           message: (error as Error).message,
           traceId: req.traceId,
           timestamp: new Date(),
