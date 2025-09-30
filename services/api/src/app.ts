@@ -5,6 +5,7 @@ import compression from 'compression'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
+// Railway deployment with PostgreSQL database connection
 import { logger } from './config/logger'
 import { errorHandler } from './middleware/error.middleware'
 import { rateLimiter } from './middleware/rateLimit.middleware'
