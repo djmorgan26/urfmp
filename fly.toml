@@ -1,0 +1,56 @@
+app = "urfmp-stack"
+primary_region = "sea"  # Seattle region (adjust based on your location)
+
+# Main app (API)
+[build]
+  dockerfile = "services/api/Dockerfile.prod"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.checks]
+    [http_service.checks.api_health]
+      grace_period = "30s"
+      interval = "15s"
+      method = "GET"
+      path = "/health"
+      protocol = "http"
+      timeout = "10s"
+      tls_skip_verify = false
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+  # Feature Flags
+  ENABLE_ANALYTICS = "true"
+  ENABLE_STREAMING = "false"  # Disable Kafka for free tier
+  ENABLE_SWAGGER = "false"
+
+  # Branding
+  VITE_COMPANY_NAME = "URFMP"
+  VITE_PRODUCT_NAME = "URFMP"
+  VITE_PRODUCT_FULL_NAME = "Universal Robot Fleet Management Platform"
+  VITE_TAGLINE = "The Stripe of Robotics"
+  VITE_DESCRIPTION = "Monitor any robot in 7 lines of code"
+
+[[services]]
+  internal_port = 3000
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[[vm]]
+  memory = 1024
+  cpu_kind = "shared"
+  cpus = 1

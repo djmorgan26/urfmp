@@ -1,9 +1,10 @@
 # Railway Configuration for API Service
 [build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "services/api/Dockerfile.prod"
 
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
+startCommand = "npx tsx services/api/src/index.ts"
