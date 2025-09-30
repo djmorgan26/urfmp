@@ -18,6 +18,13 @@ const QUEUES = {
 
 export const connectRabbitMQ = async (): Promise<void> => {
   try {
+    // Skip RabbitMQ for Railway deployments (optional service)
+    const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID
+    if (isRailway && !process.env.RABBITMQ_URL) {
+      logger.info('Skipping RabbitMQ connection on Railway (no RABBITMQ_URL provided)')
+      return
+    }
+
     const url = process.env.RABBITMQ_URL || 'amqp://urfmp:urfmp-dev-2024@localhost:5672'
 
     connection = await amqp.connect(url)
@@ -65,9 +72,9 @@ export const connectRabbitMQ = async (): Promise<void> => {
   }
 }
 
-export const getRabbitMQ = (): { connection: any; channel: amqp.Channel } => {
+export const getRabbitMQ = (): { connection: any; channel: amqp.Channel } | null => {
   if (!connection || !channel) {
-    throw new Error('RabbitMQ not initialized. Call connectRabbitMQ first.')
+    return null
   }
   return { connection, channel }
 }
@@ -80,7 +87,8 @@ export const publishEvent = async (
 ): Promise<boolean> => {
   try {
     if (!channel) {
-      throw new Error('RabbitMQ channel not initialized')
+      logger.debug('RabbitMQ not available, skipping event publish', { routingKey })
+      return false
     }
 
     const messageBuffer = Buffer.from(
