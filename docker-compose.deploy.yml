@@ -1,0 +1,245 @@
+version: '3.8'
+
+services:
+  # Database Services
+  postgres:
+    image: timescale/timescaledb:latest-pg15
+    container_name: urfmp-postgres
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-urfmp}
+      POSTGRES_USER: ${DATABASE_USER:-urfmp}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-urfmp-secure-2024}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-urfmp}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: urfmp-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis-secure-2024}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--no-auth-warning', '-a', '${REDIS_PASSWORD:-redis-secure-2024}', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: urfmp-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-urfmp}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq-secure-2024}
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  # Analytics Services (Optional but recommended)
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: urfmp-clickhouse
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./infrastructure/clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-urfmp}
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-urfmp}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-clickhouse-secure-2024}
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  # Streaming Services (Optional)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: urfmp-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: urfmp-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ['CMD-SHELL', 'kafka-broker-api-versions --bootstrap-server localhost:9092']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  # Core Application Services
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile.prod
+    container_name: urfmp-api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+      # Database Configuration
+      DATABASE_URL: postgresql://${DATABASE_USER:-urfmp}:${DATABASE_PASSWORD:-urfmp-secure-2024}@postgres:5432/${DATABASE_NAME:-urfmp}
+
+      # Cache Configuration
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis-secure-2024}@redis:6379
+
+      # Message Queue Configuration
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-urfmp}:${RABBITMQ_PASSWORD:-rabbitmq-secure-2024}@rabbitmq:5672
+
+      # Analytics Configuration (Optional)
+      CLICKHOUSE_URL: http://${CLICKHOUSE_USER:-urfmp}:${CLICKHOUSE_PASSWORD:-clickhouse-secure-2024}@clickhouse:8123/${CLICKHOUSE_DB:-urfmp}
+
+      # Streaming Configuration (Optional)
+      KAFKA_BROKERS: kafka:9092
+
+      # Security Configuration
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+
+      # API Configuration
+      API_KEY: ${VITE_URFMP_API_KEY:-urfmp_production_api_key_secure}
+
+      # Feature Flags
+      ENABLE_ANALYTICS: ${ENABLE_ANALYTICS:-true}
+      ENABLE_STREAMING: ${ENABLE_STREAMING:-false}
+      ENABLE_SWAGGER: ${ENABLE_SWAGGER:-false}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile.prod
+    container_name: urfmp-web
+    environment:
+      NODE_ENV: production
+
+      # API Configuration
+      VITE_URFMP_API_KEY: ${VITE_URFMP_API_KEY:-urfmp_production_api_key_secure}
+      VITE_URFMP_API_URL: ${VITE_URFMP_API_URL:-http://localhost:3000}
+      VITE_URFMP_WS_URL: ${VITE_URFMP_WS_URL:-ws://localhost:3000}
+
+      # Branding Configuration
+      VITE_COMPANY_NAME: ${VITE_COMPANY_NAME:-URFMP}
+      VITE_PRODUCT_NAME: ${VITE_PRODUCT_NAME:-URFMP}
+      VITE_PRODUCT_FULL_NAME: ${VITE_PRODUCT_FULL_NAME:-Universal Robot Fleet Management Platform}
+      VITE_TAGLINE: ${VITE_TAGLINE:-The Stripe of Robotics}
+      VITE_DESCRIPTION: ${VITE_DESCRIPTION:-Monitor any robot in 7 lines of code}
+
+      # Feature Configuration
+      VITE_DEMO_MODE: ${VITE_DEMO_MODE:-true}
+
+    ports:
+      - "80:3001"  # Expose on port 80 for production
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3001/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+
+  # Development Tools (Optional)
+  adminer:
+    image: adminer:latest
+    container_name: urfmp-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - urfmp-network
+    profiles:
+      - dev-tools
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  clickhouse-data:
+    driver: local
+  kafka-data:
+    driver: local
+  zookeeper-data:
+    driver: local
+  zookeeper-logs:
+    driver: local
+
+networks:
+  urfmp-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

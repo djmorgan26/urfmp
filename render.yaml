@@ -1,0 +1,44 @@
+services:
+  # API Service
+  - type: web
+    name: urfmp-api
+    runtime: docker
+    dockerfile: services/api/Dockerfile.prod
+    region: oregon  # Free tier region
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: ENABLE_ANALYTICS
+        value: false  # Simplified for free tier
+      - key: ENABLE_STREAMING
+        value: false  # Simplified for free tier
+      - key: ENABLE_SWAGGER
+        value: false
+      - key: VITE_COMPANY_NAME
+        value: URFMP
+      - key: VITE_PRODUCT_NAME
+        value: URFMP
+      - key: VITE_PRODUCT_FULL_NAME
+        value: Universal Robot Fleet Management Platform
+      - key: VITE_TAGLINE
+        value: The Stripe of Robotics
+      - key: VITE_DESCRIPTION
+        value: Monitor any robot in 7 lines of code
+      - key: VITE_URFMP_API_KEY
+        value: urfmp_render_production_secure_api_key
+      - key: JWT_SECRET
+        generateValue: true  # Render will generate a secure secret
+      - key: JWT_REFRESH_SECRET
+        generateValue: true  # Render will generate a secure secret
+
+  # PostgreSQL Database
+  - type: pserv
+    name: urfmp-postgres
+    plan: free
+    region: oregon
+    databaseName: urfmp
+    databaseUser: urfmp
