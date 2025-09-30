@@ -15,7 +15,16 @@ export class MigrationService {
   private migrationsPath: string
 
   constructor() {
-    this.migrationsPath = path.join(__dirname, 'sql')
+    // In production (compiled JS), look for SQL files in the source directory
+    // In development (TS), look in the current directory
+    const isProduction = process.env.NODE_ENV === 'production'
+    if (isProduction) {
+      // Production: SQL files are in the source directory
+      this.migrationsPath = path.join(process.cwd(), 'services/api/src/migrations/sql')
+    } else {
+      // Development: SQL files are relative to compiled location
+      this.migrationsPath = path.join(__dirname, 'sql')
+    }
   }
 
   /**
