@@ -60,8 +60,8 @@ INSERT INTO api_keys (
     expires_at,
     is_active
 )
-SELECT 
-    'api-key-dev-001',
+SELECT
+    'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
     'd8077863-d602-45fd-a253-78ee0d3d49a8',
     'Development API Key',
