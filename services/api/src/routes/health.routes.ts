@@ -57,7 +57,8 @@ router.get(
       {
         name: 'redis',
         status:
-          redisHealth.status === 'fulfilled' && redisHealth.value.status === 'healthy'
+          redisHealth.status === 'fulfilled' &&
+          (redisHealth.value.status === 'healthy' || redisHealth.value.status === 'disabled')
             ? HealthStatus.HEALTHY
             : HealthStatus.UNHEALTHY,
         message:
@@ -72,7 +73,8 @@ router.get(
       {
         name: 'rabbitmq',
         status:
-          rabbitmqHealth.status === 'fulfilled' && rabbitmqHealth.value.status === 'healthy'
+          rabbitmqHealth.status === 'fulfilled' &&
+          (rabbitmqHealth.value.status === 'healthy' || rabbitmqHealth.value.status === 'disabled')
             ? HealthStatus.HEALTHY
             : HealthStatus.UNHEALTHY,
         message:

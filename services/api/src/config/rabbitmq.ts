@@ -198,11 +198,22 @@ export const consumeQueue = async (
 
 // Health check
 export const checkRabbitMQHealth = async (): Promise<{
-  status: 'healthy' | 'unhealthy'
+  status: 'healthy' | 'unhealthy' | 'disabled'
   details: any
 }> => {
   try {
     if (!connection) {
+      // Check if RabbitMQ was intentionally skipped (Railway deployment)
+      const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID
+      if (isRailway && !process.env.RABBITMQ_URL) {
+        return {
+          status: 'disabled',
+          details: {
+            message: 'RabbitMQ disabled for Railway deployment',
+            connected: false,
+          },
+        }
+      }
       throw new Error('Connection not established')
     }
 
