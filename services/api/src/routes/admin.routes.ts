@@ -172,4 +172,54 @@ router.get(
   })
 )
 
+/**
+ * @swagger
+ * /admin/migrations/rollback:
+ *   post:
+ *     summary: Rollback last migration
+ *     description: Rollback the most recent migration
+ *     tags: [Admin]
+ */
+router.post(
+  '/migrations/rollback',
+  asyncHandler(async (req, res) => {
+    const startTime = Date.now()
+
+    try {
+      logger.info('Rolling back last migration via admin endpoint')
+      await migrationService.rollbackLastMigration()
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: {
+          message: 'Migration rollback completed successfully',
+          timestamp: new Date(),
+        },
+        metadata: {
+          requestId: req.traceId,
+          timestamp: new Date(),
+          version: '1.0.0',
+          executionTime: Date.now() - startTime,
+        },
+      }
+
+      res.status(200).json(response)
+    } catch (error) {
+      logger.error('Failed to rollback migration', { error: (error as Error).message })
+
+      const response: ApiResponse<any> = {
+        success: false,
+        error: {
+          code: 'MIGRATION_ERROR',
+          message: (error as Error).message,
+          traceId: req.traceId,
+          timestamp: new Date(),
+        },
+      }
+
+      res.status(500).json(response)
+    }
+  })
+)
+
 export default router
