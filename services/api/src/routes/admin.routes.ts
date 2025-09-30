@@ -222,4 +222,106 @@ router.post(
   })
 )
 
+/**
+ * @swagger
+ * /admin/seed/force:
+ *   post:
+ *     summary: Force insert seed data
+ *     description: Manually insert required seed data for deployment
+ *     tags: [Admin]
+ */
+router.post(
+  '/seed/force',
+  asyncHandler(async (req, res) => {
+    const startTime = Date.now()
+
+    try {
+      logger.info('Force inserting seed data via admin endpoint')
+
+      // Insert organization
+      await query(`
+        INSERT INTO organizations (id, name, slug, description, plan, is_active)
+        SELECT $1, $2, $3, $4, $5, $6
+        WHERE NOT EXISTS (SELECT 1 FROM organizations WHERE slug = $3)
+      `, [
+        'd8077863-d602-45fd-a253-78ee0d3d49a8',
+        'URFMP Demo',
+        'urfmp-demo',
+        'Demo organization for URFMP',
+        'enterprise',
+        true
+      ])
+
+      // Insert admin user
+      await query(`
+        INSERT INTO users (
+          id, email, password_hash, first_name, last_name, role,
+          organization_id, permissions, is_active, email_verified
+        )
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+        WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = $2)
+      `, [
+        '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+        'admin@urfmp.com',
+        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj8xOx9HAZGa',
+        'Admin',
+        'User',
+        'admin',
+        'd8077863-d602-45fd-a253-78ee0d3d49a8',
+        ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write', 'maintenance.view', 'user.view', 'organization.view'],
+        true,
+        true
+      ])
+
+      // Insert API key
+      await query(`
+        INSERT INTO api_keys (
+          id, user_id, organization_id, name, key_hash, scope, expires_at, is_active
+        )
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8
+        WHERE NOT EXISTS (SELECT 1 FROM api_keys WHERE key_hash = $5)
+      `, [
+        'api-key-dev-001',
+        '3885c041-ebf4-4fdd-a6ec-7d88216ded2d',
+        'd8077863-d602-45fd-a253-78ee0d3d49a8',
+        'Development API Key',
+        'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678',
+        ['robot.view', 'robot.create', 'robot.update', 'robot.delete', 'telemetry.view', 'telemetry.write'],
+        null,
+        true
+      ])
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: {
+          message: 'Seed data inserted successfully',
+          timestamp: new Date(),
+        },
+        metadata: {
+          requestId: req.traceId,
+          timestamp: new Date(),
+          version: '1.0.0',
+          executionTime: Date.now() - startTime,
+        },
+      }
+
+      res.status(200).json(response)
+    } catch (error) {
+      logger.error('Failed to insert seed data', { error: (error as Error).message })
+
+      const response: ApiResponse<any> = {
+        success: false,
+        error: {
+          code: 'SEED_ERROR',
+          message: (error as Error).message,
+          traceId: req.traceId,
+          timestamp: new Date(),
+        },
+      }
+
+      res.status(500).json(response)
+    }
+  })
+)
+
 export default router
