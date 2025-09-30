@@ -117,4 +117,61 @@ router.post(
   })
 )
 
+/**
+ * @swagger
+ * /admin/database/tables:
+ *   get:
+ *     summary: List database tables
+ *     description: Returns list of all tables in the database
+ *     tags: [Admin]
+ */
+router.get(
+  '/database/tables',
+  asyncHandler(async (req, res) => {
+    const startTime = Date.now()
+
+    try {
+      // Import query function
+      const { query } = await import('../config/database')
+
+      const result = await query(`
+        SELECT table_name, table_schema
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        ORDER BY table_name
+      `)
+
+      const response: ApiResponse<any> = {
+        success: true,
+        data: {
+          tables: result.rows,
+          count: result.rows.length,
+        },
+        metadata: {
+          requestId: req.traceId,
+          timestamp: new Date(),
+          version: '1.0.0',
+          executionTime: Date.now() - startTime,
+        },
+      }
+
+      res.status(200).json(response)
+    } catch (error) {
+      logger.error('Failed to list database tables', { error: (error as Error).message })
+
+      const response: ApiResponse<any> = {
+        success: false,
+        error: {
+          code: 'DATABASE_ERROR',
+          message: (error as Error).message,
+          traceId: req.traceId,
+          timestamp: new Date(),
+        },
+      }
+
+      res.status(500).json(response)
+    }
+  })
+)
+
 export default router
