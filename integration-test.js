@@ -240,7 +240,7 @@ async function testApiAuthentication() {
     });
 
     if (loginResponse.status === 200 && loginResponse.data.success) {
-      const token = loginResponse.data.data.accessToken;
+      const token = loginResponse.data.data.tokens.accessToken;
       logTest('Local JWT Login', 'PASS', 'Admin login successful');
 
       // Test authenticated request with JWT
@@ -330,7 +330,7 @@ async function testCoreBusinessLogic() {
     }
 
     // Test telemetry endpoint
-    const telemetryResponse = await makeRequest(`${LOCAL_API}/api/v1/telemetry/aggregated`, {
+    const telemetryResponse = await makeRequest(`${LOCAL_API}/api/v1/telemetry/aggregated?metric=temperature&aggregation=avg&timeWindow=1h&startDate=2025-09-01&endDate=2025-09-30`, {
       headers: { 'X-API-Key': 'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678' }
     });
 
