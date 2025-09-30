@@ -22,8 +22,11 @@ export const connectDatabase = async (): Promise<void> => {
     // Test the connection
     const client = await pool.connect()
 
-    // Enable TimescaleDB extension if not already enabled
-    await client.query('CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;')
+    // Enable TimescaleDB extension if not already enabled (skip for Railway)
+    const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID
+    if (!isRailway) {
+      await client.query('CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;')
+    }
 
     // Set timezone to UTC
     await client.query("SET timezone = 'UTC';")
@@ -153,6 +156,13 @@ export const createHypertable = async (
   chunkTimeInterval: string = '1 day'
 ): Promise<void> => {
   try {
+    // Skip hypertable creation on Railway (no TimescaleDB)
+    const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID
+    if (isRailway) {
+      logger.info('Skipping hypertable creation on Railway', { tableName })
+      return
+    }
+
     await query(`
       SELECT create_hypertable('${tableName}', '${timeColumn}',
         chunk_time_interval => INTERVAL '${chunkTimeInterval}',
