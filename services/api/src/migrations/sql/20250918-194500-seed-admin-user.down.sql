@@ -6,6 +6,9 @@ BEGIN;
 -- Remove demo robot
 DELETE FROM robots WHERE id = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
 
+-- Remove API key
+DELETE FROM api_keys WHERE id = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
+
 -- Remove admin user
 DELETE FROM users WHERE id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
 

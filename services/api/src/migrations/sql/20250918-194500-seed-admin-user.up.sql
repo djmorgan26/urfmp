@@ -49,6 +49,35 @@ INSERT INTO users (
     true
 ) ON CONFLICT (email) DO NOTHING;
 
+-- Insert development API key
+INSERT INTO api_keys (
+    id,
+    user_id,
+    organization_id,
+    name,
+    key_hash,
+    scope,
+    expires_at,
+    is_active,
+    created_at,
+    updated_at
+) VALUES (
+    'dddddddd-dddd-dddd-dddd-dddddddddddd',
+    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'Development API Key',
+    'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678',
+    ARRAY[
+        'robot.view', 'robot.create', 'robot.update', 'robot.delete',
+        'telemetry.view', 'telemetry.write',
+        'maintenance.view', 'user.view', 'organization.view'
+    ],
+    NULL,
+    true,
+    NOW(),
+    NOW()
+) ON CONFLICT (key_hash) DO NOTHING;
+
 -- Insert a demo robot
 INSERT INTO robots (
     id,
