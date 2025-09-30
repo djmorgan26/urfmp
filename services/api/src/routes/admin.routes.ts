@@ -4,6 +4,7 @@ import { asyncHandler } from '../middleware/error.middleware'
 import { ApiResponse } from '@urfmp/types'
 import { logger } from '../config/logger'
 import { query } from '../config/database'
+import bcrypt from 'bcryptjs'
 import '../middleware/requestLogger.middleware' // Import to get Request interface extension
 
 const router = Router()
@@ -239,7 +240,6 @@ router.post(
     try {
       logger.info('Force inserting seed data via admin endpoint')
 
-      const bcrypt = require('bcryptjs')
       const correctPasswordHash = await bcrypt.hash('admin123', 12)
 
       // Insert organization
@@ -344,7 +344,6 @@ router.post(
     try {
       logger.info('Fixing admin password hash')
 
-      const bcrypt = require('bcryptjs')
       const correctPasswordHash = await bcrypt.hash('admin123', 12)
 
       // Update admin user password hash
