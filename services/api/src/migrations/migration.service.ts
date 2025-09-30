@@ -15,16 +15,39 @@ export class MigrationService {
   private migrationsPath: string
 
   constructor() {
-    // In production (compiled JS), look for SQL files in the source directory
-    // In development (TS), look in the current directory
-    const isProduction = process.env.NODE_ENV === 'production'
-    if (isProduction) {
-      // Production: SQL files are in the source directory
-      this.migrationsPath = path.join(process.cwd(), 'services/api/src/migrations/sql')
-    } else {
-      // Development: SQL files are relative to compiled location
-      this.migrationsPath = path.join(__dirname, 'sql')
+    this.migrationsPath = this.findMigrationsPath()
+  }
+
+  /**
+   * Find migrations path - check multiple possible locations
+   */
+  private findMigrationsPath(): string {
+    const possiblePaths = [
+      // 1. Compiled location (preferred for production)
+      path.join(__dirname, 'sql'),
+      // 2. Source location relative to project root
+      path.join(process.cwd(), 'services/api/src/migrations/sql'),
+      // 3. Alternative source location
+      path.join(__dirname, '../../../src/migrations/sql'),
+      // 4. Docker container source location
+      path.join('/app/services/api/src/migrations/sql'),
+    ]
+
+    for (const migrationPath of possiblePaths) {
+      try {
+        if (require('fs').existsSync(migrationPath)) {
+          logger.info('Found migrations directory', { path: migrationPath })
+          return migrationPath
+        }
+      } catch (error) {
+        // Continue to next path
+      }
     }
+
+    // Fallback to default path
+    const defaultPath = path.join(__dirname, 'sql')
+    logger.warn('No migrations directory found, using default', { path: defaultPath })
+    return defaultPath
   }
 
   /**
@@ -47,8 +70,19 @@ export class MigrationService {
    */
   async getMigrationFiles(): Promise<Migration[]> {
     try {
+      logger.info('Reading migration files', { path: this.migrationsPath })
+
+      // Check if directory exists
+      if (!require('fs').existsSync(this.migrationsPath)) {
+        logger.error('Migration directory does not exist', { path: this.migrationsPath })
+        throw new Error(`Migration directory not found: ${this.migrationsPath}`)
+      }
+
       const files = await fs.readdir(this.migrationsPath)
+      logger.info('Found files in migration directory', { files, count: files.length })
+
       const migrationFiles = files.filter((file) => file.endsWith('.up.sql')).sort()
+      logger.info('Found migration files', { migrationFiles, count: migrationFiles.length })
 
       const migrations: Migration[] = []
 
@@ -68,7 +102,7 @@ export class MigrationService {
 
         migrations.push({
           id,
-          name: id.replace(/^\d{4}-\d{2}-\d{2}-\d{6}-/, ''),
+          name: id.replace(/^\d{8}-\d{6}-/, ''),
           up,
           down,
           timestamp: new Date(),
@@ -246,6 +280,64 @@ COMMIT;
 
     logger.info(`Migration files created: ${migrationId}`)
     return migrationId
+  }
+
+  /**
+   * Get pending migrations
+   */
+  async getPendingMigrations(): Promise<Migration[]> {
+    const allMigrations = await this.getMigrationFiles()
+    const executedMigrations = await this.getExecutedMigrations()
+
+    return allMigrations.filter(
+      (migration) => !executedMigrations.includes(migration.id)
+    )
+  }
+
+  /**
+   * Rollback migration (alias for rollbackLastMigration)
+   */
+  async rollbackMigration(): Promise<void> {
+    return this.rollbackLastMigration()
+  }
+
+  /**
+   * Reset all migrations (dev only)
+   */
+  async resetMigrations(): Promise<void> {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Reset not allowed in production')
+    }
+
+    logger.warn('Resetting all migrations - this will DELETE ALL DATA')
+
+    try {
+      await query('BEGIN')
+
+      // Drop all tables (in reverse dependency order)
+      const dropTables = [
+        'user_sessions',
+        'api_keys',
+        'robot_commands',
+        'robot_telemetry',
+        'maintenance_tasks',
+        'alerts',
+        'robots',
+        'users',
+        'organizations',
+        'migrations'
+      ]
+
+      for (const table of dropTables) {
+        await query(`DROP TABLE IF EXISTS ${table} CASCADE`)
+      }
+
+      await query('COMMIT')
+      logger.info('All migrations reset successfully')
+    } catch (error) {
+      await query('ROLLBACK')
+      throw error
+    }
   }
 }
 

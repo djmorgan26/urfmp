@@ -13,8 +13,9 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
-    "migrate": "tsx src/migrations/migrate.ts",
-    "migrate:rollback": "tsx src/migrations/rollback.ts",
+    "migrate": "tsx src/migrations/cli.ts migrate",
+    "migrate:status": "tsx src/migrations/cli.ts status",
+    "migrate:rollback": "tsx src/migrations/cli.ts rollback",
     "seed": "tsx src/migrations/seed.ts",
     "docker:build": "docker build -t urfmp-api .",
     "docker:run": "docker run -p 3000:3000 urfmp-api"

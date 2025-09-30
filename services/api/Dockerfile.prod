@@ -37,8 +37,9 @@ RUN npm run build --workspace=@urfmp/types
 # Build SDK package
 RUN npm run build --workspace=@urfmp/sdk
 
-# Build API (if it has a build step)
+# Build API and ensure migration files are available
 RUN cd services/api && npm run build || echo "No build script, using source directly"
+RUN cd services/api && mkdir -p dist/migrations && cp -r src/migrations/sql dist/migrations/ || echo "Migration files will be copied from source"
 
 # Production stage
 FROM base AS runner
