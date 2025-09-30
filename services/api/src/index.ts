@@ -9,7 +9,7 @@ import { connectRabbitMQ } from './config/rabbitmq'
 import { initializeWebSocketServer } from './services/websocket.service'
 import { migrationService } from './migrations/migration.service'
 
-const PORT = process.env.API_PORT || 3000
+const PORT = process.env.PORT || process.env.API_PORT || 3000
 const NODE_ENV = process.env.NODE_ENV || 'development'
 
 async function startServer() {

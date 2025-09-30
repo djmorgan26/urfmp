@@ -21,13 +21,15 @@ RUN npm run build --workspace=@urfmp/types
 # Build SDK package
 RUN npm run build --workspace=@urfmp/sdk
 
+# Build API package (TypeScript compilation)
+RUN npm run build --workspace=@urfmp/api
+
 # Add health check
 RUN apk add --no-cache curl
 
-EXPOSE 3000
+EXPOSE 3001
 
 ENV NODE_ENV=production
-ENV PORT=3000
 
-# Start the API service
-CMD ["npx", "tsx", "services/api/src/index.ts"]
+# Start the compiled API service
+CMD ["npm", "start", "--workspace=@urfmp/api"]
