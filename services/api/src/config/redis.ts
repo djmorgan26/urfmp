@@ -5,6 +5,13 @@ let redis: Redis
 
 export const connectRedis = async (): Promise<void> => {
   try {
+    // Skip Redis for Railway deployments (optional service)
+    const isRailway = process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID
+    if (isRailway && !process.env.REDIS_URL) {
+      logger.info('Skipping Redis connection on Railway (no REDIS_URL provided)')
+      return
+    }
+
     const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379'
 
     redis = new Redis(redisUrl, {
@@ -45,16 +52,17 @@ export const connectRedis = async (): Promise<void> => {
   }
 }
 
-export const getRedis = (): Redis => {
-  if (!redis) {
-    throw new Error('Redis not initialized. Call connectRedis first.')
-  }
-  return redis
+export const getRedis = (): Redis | null => {
+  return redis || null
 }
 
 // Cache utilities
 export const cache = {
   get: async (key: string): Promise<any> => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping cache get', { key })
+      return null
+    }
     try {
       const value = await redis.get(key)
       return value ? JSON.parse(value) : null
@@ -65,6 +73,10 @@ export const cache = {
   },
 
   set: async (key: string, value: any, ttl?: number): Promise<boolean> => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping cache set', { key })
+      return false
+    }
     try {
       const serialized = JSON.stringify(value)
       if (ttl) {
@@ -80,6 +92,10 @@ export const cache = {
   },
 
   del: async (key: string): Promise<boolean> => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping cache delete', { key })
+      return false
+    }
     try {
       await redis.del(key)
       return true
@@ -90,6 +106,10 @@ export const cache = {
   },
 
   exists: async (key: string): Promise<boolean> => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping cache exists', { key })
+      return false
+    }
     try {
       const result = await redis.exists(key)
       return result === 1
@@ -103,6 +123,10 @@ export const cache = {
 // Pub/Sub utilities
 export const pubsub = {
   publish: async (channel: string, message: any): Promise<boolean> => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping pubsub publish', { channel })
+      return false
+    }
     try {
       await redis.publish(channel, JSON.stringify(message))
       return true
@@ -113,6 +137,10 @@ export const pubsub = {
   },
 
   subscribe: (channel: string, callback: (message: any) => void): void => {
+    if (!redis) {
+      logger.debug('Redis not available, skipping pubsub subscribe', { channel })
+      return
+    }
     const subscriber = redis.duplicate()
 
     subscriber.subscribe(channel, (err) => {
@@ -138,9 +166,19 @@ export const pubsub = {
 
 // Health check
 export const checkRedisHealth = async (): Promise<{
-  status: 'healthy' | 'unhealthy'
+  status: 'healthy' | 'unhealthy' | 'disabled'
   details: any
 }> => {
+  if (!redis) {
+    return {
+      status: 'disabled',
+      details: {
+        message: 'Redis not configured or available',
+        connected: false,
+      },
+    }
+  }
+
   try {
     const start = Date.now()
     await redis.ping()
