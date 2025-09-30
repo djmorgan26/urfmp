@@ -8,3 +8,4 @@ packages/types/src/*.d.ts
 packages/types/src/**/*.js
 packages/types/src/**/*.d.ts
 web/.eslintrc.ci.js
+integration-test.js
