@@ -17,6 +17,11 @@ class RedisStore {
     const redisKey = this.prefix + key
     const window = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000')
 
+    // If Redis is not available, allow the request
+    if (!redis) {
+      return { totalHits: 1 }
+    }
+
     try {
       const multi = redis.multi()
       multi.incr(redisKey)
@@ -37,6 +42,8 @@ class RedisStore {
 
   async decrement(key: string): Promise<void> {
     const redis = this.getRedisInstance()
+    if (!redis) return
+
     const redisKey = this.prefix + key
     try {
       await redis.decr(redisKey)
@@ -47,6 +54,8 @@ class RedisStore {
 
   async resetKey(key: string): Promise<void> {
     const redis = this.getRedisInstance()
+    if (!redis) return
+
     const redisKey = this.prefix + key
     try {
       await redis.del(redisKey)
