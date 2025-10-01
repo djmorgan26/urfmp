@@ -410,9 +410,27 @@ jobs:
       - name: Deploy to Vercel (Production)
         if: success() && github.ref == 'refs/heads/main'
         id: deploy
+        env:
+          VITE_COMPANY_NAME: URFMP
+          VITE_PRODUCT_NAME: URFMP
+          VITE_PRODUCT_FULL_NAME: Universal Robot Fleet Management Platform
+          VITE_TAGLINE: The Stripe of Robotics
+          VITE_DESCRIPTION: Monitor any robot in 7 lines of code
+          VITE_DEMO_MODE: false
+          VITE_URFMP_API_URL: https://urfmpapi-production.up.railway.app
+          VITE_URFMP_WS_URL: wss://urfmpapi-production.up.railway.app/ws
         run: |
-          # Deploy to production using Vercel CLI directly
-          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --name urfmp --meta githubCommitSha=${{ github.sha }} 2>&1 | tee production.txt
+          # Deploy to production using Vercel CLI with environment variables
+          npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope ${{ secrets.VERCEL_ORG_ID }} --yes --name urfmp --meta githubCommitSha=${{ github.sha }} \
+            --build-env VITE_COMPANY_NAME="$VITE_COMPANY_NAME" \
+            --build-env VITE_PRODUCT_NAME="$VITE_PRODUCT_NAME" \
+            --build-env VITE_PRODUCT_FULL_NAME="$VITE_PRODUCT_FULL_NAME" \
+            --build-env VITE_TAGLINE="$VITE_TAGLINE" \
+            --build-env VITE_DESCRIPTION="$VITE_DESCRIPTION" \
+            --build-env VITE_DEMO_MODE="$VITE_DEMO_MODE" \
+            --build-env VITE_URFMP_API_URL="$VITE_URFMP_API_URL" \
+            --build-env VITE_URFMP_WS_URL="$VITE_URFMP_WS_URL" \
+            2>&1 | tee production.txt
           PRODUCTION_URL=$(grep -E "Production: https://[^[:space:]]*" production.txt | grep -o 'https://[^[:space:]]*' | head -1)
           echo "url=$PRODUCTION_URL" >> $GITHUB_OUTPUT
           echo "✅ Production deployed to: $PRODUCTION_URL"
