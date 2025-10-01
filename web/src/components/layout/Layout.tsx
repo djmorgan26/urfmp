@@ -16,6 +16,9 @@ import {
   Shield,
   Menu,
   X,
+  User,
+  LogOut,
+  HelpCircle,
 } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
 import { useRealTimeAlerts } from '../../hooks/useRealTimeAlerts'
@@ -45,6 +48,8 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const [showAlertPanel, setShowAlertPanel] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('')
@@ -53,6 +58,11 @@ export function Layout({ children }: LayoutProps) {
   const [isSearching, setIsSearching] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // User avatar state
+  const [userAvatar, setUserAvatar] = useState<string | null>(() => {
+    return localStorage.getItem('urfmp_user_avatar')
+  })
 
   const activeRobots = robots.filter((r) => r.status === 'running' || r.status === 'online').length
   const totalRobots = robots.length
@@ -131,6 +141,28 @@ export function Layout({ children }: LayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Click outside to close user menu
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Listen for avatar updates
+  useEffect(() => {
+    const handleAvatarUpdate = (event: CustomEvent<{ avatarUrl: string }>) => {
+      setUserAvatar(event.detail.avatarUrl)
+    }
+
+    window.addEventListener('avatarUpdated', handleAvatarUpdate as EventListener)
+    return () => window.removeEventListener('avatarUpdated', handleAvatarUpdate as EventListener)
+  }, [])
+
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setShowSearchResults(false)
@@ -138,10 +170,29 @@ export function Layout({ children }: LayoutProps) {
     }
   }
 
+  const handleLogout = () => {
+    // Clear any stored tokens
+    localStorage.removeItem('urfmp_access_token')
+    localStorage.removeItem('urfmp_refresh_token')
+    sessionStorage.clear()
+
+    // Redirect to login page or refresh
+    window.location.href = '/'
+  }
+
+  // Mock user data - replace with actual auth context when available
+  const currentUser = {
+    name: 'David Morgan',
+    email: 'admin@urfmp.com',
+    role: 'Administrator',
+    initials: 'DM',
+    organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+      <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 relative z-50">
         <div className="flex h-16 items-center px-4 lg:px-6">
           <div className="flex items-center space-x-4">
             {/* Mobile menu button */}
@@ -261,7 +312,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             {/* Notifications */}
-            <div className="relative">
+            <div className="relative z-[60]">
               <button
                 onClick={() => setShowAlertPanel(!showAlertPanel)}
                 className={cn(
@@ -281,7 +332,7 @@ export function Layout({ children }: LayoutProps) {
 
               {/* Alert Panel Dropdown */}
               {showAlertPanel && (
-                <div className="absolute right-0 top-full mt-2 z-50">
+                <div className="absolute right-0 top-full mt-2">
                   <RealTimeAlertPanel
                     className="w-80 sm:w-96 max-h-[70vh] shadow-lg max-w-[calc(100vw-2rem)]"
                     showFilters={true}
@@ -300,16 +351,106 @@ export function Layout({ children }: LayoutProps) {
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
 
-            {/* User Menu - simplified on mobile */}
-            <button
-              className="flex items-center space-x-2 rounded-md p-2 hover:bg-accent min-h-[44px]"
-              aria-label="User menu"
-            >
-              <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                DM
-              </div>
-              <ChevronDown className="h-4 w-4 hidden sm:block" />
-            </button>
+            {/* User Menu */}
+            <div className="relative z-[60]" ref={userMenuRef}>
+              <button
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className={cn(
+                  'flex items-center space-x-2 rounded-md p-2 min-h-[44px] transition-colors',
+                  showUserMenu ? 'bg-accent' : 'hover:bg-accent'
+                )}
+                aria-label="User menu"
+              >
+                {userAvatar ? (
+                  <img
+                    src={userAvatar}
+                    alt="User avatar"
+                    className="h-8 w-8 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                    {currentUser.initials}
+                  </div>
+                )}
+                <ChevronDown
+                  className={cn(
+                    'h-4 w-4 hidden sm:block transition-transform',
+                    showUserMenu && 'rotate-180'
+                  )}
+                />
+              </button>
+
+              {/* User Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-2 w-72 bg-card rounded-lg border border-border shadow-lg">
+                  {/* User Info Section */}
+                  <div className="p-4 border-b border-border">
+                    <div className="flex items-center space-x-3">
+                      {userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt="User avatar"
+                          className="h-12 w-12 rounded-full object-cover border-2 border-border"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-medium">
+                          {currentUser.initials}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {currentUser.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{currentUser.role}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="py-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2.5 hover:bg-muted transition-colors text-sm"
+                    >
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span>Profile Settings</span>
+                    </Link>
+
+                    <Link
+                      to="/settings"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center space-x-3 px-4 py-2.5 hover:bg-muted transition-colors text-sm"
+                    >
+                      <Settings className="h-4 w-4 text-muted-foreground" />
+                      <span>Settings</span>
+                    </Link>
+
+                    <a
+                      href="https://docs.urfmp.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3 px-4 py-2.5 hover:bg-muted transition-colors text-sm"
+                    >
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                      <span>Help & Documentation</span>
+                    </a>
+                  </div>
+
+                  {/* Logout */}
+                  <div className="border-t border-border py-2">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center space-x-3 px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-sm w-full text-left text-red-600 dark:text-red-400"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Log out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>

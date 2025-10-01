@@ -19,6 +19,7 @@ const Maintenance = lazy(() =>
 )
 const Geofencing = lazy(() => import('./pages/Geofencing').then((m) => ({ default: m.Geofencing })))
 const Settings = lazy(() => import('./pages/Settings').then((m) => ({ default: m.Settings })))
+const Profile = lazy(() => import('./pages/Profile').then((m) => ({ default: m.Profile })))
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Route path="/maintenance" element={<Maintenance />} />
               <Route path="/geofencing" element={<Geofencing />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </Suspense>
         </Layout>
