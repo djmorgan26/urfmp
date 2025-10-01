@@ -75,12 +75,13 @@ export function Signup() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [field]: e.target.value })
-    if (errors[field]) {
-      setErrors({ ...errors, [field]: undefined })
+  const handleChange =
+    (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, [field]: e.target.value })
+      if (errors[field]) {
+        setErrors({ ...errors, [field]: undefined })
+      }
     }
-  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -216,7 +217,9 @@ export function Signup() {
                 autoComplete="email"
                 disabled={isLoading}
               />
-              {errors.email && <p className="text-xs text-red-600 dark:text-red-400">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.email}</p>
+              )}
             </div>
 
             {/* Organization Field */}
@@ -307,7 +310,11 @@ export function Signup() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   tabIndex={-1}
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
               {errors.confirmPassword && (
@@ -342,7 +349,9 @@ export function Signup() {
                   </a>
                 </span>
               </label>
-              {errors.terms && <p className="text-xs text-red-600 dark:text-red-400">{errors.terms}</p>}
+              {errors.terms && (
+                <p className="text-xs text-red-600 dark:text-red-400">{errors.terms}</p>
+              )}
             </div>
 
             {/* Submit Button */}

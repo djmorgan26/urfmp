@@ -5,6 +5,7 @@ A robust, scalable database migration system designed for enterprise-grade deplo
 ## 🎯 Overview
 
 The URFMP migration system provides:
+
 - **Environment-agnostic execution** (local, Docker, Railway, Render, Fly.io)
 - **Transaction-safe operations** with automatic rollback on failure
 - **Comprehensive CLI tools** for development and production
@@ -84,11 +85,13 @@ npm run migrate:rollback # Rollback last migration
 ## 🔌 Admin API Endpoints
 
 ### Migration Status
+
 ```http
 GET /admin/migrations/status
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -108,11 +111,13 @@ GET /admin/migrations/status
 ```
 
 ### Run Migrations
+
 ```http
 POST /admin/migrations/run
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -124,20 +129,22 @@ POST /admin/migrations/run
 ```
 
 ### Database Tables (Debug)
+
 ```http
 GET /admin/database/tables
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "tables": [
-      {"table_name": "organizations", "table_schema": "public"},
-      {"table_name": "users", "table_schema": "public"},
-      {"table_name": "robots", "table_schema": "public"},
-      {"table_name": "migrations", "table_schema": "public"}
+      { "table_name": "organizations", "table_schema": "public" },
+      { "table_name": "users", "table_schema": "public" },
+      { "table_name": "robots", "table_schema": "public" },
+      { "table_name": "migrations", "table_schema": "public" }
     ],
     "count": 4
   }
@@ -214,6 +221,7 @@ CREATE TABLE IF NOT EXISTS migrations (
 ### Creating New Migrations
 
 1. **Generate migration files:**
+
    ```bash
    # Using the CLI (if create command exists)
    npx tsx src/migrations/cli.ts create "add-new-feature"
@@ -225,6 +233,7 @@ CREATE TABLE IF NOT EXISTS migrations (
    ```
 
 2. **Write migration SQL:**
+
    ```sql
    -- 20250930-120000-add-new-feature.up.sql
    BEGIN;
@@ -244,6 +253,7 @@ CREATE TABLE IF NOT EXISTS migrations (
    ```
 
 3. **Test locally:**
+
    ```bash
    npm run migrate:status  # Check pending
    npm run migrate         # Run migration
@@ -339,31 +349,37 @@ async resetMigrations(): Promise<void> {
 ### Common Issues
 
 #### Migration Files Not Found
+
 ```
 Error: Migration directory not found: /path/to/migrations
 ```
 
 **Solution:**
+
 1. Check migration path resolution logs
 2. Verify Docker build copies SQL files
 3. Use admin endpoint to check actual path: `/admin/migrations/status`
 
 #### Permission Denied
+
 ```
 Error: permission denied for relation migrations
 ```
 
 **Solution:**
+
 1. Check database user permissions
 2. Verify DATABASE_URL environment variable
 3. Test database connection: `/health`
 
 #### Table Already Exists
+
 ```
 Error: relation "table_name" already exists
 ```
 
 **Solution:**
+
 1. Use `CREATE TABLE IF NOT EXISTS` in migrations
 2. Check migration tracking table for duplicates
 3. Verify migration hasn't been partially applied
@@ -460,6 +476,7 @@ npx tsx src/migrations/cli.ts rollback
 For production emergencies:
 
 1. **Use admin API** (fastest):
+
    ```bash
    curl -X POST https://your-api.com/admin/migrations/rollback
    ```
@@ -496,4 +513,4 @@ For production emergencies:
 **✅ Enterprise Grade** - Transaction safety and comprehensive logging
 **✅ Developer Friendly** - Simple CLI and clear documentation
 
-*Last Updated: September 30, 2025*
+_Last Updated: September 30, 2025_

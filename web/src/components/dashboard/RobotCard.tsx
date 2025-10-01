@@ -55,7 +55,8 @@ export function RobotCard({ robot }: RobotCardProps) {
   }
 
   // Format vendor name nicely
-  const vendorName = robot.vendor?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) || 'Unknown'
+  const vendorName =
+    robot.vendor?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) || 'Unknown'
 
   return (
     <Link
@@ -82,7 +83,13 @@ export function RobotCard({ robot }: RobotCardProps) {
 
         {/* Status Badge - Centered */}
         <div className="flex items-center justify-center gap-1.5 mb-4">
-          <span className={cn('inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full', status.bg, status.color)}>
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full',
+              status.bg,
+              status.color
+            )}
+          >
             <StatusIcon className="h-3 w-3" />
             {status.label}
           </span>
@@ -95,7 +102,9 @@ export function RobotCard({ robot }: RobotCardProps) {
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Model</span>
-            <span className="font-medium text-foreground">{robot.model || (robot as any).type || 'N/A'}</span>
+            <span className="font-medium text-foreground">
+              {robot.model || (robot as any).type || 'N/A'}
+            </span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Vendor</span>

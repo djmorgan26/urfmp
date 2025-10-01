@@ -48,7 +48,8 @@ export function Robots() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Robot Fleet</h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-            {stats.total} robot{stats.total !== 1 ? 's' : ''} • {stats.online + stats.running} active
+            {stats.total} robot{stats.total !== 1 ? 's' : ''} • {stats.online + stats.running}{' '}
+            active
           </p>
         </div>
 
@@ -85,7 +86,9 @@ export function Robots() {
         >
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{stats.running}</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              {stats.running}
+            </div>
           </div>
           <div className="text-xs text-muted-foreground mt-1">Running</div>
         </button>
@@ -100,7 +103,9 @@ export function Robots() {
         >
           <div className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.online}</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+              {stats.online}
+            </div>
           </div>
           <div className="text-xs text-muted-foreground mt-1">Online</div>
         </button>

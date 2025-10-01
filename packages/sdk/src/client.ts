@@ -40,9 +40,10 @@ export class URFMP {
     // Determine authentication method
     // If apiKey looks like a JWT (contains dots), use Bearer auth
     const isJWT = config.apiKey && config.apiKey.split('.').length === 3
-    const authHeaders = isJWT || config.useJWT
-      ? { 'Authorization': `Bearer ${config.apiKey}` }
-      : { 'X-API-Key': config.apiKey }
+    const authHeaders =
+      isJWT || config.useJWT
+        ? { Authorization: `Bearer ${config.apiKey}` }
+        : { 'X-API-Key': config.apiKey }
 
     this.client = axios.create({
       baseURL: this.config.baseUrl,

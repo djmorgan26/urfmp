@@ -87,20 +87,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [])
 
   // Schedule automatic token refresh
-  const scheduleTokenRefresh = useCallback((accessToken: string) => {
-    if (refreshTimer) {
-      clearTimeout(refreshTimer)
-    }
+  const scheduleTokenRefresh = useCallback(
+    (accessToken: string) => {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer)
+      }
 
-    // Refresh token 5 minutes before expiry
-    const shouldRefresh = shouldRefreshToken(accessToken)
-    if (shouldRefresh) {
-      const timer = setTimeout(() => {
-        refreshTokens()
-      }, 2 * 60 * 1000) // Check every 2 minutes
-      setRefreshTimer(timer)
-    }
-  }, [refreshTimer])
+      // Refresh token 5 minutes before expiry
+      const shouldRefresh = shouldRefreshToken(accessToken)
+      if (shouldRefresh) {
+        const timer = setTimeout(
+          () => {
+            refreshTokens()
+          },
+          2 * 60 * 1000
+        ) // Check every 2 minutes
+        setRefreshTimer(timer)
+      }
+    },
+    [refreshTimer]
+  )
 
   // Login function
   const login = async (credentials: LoginRequest) => {

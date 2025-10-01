@@ -126,7 +126,9 @@ export function Login() {
                 autoFocus
                 disabled={isLoading}
               />
-              {errors.email && <p className="text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-sm text-red-600 dark:text-red-400">{errors.email}</p>
+              )}
             </div>
 
             {/* Password Field */}

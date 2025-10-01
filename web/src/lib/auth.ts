@@ -185,7 +185,9 @@ export function validatePassword(password: string): {
   const hasNumber = /\d/.test(password)
   const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
 
-  const criteriaCount = [hasUpperCase, hasLowerCase, hasNumber, hasSpecialChar].filter(Boolean).length
+  const criteriaCount = [hasUpperCase, hasLowerCase, hasNumber, hasSpecialChar].filter(
+    Boolean
+  ).length
 
   if (password.length >= 8 && criteriaCount >= 2) {
     strength = 'medium'

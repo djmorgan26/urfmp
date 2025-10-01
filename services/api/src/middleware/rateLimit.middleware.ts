@@ -165,8 +165,7 @@ export const apiRateLimiter = rateLimit({
 export const telemetryRateLimiter = rateLimit({
   windowMs: 1000, // 1 second
   max: parseInt(
-    process.env.RATE_LIMIT_BURST_REQUESTS ||
-      (process.env.NODE_ENV === 'development' ? '100' : '20')
+    process.env.RATE_LIMIT_BURST_REQUESTS || (process.env.NODE_ENV === 'development' ? '100' : '20')
   ), // Much higher in development
   standardHeaders: true,
   legacyHeaders: false,

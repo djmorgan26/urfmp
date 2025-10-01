@@ -13,12 +13,14 @@ This guide shows you how to set up automatic deployment to Railway using GitHub 
 ### Step 1: Get Railway Credentials
 
 #### A. Get Railway Token
+
 1. Go to [Railway Dashboard](https://railway.app/account/tokens)
 2. Click **"Create Token"**
 3. Name it: **"GitHub Actions Deploy"**
 4. **Copy the token** (starts with `railway_`)
 
 #### B. Get Railway Service ID
+
 1. Go to your Railway project
 2. Click on your **API service**
 3. Go to **"Settings"** tab
@@ -52,17 +54,20 @@ Secret Value: your-service-id-here
 I've created three workflow options for you:
 
 ### 1. **Simple Deployment** (`railway-simple.yml`)
+
 - ✅ **Minimal setup** - Just deploys on push to main
 - ✅ **Fast execution** - ~2-3 minutes
 - ✅ **Reliable** - Uses official Railway action
 
 ### 2. **Full CI/CD Pipeline** (`ci-cd-railway.yml`) ⭐ **Recommended**
+
 - ✅ **Quality checks** - Tests, linting, TypeScript
 - ✅ **Safe deployment** - Only deploys if tests pass
 - ✅ **Detailed reporting** - Status notifications
 - ✅ **Graceful failures** - Continues even with warnings
 
 ### 3. **Advanced Pipeline** (`railway-deploy.yml`)
+
 - ✅ **Comprehensive testing** - All packages
 - ✅ **Build validation** - Ensures everything compiles
 - ✅ **Custom deployment logic** - Manual Railway CLI
@@ -70,6 +75,7 @@ I've created three workflow options for you:
 ## 🎯 Recommended Workflow
 
 **Use `ci-cd-railway.yml`** - It provides the best balance of:
+
 - Quality assurance
 - Fast deployment
 - Reliable execution
@@ -78,6 +84,7 @@ I've created three workflow options for you:
 ## 🚀 How It Works
 
 ### On Every Push to Main:
+
 1. **Quality Checks Run**:
    - Install dependencies
    - Build packages (types, SDK)
@@ -96,17 +103,18 @@ I've created three workflow options for you:
    - Railway shows the live URL
 
 ### On Pull Requests:
+
 - **Only quality checks run** (no deployment)
 - **Ensures code quality** before merging
 - **Fast feedback** for contributors
 
 ## 📊 Expected Timeline
 
-| Step | Duration | Status |
-|------|----------|--------|
-| Quality Checks | ~3-5 minutes | Running tests, linting |
-| Railway Deployment | ~5-8 minutes | Building Docker container |
-| **Total** | **~8-13 minutes** | **Complete deployment** |
+| Step               | Duration          | Status                    |
+| ------------------ | ----------------- | ------------------------- |
+| Quality Checks     | ~3-5 minutes      | Running tests, linting    |
+| Railway Deployment | ~5-8 minutes      | Building Docker container |
+| **Total**          | **~8-13 minutes** | **Complete deployment**   |
 
 ## ✅ Verification
 
@@ -128,19 +136,23 @@ After setup, test the deployment:
 ### Common Issues:
 
 #### ❌ "railway_token is invalid"
+
 - **Solution**: Regenerate token in Railway dashboard
 - **Update**: GitHub secret with new token
 
 #### ❌ "Service not found"
+
 - **Solution**: Double-check Railway Service ID
 - **Verify**: Service ID in Railway project settings
 
 #### ❌ "Quality checks failing"
+
 - **Check**: GitHub Actions logs for specific errors
 - **Fix**: Address any linting or test failures
 - **Note**: Warnings are allowed, only errors block deployment
 
 #### ❌ "Docker build failing"
+
 - **Check**: Railway deployment logs
 - **Verify**: All environment variables are set
 - **Ensure**: Dockerfile syntax is correct
@@ -148,6 +160,7 @@ After setup, test the deployment:
 ## 🎉 Benefits
 
 ### Compared to Manual Deployment:
+
 - ✅ **Automatic** - No manual steps
 - ✅ **Consistent** - Same process every time
 - ✅ **Quality gates** - Tests prevent bad deployments
@@ -155,6 +168,7 @@ After setup, test the deployment:
 - ✅ **Team friendly** - Anyone can deploy by pushing
 
 ### Compared to Railway Auto-Deploy:
+
 - ✅ **More reliable** - GitHub Actions is very stable
 - ✅ **Better testing** - Quality checks before deployment
 - ✅ **More control** - Custom logic and notifications
@@ -170,12 +184,14 @@ After setup, test the deployment:
 ## 📈 Monitoring
 
 ### GitHub Actions:
+
 - **"Actions" tab** - See all workflow runs
 - **Green checkmarks** - Successful deployments
 - **Red X marks** - Failed deployments
 - **Detailed logs** - Click any run for specifics
 
 ### Railway:
+
 - **"Deployments" tab** - See Railway build status
 - **"Logs" tab** - Application runtime logs
 - **"Metrics" tab** - Performance monitoring

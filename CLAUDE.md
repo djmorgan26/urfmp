@@ -34,8 +34,24 @@ This file contains all essential information for Claude to efficiently work on t
 
 ### Local Testing & Validation
 
+**🚨 CRITICAL: Pre-Deployment Check (Run Before Every Commit)**
+
+```bash
+npm run pre-deploy
+```
+
+This comprehensive script validates all CI/CD checks locally:
+- ✅ Prettier formatting (auto-fixes if needed)
+- ✅ ESLint code quality
+- ✅ TypeScript compilation
+- ✅ Package builds in correct order
+- ✅ All test suites
+
 **Primary Development Workflow (Fast & Efficient):**
 
+- `npm run pre-deploy` - **ALWAYS run before committing** (matches CI/CD exactly)
+- `npm run format` - Auto-fix Prettier formatting issues
+- `npm run format:check` - Check Prettier formatting without fixing
 - `npm run build` - Build all packages locally to catch TypeScript errors
 - `npm run typecheck` - Validate TypeScript without building
 - `npm run lint` - Check code style and catch common issues
