@@ -21,7 +21,7 @@ async function main() {
         logger.info('✅ Migrations completed successfully')
         break
 
-      case 'status':
+      case 'status': {
         logger.info('Checking migration status...')
         const pending = await migrationService.getPendingMigrations()
         const executed = await migrationService.getExecutedMigrations()
@@ -32,17 +32,18 @@ async function main() {
 
         if (pending.length > 0) {
           console.log(`\n⏳ Pending migrations:`)
-          pending.forEach(m => console.log(`   - ${m.id}: ${m.name}`))
+          pending.forEach((m) => console.log(`   - ${m.id}: ${m.name}`))
         }
 
         if (executed.length > 0) {
           console.log(`\n✅ Executed migrations:`)
-          executed.slice(-5).forEach(m => console.log(`   - ${m.id}: ${m.name}`))
+          executed.slice(-5).forEach((migrationId) => console.log(`   - ${migrationId}`))
           if (executed.length > 5) {
             console.log(`   ... and ${executed.length - 5} more`)
           }
         }
         break
+      }
 
       case 'rollback':
       case 'down':

@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs'
+import { promises as fs, existsSync } from 'fs'
 import path from 'path'
 import { query } from '../config/database'
 import { logger } from '../config/logger'
@@ -35,7 +35,7 @@ export class MigrationService {
 
     for (const migrationPath of possiblePaths) {
       try {
-        if (require('fs').existsSync(migrationPath)) {
+        if (existsSync(migrationPath)) {
           logger.info('Found migrations directory', { path: migrationPath })
           return migrationPath
         }
@@ -73,7 +73,7 @@ export class MigrationService {
       logger.info('Reading migration files', { path: this.migrationsPath })
 
       // Check if directory exists
-      if (!require('fs').existsSync(this.migrationsPath)) {
+      if (!existsSync(this.migrationsPath)) {
         logger.error('Migration directory does not exist', { path: this.migrationsPath })
         throw new Error(`Migration directory not found: ${this.migrationsPath}`)
       }
@@ -289,9 +289,7 @@ COMMIT;
     const allMigrations = await this.getMigrationFiles()
     const executedMigrations = await this.getExecutedMigrations()
 
-    return allMigrations.filter(
-      (migration) => !executedMigrations.includes(migration.id)
-    )
+    return allMigrations.filter((migration) => !executedMigrations.includes(migration.id))
   }
 
   /**
@@ -325,7 +323,7 @@ COMMIT;
         'robots',
         'users',
         'organizations',
-        'migrations'
+        'migrations',
       ]
 
       for (const table of dropTables) {
