@@ -96,7 +96,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
       // Fetch power consumption data
       const powerData = await fetchAggregatedMetric('power.total', 'sum', '1d', fromDate)
-      const totalPowerConsumption = powerData.reduce((sum, d) => sum + d.value, 0)
+      const totalPowerConsumption = Array.isArray(powerData)
+        ? powerData.reduce((sum, d) => sum + d.value, 0)
+        : 0
 
       // Fetch utilization data
       const _utilizationData = await fetchAggregatedMetric('utilization', 'avg', '1d', fromDate)
@@ -126,7 +128,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
 
             // Get real power consumption data
             const powerData = await fetchAggregatedMetric('power.total', 'avg', '1h', fromDate)
-            const robotPowerData = powerData.find((d) => d.robotId === robot.id)
+            const robotPowerData = Array.isArray(powerData)
+              ? powerData.find((d) => d.robotId === robot.id)
+              : undefined
             const powerConsumption = robotPowerData
               ? robotPowerData.value
               : Math.floor(Math.random() * 200) + 50
@@ -138,7 +142,9 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
               '1h',
               fromDate
             )
-            const robotTempData = tempData.find((d) => d.robotId === robot.id)
+            const robotTempData = Array.isArray(tempData)
+              ? tempData.find((d) => d.robotId === robot.id)
+              : undefined
 
             // Calculate efficiency based on real data or use mock
             let efficiency = Math.floor(Math.random() * 20) + 80 // Default mock
@@ -261,7 +267,14 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
           from,
         })
 
-        return result || []
+        // Ensure we always return an array
+        if (!result) return []
+        if (!Array.isArray(result)) {
+          console.warn(`fetchAggregatedMetric received non-array result for ${metric}:`, result)
+          return []
+        }
+
+        return result
       } catch (err) {
         console.warn(`Failed to fetch aggregated metric ${metric}:`, err)
         return []

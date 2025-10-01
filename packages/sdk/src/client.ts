@@ -204,10 +204,11 @@ export class URFMP {
     if (options.from) params.append('from', options.from.toISOString())
     if (options.to) params.append('to', options.to.toISOString())
 
-    const response = await this.client.get<ApiResponse<any[]>>(
+    const response = await this.client.get<ApiResponse<{ metrics: any[] }>>(
       `/api/v1/telemetry/aggregated?${params.toString()}`
     )
-    return response.data.data!
+    // Extract metrics array from the response data object
+    return response.data.data?.metrics || []
   }
 
   async sendCommand(robotId: string, command: Partial<RobotCommand>): Promise<CommandResult> {

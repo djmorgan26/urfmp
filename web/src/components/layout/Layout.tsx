@@ -439,7 +439,7 @@ export function Layout({ children }: LayoutProps) {
                     </Link>
 
                     <a
-                      href="https://docs.urfmp.com"
+                      href="https://github.com/djmorgan26/urfmp"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center space-x-3 px-4 py-2.5 hover:bg-muted transition-colors text-sm"

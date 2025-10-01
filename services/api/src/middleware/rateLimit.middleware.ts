@@ -88,8 +88,8 @@ export const rateLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute
   max: parseInt(
     process.env.RATE_LIMIT_MAX_REQUESTS ||
-      (process.env.NODE_ENV === 'development' ? '1000' : '100')
-  ), // Higher limit in development
+      (process.env.NODE_ENV === 'development' ? '10000' : '100')
+  ), // Much higher limit in development to prevent false positives
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore() as any,
@@ -109,8 +109,8 @@ export const rateLimiter = rateLimit({
     throw error
   },
   skip: (req: Request) => {
-    // Skip rate limiting for health checks
-    return req.path === '/health'
+    // Skip rate limiting for health checks and in development mode
+    return req.path === '/health' || process.env.NODE_ENV === 'development'
   },
 })
 

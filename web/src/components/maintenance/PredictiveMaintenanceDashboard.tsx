@@ -201,36 +201,51 @@ export function PredictiveMaintenanceDashboard() {
         {/* Alert Distribution */}
         <div className="bg-card rounded-lg border border-border p-6">
           <h3 className="text-lg font-semibold mb-4">Alert Distribution</h3>
-          <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={200}>
-              <RechartsPieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </RechartsPieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {pieData.map((item) => (
-              <div key={item.name} className="flex items-center space-x-2 text-sm">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="capitalize">
-                  {item.name}: {item.value}
-                </span>
+          {pieData.length > 0 ? (
+            <>
+              <div className="flex items-center justify-center">
+                <ResponsiveContainer width="100%" height={200}>
+                  <RechartsPieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {pieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                </ResponsiveContainer>
               </div>
-            ))}
-          </div>
+              <div className="grid grid-cols-2 gap-2 mt-4">
+                {pieData.map((item) => (
+                  <div key={item.name} className="flex items-center space-x-2 text-sm">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="capitalize">
+                      {item.name}: {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400 mb-4 opacity-80" />
+              <h4 className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">
+                All Clear!
+              </h4>
+              <p className="text-sm text-muted-foreground max-w-xs">
+                No maintenance alerts detected. Your fleet is operating optimally with no predicted
+                issues.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Component Health */}
