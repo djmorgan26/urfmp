@@ -54,89 +54,118 @@ export function RobotCard({ robot }: RobotCardProps) {
     }
   }
 
-  return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start space-x-3 flex-1 min-w-0 pr-2">
-          <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
-            <Bot className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-          </div>
+  // Format vendor name nicely
+  const vendorName = robot.vendor?.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) || 'Unknown'
 
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <Link
-              to={`/robots/${robot.id}`}
-              className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate block"
-            >
-              {robot.name}
-            </Link>
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {robot.model || (robot as any).type} • {robot.vendor?.replace('_', ' ') || 'Unknown'}
+  return (
+    <Link
+      to={`/robots/${robot.id}`}
+      className="block bg-card rounded-lg border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-200 overflow-hidden group"
+    >
+      {/* Status Banner */}
+      <div className={cn('h-1.5', status.bg)} />
+
+      <div className="p-5">
+        {/* Header with Icon */}
+        <div className="flex items-center justify-center mb-4">
+          <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center', status.bg)}>
+            <Bot className={cn('h-7 w-7', status.color)} />
+          </div>
+        </div>
+
+        {/* Robot Name - Full Width, No Truncation */}
+        <div className="mb-3">
+          <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors text-center break-words leading-snug min-h-[2.5rem]">
+            {robot.name}
+          </h3>
+        </div>
+
+        {/* Status Badge - Centered */}
+        <div className="flex items-center justify-center gap-1.5 mb-4">
+          <span className={cn('inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full', status.bg, status.color)}>
+            <StatusIcon className="h-3 w-3" />
+            {status.label}
+          </span>
+          {robot.status === 'running' && (
+            <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+          )}
+        </div>
+
+        {/* Robot Info */}
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Model</span>
+            <span className="font-medium text-foreground">{robot.model || (robot as any).type || 'N/A'}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">Vendor</span>
+            <span className="font-medium text-foreground">{vendorName}</span>
+          </div>
+          {robot.serialNumber && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Serial</span>
+              <span className="font-mono text-xs text-foreground">{robot.serialNumber}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Last Seen */}
+        {robot.lastSeen && (
+          <div className="pt-3 border-t border-border">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <Clock className="h-3 w-3" />
+              Last seen{' '}
+              {formatDistanceToNow(
+                typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
+                { addSuffix: true }
+              )}
             </p>
           </div>
-        </div>
-
-        <button
-          onClick={() => {
-            // TODO: Implement robot menu - e.g., edit, delete, clone, etc.
-            console.log(`Robot menu clicked for ${robot.name}`)
-          }}
-          className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex-shrink-0"
-        >
-          <MoreVertical className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-        </button>
-      </div>
-
-      {/* Status */}
-      <div className="flex items-center space-x-2 mb-4">
-        <div className={cn('h-6 w-6 rounded-full flex items-center justify-center', status.bg)}>
-          <StatusIcon className={cn('h-3 w-3', status.color)} />
-        </div>
-        <span className={cn('text-sm font-medium', status.color)}>{status.label}</span>
-        {robot.status === 'running' && (
-          <div className="h-2 w-2 rounded-full bg-green-500 pulse-dot" />
         )}
-      </div>
 
-      {/* Last Seen */}
-      {robot.lastSeen && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-          Last seen{' '}
-          {formatDistanceToNow(
-            typeof robot.lastSeen === 'string' ? parseISO(robot.lastSeen) : robot.lastSeen,
-            { addSuffix: true }
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
+          {robot.status === 'idle' || robot.status === 'stopped' ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                handleCommand('START')
+              }}
+              disabled={isLoading}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+            >
+              <Play className="h-3.5 w-3.5" />
+              <span>Start</span>
+            </button>
+          ) : robot.status === 'running' ? (
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                handleCommand('STOP')
+              }}
+              disabled={isLoading}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+            >
+              <Square className="h-3.5 w-3.5" />
+              <span>Stop</span>
+            </button>
+          ) : (
+            <div className="flex-1 px-3 py-2 bg-muted text-muted-foreground text-sm text-center rounded-md">
+              {status.label}
+            </div>
           )}
-        </p>
-      )}
 
-      {/* Quick Actions */}
-      <div className="flex items-center space-x-2">
-        {robot.status === 'idle' || robot.status === 'stopped' ? (
           <button
-            onClick={() => handleCommand('START')}
-            disabled={isLoading}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 disabled:opacity-50"
+            onClick={(e) => {
+              e.preventDefault()
+              // TODO: Implement robot menu
+            }}
+            className="p-2 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Play className="h-3 w-3" />
-            <span>Start</span>
+            <MoreVertical className="h-4 w-4" />
           </button>
-        ) : robot.status === 'running' ? (
-          <button
-            onClick={() => handleCommand('STOP')}
-            disabled={isLoading}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 disabled:opacity-50"
-          >
-            <Square className="h-3 w-3" />
-            <span>Stop</span>
-          </button>
-        ) : null}
-
-        <Link
-          to={`/robots/${robot.id}`}
-          className="px-3 py-1.5 border border-gray-200 dark:border-gray-700 text-xs text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-        >
-          View Details
-        </Link>
+        </div>
       </div>
-    </div>
+    </Link>
   )
 }

@@ -18,6 +18,7 @@ export interface URFMPConfig {
   websocketUrl?: string
   timeout?: number
   retries?: number
+  useJWT?: boolean // Flag to indicate if apiKey is a JWT token
 }
 
 export class URFMP {
@@ -32,14 +33,22 @@ export class URFMP {
       websocketUrl: 'wss://api.urfmp.com',
       timeout: 10000,
       retries: 3,
+      useJWT: false,
       ...config,
     }
+
+    // Determine authentication method
+    // If apiKey looks like a JWT (contains dots), use Bearer auth
+    const isJWT = config.apiKey && config.apiKey.split('.').length === 3
+    const authHeaders = isJWT || config.useJWT
+      ? { 'Authorization': `Bearer ${config.apiKey}` }
+      : { 'X-API-Key': config.apiKey }
 
     this.client = axios.create({
       baseURL: this.config.baseUrl,
       timeout: this.config.timeout,
       headers: {
-        'X-API-Key': this.config.apiKey,
+        ...authHeaders,
         'Content-Type': 'application/json',
         ...(typeof window === 'undefined' && { 'User-Agent': `@urfmp/sdk/1.0.0` }),
       },
@@ -412,6 +421,21 @@ export class URFMP {
       error.code === 'ETIMEDOUT' ||
       (error.response && [408, 429, 500, 502, 503, 504].includes(error.response.status))
     )
+  }
+
+  /**
+   * Update authentication token (useful for JWT token refresh)
+   */
+  updateToken(newToken: string): void {
+    const isJWT = newToken && newToken.split('.').length === 3
+    if (isJWT || this.config.useJWT) {
+      this.client.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
+      delete this.client.defaults.headers.common['X-API-Key']
+    } else {
+      this.client.defaults.headers.common['X-API-Key'] = newToken
+      delete this.client.defaults.headers.common['Authorization']
+    }
+    this.config.apiKey = newToken
   }
 }
 

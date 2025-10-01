@@ -23,6 +23,7 @@ import {
 import { useURFMP } from '../../hooks/useURFMP'
 import { useRealTimeAlerts } from '../../hooks/useRealTimeAlerts'
 import { useTheme } from '../../contexts/ThemeContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { cn } from '../../lib/utils'
 import { AlertNotifications } from '../alerts/AlertNotifications'
 import { RealTimeAlertPanel } from '../alerts/RealTimeAlertPanel'
@@ -45,6 +46,7 @@ export function Layout({ children }: LayoutProps) {
   const { isConnected, robots, error } = useURFMP()
   const { alertStats } = useRealTimeAlerts()
   const { setTheme, isDark } = useTheme()
+  const { user, organization, logout } = useAuth()
   const location = useLocation()
   const [showAlertPanel, setShowAlertPanel] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -170,24 +172,25 @@ export function Layout({ children }: LayoutProps) {
     }
   }
 
-  const handleLogout = () => {
-    // Clear any stored tokens
-    localStorage.removeItem('urfmp_access_token')
-    localStorage.removeItem('urfmp_refresh_token')
-    sessionStorage.clear()
-
-    // Redirect to login page or refresh
-    window.location.href = '/'
+  const handleLogout = async () => {
+    try {
+      await logout()
+      // Logout will handle redirecting to login page
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
-  // Mock user data - replace with actual auth context when available
-  const currentUser = {
-    name: 'David Morgan',
-    email: 'admin@urfmp.com',
-    role: 'Administrator',
-    initials: 'DM',
-    organizationId: 'd8077863-d602-45fd-a253-78ee0d3d49a8',
-  }
+  // Get user data from auth context
+  const currentUser = user
+    ? {
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        role: user.role.charAt(0).toUpperCase() + user.role.slice(1),
+        initials: `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase(),
+        organizationId: organization?.id || '',
+      }
+    : null
 
   return (
     <div className="min-h-screen bg-background">
@@ -367,9 +370,13 @@ export function Layout({ children }: LayoutProps) {
                     alt="User avatar"
                     className="h-8 w-8 rounded-full object-cover border border-border"
                   />
-                ) : (
+                ) : currentUser ? (
                   <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                     {currentUser.initials}
+                  </div>
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+                    <User className="h-4 w-4" />
                   </div>
                 )}
                 <ChevronDown
@@ -384,28 +391,32 @@ export function Layout({ children }: LayoutProps) {
               {showUserMenu && (
                 <div className="absolute right-0 top-full mt-2 w-72 bg-card rounded-lg border border-border shadow-lg">
                   {/* User Info Section */}
-                  <div className="p-4 border-b border-border">
-                    <div className="flex items-center space-x-3">
-                      {userAvatar ? (
-                        <img
-                          src={userAvatar}
-                          alt="User avatar"
-                          className="h-12 w-12 rounded-full object-cover border-2 border-border"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-medium">
-                          {currentUser.initials}
+                  {currentUser && (
+                    <div className="p-4 border-b border-border">
+                      <div className="flex items-center space-x-3">
+                        {userAvatar ? (
+                          <img
+                            src={userAvatar}
+                            alt="User avatar"
+                            className="h-12 w-12 rounded-full object-cover border-2 border-border"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-medium">
+                            {currentUser.initials}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            {currentUser.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {currentUser.email}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{currentUser.role}</p>
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {currentUser.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{currentUser.role}</p>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Menu Items */}
                   <div className="py-2">

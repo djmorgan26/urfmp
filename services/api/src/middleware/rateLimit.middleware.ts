@@ -86,7 +86,10 @@ const createKeyGenerator = (prefix: string = 'global') => {
 // Main rate limiter
 export const rateLimiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // 100 requests per window
+  max: parseInt(
+    process.env.RATE_LIMIT_MAX_REQUESTS ||
+      (process.env.NODE_ENV === 'development' ? '1000' : '100')
+  ), // Higher limit in development
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore() as any,
@@ -161,7 +164,10 @@ export const apiRateLimiter = rateLimit({
 // Burst rate limiter for telemetry endpoints
 export const telemetryRateLimiter = rateLimit({
   windowMs: 1000, // 1 second
-  max: parseInt(process.env.RATE_LIMIT_BURST_REQUESTS || '20'), // 20 requests per second
+  max: parseInt(
+    process.env.RATE_LIMIT_BURST_REQUESTS ||
+      (process.env.NODE_ENV === 'development' ? '100' : '20')
+  ), // Much higher in development
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore() as any,

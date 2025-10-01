@@ -3,6 +3,8 @@ import { URFMP } from '@urfmp/sdk'
 import { Robot, RobotTelemetry } from '@urfmp/types'
 import type { RobotVendor } from '@urfmp/types'
 import { toast } from 'sonner'
+import { useAuth } from '../contexts/AuthContext'
+import { getAccessToken } from '../lib/auth'
 
 // Mock data for demo mode
 const generateMockRobots = (): Robot[] => [
@@ -110,20 +112,44 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
   const [error, setError] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState<number>(0)
   const [backoffDelay, setBackoffDelay] = useState<number>(5000)
+  const { isAuthenticated, tokens } = useAuth()
 
   useEffect(() => {
-    initializeURFMP()
-  }, [])
+    // Only initialize URFMP if user is authenticated
+    if (isAuthenticated && tokens) {
+      initializeURFMP()
+    } else {
+      // Clear state if not authenticated
+      setUrfmp(null)
+      setRobots([])
+      setIsConnected(false)
+      setIsLoading(false)
+      setError(null)
+    }
+  }, [isAuthenticated])
+
+  // Update URFMP client token when it changes (e.g., after refresh)
+  useEffect(() => {
+    if (urfmp && tokens?.accessToken) {
+      urfmp.updateToken(tokens.accessToken)
+    }
+  }, [tokens?.accessToken, urfmp])
 
   const initializeURFMP = async () => {
     try {
       setIsLoading(true)
       setError(null)
 
+      // Get access token from auth
+      const accessToken = getAccessToken()
+      if (!accessToken) {
+        console.warn('No access token available')
+        setIsLoading(false)
+        return
+      }
+
       // Check if we're in demo mode
-      const isDemo =
-        import.meta.env.VITE_DEMO_MODE === 'true' ||
-        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
 
       if (isDemo) {
         console.log('🎭 Running in demo mode - using mock data')
@@ -133,11 +159,12 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         return
       }
 
-      // Initialize URFMP client
+      // Initialize URFMP client with JWT token instead of API key
       const client = new URFMP({
-        apiKey: import.meta.env.VITE_URFMP_API_KEY || 'demo-api-key',
+        apiKey: accessToken, // Use JWT token as API key
         baseUrl: import.meta.env.VITE_URFMP_API_URL || 'http://localhost:3000',
         websocketUrl: import.meta.env.VITE_URFMP_WS_URL || 'ws://localhost:3000',
+        useJWT: true, // Explicitly set JWT mode
       })
 
       setUrfmp(client)

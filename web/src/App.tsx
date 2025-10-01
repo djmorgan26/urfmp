@@ -2,8 +2,13 @@ import { Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import { Layout } from './components/layout/Layout'
 import { Dashboard } from './pages/Dashboard'
+import { Login } from './pages/Login'
+import { Signup } from './pages/Signup'
 import { URFMPProvider } from './hooks/useURFMP'
 import { ThemeProvider } from './contexts/ThemeContext'
+import { AuthProvider } from './contexts/AuthContext'
+import { ProtectedRoute } from './components/auth/ProtectedRoute'
+import { Loader2 } from 'lucide-react'
 
 // Lazy load heavy pages to reduce initial bundle size
 const Robots = lazy(() => import('./pages/Robots').then((m) => ({ default: m.Robots })))
@@ -24,29 +29,48 @@ const Profile = lazy(() => import('./pages/Profile').then((m) => ({ default: m.P
 function App() {
   return (
     <ThemeProvider>
-      <URFMPProvider>
-        <Layout>
+      <AuthProvider>
+        <URFMPProvider>
           <Suspense
             fallback={
-              <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="flex items-center justify-center h-screen">
+                <div className="flex flex-col items-center gap-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                </div>
               </div>
             }
           >
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/robots" element={<Robots />} />
-              <Route path="/robots/:id" element={<RobotDetail />} />
-              <Route path="/map" element={<RobotMapPage />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/maintenance" element={<Maintenance />} />
-              <Route path="/geofencing" element={<Geofencing />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/profile" element={<Profile />} />
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+
+              {/* Protected routes */}
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/robots" element={<Robots />} />
+                        <Route path="/robots/:id" element={<RobotDetail />} />
+                        <Route path="/map" element={<RobotMapPage />} />
+                        <Route path="/analytics" element={<Analytics />} />
+                        <Route path="/maintenance" element={<Maintenance />} />
+                        <Route path="/geofencing" element={<Geofencing />} />
+                        <Route path="/settings" element={<Settings />} />
+                        <Route path="/profile" element={<Profile />} />
+                      </Routes>
+                    </Layout>
+                  </ProtectedRoute>
+                }
+              />
             </Routes>
           </Suspense>
-        </Layout>
-      </URFMPProvider>
+        </URFMPProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }
