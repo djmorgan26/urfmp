@@ -130,7 +130,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
   // Update URFMP client token when it changes (e.g., after refresh)
   useEffect(() => {
-    if (urfmp && tokens?.accessToken) {
+    if (urfmp && tokens?.accessToken && typeof urfmp.updateToken === 'function') {
       urfmp.updateToken(tokens.accessToken)
     }
   }, [tokens?.accessToken, urfmp])
@@ -153,6 +153,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
       if (isDemo) {
         console.log('🎭 Running in demo mode - using mock data')
+        setUrfmp(null) // No real client in demo mode
         setIsConnected(true)
         setIsLoading(false)
         setRobots(generateMockRobots())
