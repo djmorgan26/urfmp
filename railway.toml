@@ -2,6 +2,7 @@
 [build]
 builder = "dockerfile"
 dockerfilePath = "services/api/Dockerfile.prod"
+watchPaths = ["services/api/**", "packages/**", "railway.toml"]
 
 [deploy]
 healthcheckPath = "/health"
