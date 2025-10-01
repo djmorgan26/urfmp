@@ -23,6 +23,7 @@ out/
 .env.production.local
 .env.*
 !.env.example
+!.env.production
 
 # Security & Secrets
 *.pem
