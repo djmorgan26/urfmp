@@ -148,8 +148,14 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         return
       }
 
-      // Check if we're in demo mode
+      // Check if we're in demo mode - MUST be explicitly set to "true"
       const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+      console.log('🔍 Environment check:', {
+        VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
+        VITE_URFMP_API_URL: import.meta.env.VITE_URFMP_API_URL,
+        VITE_URFMP_WS_URL: import.meta.env.VITE_URFMP_WS_URL,
+        isDemo,
+      })
 
       if (isDemo) {
         console.log('🎭 Running in demo mode - using mock data')
@@ -218,42 +224,60 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
   const refreshRobots = async (client?: URFMP) => {
     try {
-      // Handle demo mode
-      const isDemo =
-        import.meta.env.VITE_DEMO_MODE === 'true' ||
-        (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+      // Handle demo mode - MUST be explicitly set to "true"
+      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+      console.log('🔍 refreshRobots - Demo mode check:', {
+        VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
+        isDemo,
+      })
 
       if (isDemo) {
+        console.log('🎭 Demo mode: using mock robots')
         setRobots(generateMockRobots())
         return
       }
 
       const urfmpClient = client || urfmp
-      if (!urfmpClient) return
+      if (!urfmpClient) {
+        console.warn('⚠️ No URFMP client available')
+        return
+      }
 
       // Rate limiting with exponential backoff
       const now = Date.now()
       if (now - lastRefresh < backoffDelay) {
-        console.log(`Rate limiting: skipping robots refresh (backoff: ${backoffDelay}ms)`)
+        console.log(`⏸️ Rate limiting: skipping robots refresh (backoff: ${backoffDelay}ms)`)
         return
       }
 
+      console.log('🚀 Fetching robots from API...')
       setLastRefresh(now)
       const robotList = await urfmpClient.getRobots()
+      console.log('✅ Robots fetched successfully:', robotList.length, 'robots')
       setRobots(robotList)
       setError(null) // Clear any previous errors on success
 
       // Reset backoff delay on success
       setBackoffDelay(5000)
-    } catch (err) {
-      console.error('Failed to refresh robots:', err)
+    } catch (err: any) {
+      console.error('❌ Failed to refresh robots:', err)
+      console.error('Error details:', {
+        message: err?.message,
+        response: err?.response?.data,
+        status: err?.response?.status,
+        config: {
+          url: err?.config?.url,
+          baseURL: err?.config?.baseURL,
+          headers: err?.config?.headers,
+        },
+      })
 
       // Handle 429 errors with exponential backoff
       if (
         err instanceof Error &&
         (err.message.includes('429') || err.message.includes('Too Many Requests'))
       ) {
-        console.log('429 detected, increasing backoff delay')
+        console.log('⚠️ 429 detected, increasing backoff delay')
         setBackoffDelay((prev) => Math.min(prev * 2, 60000)) // Max 1 minute backoff
       } else {
         setError(err instanceof Error ? err.message : 'Failed to refresh robots')
