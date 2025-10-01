@@ -75,7 +75,7 @@ SELECT
     true
 WHERE NOT EXISTS (SELECT 1 FROM api_keys WHERE key_hash = 'urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678');
 
--- Insert demo robot if it doesn't exist
+-- Insert demo robot if it doesn't exist AND organization exists
 INSERT INTO robots (
     id,
     organization_id,
@@ -103,6 +103,7 @@ SELECT
     '{"axes": 6, "payload": 5.0, "reach": 850, "capabilities": ["welding", "assembly"]}',
     '{"host": "192.168.1.100", "port": 30001, "timeout": 5000}',
     true
-WHERE NOT EXISTS (SELECT 1 FROM robots WHERE serial_number = 'UR5e-DEMO-001');
+WHERE NOT EXISTS (SELECT 1 FROM robots WHERE serial_number = 'UR5e-DEMO-001')
+  AND EXISTS (SELECT 1 FROM organizations WHERE id = 'd8077863-d602-45fd-a253-78ee0d3d49a8');
 
 COMMIT;
