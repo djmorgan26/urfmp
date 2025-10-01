@@ -28,7 +28,16 @@ export function Robots() {
       robot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       robot.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
       robot.vendor.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || robot.status === statusFilter
+
+    // Handle "Issues" filter - includes both error and maintenance statuses
+    const matchesStatus =
+      statusFilter === 'all' ||
+      robot.status === statusFilter ||
+      (statusFilter === 'error' &&
+        (robot.status === 'error' ||
+          robot.status === 'emergency_stop' ||
+          robot.status === 'maintenance'))
+
     return matchesSearch && matchesStatus
   })
 
