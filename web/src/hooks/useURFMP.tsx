@@ -150,11 +150,29 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
       // Check if we're in demo mode - MUST be explicitly set to "true"
       const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+
+      // Decode JWT to show user/org info
+      const tokenParts = accessToken.split('.')
+      let decodedToken = null
+      if (tokenParts.length === 3) {
+        try {
+          decodedToken = JSON.parse(atob(tokenParts[1]))
+        } catch (e) {
+          console.error('Failed to decode JWT:', e)
+        }
+      }
+
       console.log('🔍 Environment check:', {
         VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
         VITE_URFMP_API_URL: import.meta.env.VITE_URFMP_API_URL,
         VITE_URFMP_WS_URL: import.meta.env.VITE_URFMP_WS_URL,
         isDemo,
+        userInfo: decodedToken ? {
+          userId: decodedToken.sub,
+          orgId: decodedToken.org,
+          email: decodedToken.email,
+          role: decodedToken.role,
+        } : 'Failed to decode',
       })
 
       if (isDemo) {
