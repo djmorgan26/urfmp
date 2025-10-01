@@ -349,9 +349,37 @@ async function testWebSocketConnection() {
   log('\n🔌 Testing WebSocket Connection', 'bold');
   log('=' .repeat(50), 'blue');
 
-  // Note: This is a basic WebSocket test
-  // In a real integration test, you'd use a WebSocket client library
-  logTest('WebSocket Connection', 'SKIP', 'WebSocket testing requires ws library (skipped in basic test)');
+  try {
+    const WebSocket = require('ws');
+
+    // Test WebSocket connection to local API
+    const wsUrl = 'ws://localhost:3000';
+    const ws = new WebSocket(wsUrl);
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        ws.close();
+        logTest('WebSocket Connection', 'FAIL', 'Connection timeout (5s)');
+        resolve();
+      }, 5000);
+
+      ws.on('open', () => {
+        clearTimeout(timeout);
+        logTest('WebSocket Connection', 'PASS', 'Connected successfully to local WebSocket server');
+        ws.close();
+        resolve();
+      });
+
+      ws.on('error', (error) => {
+        clearTimeout(timeout);
+        logTest('WebSocket Connection', 'FAIL', `WebSocket error: ${error.message}`);
+        resolve();
+      });
+    });
+
+  } catch (error) {
+    logTest('WebSocket Connection', 'FAIL', `Error: ${error.message}`);
+  }
 }
 
 async function testPerformanceBasics() {
