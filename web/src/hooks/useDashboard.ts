@@ -58,7 +58,10 @@ export function useDashboard(): DashboardData {
 
   const fetchDashboardData = useCallback(async () => {
     // Check if we have robots data (either from API or demo mode)
-    if (robots.length === 0) return
+    if (robots.length === 0) {
+      setIsLoading(false)
+      return
+    }
 
     // Check if we're in demo mode
     const isDemo =
@@ -66,7 +69,10 @@ export function useDashboard(): DashboardData {
       (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
 
     // In demo mode, we don't need urfmp instance, just use mock data
-    if (!isDemo && !urfmp) return
+    if (!isDemo && !urfmp) {
+      setIsLoading(false)
+      return
+    }
 
     // Rate limiting: prevent fetches within 2 minutes
     const now = Date.now()
