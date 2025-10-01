@@ -170,11 +170,10 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
       setUrfmp(client)
 
-      // Connect to WebSocket for real-time updates
-      await client.connectWebSocket()
-      setIsConnected(true)
+      // Load initial robots first (don't wait for WebSocket)
+      await refreshRobots(client)
 
-      // Set up event handlers
+      // Set up event handlers before connecting
       client.on('robot:status', (data: any) => {
         console.log('Robot status update:', data)
         updateRobotStatus(data.robotId, data.status)
@@ -197,8 +196,17 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         updateRobotTelemetry(data.robotId, data)
       })
 
-      // Load initial robots
-      await refreshRobots(client)
+      // Connect to WebSocket in background (don't block on this)
+      client
+        .connectWebSocket()
+        .then(() => {
+          console.log('WebSocket connected')
+          setIsConnected(true)
+        })
+        .catch((err) => {
+          console.warn('WebSocket connection failed (non-critical):', err)
+          // Don't fail the whole app if WebSocket doesn't work
+        })
     } catch (err) {
       console.error('Failed to initialize URFMP:', err)
       setError(err instanceof Error ? err.message : 'Failed to initialize URFMP')
