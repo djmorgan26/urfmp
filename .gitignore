@@ -35,6 +35,10 @@ secrets.yaml
 secrets.yml
 *secret*
 *password*
+!*Password*.tsx
+!*Password*.ts
+!*password*.tsx
+!*password*.ts
 *credentials*
 api-keys.json
 jwt-secret.txt
