@@ -1,10 +1,21 @@
 # Vercel Deployment Setup - URFMP
 
-## Environment Variables Configuration
+## ⚠️ Quick Fix for CORS Error
 
-### Required Vercel Environment Variables
+Your backend is already deployed on Railway! You just need to connect Vercel to it.
 
-Go to your Vercel project settings → Environment Variables and add:
+### Step 1: Get Your Railway API URL
+
+1. Go to https://railway.app/dashboard
+2. Find your `urfmp-api` project
+3. Click on the service
+4. Copy the public domain (looks like: `https://urfmp-api-production-xxxx.up.railway.app`)
+
+### Step 2: Configure Vercel Environment Variables
+
+Go to https://vercel.com → Your Project → Settings → Environment Variables
+
+Add/Update these:
 
 ```env
 # Brand Configuration
@@ -14,13 +25,26 @@ VITE_PRODUCT_FULL_NAME=Universal Robot Fleet Management Platform
 VITE_TAGLINE=The Stripe of Robotics
 VITE_DESCRIPTION=Monitor any robot in 7 lines of code
 
-# Demo Mode (set to true until Railway backend is deployed)
-VITE_DEMO_MODE=true
+# Connect to Railway Backend
+VITE_DEMO_MODE=false
 
-# API Configuration (update with your Railway API URL when available)
-VITE_URFMP_API_URL=https://your-railway-api-url.railway.app
-VITE_URFMP_WS_URL=wss://your-railway-api-url.railway.app/ws
+# Replace with YOUR Railway URL from Step 1
+VITE_URFMP_API_URL=https://urfmp-api-production-xxxx.up.railway.app
+VITE_URFMP_WS_URL=wss://urfmp-api-production-xxxx.up.railway.app/ws
 ```
+
+### Step 3: Redeploy Vercel
+
+1. Go to Deployments tab
+2. Click "..." on latest deployment
+3. Click "Redeploy"
+4. Wait 2-3 minutes
+
+### Step 4: Test
+
+Visit your Vercel URL and try logging in:
+- Email: `admin@urfmp.com`
+- Password: `admin123`
 
 ## Two Deployment Modes
 
