@@ -147,7 +147,7 @@ export function RobotDetail() {
           </button>
 
           <button
-            onClick={refreshRobots}
+            onClick={() => refreshRobots(true)}
             className="p-2 rounded-md border border-input hover:bg-muted"
           >
             <RefreshCw className="h-4 w-4" />

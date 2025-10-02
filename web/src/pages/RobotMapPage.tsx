@@ -31,10 +31,10 @@ export function RobotMapPage() {
           <div className="text-red-500 dark:text-red-400 text-lg font-semibold mb-2">Error</div>
           <div className="text-gray-600 dark:text-gray-400 mb-4">{error}</div>
           <button
-            onClick={refreshRobots}
+            onClick={() => refreshRobots(true)}
             className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-500 flex items-center gap-2"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="w-4 w-4" />
             Retry
           </button>
         </div>
@@ -108,7 +108,7 @@ export function RobotMapPage() {
 
           {/* Refresh Button */}
           <button
-            onClick={refreshRobots}
+            onClick={() => refreshRobots(true)}
             disabled={isLoading}
             className={cn(
               'px-2 py-1 transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center rounded',
