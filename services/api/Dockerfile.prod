@@ -12,8 +12,8 @@ COPY services/api/package*.json ./services/api/
 COPY packages/types/package*.json ./packages/types/
 COPY packages/sdk/package*.json ./packages/sdk/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install production dependencies only
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Build stage
 FROM base AS builder
@@ -37,9 +37,10 @@ RUN npm run build --workspace=@urfmp/types
 # Build SDK package
 RUN npm run build --workspace=@urfmp/sdk
 
-# Build API and ensure migration files are available
-RUN cd services/api && npm run build || echo "No build script, using source directly"
-RUN cd services/api && mkdir -p dist/migrations && cp -r src/migrations/sql dist/migrations/ || echo "Migration files will be copied from source"
+# Build API (note: API uses tsx runtime, no build step needed)
+# Just ensure migration files are accessible
+RUN mkdir -p services/api/dist/migrations || true
+RUN cp -r services/api/src/migrations/sql services/api/dist/migrations/ 2>/dev/null || true
 
 # Production stage
 FROM base AS runner
