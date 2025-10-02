@@ -162,6 +162,9 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         }
       }
 
+      // Enable SDK debug logging
+      ;(window as any).DEBUG_SDK = true
+
       console.log('🔍 Environment check:', {
         VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
         VITE_URFMP_API_URL: import.meta.env.VITE_URFMP_API_URL,

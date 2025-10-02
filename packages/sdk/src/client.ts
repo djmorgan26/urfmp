@@ -118,9 +118,12 @@ export class URFMP {
 
   async getRobots(): Promise<Robot[]> {
     const response = await this.client.get<ApiResponse<{ robots: Robot[] }>>('/api/v1/robots')
-    console.log('[SDK] getRobots raw response:', JSON.stringify(response.data, null, 2))
-    console.log('[SDK] response.data.data:', response.data.data)
-    console.log('[SDK] response.data.data.robots:', response.data.data?.robots)
+    // Debug logging for robot fetching issues
+    if (typeof window !== 'undefined' && (window as any).DEBUG_SDK) {
+      console.log('[SDK] getRobots raw response:', JSON.stringify(response.data, null, 2))
+      console.log('[SDK] response.data.data:', response.data.data)
+      console.log('[SDK] response.data.data.robots:', response.data.data?.robots)
+    }
     return response.data.data!.robots
   }
 
