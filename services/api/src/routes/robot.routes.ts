@@ -40,6 +40,12 @@ router.get(
   asyncHandler(async (req, res) => {
     const organizationId = req.user!.org
 
+    logger.info('Fetching robots for organization', {
+      organizationId,
+      userOrg: req.user?.org,
+      userSub: req.user?.sub,
+    })
+
     // Parse query parameters
     const page = parseInt(req.query.page as string) || 1
     const limit = Math.min(parseInt(req.query.limit as string) || 20, 100)
@@ -52,6 +58,12 @@ router.get(
     }
 
     const result = await robotService.getRobots(organizationId, filters, { page, limit })
+
+    logger.info('Robots fetched', {
+      organizationId,
+      count: result.data.length,
+      total: result.pagination.total,
+    })
 
     const response: ApiResponse = {
       success: true,
@@ -196,6 +208,13 @@ router.post(
   asyncHandler(async (req, res) => {
     const organizationId = req.user!.org
     const robotData: CreateRobotRequest = req.body
+
+    logger.info('Creating robot', {
+      organizationId,
+      userOrg: req.user?.org,
+      userSub: req.user?.sub,
+      robotName: robotData.name,
+    })
 
     const robot = await robotService.createRobot(organizationId, robotData)
 
