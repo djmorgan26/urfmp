@@ -4,7 +4,7 @@
 
 [build]
 builder = "dockerfile"
-dockerfilePath = "services/api/Dockerfile.prod"
+dockerfilePath = "services/api/Dockerfile.railway"
 # Watch paths - trigger rebuild when these change
 watchPaths = [
   "services/api/**",
