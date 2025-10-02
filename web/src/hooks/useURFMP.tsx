@@ -274,6 +274,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
       setLastRefresh(now)
       const robotList = await urfmpClient.getRobots()
       console.log('✅ Robots fetched successfully:', robotList.length, 'robots')
+      console.log('📋 Robot data:', robotList)
       setRobots(robotList)
       setError(null) // Clear any previous errors on success
 
