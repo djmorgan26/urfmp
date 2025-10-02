@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Plus } from 'lucide-react'
+import { X, Plus, Sparkles, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useURFMP } from '@/hooks/useURFMP'
 
@@ -106,11 +106,33 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
     return Object.keys(newErrors).length === 0
   }
 
+  const fillDemoData = () => {
+    const demoData: RobotFormData = {
+      name: 'Demo Robot UR5e',
+      vendor: 'universal_robots',
+      model: 'UR5e',
+      serialNumber: `UR5E-${Date.now().toString().slice(-8)}`,
+      firmwareVersion: '5.11.0',
+      location: {
+        facility: 'Assembly Line 1',
+        cell: 'Cell A-3',
+      },
+      configuration: {
+        maxPayload: 5,
+        reach: 850,
+        joints: 6,
+      },
+    }
+    setFormData(demoData)
+    setErrors({})
+    toast.success('Demo data filled! Click "Create Robot" to add it.')
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
-      toast.error('Please fix the validation errors')
+      toast.error('Please fix the validation errors shown below')
       return
     }
 
@@ -121,10 +143,12 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
     setIsLoading(true)
     try {
-      await urfmp.createRobot(formData)
-      toast.success('Robot created successfully!')
-      onSuccess()
+      const robot = await urfmp.createRobot(formData)
+      console.log('✅ Robot created successfully:', robot)
+      toast.success(`Robot "${formData.name}" created successfully!`)
+      onSuccess() // This should trigger a refresh of the robot list
       onClose()
+      // Reset form
       setErrors({})
       setFormData({
         name: '',
@@ -143,8 +167,15 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
         },
       })
     } catch (error: any) {
-      console.error('Failed to create robot:', error)
-      toast.error(error.response?.data?.error?.message || 'Failed to create robot')
+      console.error('❌ Failed to create robot:', error)
+      const errorMessage =
+        error.response?.data?.error?.message || error.message || 'Failed to create robot'
+      toast.error(errorMessage)
+
+      // If there are field-specific errors from the API, show them
+      if (error.response?.data?.error?.details) {
+        setErrors(error.response.data.error.details)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -205,6 +236,50 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Validation Error Summary */}
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">
+                    Please fix the following errors:
+                  </h4>
+                  <ul className="text-sm text-red-700 dark:text-red-300 space-y-1 list-disc list-inside">
+                    {Object.entries(errors).map(([field, error]) => (
+                      <li key={field}>
+                        <strong>{field.replace(/\./g, ' > ')}:</strong> {error}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Demo Data Button */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">
+                  Quick Start
+                </h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Not sure what to enter? Click the button to fill the form with sample robot data.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={fillDemoData}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+              >
+                <Sparkles className="h-4 w-4" />
+                Fill Demo Data
+              </button>
+            </div>
+          </div>
+
           {/* Basic Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Basic Information</h3>
@@ -229,17 +304,19 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
                   required
                   value={formData.vendor}
                   onChange={(e) => handleInputChange('vendor', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
+                  className={getInputClassName('vendor')}
                 >
                   <option value="">Select vendor</option>
-                  <option value="Universal Robots">Universal Robots</option>
-                  <option value="KUKA">KUKA</option>
-                  <option value="ABB">ABB</option>
-                  <option value="FANUC">FANUC</option>
-                  <option value="Yaskawa">Yaskawa</option>
-                  <option value="Kawasaki">Kawasaki</option>
-                  <option value="Other">Other</option>
+                  <option value="universal_robots">Universal Robots</option>
+                  <option value="kuka">KUKA</option>
+                  <option value="abb">ABB</option>
+                  <option value="fanuc">FANUC</option>
+                  <option value="yaskawa">Yaskawa</option>
+                  <option value="doosan">Doosan</option>
+                  <option value="techman">Techman</option>
+                  <option value="custom">Custom</option>
                 </select>
+                {renderFieldError('vendor')}
               </div>
 
               <div>
@@ -249,31 +326,36 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
                   required
                   value={formData.model}
                   onChange={(e) => handleInputChange('model', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  className={getInputClassName('model')}
                   placeholder="e.g., UR5e, KR 10 R1100"
                 />
+                {renderFieldError('model')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Serial Number</label>
+                <label className="block text-sm font-medium mb-1">Serial Number *</label>
                 <input
                   type="text"
+                  required
                   value={formData.serialNumber}
                   onChange={(e) => handleInputChange('serialNumber', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., UR-2024-001"
+                  className={getInputClassName('serialNumber')}
+                  placeholder="e.g., UR5E-12345678"
                 />
+                {renderFieldError('serialNumber')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Firmware Version</label>
+                <label className="block text-sm font-medium mb-1">Firmware Version *</label>
                 <input
                   type="text"
+                  required
                   value={formData.firmwareVersion}
                   onChange={(e) => handleInputChange('firmwareVersion', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., 5.9.1, 8.7.1"
+                  className={getInputClassName('firmwareVersion')}
+                  placeholder="e.g., 5.11.0"
                 />
+                {renderFieldError('firmwareVersion')}
               </div>
             </div>
           </div>
@@ -284,25 +366,29 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Facility</label>
+                <label className="block text-sm font-medium mb-1">Facility *</label>
                 <input
                   type="text"
+                  required
                   value={formData.location.facility}
                   onChange={(e) => handleInputChange('location.facility', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., Assembly Line, Warehouse"
+                  className={getInputClassName('location.facility')}
+                  placeholder="e.g., Assembly Line 1"
                 />
+                {renderFieldError('location.facility')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Cell/Station</label>
+                <label className="block text-sm font-medium mb-1">Cell/Station *</label>
                 <input
                   type="text"
+                  required
                   value={formData.location.cell}
                   onChange={(e) => handleInputChange('location.cell', e.target.value)}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., Cell-A1, Station-3"
+                  className={getInputClassName('location.cell')}
+                  placeholder="e.g., Cell A-3"
                 />
+                {renderFieldError('location.cell')}
               </div>
             </div>
           </div>
@@ -313,45 +399,51 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Max Payload (kg)</label>
+                <label className="block text-sm font-medium mb-1">Max Payload (kg) *</label>
                 <input
                   type="number"
                   min="0"
                   step="0.1"
+                  required
                   value={formData.configuration.maxPayload}
                   onChange={(e) =>
                     handleInputChange('configuration.maxPayload', Number(e.target.value))
                   }
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., 5, 10, 20"
+                  className={getInputClassName('configuration.maxPayload')}
+                  placeholder="e.g., 5"
                 />
+                {renderFieldError('configuration.maxPayload')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Reach (mm)</label>
+                <label className="block text-sm font-medium mb-1">Reach (mm) *</label>
                 <input
                   type="number"
                   min="0"
+                  required
                   value={formData.configuration.reach}
                   onChange={(e) => handleInputChange('configuration.reach', Number(e.target.value))}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., 850, 1300"
+                  className={getInputClassName('configuration.reach')}
+                  placeholder="e.g., 850"
                 />
+                {renderFieldError('configuration.reach')}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Joints</label>
+                <label className="block text-sm font-medium mb-1">Joints *</label>
                 <input
                   type="number"
-                  min="1"
-                  max="20"
+                  min="3"
+                  max="12"
+                  required
                   value={formData.configuration.joints}
                   onChange={(e) =>
                     handleInputChange('configuration.joints', Number(e.target.value))
                   }
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                  placeholder="e.g., 6, 7"
+                  className={getInputClassName('configuration.joints')}
+                  placeholder="e.g., 6"
                 />
+                {renderFieldError('configuration.joints')}
               </div>
             </div>
           </div>
