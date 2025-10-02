@@ -245,13 +245,14 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
     }
   }
 
-  const refreshRobots = async (client?: URFMP) => {
+  const refreshRobots = async (client?: URFMP, force = false) => {
     try {
       // Handle demo mode - MUST be explicitly set to "true"
       const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
       console.log('🔍 refreshRobots - Demo mode check:', {
         VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
         isDemo,
+        force,
       })
 
       if (isDemo) {
@@ -266,14 +267,14 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         return
       }
 
-      // Rate limiting with exponential backoff
+      // Rate limiting with exponential backoff (skip if force=true)
       const now = Date.now()
-      if (now - lastRefresh < backoffDelay) {
+      if (!force && now - lastRefresh < backoffDelay) {
         console.log(`⏸️ Rate limiting: skipping robots refresh (backoff: ${backoffDelay}ms)`)
         return
       }
 
-      console.log('🚀 Fetching robots from API...')
+      console.log('🚀 Fetching robots from API...', force ? '(FORCED)' : '')
       setLastRefresh(now)
       const robotList = await urfmpClient.getRobots()
       console.log('✅ Robots fetched successfully:', robotList.length, 'robots')

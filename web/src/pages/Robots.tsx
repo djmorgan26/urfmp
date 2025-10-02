@@ -240,7 +240,7 @@ export function Robots() {
       <AddRobotModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={refreshRobots}
+        onSuccess={(force) => refreshRobots(force)}
       />
     </div>
   )

@@ -6,7 +6,7 @@ import { useURFMP } from '@/hooks/useURFMP'
 interface AddRobotModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (force?: boolean) => void
 }
 
 interface RobotFormData {
@@ -146,7 +146,7 @@ export function AddRobotModal({ isOpen, onClose, onSuccess }: AddRobotModalProps
       const robot = await urfmp.createRobot(formData)
       console.log('✅ Robot created successfully:', robot)
       toast.success(`Robot "${formData.name}" created successfully!`)
-      onSuccess() // This should trigger a refresh of the robot list
+      onSuccess(true) // Force refresh to bypass rate limiting
       onClose()
       // Reset form
       setErrors({})
