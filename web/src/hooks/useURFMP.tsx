@@ -167,12 +167,14 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
         VITE_URFMP_API_URL: import.meta.env.VITE_URFMP_API_URL,
         VITE_URFMP_WS_URL: import.meta.env.VITE_URFMP_WS_URL,
         isDemo,
-        userInfo: decodedToken ? {
-          userId: decodedToken.sub,
-          orgId: decodedToken.org,
-          email: decodedToken.email,
-          role: decodedToken.role,
-        } : 'Failed to decode',
+        userInfo: decodedToken
+          ? {
+              userId: decodedToken.sub,
+              orgId: decodedToken.org,
+              email: decodedToken.email,
+              role: decodedToken.role,
+            }
+          : 'Failed to decode',
       })
 
       if (isDemo) {

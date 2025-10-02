@@ -3,6 +3,7 @@
 ## Quick Start - Deploy in 5 Minutes
 
 ### Step 1: Deploy to Render
+
 1. Go to https://render.com and sign up/login
 2. Click "New +" → "Blueprint"
 3. Connect your GitHub repository
@@ -10,12 +11,15 @@
 5. Click "Apply" to deploy
 
 ### Step 2: Get Your API URL
+
 After deployment completes (~5 min):
+
 1. Go to your Render dashboard
 2. Click on "urfmp-api" service
 3. Copy the URL (will look like: `https://urfmp-api.onrender.com`)
 
 ### Step 3: Configure Vercel
+
 1. Go to https://vercel.com/your-username/urfmp/settings/environment-variables
 2. Add/Update these variables:
    ```
@@ -26,6 +30,7 @@ After deployment completes (~5 min):
 3. Save and redeploy Vercel
 
 ### Step 4: Test
+
 1. Visit your Vercel URL: https://urfmp.vercel.app
 2. Try logging in with:
    - Email: `admin@urfmp.com`
@@ -38,11 +43,13 @@ After deployment completes (~5 min):
 Your `render.yaml` configures:
 
 ### 1. PostgreSQL Database (Free)
+
 - Persistent robot data storage
 - Automatic backups
 - Free tier: 256 MB storage
 
 ### 2. API Service (Free)
+
 - Node.js/Express backend
 - Health check at `/health`
 - Automatic deployments from GitHub
@@ -54,6 +61,7 @@ Your `render.yaml` configures:
 ## Environment Variables (Auto-Configured)
 
 Render automatically sets:
+
 - `DATABASE_URL` - PostgreSQL connection
 - `JWT_SECRET` - Randomly generated
 - `JWT_REFRESH_SECRET` - Randomly generated
@@ -64,16 +72,19 @@ Render automatically sets:
 ## Troubleshooting
 
 ### API Not Responding
+
 **Problem**: First request is slow (30-60 seconds)
 **Cause**: Free tier sleeps after 15 minutes of inactivity
 **Solution**: Normal behavior, just wait for cold start
 
 ### CORS Errors
+
 **Problem**: Browser blocks API requests
 **Cause**: CORS_ORIGIN not set correctly
 **Solution**: Add `CORS_ORIGIN=https://urfmp.vercel.app` in Render env vars
 
 ### Database Connection Failed
+
 **Problem**: API can't connect to database
 **Cause**: Database not ready or connection string wrong
 **Solution**: Wait 2-3 minutes after deployment, Render links services automatically
@@ -83,6 +94,7 @@ Render automatically sets:
 ## Cost
 
 ### Free Tier Limits
+
 - **API**: 512 MB RAM, shared CPU
 - **Database**: 256 MB storage, 1 GB bandwidth/month
 - **Limitations**:
@@ -91,7 +103,9 @@ Render automatically sets:
   - 750 hours/month (enough for 24/7 operation)
 
 ### Upgrade Options
+
 If you hit limits:
+
 - **Starter Plan** ($7/month): No sleep, faster performance
 - **Standard Database** ($7/month): 1 GB storage, better performance
 
@@ -102,6 +116,7 @@ If you hit limits:
 If you don't want to deploy yet:
 
 ### Option 1: Use ngrok (Temporary Public URL)
+
 ```bash
 # Install ngrok
 brew install ngrok  # or download from ngrok.com
@@ -117,6 +132,7 @@ VITE_URFMP_API_URL=https://your-ngrok-url.ngrok.io
 ```
 
 ### Option 2: Demo Mode
+
 ```bash
 # In Vercel dashboard
 VITE_DEMO_MODE=true

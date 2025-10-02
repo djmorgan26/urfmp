@@ -43,17 +43,20 @@ VITE_URFMP_WS_URL=wss://urfmp-api-production-xxxx.up.railway.app/ws
 ### Step 4: Test
 
 Visit your Vercel URL and try logging in:
+
 - Email: `admin@urfmp.com`
 - Password: `admin123`
 
 ## Two Deployment Modes
 
 ### Mode 1: Demo Mode (Current)
+
 - Set `VITE_DEMO_MODE=true` in Vercel
 - App runs with mock data, no backend needed
 - Perfect for showcasing the UI
 
 ### Mode 2: Production Mode (with Backend)
+
 1. Deploy API to Railway (or another platform)
 2. Update Vercel environment variables:
    - `VITE_DEMO_MODE=false`
@@ -64,6 +67,7 @@ Visit your Vercel URL and try logging in:
 ## Quick Fix for Current CORS Error
 
 The CORS error you're seeing (`localhost:3000` from `vercel.app`) happens because:
+
 - Vercel deployed frontend is using development API URL (`localhost:3000`)
 - Need to set production environment variables in Vercel dashboard
 
@@ -76,6 +80,7 @@ The CORS error you're seeing (`localhost:3000` from `vercel.app`) happens becaus
 ## Vercel Build Configuration
 
 Already configured in `vercel.json`:
+
 - Build command: `cd web && npm ci && vite build`
 - Output directory: `web/dist`
 - Framework preset: Vite

@@ -41,6 +41,7 @@ npm run pre-deploy
 ```
 
 This comprehensive script validates all CI/CD checks locally:
+
 - ✅ Prettier formatting (auto-fixes if needed)
 - ✅ ESLint code quality
 - ✅ TypeScript compilation
