@@ -162,8 +162,19 @@ export function useGeofencing(): GeofencingData {
   }, [])
 
   const fetchGeofencingData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
+
     // Check if we have robots data (either from API or demo mode)
-    if (robots.length === 0) return
+    if (robots.length === 0) {
+      // No robots yet - set empty state and stop loading
+      setWaypoints([])
+      setGeofences([])
+      setPaths([])
+      setEvents([])
+      setIsLoading(false)
+      return
+    }
 
     // Check if we're in demo mode
     const isDemo =
@@ -172,9 +183,6 @@ export function useGeofencing(): GeofencingData {
 
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) return
-
-    setIsLoading(true)
-    setError(null)
 
     try {
       // In a real implementation, these would be API calls

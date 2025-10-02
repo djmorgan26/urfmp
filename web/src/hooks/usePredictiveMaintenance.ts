@@ -103,8 +103,16 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
   const [lastFetch, setLastFetch] = useState<number>(0)
 
   const fetchMaintenanceData = useCallback(async () => {
+    setIsLoading(true)
+
     // Check if we have robots data (either from API or demo mode)
-    if (robots.length === 0) return
+    if (robots.length === 0) {
+      // No robots yet - set empty state and stop loading
+      setTasks([])
+      setInsights([])
+      setIsLoading(false)
+      return
+    }
 
     // Check if we're in demo mode
     const isDemo =

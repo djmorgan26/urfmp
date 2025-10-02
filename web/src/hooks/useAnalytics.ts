@@ -71,8 +71,27 @@ export function useAnalytics(timeRange: TimeRange = '30d'): AnalyticsData {
   const [error, setError] = useState<string | null>(null)
 
   const fetchAnalyticsData = useCallback(async () => {
+    setIsLoading(true)
+
     // Check if we have robots data (either from API or demo mode)
-    if (robots.length === 0) return
+    if (robots.length === 0) {
+      // No robots yet - set empty state and stop loading
+      setFleetMetrics({
+        totalCycles: 0,
+        avgEfficiency: 0,
+        avgUptime: 0,
+        errorRate: 0,
+        totalRobots: 0,
+        onlineRobots: 0,
+        totalPowerConsumption: 0,
+        totalOperatingHours: 0,
+      })
+      setRobotPerformance([])
+      setFleetTrends([])
+      setErrorDistribution([])
+      setIsLoading(false)
+      return
+    }
 
     // Check if we're in demo mode
     const isDemo =
