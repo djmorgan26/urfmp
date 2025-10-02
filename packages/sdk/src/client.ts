@@ -117,7 +117,18 @@ export class URFMP {
   }
 
   async getRobots(): Promise<Robot[]> {
+    // Debug logging for robot fetching issues
+    if (typeof window !== 'undefined' && (window as any).DEBUG_SDK) {
+      console.log('[SDK] getRobots - Request config:', {
+        url: '/api/v1/robots',
+        baseURL: this.config.baseUrl,
+        headers: this.client.defaults.headers,
+        useJWT: this.config.useJWT,
+      })
+    }
+
     const response = await this.client.get<ApiResponse<{ robots: Robot[] }>>('/api/v1/robots')
+
     // Debug logging for robot fetching issues
     if (typeof window !== 'undefined' && (window as any).DEBUG_SDK) {
       console.log('[SDK] getRobots raw response:', JSON.stringify(response.data, null, 2))
