@@ -40,9 +40,18 @@ app.use(
 )
 
 // CORS configuration
+const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map((o) => o.trim()) || [
+  'http://localhost:3001',
+]
+
+logger.info('🌐 CORS configuration:', {
+  allowedOrigins,
+  credentials: process.env.CORS_CREDENTIALS === 'true',
+})
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3001'],
+    origin: allowedOrigins,
     credentials: process.env.CORS_CREDENTIALS === 'true',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

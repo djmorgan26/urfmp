@@ -1,11 +1,20 @@
-# Railway Configuration for API Service
+# Railway Configuration for URFMP API Service
+# This configuration is ONLY for the backend API service
+# Frontend is deployed on Vercel, not Railway
+
 [build]
 builder = "dockerfile"
 dockerfilePath = "services/api/Dockerfile.prod"
-watchPaths = ["services/api/**", "packages/**", "railway.toml"]
+# Watch paths - trigger rebuild when these change
+watchPaths = [
+  "services/api/**",
+  "packages/types/**",
+  "railway.toml"
+]
 
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 startCommand = "npx tsx services/api/src/index.ts"
+numReplicas = 1
