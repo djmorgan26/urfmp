@@ -53,15 +53,13 @@ else
     handle_error "Dependency installation"
 fi
 
-# 3. Run Prettier check (most common failure)
-print_section "Checking Prettier formatting"
-if npm run format:check 2>/dev/null || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}" 2>/dev/null; then
-    handle_success "Prettier formatting"
+# 3. Run Prettier formatting (auto-fix before checking)
+print_section "Checking and fixing Prettier formatting"
+echo "Running prettier --write to auto-fix formatting..."
+if npm run format; then
+    handle_success "Prettier formatting (auto-fixed)"
 else
-    echo -e "${YELLOW}⚠️  Prettier errors found. Running prettier --write to fix...${NC}"
-    npx prettier --write "**/*.{ts,tsx,js,jsx,json,md}"
-    echo -e "${YELLOW}✓ Files formatted. Please review changes and commit.${NC}"
-    handle_error "Prettier formatting (fixed, but needs commit)"
+    handle_error "Prettier formatting"
 fi
 
 # 4. Run ESLint

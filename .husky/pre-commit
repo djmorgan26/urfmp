@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run lint-staged to auto-format staged files
+echo "🎨 Formatting staged files with Prettier..."
+npx lint-staged

@@ -42,11 +42,27 @@ npm run pre-deploy
 
 This comprehensive script validates all CI/CD checks locally:
 
-- ✅ Prettier formatting (auto-fixes if needed)
+- ✅ Prettier formatting (auto-fixes automatically)
 - ✅ ESLint code quality
 - ✅ TypeScript compilation
 - ✅ Package builds in correct order
 - ✅ All test suites
+
+**🎯 AUTOMATIC FORMATTING ON COMMIT**
+
+Git pre-commit hooks are configured to **automatically format all staged files** with Prettier before every commit. This means:
+
+- ✅ **Zero manual formatting** - Files are auto-formatted on `git commit`
+- ✅ **CI/CD will never fail on formatting** - All commits pass Prettier checks
+- ✅ **Powered by Husky + lint-staged** - Industry-standard Git hook management
+
+**How it works:**
+
+1. You run `git commit`
+2. Pre-commit hook automatically runs `npx lint-staged`
+3. Prettier formats all staged `.ts`, `.tsx`, `.js`, `.jsx`, `.json`, `.md` files
+4. Formatted files are added back to staging
+5. Commit proceeds with properly formatted code
 
 **Primary Development Workflow (Fast & Efficient):**
 
