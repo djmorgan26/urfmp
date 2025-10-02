@@ -129,6 +129,19 @@ export class URFMP {
 
     const response = await this.client.get<ApiResponse<{ robots: Robot[] }>>('/api/v1/robots')
 
+    // TEMPORARY: Always log response to debug production issue
+    if (typeof window !== 'undefined') {
+      console.log('[SDK] getRobots FULL response:', {
+        status: response.status,
+        statusText: response.statusText,
+        dataKeys: Object.keys(response.data),
+        success: response.data.success,
+        dataDataKeys: response.data.data ? Object.keys(response.data.data) : 'null',
+        robotsLength: response.data.data?.robots?.length ?? 'undefined',
+        rawData: JSON.stringify(response.data).slice(0, 500),
+      })
+    }
+
     // Debug logging for robot fetching issues
     if (typeof window !== 'undefined' && (window as any).DEBUG_SDK) {
       console.log('[SDK] getRobots raw response:', JSON.stringify(response.data, null, 2))
