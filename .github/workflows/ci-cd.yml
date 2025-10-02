@@ -271,9 +271,9 @@ jobs:
           VITE_PRODUCT_FULL_NAME: ${{ secrets.PRODUCT_FULL_NAME || 'Universal Robot Fleet Management Platform' }}
           VITE_TAGLINE: ${{ secrets.TAGLINE || 'The Stripe of Robotics' }}
           VITE_DESCRIPTION: ${{ secrets.DESCRIPTION || 'Monitor any robot in 7 lines of code' }}
-          VITE_DEMO_MODE: 'true'
-          VITE_URFMP_API_KEY: ${{ secrets.URFMP_API_KEY || 'urfmp_demo_key_for_production' }}
-          VITE_API_URL: ${{ secrets.API_URL || 'https://api.urfmp.com' }}
+          VITE_DEMO_MODE: 'false'
+          VITE_URFMP_API_URL: 'https://urfmpapi-production.up.railway.app'
+          VITE_URFMP_WS_URL: 'wss://urfmpapi-production.up.railway.app/ws'
 
       - name: Run post-build validation
         run: |
