@@ -94,7 +94,7 @@ interface URFMPContextType {
   isConnected: boolean
   isLoading: boolean
   error: string | null
-  refreshRobots: () => Promise<void>
+  refreshRobots: (force?: boolean) => Promise<void>
   sendCommand: (robotId: string, command: any) => Promise<void>
 }
 
@@ -359,7 +359,7 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
     isConnected,
     isLoading,
     error,
-    refreshRobots: () => refreshRobots(),
+    refreshRobots: (force?: boolean) => refreshRobots(undefined, force),
     sendCommand,
   }
 

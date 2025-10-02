@@ -108,7 +108,9 @@ export function usePredictiveMaintenance(): PredictiveMaintenanceData {
     // Check if we have robots data (either from API or demo mode)
     if (robots.length === 0) {
       // No robots yet - set empty state and stop loading
-      setTasks([])
+      setAlerts([])
+      setSchedule([])
+      setComponentHealth([])
       setInsights([])
       setIsLoading(false)
       return
