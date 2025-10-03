@@ -434,22 +434,28 @@ export function Maintenance() {
 
             <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <div className="min-w-[600px]">
-                <div className="grid grid-cols-7 gap-2 mb-4">
+                {/* Day Headers */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                     <div
                       key={day}
-                      className="text-center text-sm font-medium text-muted-foreground py-2"
+                      className="text-center text-xs sm:text-sm font-medium text-muted-foreground py-2"
                     >
                       {day}
                     </div>
                   ))}
                 </div>
 
-                <div className="grid grid-cols-7 gap-2">
+                {/* Calendar Grid */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-2">
                   {Array.from({ length: 35 }, (_, i) => {
                     const date = new Date()
                     date.setDate(date.getDate() - date.getDay() + i)
-                    const hasTask = mockMaintenanceTasks.some(
+                    const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
+                    const isPast = date < new Date() && !isToday
+
+                    // Find tasks for this date
+                    const tasksForDate = mockMaintenanceTasks.filter(
                       (task) =>
                         format(
                           typeof task.scheduledDate === 'string'
@@ -458,20 +464,91 @@ export function Maintenance() {
                           'yyyy-MM-dd'
                         ) === format(date, 'yyyy-MM-dd')
                     )
+                    const hasTask = tasksForDate.length > 0
+                    const hasCritical = tasksForDate.some((t) => t.priority === 'critical')
+                    const hasHigh = tasksForDate.some((t) => t.priority === 'high')
 
                     return (
                       <div
                         key={i}
                         className={cn(
-                          'h-12 rounded-md border border-border flex items-center justify-center text-sm cursor-pointer hover:bg-muted',
-                          hasTask && 'bg-blue-100 border-blue-300'
+                          'h-12 sm:h-14 rounded-md border flex flex-col items-center justify-center text-sm cursor-pointer transition-all min-h-[44px]',
+                          isPast && 'opacity-40',
+                          isToday && 'ring-2 ring-primary ring-offset-1 font-semibold',
+                          !hasTask && 'border-border hover:bg-muted hover:border-primary/50',
+                          hasTask &&
+                            !hasCritical &&
+                            !hasHigh &&
+                            'bg-blue-100 dark:bg-blue-950/30 border-blue-300 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-950/50',
+                          hasHigh &&
+                            'bg-orange-100 dark:bg-orange-950/30 border-orange-300 dark:border-orange-700 hover:bg-orange-200 dark:hover:bg-orange-950/50',
+                          hasCritical &&
+                            'bg-red-100 dark:bg-red-950/30 border-red-300 dark:border-red-700 hover:bg-red-200 dark:hover:bg-red-950/50'
                         )}
+                        title={
+                          hasTask
+                            ? `${tasksForDate.length} task${tasksForDate.length > 1 ? 's' : ''} scheduled`
+                            : 'No tasks'
+                        }
                       >
-                        {date.getDate()}
-                        {hasTask && <div className="w-2 h-2 bg-blue-600 rounded-full ml-1" />}
+                        <span
+                          className={cn(
+                            'text-xs sm:text-sm',
+                            isToday && 'font-bold',
+                            hasCritical && 'text-red-700 dark:text-red-300',
+                            hasHigh && !hasCritical && 'text-orange-700 dark:text-orange-300',
+                            hasTask &&
+                              !hasCritical &&
+                              !hasHigh &&
+                              'text-blue-700 dark:text-blue-300'
+                          )}
+                        >
+                          {date.getDate()}
+                        </span>
+                        {hasTask && (
+                          <div className="flex gap-0.5 mt-0.5">
+                            {tasksForDate.slice(0, 3).map((task, idx) => (
+                              <div
+                                key={idx}
+                                className={cn(
+                                  'w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full',
+                                  task.priority === 'critical' && 'bg-red-600 dark:bg-red-400',
+                                  task.priority === 'high' && 'bg-orange-600 dark:bg-orange-400',
+                                  task.priority === 'medium' && 'bg-yellow-600 dark:bg-yellow-400',
+                                  task.priority === 'low' && 'bg-blue-600 dark:bg-blue-400'
+                                )}
+                              />
+                            ))}
+                            {tasksForDate.length > 3 && (
+                              <span className="text-[8px] sm:text-[10px] font-medium">
+                                +{tasksForDate.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
+                </div>
+
+                {/* Legend */}
+                <div className="mt-4 pt-4 border-t border-border flex flex-wrap gap-3 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-red-100 dark:bg-red-950/30 border border-red-300 dark:border-red-700" />
+                    <span className="text-muted-foreground">Critical</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-orange-100 dark:bg-orange-950/30 border border-orange-300 dark:border-orange-700" />
+                    <span className="text-muted-foreground">High Priority</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded bg-blue-100 dark:bg-blue-950/30 border border-blue-300 dark:border-blue-700" />
+                    <span className="text-muted-foreground">Scheduled</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded border-2 border-primary" />
+                    <span className="text-muted-foreground">Today</span>
+                  </div>
                 </div>
               </div>
             </div>

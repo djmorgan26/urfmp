@@ -115,56 +115,58 @@ export function GeofencingDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Geofencing & Waypoints</h2>
-          <p className="text-muted-foreground">
+      {/* Header - Stack on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="min-w-0">
+          <h2 className="text-xl sm:text-2xl font-bold">Geofencing & Waypoints</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage robot navigation, boundaries, and automated actions
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={refresh}
-            className="flex items-center space-x-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 border border-input rounded-md hover:bg-muted transition-colors min-h-[44px] whitespace-nowrap"
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4 flex-shrink-0" />
             <span>Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex space-x-1 border-b border-border">
-        {[
-          { id: 'overview', label: 'Overview', icon: MapPin },
-          { id: 'waypoints', label: 'Waypoints', icon: Navigation },
-          { id: 'geofences', label: 'Geofences', icon: Shield },
-          { id: 'paths', label: 'Paths', icon: GitBranch },
-          { id: 'events', label: 'Events', icon: AlertTriangle },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
-              activeTab === tab.id
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-            )}
-          >
-            <div className="flex items-center space-x-2">
-              <tab.icon className="h-4 w-4" />
-              <span>{tab.label}</span>
-              {tab.id === 'events' && unacknowledgedEvents > 0 && (
-                <span className="bg-red-500 dark:bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                  {unacknowledgedEvents}
-                </span>
+      {/* Navigation Tabs - Scrollable on mobile */}
+      <div className="border-b border-border -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
+        <div className="flex gap-1 min-w-max">
+          {[
+            { id: 'overview', label: 'Overview', icon: MapPin },
+            { id: 'waypoints', label: 'Waypoints', icon: Navigation },
+            { id: 'geofences', label: 'Geofences', icon: Shield },
+            { id: 'paths', label: 'Paths', icon: GitBranch },
+            { id: 'events', label: 'Events', icon: AlertTriangle, badge: unacknowledgedEvents },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
+                activeTab === tab.id
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
               )}
-            </div>
-          </button>
-        ))}
+            >
+              <div className="flex items-center gap-2">
+                <tab.icon className="h-4 w-4 flex-shrink-0" />
+                <span>{tab.label}</span>
+                {'badge' in tab && tab.badge > 0 && (
+                  <span className="bg-red-500 dark:bg-red-600 text-white text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
+                    {tab.badge}
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Overview Tab */}

@@ -143,9 +143,9 @@ export function RealTimeAlertPanel({
   return (
     <div className={cn('bg-card rounded-lg border border-border', className)}>
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div className="flex items-center space-x-2 min-w-0">
+      <div className="p-3 sm:p-4 border-b border-border">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
               <Bell className="h-5 w-5 text-foreground" />
               <div
@@ -158,21 +158,23 @@ export function RealTimeAlertPanel({
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-base sm:text-lg font-semibold truncate">Real-time Alerts</h3>
-              {alertStats.unacknowledged > 0 && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-1 sm:mt-0 sm:ml-2">
-                  {alertStats.unacknowledged} new
-                </span>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm sm:text-base font-semibold">Real-time Alerts</h3>
+                {alertStats.unacknowledged > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 whitespace-nowrap">
+                    {alertStats.unacknowledged} new
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {showFilters && (
               <button
                 onClick={() => setShowFiltersPanel(!showFiltersPanel)}
                 className={cn(
-                  'p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center',
+                  'p-2 rounded-md transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center',
                   showFiltersPanel ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
                 )}
                 title="Filter alerts"
@@ -185,7 +187,7 @@ export function RealTimeAlertPanel({
             {alerts.length > 0 && (
               <button
                 onClick={clearAllAlerts}
-                className="p-2 hover:bg-muted rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
+                className="p-2 hover:bg-muted rounded-md transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
                 title="Clear all alerts"
                 aria-label="Clear all alerts"
               >
@@ -196,23 +198,23 @@ export function RealTimeAlertPanel({
         </div>
 
         {/* Alert Statistics */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground">
           <span className="flex-shrink-0">Total: {alertStats.total}</span>
           {alertStats.critical > 0 && (
-            <span className="flex items-center space-x-1 flex-shrink-0">
-              <div className="w-2 h-2 rounded-full bg-red-700" />
+            <span className="flex items-center gap-1 flex-shrink-0">
+              <div className="w-2 h-2 rounded-full bg-red-700 dark:bg-red-600" />
               <span>Critical: {alertStats.critical}</span>
             </span>
           )}
           {alertStats.error > 0 && (
-            <span className="flex items-center space-x-1 flex-shrink-0">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
+            <span className="flex items-center gap-1 flex-shrink-0">
+              <div className="w-2 h-2 rounded-full bg-red-500 dark:bg-red-400" />
               <span>Error: {alertStats.error}</span>
             </span>
           )}
           {alertStats.warning > 0 && (
-            <span className="flex items-center space-x-1 flex-shrink-0">
-              <div className="w-2 h-2 rounded-full bg-yellow-500" />
+            <span className="flex items-center gap-1 flex-shrink-0">
+              <div className="w-2 h-2 rounded-full bg-yellow-500 dark:bg-yellow-400" />
               <span>Warning: {alertStats.warning}</span>
             </span>
           )}
