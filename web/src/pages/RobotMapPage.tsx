@@ -138,7 +138,7 @@ export function RobotMapPage() {
 
       {/* Map Content */}
       <div className="flex-1 relative">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 touch-pan-x touch-pan-y">
           <SimpleRobotMap
             robots={robots}
             selectedRobotId={selectedRobotId}
@@ -153,13 +153,9 @@ export function RobotMapPage() {
         {/* Collapsible Fleet Status Panel */}
         <div
           className={cn(
-            'absolute top-2 sm:top-4 left-2 sm:left-4 rounded-lg shadow-lg backdrop-blur-sm border z-[70] max-w-[calc(100vw-1rem)] sm:max-w-xs',
+            'absolute top-2 sm:top-4 left-2 sm:left-4 rounded-lg shadow-lg backdrop-blur-sm border z-[70] max-w-[calc(100vw-1rem)] sm:max-w-xs pointer-events-auto',
             isDark ? 'bg-gray-800/95 border-gray-700' : 'bg-white/95 border-gray-200'
           )}
-          style={{
-            position: 'absolute',
-            pointerEvents: 'auto',
-          }}
         >
           {/* Panel Header */}
           <button

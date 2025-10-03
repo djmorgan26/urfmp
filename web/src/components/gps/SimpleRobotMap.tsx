@@ -778,11 +778,11 @@ export function SimpleRobotMap({
       </MapContainer>
 
       {/* Map Style Controls */}
-      <div className="absolute top-4 right-2 z-[70]">
+      <div className="absolute top-4 right-2 z-[70] pointer-events-none">
         {/* Style Selector */}
         <div
           className={cn(
-            'rounded-lg shadow-lg p-2 backdrop-blur-sm',
+            'rounded-lg shadow-lg p-2 backdrop-blur-sm pointer-events-auto',
             isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
           )}
         >
@@ -831,10 +831,10 @@ export function SimpleRobotMap({
       </div>
 
       {/* Zoom and Center Controls */}
-      <div className="absolute top-20 right-2 z-[70]">
+      <div className="absolute top-20 right-2 z-[70] pointer-events-none">
         <div
           className={cn(
-            'rounded shadow-sm backdrop-blur-sm flex flex-col w-fit',
+            'rounded shadow-sm backdrop-blur-sm flex flex-col w-fit pointer-events-auto',
             isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
           )}
         >
@@ -871,7 +871,7 @@ export function SimpleRobotMap({
       {/* Map Info */}
       <div
         className={cn(
-          'absolute bottom-4 left-4 rounded-lg shadow-lg p-3 backdrop-blur-sm z-[70]',
+          'absolute bottom-4 left-4 rounded-lg shadow-lg p-3 backdrop-blur-sm z-[70] pointer-events-auto',
           isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
         )}
       >
@@ -890,7 +890,7 @@ export function SimpleRobotMap({
       {selectedRobotId && (
         <div
           className={cn(
-            'absolute bottom-4 right-4 rounded-lg shadow-lg p-4 max-w-sm backdrop-blur-sm z-[70]',
+            'absolute bottom-4 right-4 rounded-lg shadow-lg p-4 max-w-sm backdrop-blur-sm z-[70] pointer-events-auto',
             isDark ? 'bg-gray-800/90 border border-gray-700' : 'bg-white/90 border border-gray-200'
           )}
         >
@@ -981,7 +981,7 @@ export function SimpleRobotMap({
       {isLoading && (
         <div
           className={cn(
-            'absolute inset-0 bg-opacity-90 flex items-center justify-center z-[70]',
+            'absolute inset-0 bg-opacity-90 flex items-center justify-center z-[70] pointer-events-auto',
             isDark ? 'bg-gray-900' : 'bg-white'
           )}
         >
@@ -996,7 +996,7 @@ export function SimpleRobotMap({
 
       {/* No GPS Data State */}
       {!isLoading && robotGPSData.size === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center z-[70]">
+        <div className="absolute inset-0 flex items-center justify-center z-[70] pointer-events-none">
           <div className="text-center">
             <MapPin
               className={cn('w-12 h-12 mx-auto mb-4', isDark ? 'text-gray-500' : 'text-gray-400')}
