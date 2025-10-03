@@ -335,12 +335,22 @@ export function Layout({ children }: LayoutProps) {
 
               {/* Alert Panel Dropdown */}
               {showAlertPanel && (
-                <div className="absolute right-0 top-full mt-2">
-                  <RealTimeAlertPanel
-                    className="w-80 sm:w-96 max-h-[70vh] shadow-lg max-w-[calc(100vw-2rem)]"
-                    showFilters={true}
-                  />
-                </div>
+                <>
+                  {/* Mobile: Fixed positioning */}
+                  <div className="fixed sm:hidden right-4 top-[4.5rem] z-[70]">
+                    <RealTimeAlertPanel
+                      className="w-[calc(100vw-2rem)] max-h-[70vh] shadow-lg"
+                      showFilters={true}
+                    />
+                  </div>
+                  {/* Desktop: Dropdown positioning */}
+                  <div className="hidden sm:block absolute right-0 top-full mt-2">
+                    <RealTimeAlertPanel
+                      className="w-96 max-h-[70vh] shadow-lg"
+                      showFilters={true}
+                    />
+                  </div>
+                </>
               )}
             </div>
 

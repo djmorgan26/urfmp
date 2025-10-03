@@ -85,23 +85,67 @@ const mockMaintenanceTasks: MaintenanceTask[] = [
 ]
 
 const typeConfig = {
-  preventive: { color: 'text-blue-600', bg: 'bg-blue-100', label: 'Preventive' },
-  corrective: { color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Corrective' },
-  emergency: { color: 'text-red-600', bg: 'bg-red-100', label: 'Emergency' },
+  preventive: {
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-100 dark:bg-blue-950/30',
+    label: 'Preventive',
+  },
+  corrective: {
+    color: 'text-yellow-600 dark:text-yellow-400',
+    bg: 'bg-yellow-100 dark:bg-yellow-950/30',
+    label: 'Corrective',
+  },
+  emergency: {
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'Emergency',
+  },
 }
 
 const priorityConfig = {
-  low: { color: 'text-green-600', bg: 'bg-green-100', label: 'Low' },
-  medium: { color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Medium' },
-  high: { color: 'text-orange-600', bg: 'bg-orange-100', label: 'High' },
-  critical: { color: 'text-red-600', bg: 'bg-red-100', label: 'Critical' },
+  low: {
+    color: 'text-green-600 dark:text-green-400',
+    bg: 'bg-green-100 dark:bg-green-950/30',
+    label: 'Low',
+  },
+  medium: {
+    color: 'text-yellow-600 dark:text-yellow-400',
+    bg: 'bg-yellow-100 dark:bg-yellow-950/30',
+    label: 'Medium',
+  },
+  high: {
+    color: 'text-orange-600 dark:text-orange-400',
+    bg: 'bg-orange-100 dark:bg-orange-950/30',
+    label: 'High',
+  },
+  critical: {
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'Critical',
+  },
 }
 
 const statusConfig = {
-  scheduled: { color: 'text-blue-600', bg: 'bg-blue-100', label: 'Scheduled' },
-  in_progress: { color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'In Progress' },
-  completed: { color: 'text-green-600', bg: 'bg-green-100', label: 'Completed' },
-  overdue: { color: 'text-red-600', bg: 'bg-red-100', label: 'Overdue' },
+  scheduled: {
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-100 dark:bg-blue-950/30',
+    label: 'Scheduled',
+  },
+  in_progress: {
+    color: 'text-yellow-600 dark:text-yellow-400',
+    bg: 'bg-yellow-100 dark:bg-yellow-950/30',
+    label: 'In Progress',
+  },
+  completed: {
+    color: 'text-green-600 dark:text-green-400',
+    bg: 'bg-green-100 dark:bg-green-950/30',
+    label: 'Completed',
+  },
+  overdue: {
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'Overdue',
+  },
 }
 
 export function Maintenance() {
@@ -154,7 +198,7 @@ export function Maintenance() {
               'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
               activeTab === 'predictive'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 dark:hover:border-gray-700'
             )}
           >
             <div className="flex items-center space-x-2">
@@ -168,7 +212,7 @@ export function Maintenance() {
               'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
               activeTab === 'scheduled'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 dark:hover:border-gray-700'
             )}
           >
             <div className="flex items-center space-x-2">
@@ -182,7 +226,7 @@ export function Maintenance() {
               'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
               activeTab === 'history'
                 ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300 dark:hover:border-gray-700'
             )}
           >
             <div className="flex items-center space-x-2">
@@ -393,8 +437,8 @@ export function Maintenance() {
                     </div>
 
                     {task.status === 'overdue' && (
-                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-                        <div className="flex items-center space-x-2 text-red-700 text-sm">
+                      <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-md">
+                        <div className="flex items-center space-x-2 text-red-700 dark:text-red-300 text-sm">
                           <AlertTriangle className="h-4 w-4" />
                           <span>
                             This task is overdue by{' '}
