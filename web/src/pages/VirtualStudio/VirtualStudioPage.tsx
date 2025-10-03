@@ -10,9 +10,12 @@ interface RobotCommand {
   data: any;
 }
 
+type RobotType = 'simple' | 'ur5' | 'drone';
+
 const VirtualStudioPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [simulationSpeed, setSimulationSpeed] = useState(1);
+  const [selectedRobot, setSelectedRobot] = useState<RobotType>('simple');
   const [robotPosition, setRobotPosition] = useState({ x: 0, y: 0.5, z: 0 });
   const [robotRotation, setRobotRotation] = useState(0);
   const [telemetryData, setTelemetryData] = useState<any>({
@@ -129,7 +132,14 @@ const VirtualStudioPage: React.FC = () => {
               Robot Library
             </h2>
             <div className="space-y-2">
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500 rounded-lg cursor-pointer">
+              <div
+                onClick={() => setSelectedRobot('simple')}
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  selectedRobot === 'simple'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
+                    : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                }`}
+              >
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   Simple Bot
                 </h3>
@@ -137,7 +147,14 @@ const VirtualStudioPage: React.FC = () => {
                   Basic wheeled robot
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+              <div
+                onClick={() => setSelectedRobot('ur5')}
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  selectedRobot === 'ur5'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
+                    : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                }`}
+              >
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   UR5 Arm
                 </h3>
@@ -145,7 +162,14 @@ const VirtualStudioPage: React.FC = () => {
                   6-DOF robotic arm
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+              <div
+                onClick={() => setSelectedRobot('drone')}
+                className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                  selectedRobot === 'drone'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500'
+                    : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600'
+                }`}
+              >
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   Drone
                 </h3>
@@ -164,6 +188,7 @@ const VirtualStudioPage: React.FC = () => {
               isPlaying={isPlaying}
               position={robotPosition}
               rotation={robotRotation}
+              robotType={selectedRobot}
             />
           </div>
 

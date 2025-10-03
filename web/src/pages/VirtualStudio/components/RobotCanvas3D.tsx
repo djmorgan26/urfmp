@@ -1,74 +1,28 @@
-import React, { useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Grid, Box, Sphere } from '@react-three/drei';
-import * as THREE from 'three';
+import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Grid, Box } from '@react-three/drei';
+import { SimpleBot, UR5Arm, Drone } from './RobotModels';
+
+type RobotType = 'simple' | 'ur5' | 'drone';
 
 interface RobotCanvas3DProps {
   isPlaying: boolean;
   position?: { x: number; y: number; z: number };
   rotation?: number;
+  robotType?: RobotType;
 }
-
-// Simple robot component - a box with a sphere on top
-const SimpleRobot: React.FC<{
-  isPlaying: boolean;
-  position?: { x: number; y: number; z: number };
-  rotation?: number;
-}> = ({ isPlaying, position: targetPosition, rotation: targetRotation }) => {
-  const robotRef = useRef<THREE.Group>(null);
-
-  useFrame((state, delta) => {
-    if (robotRef.current && targetPosition) {
-      // Smoothly interpolate to target position
-      robotRef.current.position.x +=
-        (targetPosition.x - robotRef.current.position.x) * delta * 5;
-      robotRef.current.position.y +=
-        (targetPosition.y - robotRef.current.position.y) * delta * 5;
-      robotRef.current.position.z +=
-        (targetPosition.z - robotRef.current.position.z) * delta * 5;
-
-      if (targetRotation !== undefined) {
-        const targetRad = (targetRotation * Math.PI) / 180;
-        robotRef.current.rotation.y +=
-          (targetRad - robotRef.current.rotation.y) * delta * 5;
-      }
-    }
-  });
-
-  return (
-    <group ref={robotRef} position={[0, 0.5, 0]}>
-      {/* Robot body */}
-      <Box args={[1, 0.5, 1.5]} position={[0, 0, 0]}>
-        <meshStandardMaterial color="#3b82f6" />
-      </Box>
-
-      {/* Robot head/sensor */}
-      <Sphere args={[0.3, 32, 32]} position={[0, 0.5, 0]}>
-        <meshStandardMaterial color="#60a5fa" />
-      </Sphere>
-
-      {/* Wheels */}
-      <Sphere args={[0.2, 16, 16]} position={[0.5, -0.3, 0.5]}>
-        <meshStandardMaterial color="#1f2937" />
-      </Sphere>
-      <Sphere args={[0.2, 16, 16]} position={[-0.5, -0.3, 0.5]}>
-        <meshStandardMaterial color="#1f2937" />
-      </Sphere>
-      <Sphere args={[0.2, 16, 16]} position={[0.5, -0.3, -0.5]}>
-        <meshStandardMaterial color="#1f2937" />
-      </Sphere>
-      <Sphere args={[0.2, 16, 16]} position={[-0.5, -0.3, -0.5]}>
-        <meshStandardMaterial color="#1f2937" />
-      </Sphere>
-    </group>
-  );
-};
 
 const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
   isPlaying,
   position,
   rotation,
+  robotType = 'simple',
 }) => {
+  const RobotComponent = {
+    simple: SimpleBot,
+    ur5: UR5Arm,
+    drone: Drone,
+  }[robotType];
   return (
     <div className="w-full h-full">
       <Canvas
@@ -103,7 +57,7 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
         />
 
         {/* Robot */}
-        <SimpleRobot isPlaying={isPlaying} position={position} rotation={rotation} />
+        <RobotComponent position={position} rotation={rotation} />
 
         {/* Environment obstacles */}
         <Box args={[1, 2, 1]} position={[3, 1, -3]}>
