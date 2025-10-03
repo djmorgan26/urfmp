@@ -244,7 +244,7 @@ export function GeofencingDashboard() {
                   {!event.acknowledged && (
                     <button
                       onClick={() => acknowledgeEvent(event.id, 'System')}
-                      className="text-xs bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 px-2 py-1 rounded hover:bg-blue-200 dark:hover:bg-blue-900/40"
+                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
                     >
                       Acknowledge
                     </button>
@@ -379,8 +379,8 @@ export function GeofencingDashboard() {
                         className={cn(
                           'px-2 py-1 rounded-full text-xs',
                           geofence.isActive
-                            ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
                         )}
                       >
                         {geofence.isActive ? 'Active' : 'Inactive'}
@@ -433,7 +433,7 @@ export function GeofencingDashboard() {
                       >
                         <span className="text-sm">{rule.name}</span>
                         <div className="flex items-center space-x-2">
-                          <span className="text-xs bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 px-2 py-1 rounded">
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                             {rule.trigger}
                           </span>
                           <span className="text-xs text-muted-foreground">
@@ -476,12 +476,12 @@ export function GeofencingDashboard() {
                     className={cn(
                       'px-2 py-1 rounded-full text-xs',
                       path.status === 'active'
-                        ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
+                        ? 'bg-green-100 text-green-800'
                         : path.status === 'completed'
-                          ? 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400'
+                          ? 'bg-blue-100 text-blue-800'
                           : path.status === 'paused'
-                            ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
                     )}
                   >
                     {path.status}
@@ -573,12 +573,12 @@ export function GeofencingDashboard() {
                           className={cn(
                             'px-2 py-1 rounded-full text-xs',
                             event.severity === 'critical'
-                              ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400'
+                              ? 'bg-red-100 text-red-800'
                               : event.severity === 'error'
-                                ? 'bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300'
+                                ? 'bg-red-50 text-red-700'
                                 : event.severity === 'warning'
-                                  ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
-                                  : 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-blue-100 text-blue-800'
                           )}
                         >
                           {event.severity}

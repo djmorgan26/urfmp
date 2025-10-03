@@ -10,10 +10,10 @@ interface MetricCardProps {
 }
 
 const colorClasses = {
-  blue: 'text-blue-600 bg-blue-100 dark:text-blue-400 dark:bg-blue-950/30',
-  green: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-950/30',
-  red: 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-950/30',
-  yellow: 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-950/30',
+  blue: 'text-blue-600 bg-blue-100',
+  green: 'text-green-600 bg-green-100',
+  red: 'text-red-600 bg-red-100',
+  yellow: 'text-yellow-600 bg-yellow-100',
 }
 
 export function MetricCard({ title, value, icon: Icon, trend, color }: MetricCardProps) {

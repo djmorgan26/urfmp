@@ -21,54 +21,19 @@ interface RobotCardProps {
 }
 
 const statusConfig = {
-  online: {
-    icon: CheckCircle,
-    color: 'text-green-600 dark:text-green-400',
-    bg: 'bg-green-100 dark:bg-green-950/30',
-    label: 'Online',
-  },
-  running: {
-    icon: Activity,
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-100 dark:bg-blue-950/30',
-    label: 'Running',
-  },
-  idle: {
-    icon: Clock,
-    color: 'text-gray-600 dark:text-gray-400',
-    bg: 'bg-gray-100 dark:bg-gray-800',
-    label: 'Idle',
-  },
-  offline: {
-    icon: XCircle,
-    color: 'text-red-600 dark:text-red-400',
-    bg: 'bg-red-100 dark:bg-red-950/30',
-    label: 'Offline',
-  },
-  error: {
-    icon: AlertTriangle,
-    color: 'text-red-600 dark:text-red-400',
-    bg: 'bg-red-100 dark:bg-red-950/30',
-    label: 'Error',
-  },
+  online: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100', label: 'Online' },
+  running: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Running' },
+  idle: { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Idle' },
+  offline: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-100', label: 'Offline' },
+  error: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'Error' },
   maintenance: {
     icon: AlertTriangle,
-    color: 'text-yellow-600 dark:text-yellow-400',
-    bg: 'bg-yellow-100 dark:bg-yellow-950/30',
+    color: 'text-yellow-600',
+    bg: 'bg-yellow-100',
     label: 'Maintenance',
   },
-  stopped: {
-    icon: Square,
-    color: 'text-gray-600 dark:text-gray-400',
-    bg: 'bg-gray-100 dark:bg-gray-800',
-    label: 'Stopped',
-  },
-  emergency_stop: {
-    icon: AlertTriangle,
-    color: 'text-red-600 dark:text-red-400',
-    bg: 'bg-red-100 dark:bg-red-950/30',
-    label: 'E-Stop',
-  },
+  stopped: { icon: Square, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Stopped' },
+  emergency_stop: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'E-Stop' },
 }
 
 export function RobotCard({ robot }: RobotCardProps) {
@@ -176,7 +141,7 @@ export function RobotCard({ robot }: RobotCardProps) {
                 handleCommand('START')
               }}
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
             >
               <Play className="h-3.5 w-3.5" />
               <span>Start</span>
@@ -188,7 +153,7 @@ export function RobotCard({ robot }: RobotCardProps) {
                 handleCommand('STOP')
               }}
               disabled={isLoading}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-md transition-colors disabled:opacity-50"
             >
               <Square className="h-3.5 w-3.5" />
               <span>Stop</span>

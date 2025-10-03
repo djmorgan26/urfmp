@@ -335,22 +335,12 @@ export function Layout({ children }: LayoutProps) {
 
               {/* Alert Panel Dropdown */}
               {showAlertPanel && (
-                <>
-                  {/* Mobile: Fixed positioning */}
-                  <div className="fixed sm:hidden right-4 top-[4.5rem] z-[70]">
-                    <RealTimeAlertPanel
-                      className="w-[calc(100vw-2rem)] max-h-[70vh] shadow-lg"
-                      showFilters={true}
-                    />
-                  </div>
-                  {/* Desktop: Dropdown positioning */}
-                  <div className="hidden sm:block absolute right-0 top-full mt-2">
-                    <RealTimeAlertPanel
-                      className="w-96 max-h-[70vh] shadow-lg"
-                      showFilters={true}
-                    />
-                  </div>
-                </>
+                <div className="absolute right-0 top-full mt-2">
+                  <RealTimeAlertPanel
+                    className="w-80 sm:w-96 max-h-[70vh] shadow-lg max-w-[calc(100vw-2rem)]"
+                    showFilters={true}
+                  />
+                </div>
               )}
             </div>
 
@@ -551,11 +541,9 @@ export function Layout({ children }: LayoutProps) {
 
               {/* Error Display */}
               {error && (
-                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-4">
-                  <h3 className="text-sm font-medium text-red-800 dark:text-red-400 mb-1">
-                    Connection Error
-                  </h3>
-                  <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                  <h3 className="text-sm font-medium text-red-800 mb-1">Connection Error</h3>
+                  <p className="text-xs text-red-600">{error}</p>
                 </div>
               )}
             </div>

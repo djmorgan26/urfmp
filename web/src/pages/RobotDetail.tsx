@@ -255,7 +255,7 @@ export function RobotDetail() {
                   <button
                     onClick={() => handleCommand('START')}
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50"
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                   >
                     <Play className="h-4 w-4" />
                     <span>Start Robot</span>
@@ -264,7 +264,7 @@ export function RobotDetail() {
                   <button
                     onClick={() => handleCommand('STOP')}
                     disabled={isLoading}
-                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50"
+                    className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
                   >
                     <Square className="h-4 w-4" />
                     <span>Stop Robot</span>
@@ -462,7 +462,7 @@ export function RobotDetail() {
               <button
                 onClick={() => handleCommand('START')}
                 disabled={isLoading || robot.status === 'running'}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 dark:bg-green-700 text-white rounded-md hover:bg-green-700 dark:hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play className="h-4 w-4" />
                 <span>Start</span>
@@ -470,7 +470,7 @@ export function RobotDetail() {
               <button
                 onClick={() => handleCommand('STOP')}
                 disabled={isLoading || robot.status === 'stopped'}
-                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 dark:bg-red-700 text-white rounded-md hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Square className="h-4 w-4" />
                 <span>Stop</span>
@@ -530,8 +530,8 @@ export function RobotDetail() {
                       className={cn(
                         'h-8 w-8 rounded-full flex items-center justify-center',
                         cmd.status === 'success'
-                          ? 'bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400'
-                          : 'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
                       )}
                     >
                       {cmd.status === 'success' ? (
