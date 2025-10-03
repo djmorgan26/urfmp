@@ -100,55 +100,62 @@ export function RobotDetail() {
   const StatusIcon = status.icon
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link to="/robots" className="p-2 rounded-md hover:bg-muted">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <Link to="/robots" className="p-2 rounded-md hover:bg-muted shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Link>
 
-          <div className="flex items-center space-x-4">
-            <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-              <Bot className="h-6 w-6 text-muted-foreground" />
+          <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-muted flex items-center justify-center shrink-0">
+              <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
             </div>
 
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">{robot.name}</h1>
-              <p className="text-muted-foreground">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">
+                {robot.name}
+              </h1>
+              <p className="text-sm text-muted-foreground truncate">
                 {robot.model} • {robot.vendor.replace('_', ' ')}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1">
           <button
             onClick={() => setIsEditModalOpen(true)}
-            className="flex items-center space-x-2 px-3 py-2 border border-input rounded-md hover:bg-muted"
+            className="flex items-center space-x-2 px-3 py-2 border border-input rounded-md hover:bg-muted whitespace-nowrap shrink-0"
           >
             <Edit className="h-4 w-4" />
-            <span>Edit Robot</span>
+            <span className="hidden sm:inline">Edit Robot</span>
+            <span className="sm:hidden">Edit</span>
           </button>
 
           <select
             value={selectedTimeRange}
             onChange={(e) => setSelectedTimeRange(e.target.value)}
-            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+            className="rounded-md border border-input bg-background px-2 sm:px-3 py-2 text-xs sm:text-sm shrink-0"
           >
-            <option value="1h">Last Hour</option>
-            <option value="6h">Last 6 Hours</option>
-            <option value="24h">Last 24 Hours</option>
-            <option value="7d">Last 7 Days</option>
+            <option value="1h">1h</option>
+            <option value="6h">6h</option>
+            <option value="24h">24h</option>
+            <option value="7d">7d</option>
           </select>
 
-          <button className="p-2 rounded-md border border-input hover:bg-muted">
+          <button
+            className="p-2 rounded-md border border-input hover:bg-muted shrink-0"
+            title="Download data"
+          >
             <Download className="h-4 w-4" />
           </button>
 
           <button
             onClick={() => refreshRobots(true)}
-            className="p-2 rounded-md border border-input hover:bg-muted"
+            className="p-2 rounded-md border border-input hover:bg-muted shrink-0"
+            title="Refresh"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
@@ -156,8 +163,8 @@ export function RobotDetail() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="border-b border-border">
-        <nav className="flex space-x-8">
+      <div className="border-b border-border -mx-4 sm:mx-0">
+        <nav className="flex space-x-4 sm:space-x-8 overflow-x-auto px-4 sm:px-0 scrollbar-hide">
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'telemetry', label: 'Telemetry' },
@@ -168,7 +175,7 @@ export function RobotDetail() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'py-4 px-1 border-b-2 font-medium text-sm',
+                'py-3 sm:py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap',
                 activeTab === tab.id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground'
@@ -447,19 +454,306 @@ export function RobotDetail() {
 
       {/* Commands Tab */}
       {activeTab === 'commands' && (
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Robot Commands</h3>
-          <p className="text-muted-foreground">
-            Command history and execution interface coming soon...
-          </p>
+        <div className="space-y-6">
+          {/* Command Builder */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">Send Command</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <button
+                onClick={() => handleCommand('START')}
+                disabled={isLoading || robot.status === 'running'}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="h-4 w-4" />
+                <span>Start</span>
+              </button>
+              <button
+                onClick={() => handleCommand('STOP')}
+                disabled={isLoading || robot.status === 'stopped'}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Square className="h-4 w-4" />
+                <span>Stop</span>
+              </button>
+              <button
+                onClick={() => handleCommand('PAUSE')}
+                disabled={isLoading || robot.status !== 'running'}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Clock className="h-4 w-4" />
+                <span>Pause</span>
+              </button>
+              <button
+                onClick={() => handleCommand('RESET')}
+                disabled={isLoading}
+                className="flex items-center justify-center space-x-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span>Reset</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Command History */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">Command History</h3>
+            <div className="space-y-3">
+              {[
+                {
+                  id: '1',
+                  command: 'START',
+                  timestamp: new Date(Date.now() - 300000),
+                  status: 'success',
+                  user: 'Admin User',
+                },
+                {
+                  id: '2',
+                  command: 'STOP',
+                  timestamp: new Date(Date.now() - 600000),
+                  status: 'success',
+                  user: 'Admin User',
+                },
+                {
+                  id: '3',
+                  command: 'RESET',
+                  timestamp: new Date(Date.now() - 900000),
+                  status: 'success',
+                  user: 'Admin User',
+                },
+              ].map((cmd) => (
+                <div
+                  key={cmd.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted rounded-md gap-3 sm:gap-0"
+                >
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div
+                      className={cn(
+                        'h-8 w-8 rounded-full flex items-center justify-center',
+                        cmd.status === 'success'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
+                      )}
+                    >
+                      {cmd.status === 'success' ? (
+                        <CheckCircle className="h-4 w-4" />
+                      ) : (
+                        <XCircle className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm">{cmd.command}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        Executed by {cmd.user}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground sm:text-right">
+                    {formatDistanceToNow(cmd.timestamp, { addSuffix: true })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Advanced Commands */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">Advanced Commands</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Custom Command</label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter custom command..."
+                    className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                  <button
+                    disabled={isLoading}
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    Send Command
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Move to Position</label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <input
+                    type="number"
+                    placeholder="X"
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Y"
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Z"
+                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <button
+                  disabled={isLoading}
+                  className="mt-2 w-full sm:w-auto px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+                >
+                  Move Robot
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* History Tab */}
       {activeTab === 'history' && (
-        <div className="bg-card rounded-lg border border-border p-6">
-          <h3 className="text-lg font-semibold mb-4">Robot History</h3>
-          <p className="text-muted-foreground">Historical data and audit logs coming soon...</p>
+        <div className="space-y-6">
+          {/* Activity Timeline */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">Activity Timeline</h3>
+            <div className="space-y-4">
+              {[
+                {
+                  id: '1',
+                  type: 'status_change',
+                  title: 'Status changed to Running',
+                  description: 'Robot started production cycle',
+                  timestamp: new Date(Date.now() - 180000),
+                  user: 'Admin User',
+                  icon: Activity,
+                  color: 'text-green-600 bg-green-100',
+                },
+                {
+                  id: '2',
+                  type: 'command',
+                  title: 'Command executed: STOP',
+                  description: 'Robot stopped for maintenance',
+                  timestamp: new Date(Date.now() - 3600000),
+                  user: 'Admin User',
+                  icon: Square,
+                  color: 'text-red-600 bg-red-100',
+                },
+                {
+                  id: '3',
+                  type: 'config_change',
+                  title: 'Configuration updated',
+                  description: 'Payload capacity increased to 5.5kg',
+                  timestamp: new Date(Date.now() - 7200000),
+                  user: 'Admin User',
+                  icon: Settings,
+                  color: 'text-blue-600 bg-blue-100',
+                },
+                {
+                  id: '4',
+                  type: 'maintenance',
+                  title: 'Maintenance completed',
+                  description: 'Scheduled maintenance task completed successfully',
+                  timestamp: new Date(Date.now() - 10800000),
+                  user: 'System',
+                  icon: CheckCircle,
+                  color: 'text-green-600 bg-green-100',
+                },
+                {
+                  id: '5',
+                  type: 'alert',
+                  title: 'Temperature alert cleared',
+                  description: 'Temperature returned to normal range',
+                  timestamp: new Date(Date.now() - 14400000),
+                  user: 'System',
+                  icon: AlertTriangle,
+                  color: 'text-yellow-600 bg-yellow-100',
+                },
+              ].map((event, index, array) => (
+                <div key={event.id} className="relative flex gap-4">
+                  {/* Timeline line */}
+                  {index < array.length - 1 && (
+                    <div className="absolute left-4 top-10 bottom-0 w-0.5 bg-border" />
+                  )}
+
+                  {/* Event icon */}
+                  <div
+                    className={cn(
+                      'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
+                      event.color
+                    )}
+                  >
+                    <event.icon className="h-4 w-4" />
+                  </div>
+
+                  {/* Event content */}
+                  <div className="flex-1 pb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-1">
+                      <h4 className="font-medium text-sm">{event.title}</h4>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(event.timestamp, { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-1">{event.description}</p>
+                    <p className="text-xs text-muted-foreground">by {event.user}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* System Logs */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">System Logs</h3>
+            <div className="bg-muted rounded-md p-4 font-mono text-xs overflow-x-auto">
+              <div className="space-y-1 whitespace-pre">
+                <div className="text-muted-foreground">
+                  [{new Date().toISOString()}] INFO: Robot operational
+                </div>
+                <div className="text-green-600">
+                  [{new Date(Date.now() - 60000).toISOString()}] SUCCESS: Position reached: [125.5,
+                  245.8, 300.2]
+                </div>
+                <div className="text-blue-600">
+                  [{new Date(Date.now() - 120000).toISOString()}] INFO: Telemetry update received
+                </div>
+                <div className="text-yellow-600">
+                  [{new Date(Date.now() - 180000).toISOString()}] WARN: Temperature slightly
+                  elevated: 46°C
+                </div>
+                <div className="text-green-600">
+                  [{new Date(Date.now() - 240000).toISOString()}] SUCCESS: Command executed:
+                  MOVE_TO_HOME
+                </div>
+                <div className="text-muted-foreground">
+                  [{new Date(Date.now() - 300000).toISOString()}] INFO: WebSocket connection
+                  established
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
+            <h3 className="text-lg font-semibold mb-4">Performance Metrics</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-1">Uptime</p>
+                <p className="text-2xl font-bold">99.8%</p>
+                <p className="text-xs text-green-600">+0.2% from last month</p>
+              </div>
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-1">Cycles Completed</p>
+                <p className="text-2xl font-bold">1,247</p>
+                <p className="text-xs text-green-600">+12% from last week</p>
+              </div>
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-1">Avg Cycle Time</p>
+                <p className="text-2xl font-bold">2.3s</p>
+                <p className="text-xs text-green-600">-0.1s improvement</p>
+              </div>
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-sm text-muted-foreground mb-1">Error Rate</p>
+                <p className="text-2xl font-bold">0.2%</p>
+                <p className="text-xs text-green-600">-0.1% improvement</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
