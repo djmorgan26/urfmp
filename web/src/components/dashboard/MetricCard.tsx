@@ -19,8 +19,8 @@ const colorClasses = {
 export function MetricCard({ title, value, icon: Icon, trend, color }: MetricCardProps) {
   return (
     <div className="bg-card rounded-lg border border-border p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-3xl font-bold mt-2">{value}</p>
           {trend && <p className="text-sm text-muted-foreground mt-1">{trend}</p>}
@@ -28,11 +28,11 @@ export function MetricCard({ title, value, icon: Icon, trend, color }: MetricCar
 
         <div
           className={cn(
-            'h-12 w-12 rounded-lg flex items-center justify-center',
+            'h-14 w-14 rounded-xl flex items-center justify-center flex-shrink-0',
             colorClasses[color]
           )}
         >
-          <Icon className="h-6 w-6" />
+          <Icon className="h-7 w-7" />
         </div>
       </div>
     </div>
