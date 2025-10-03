@@ -9,5 +9,17 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "VITE_COMPANY_NAME": "@VITE_COMPANY_NAME",
+      "VITE_PRODUCT_NAME": "@VITE_PRODUCT_NAME",
+      "VITE_PRODUCT_FULL_NAME": "@VITE_PRODUCT_FULL_NAME",
+      "VITE_TAGLINE": "@VITE_TAGLINE",
+      "VITE_DESCRIPTION": "@VITE_DESCRIPTION",
+      "VITE_DEMO_MODE": "@VITE_DEMO_MODE",
+      "VITE_URFMP_API_URL": "@VITE_URFMP_API_URL",
+      "VITE_URFMP_WS_URL": "@VITE_URFMP_WS_URL"
+    }
+  }
 }
