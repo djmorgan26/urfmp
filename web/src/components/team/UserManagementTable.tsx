@@ -226,7 +226,7 @@ export function UserManagementTable({ onEditUser }: UserManagementTableProps) {
                         </button>
 
                         {activeDropdown === user.id && (
-                          <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-md shadow-lg z-10">
+                          <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-md shadow-lg z-20">
                             <div className="py-1">
                               <button
                                 onClick={() => {

@@ -179,7 +179,7 @@ export function AlertNotifications(_props: AlertNotificationsProps = {}) {
   if (!enabled || notifications.length === 0) return null
 
   return (
-    <div className={cn('fixed z-50 space-y-2', getPositionClasses())}>
+    <div className={cn('fixed z-[80] space-y-2', getPositionClasses())}>
       {notifications.map((notification) => {
         const config = severityConfig[notification.severity]
         const Icon = config.icon

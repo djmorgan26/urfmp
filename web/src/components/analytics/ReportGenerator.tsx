@@ -138,7 +138,7 @@ export function ReportGenerator({
       {isOpen && (
         <div
           className={cn(
-            'absolute top-full right-0 mt-1 w-48 rounded-md shadow-lg z-50 border',
+            'absolute top-full right-0 mt-1 w-48 rounded-md shadow-lg z-20 border',
             isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
           )}
         >

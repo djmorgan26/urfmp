@@ -116,10 +116,23 @@
   }
 }
 
+/* Z-Index Scale
+ * 0      - Base map layer
+ * 10     - Map controls (leaflet)
+ * 20     - Dropdowns/Tooltips (user menu dropdown, action menus)
+ * 30     - Mobile sidebar overlay
+ * 40     - Mobile sidebar
+ * 50     - Header (sticky)
+ * 60     - Header dropdowns (search results, alerts, user menu)
+ * 70     - Map overlays (fleet panel, legend, info boxes)
+ * 80     - Toast notifications
+ * 90     - Modals
+ */
+
 /* Ensure UI panels stay above Leaflet map */
 .ui-panel {
   position: fixed !important;
-  z-index: 1000 !important;
+  z-index: 70 !important;
   pointer-events: auto !important;
 }
 
@@ -129,7 +142,7 @@
 }
 
 .leaflet-control-container {
-  z-index: 100 !important;
+  z-index: 10 !important;
 }
 
 /* Mobile-specific map adjustments */

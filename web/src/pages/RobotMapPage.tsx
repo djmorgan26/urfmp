@@ -153,12 +153,11 @@ export function RobotMapPage() {
         {/* Collapsible Fleet Status Panel */}
         <div
           className={cn(
-            'absolute top-2 sm:top-4 left-2 sm:left-4 rounded-lg shadow-lg backdrop-blur-sm border z-[1000] max-w-[calc(100vw-1rem)] sm:max-w-xs',
+            'absolute top-2 sm:top-4 left-2 sm:left-4 rounded-lg shadow-lg backdrop-blur-sm border z-[70] max-w-[calc(100vw-1rem)] sm:max-w-xs',
             isDark ? 'bg-gray-800/95 border-gray-700' : 'bg-white/95 border-gray-200'
           )}
           style={{
             position: 'absolute',
-            zIndex: 1000,
             pointerEvents: 'auto',
           }}
         >

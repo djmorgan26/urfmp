@@ -234,7 +234,7 @@ export function Layout({ children }: LayoutProps) {
 
                 {/* Search Results Dropdown */}
                 {showSearchResults && (searchResults.length > 0 || isSearching) && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50 max-h-96 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[60] max-h-96 overflow-y-auto">
                     {isSearching ? (
                       <div className="p-4 text-center text-muted-foreground">
                         <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full mx-auto mb-2" />
@@ -470,7 +470,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Mobile overlay */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -478,7 +478,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Sidebar */}
         <nav
           className={cn(
-            'w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-50',
+            'w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-40',
             'lg:translate-x-0 lg:static lg:z-auto',
             sidebarOpen ? 'fixed translate-x-0' : 'fixed -translate-x-full lg:translate-x-0'
           )}

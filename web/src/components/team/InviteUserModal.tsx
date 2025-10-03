@@ -152,7 +152,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
 
   if (success) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90]">
         <div className="bg-card rounded-lg border border-border p-6 w-full max-w-md mx-4">
           <div className="text-center">
             <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -170,7 +170,7 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90]">
       <div className="bg-card rounded-lg border border-border w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">

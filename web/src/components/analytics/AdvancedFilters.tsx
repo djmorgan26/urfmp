@@ -247,7 +247,7 @@ export function AdvancedFilters({
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-96 bg-background border border-border rounded-md shadow-lg z-50">
+        <div className="absolute top-full left-0 mt-1 w-96 bg-background border border-border rounded-md shadow-lg z-20">
           <div className="p-4">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-sm font-medium">Advanced Filters</h4>
