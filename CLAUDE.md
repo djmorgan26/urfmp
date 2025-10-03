@@ -861,5 +861,239 @@ This CLAUDE.md file is organized into comprehensive sections covering all aspect
 - 🔄 **Optimize performance** - Bundle analysis, database query optimization
 - 🔄 **Production readiness** - Disaster recovery, backup procedures, scaling
 
-_Last Updated: September 25, 2025 - Feature Complete + Engineering Standards Established_
+---
+
+## 🤖 **VIRTUAL ROBOT INTEGRATION PLAN**
+
+### **Strategic Vision: "The Stripe Moment for Robotics"**
+
+Enable developers to:
+1. **Develop robots virtually** - Full simulation in browser, zero installation
+2. **Connect external robots** - Gazebo, Webots, ROS1/ROS2, physical hardware
+3. **Host and scale** - Cloud-based simulation fleet for CI/CD and AI training
+
+**Target Route:** `/studio` - Virtual Robot Studio
+
+---
+
+### **Phase 1: In-Browser Virtual Robots (MVP) - 6 weeks**
+
+#### **Core Technology Stack**
+
+**3D Visualization & Physics:**
+- **React Three Fiber** (@react-three/fiber) - 3D React renderer
+- **MuJoCo WASM** (github:zalo/mujoco_wasm) - Google DeepMind physics engine in browser
+- **urdf-loader** - Industry-standard URDF robot model loading
+- **@react-three/drei** - Camera controls, lighting, helpers
+
+**Programming Interface:**
+- **Google Blockly** - Visual drag-and-drop programming
+- **Monaco Editor** - VS Code engine for TypeScript/JavaScript
+- Dual-mode: Visual (beginners) ↔ Code (advanced)
+
+**Key Features:**
+- Robot template library (UR5, mobile robots, drones)
+- Real-time physics simulation (60 FPS)
+- Sensor simulation (cameras, LIDAR, IMU, GPS)
+- Multi-robot scenarios
+- Integration with existing telemetry/WebSocket system
+
+**NPM Dependencies:**
+```json
+{
+  "@react-three/fiber": "^8.17.10",
+  "@react-three/drei": "^9.117.3",
+  "three": "^0.171.0",
+  "urdf-loader": "^0.12.4",
+  "blockly": "^11.1.1",
+  "react-blockly": "^8.1.0",
+  "monaco-editor": "^0.52.0",
+  "@monaco-editor/react": "^4.6.0",
+  "mujoco_wasm": "github:zalo/mujoco_wasm"
+}
+```
+
+**Component Structure:**
+```
+/web/src/pages/VirtualStudio/
+├── VirtualStudioPage.tsx          // Main studio layout
+├── components/
+│   ├── RobotCanvas3D.tsx          // R3F + MuJoCo renderer
+│   ├── RobotLibrary.tsx           // Pre-built robot templates
+│   ├── CodeEditor.tsx             // Monaco + Blockly toggle
+│   ├── SimulationControls.tsx     // Play/pause/step/reset
+│   ├── TelemetryPanel.tsx         // Real-time metrics
+│   └── EnvironmentSelector.tsx    // Scenes (warehouse, factory)
+```
+
+**Visual Design Philosophy:**
+- **Studio layout:** Blender meets VS Code aesthetic
+- Grid floor with axis helpers, orbit camera controls
+- Physics visualization (force vectors, collision meshes)
+- Robot trail rendering, lighting presets
+- Environment assets (obstacles, goals, charging stations)
+
+---
+
+### **Phase 2: External Robot Connection - 5 weeks**
+
+**rosbridge WebSocket Integration:**
+- Connect Gazebo/Webots simulations
+- ROS1/ROS2 robot integration
+- NVIDIA Isaac Sim digital twins
+- Physical robots running ROS
+
+**SDK Development (@urfmp/simulation-sdk):**
+
+**Python Example:**
+```python
+from urfmp import VirtualRobot
+
+robot = VirtualRobot(
+    api_key="urfmp_dev_xxx",
+    robot_id="my-gazebo-bot",
+    bridge="rosbridge",
+    host="ws://localhost:9090"
+)
+
+robot.connect()  # Streams telemetry to URFMP cloud
+robot.stream_camera("/camera/image_raw")
+robot.enable_commands()  # Receive commands from URFMP web
+```
+
+**TypeScript Client:**
+```typescript
+import { SimulationSDK } from '@urfmp/simulation-sdk';
+
+const robot = new SimulationSDK({
+  apiKey: process.env.URFMP_API_KEY,
+  robotId: 'external-robot-1',
+  rosbridgeUrl: 'ws://localhost:9090'
+});
+
+await robot.connect();
+await robot.subscribe('/joint_states');
+```
+
+**Backend Components:**
+```json
+{
+  "rosbridge": "^1.0.0",
+  "roslibjs": "^1.3.0",
+  "websocket": "^1.0.35",
+  "bull": "^4.16.5"  // Job queue
+}
+```
+
+---
+
+### **Phase 3: Cloud-Scaled Simulation Fleet - 8 weeks**
+
+**Infrastructure:**
+- Kubernetes pods with headless MuJoCo/Gazebo
+- GPU acceleration for vision/ML workloads
+- Multi-tenant isolation per organization
+- WebRTC streaming for low-latency video
+
+**Use Cases:**
+- Batch testing (100+ parallel simulations)
+- CI/CD for robot code
+- AI training environments
+- Digital twin sync (virtual ↔ physical)
+
+**Architecture:**
+```
+┌─────────────────────────────────────────────────────┐
+│              URFMP Virtual Studio                    │
+├─────────────────────────────────────────────────────┤
+│  Web (R3F + MuJoCo)  ←→  Simulation Orchestrator   │
+│  Visual + Code IDE        (Node.js + Redis PubSub)  │
+├─────────────────────────────────────────────────────┤
+│  Virtual Robot Pool    │  Digital Twin Sync Service │
+│  - In-Browser Sims     │  - ROS Bridge Layer        │
+│  - Cloud K8s Pods      │  - WebRTC Streaming        │
+├─────────────────────────────────────────────────────┤
+│     @urfmp/simulation-sdk (TypeScript/Python/Rust)  │
+│     - Local simulation runner                        │
+│     - Cloud deployment helpers                       │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+### **Competitive Differentiators**
+
+| Feature | URFMP | Competitors |
+|---------|-------|-------------|
+| Zero-install simulation | ✅ Browser-based | ❌ Requires Docker/ROS |
+| Visual + code programming | ✅ Dual interface | ⚠️ One or the other |
+| Physics accuracy | ✅ MuJoCo (DeepMind) | ⚠️ Basic or proprietary |
+| Real + virtual unified | ✅ Same dashboard | ❌ Separate tools |
+| Cloud scaling | ✅ Multi-tenant K8s | ⚠️ Self-hosted only |
+| ROS compatibility | ✅ ROS1/ROS2 bridge | ⚠️ Partial support |
+
+---
+
+### **Implementation Roadmap**
+
+**Weeks 1-2: 3D Infrastructure**
+- [ ] React Three Fiber canvas setup
+- [ ] urdf-loader integration
+- [ ] Basic robot models (UR5, wheeled robot)
+- [ ] Camera controls
+
+**Weeks 3-4: Physics & Programming**
+- [ ] MuJoCo WASM integration
+- [ ] Blockly robot programming blocks
+- [ ] Monaco code editor
+- [ ] Simulation loop (start/stop/reset)
+
+**Weeks 5-6: URFMP Integration**
+- [ ] Connect to telemetry system
+- [ ] WebSocket live updates
+- [ ] Robot dashboard integration
+- [ ] `/studio` route and navigation
+
+**Weeks 7-10: External Connectivity**
+- [ ] rosbridge WebSocket server
+- [ ] ROS1/ROS2 message translation
+- [ ] SDK development (TypeScript/Python)
+- [ ] Gazebo/Webots examples
+
+**Weeks 11-19: Advanced Features**
+- [ ] Cloud simulation infrastructure
+- [ ] Multi-robot scenarios
+- [ ] Sensor plugins
+- [ ] AI/ML integration
+
+---
+
+### **Developer Experience: Quick Start Flow**
+
+1. New user clicks **"Try Virtual Robot"** on homepage
+2. Instantly opens `/studio` with pre-loaded UR5 robot
+3. Drags Blockly blocks: `Move Forward → Rotate → Send Data`
+4. Clicks **Run** → sees robot animate in real-time 3D
+5. Dashboard at `/robots` shows telemetry streaming
+6. **7 lines of code** to integrate external robots
+
+---
+
+### **Success Metrics**
+
+**Adoption Targets:**
+- Week 1: 100 virtual robots created
+- Month 1: 1,000 simulations run
+- Month 3: 50 developers connecting external robots
+- Month 6: 10 enterprise teams using cloud simulations
+
+**Technical KPIs:**
+- Simulation startup: < 2 seconds
+- Physics frame rate: 60 FPS stable
+- WebSocket latency: < 50ms
+- Code editor responsiveness: < 100ms
+
+---
+
+_Last Updated: October 3, 2025 - Virtual Robot Integration Strategy Approved_
 _This documentation provides everything needed for enterprise-scale development and team scaling_

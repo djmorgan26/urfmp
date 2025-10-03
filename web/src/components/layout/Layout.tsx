@@ -19,6 +19,7 @@ import {
   User,
   LogOut,
   HelpCircle,
+  Cpu,
 } from 'lucide-react'
 import { useURFMP } from '../../hooks/useURFMP'
 import { useRealTimeAlerts } from '../../hooks/useRealTimeAlerts'
@@ -35,6 +36,7 @@ interface LayoutProps {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Activity },
   { name: 'Robots', href: '/robots', icon: Bot },
+  { name: 'Virtual Studio', href: '/studio', icon: Cpu },
   { name: 'GPS Map', href: '/map', icon: MapPin },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Maintenance', href: '/maintenance', icon: Wrench },
