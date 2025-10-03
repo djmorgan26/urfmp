@@ -43,11 +43,11 @@ export function RobotMapPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] sm:h-screen flex flex-col">
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
       {/* Header */}
       <div
         className={cn(
-          'border-b px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2',
+          'border-b px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-shrink-0',
           isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         )}
       >

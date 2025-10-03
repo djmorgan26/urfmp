@@ -551,8 +551,13 @@ export function Layout({ children }: LayoutProps) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto lg:ml-0">
-          <div className="p-4 lg:p-6">{children}</div>
+        <main
+          className={cn(
+            'flex-1 overflow-auto lg:ml-0',
+            location.pathname === '/map' && 'overflow-hidden' // Full-screen for map page
+          )}
+        >
+          <div className={cn(location.pathname === '/map' ? '' : 'p-4 lg:p-6')}>{children}</div>
         </main>
       </div>
 

@@ -127,68 +127,70 @@ export function Maintenance() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Maintenance</h1>
-          <p className="text-muted-foreground mt-1">
+      {/* Header - Stack on mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Maintenance</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             AI-powered predictive maintenance and task scheduling
           </p>
         </div>
 
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          className="flex items-center justify-center space-x-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 min-h-[44px] whitespace-nowrap"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 flex-shrink-0" />
           <span>Schedule Maintenance</span>
         </button>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex space-x-1 border-b border-border">
-        <button
-          onClick={() => setActiveTab('predictive')}
-          className={cn(
-            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
-            activeTab === 'predictive'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-          )}
-        >
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="h-4 w-4" />
-            <span>Predictive Analytics</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('scheduled')}
-          className={cn(
-            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
-            activeTab === 'scheduled'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-          )}
-        >
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4" />
-            <span>Scheduled Tasks</span>
-          </div>
-        </button>
-        <button
-          onClick={() => setActiveTab('history')}
-          className={cn(
-            'px-4 py-2 text-sm font-medium border-b-2 transition-colors',
-            activeTab === 'history'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
-          )}
-        >
-          <div className="flex items-center space-x-2">
-            <Activity className="h-4 w-4" />
-            <span>History</span>
-          </div>
-        </button>
+      {/* Navigation Tabs - Scrollable on mobile */}
+      <div className="border-b border-border -mx-4 sm:mx-0 px-4 sm:px-0 overflow-x-auto">
+        <div className="flex space-x-1 min-w-max">
+          <button
+            onClick={() => setActiveTab('predictive')}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
+              activeTab === 'predictive'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            )}
+          >
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-4 w-4 flex-shrink-0" />
+              <span>Predictive Analytics</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('scheduled')}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
+              activeTab === 'scheduled'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            )}
+          >
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4 flex-shrink-0" />
+              <span>Scheduled Tasks</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('history')}
+            className={cn(
+              'px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap min-h-[44px]',
+              activeTab === 'history'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300'
+            )}
+          >
+            <div className="flex items-center space-x-2">
+              <Activity className="h-4 w-4 flex-shrink-0" />
+              <span>History</span>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Tab Content */}
@@ -235,23 +237,23 @@ export function Maintenance() {
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center space-x-4">
-            <div className="relative flex-1 max-w-sm">
+          {/* Filters - Stack on mobile */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search maintenance tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full rounded-md border border-input bg-background px-10 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[44px]"
               />
             </div>
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[44px]"
             >
               <option value="all">All Status</option>
               <option value="scheduled">Scheduled</option>
@@ -263,7 +265,7 @@ export function Maintenance() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+              className="rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[44px]"
             >
               <option value="all">All Types</option>
               <option value="preventive">Preventive</option>
@@ -283,16 +285,19 @@ export function Maintenance() {
                 return (
                   <div
                     key={task.id}
-                    className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow"
+                    className="bg-card rounded-lg border border-border p-4 sm:p-6 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold">{task.title}</h3>
+                    {/* Mobile: Stack everything vertically */}
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                      <div className="flex-1 min-w-0">
+                        {/* Title */}
+                        <h3 className="text-base sm:text-lg font-semibold mb-2">{task.title}</h3>
 
+                        {/* Badges - wrap on mobile */}
+                        <div className="flex flex-wrap gap-2 mb-3">
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium',
+                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               type.bg,
                               type.color
                             )}
@@ -302,7 +307,7 @@ export function Maintenance() {
 
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium',
+                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               priority.bg,
                               priority.color
                             )}
@@ -312,7 +317,7 @@ export function Maintenance() {
 
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium',
+                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               status.bg,
                               status.color
                             )}
@@ -323,15 +328,16 @@ export function Maintenance() {
 
                         <p className="text-muted-foreground text-sm mb-3">{task.description}</p>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        {/* Info Grid - 1 col mobile, 2 col tablet, 4 col desktop */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                           <div className="flex items-center space-x-2">
-                            <Bot className="h-4 w-4 text-muted-foreground" />
-                            <span>{task.robot}</span>
+                            <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">{task.robot}</span>
                           </div>
 
                           <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>
+                            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">
                               {format(
                                 typeof task.scheduledDate === 'string'
                                   ? parseISO(task.scheduledDate)
@@ -342,14 +348,14 @@ export function Maintenance() {
                           </div>
 
                           <div className="flex items-center space-x-2">
-                            <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{task.estimatedDuration} min</span>
+                            <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="truncate">{task.estimatedDuration} min</span>
                           </div>
 
                           {task.assignedTo && (
                             <div className="flex items-center space-x-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span>{task.assignedTo}</span>
+                              <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                              <span className="truncate">{task.assignedTo}</span>
                             </div>
                           )}
                         </div>
@@ -363,20 +369,21 @@ export function Maintenance() {
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-2 ml-4">
+                      {/* Action Buttons - full width on mobile */}
+                      <div className="flex sm:flex-col items-center gap-2 sm:ml-4">
                         {task.status === 'scheduled' && (
-                          <button className="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700">
+                          <button className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 min-h-[44px] whitespace-nowrap">
                             Start
                           </button>
                         )}
 
                         {task.status === 'in_progress' && (
-                          <button className="px-3 py-1.5 bg-green-600 text-white text-xs rounded-md hover:bg-green-700">
+                          <button className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 min-h-[44px] whitespace-nowrap">
                             Complete
                           </button>
                         )}
 
-                        <button className="p-1.5 rounded-md border border-border hover:bg-muted">
+                        <button className="min-h-[44px] min-w-[44px] p-2 rounded-md border border-border hover:bg-muted">
                           <Wrench className="h-4 w-4" />
                         </button>
                       </div>
