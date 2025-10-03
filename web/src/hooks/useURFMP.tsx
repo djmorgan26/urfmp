@@ -247,6 +247,14 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
   const refreshRobots = async (client?: URFMP, force = false) => {
     try {
+      // CRITICAL DEBUG: Log raw env var
+      console.log(
+        '🔍 RAW ENV VAR:',
+        import.meta.env.VITE_DEMO_MODE,
+        'TYPE:',
+        typeof import.meta.env.VITE_DEMO_MODE
+      )
+
       // Handle demo mode - MUST be explicitly set to "true"
       const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
       console.log('🔍 refreshRobots - Demo mode check:', {
