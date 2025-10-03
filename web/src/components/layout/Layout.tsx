@@ -198,10 +198,10 @@ export function Layout({ children }: LayoutProps) {
       <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 relative z-50">
         <div className="flex h-16 items-center px-4 lg:px-6">
           <div className="flex items-center space-x-4">
-            {/* Mobile menu button */}
+            {/* Menu button - now visible on all screen sizes */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-md hover:bg-accent lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-md hover:bg-accent min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle navigation menu"
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -477,20 +477,16 @@ export function Layout({ children }: LayoutProps) {
       </header>
 
       <div className="flex relative">
-        {/* Mobile overlay */}
+        {/* Overlay - now on all screen sizes */}
         {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-black/50 z-30" onClick={() => setSidebarOpen(false)} />
         )}
 
         {/* Sidebar */}
         <nav
           className={cn(
-            'w-64 border-r border-border bg-card/50 h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-40',
-            'lg:translate-x-0 lg:static lg:z-auto',
-            sidebarOpen ? 'fixed translate-x-0' : 'fixed -translate-x-full lg:translate-x-0'
+            'w-64 border-r border-border bg-card h-[calc(100vh-4rem)] transition-transform duration-200 ease-in-out z-40 fixed',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           <div className="p-6">
@@ -563,7 +559,7 @@ export function Layout({ children }: LayoutProps) {
         {/* Main Content */}
         <main
           className={cn(
-            'flex-1 overflow-auto lg:ml-0',
+            'flex-1 overflow-auto w-full',
             location.pathname === '/map' && 'overflow-hidden' // Full-screen for map page
           )}
         >

@@ -228,37 +228,34 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Robots and Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Robot Cards */}
-        <div className="lg:col-span-2 bg-card rounded-lg border border-border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Active Robots</h3>
-            <span className="text-sm text-muted-foreground">
-              {metrics.onlineRobots} of {metrics.totalRobots} robots
-            </span>
-          </div>
-
-          {robots.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {robots.slice(0, 6).map((robot) => (
-                <RobotCard key={robot.id} robot={robot} />
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-48 text-muted-foreground">
-              <div className="text-center">
-                <Bot className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No robots connected</p>
-                <p className="text-sm">Add robots using the URFMP SDK</p>
-              </div>
-            </div>
-          )}
+      {/* Robot Cards - 3 across */}
+      <div className="bg-card rounded-lg border border-border p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Active Robots</h3>
+          <span className="text-sm text-muted-foreground">
+            {metrics.onlineRobots} of {metrics.totalRobots} robots
+          </span>
         </div>
 
-        {/* Real-time Alert System */}
-        <RealTimeAlertPanel className="h-fit" showFilters={false} maxHeight="max-h-96" />
+        {robots.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {robots.slice(0, 6).map((robot) => (
+              <RobotCard key={robot.id} robot={robot} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-48 text-muted-foreground">
+            <div className="text-center">
+              <Bot className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No robots connected</p>
+              <p className="text-sm">Add robots using the URFMP SDK</p>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Real-time Alert System - moved to bottom */}
+      <RealTimeAlertPanel className="h-fit" showFilters={false} maxHeight="max-h-96" />
     </div>
   )
 }
