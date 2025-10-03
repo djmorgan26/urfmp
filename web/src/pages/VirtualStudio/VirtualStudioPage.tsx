@@ -1,17 +1,84 @@
-import React, { useState } from 'react';
-import { Play, Pause, RotateCcw, Maximize2 } from 'lucide-react';
+import React, { useState, useCallback, useRef } from 'react';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 import RobotCanvas3D from './components/RobotCanvas3D';
 import SimulationControls from './components/SimulationControls';
+import CodeEditor from './components/CodeEditor';
+import { useRobotAPI } from './hooks/useRobotAPI';
+
+interface RobotCommand {
+  type: 'move' | 'rotate' | 'speed';
+  data: any;
+}
 
 const VirtualStudioPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [simulationSpeed, setSimulationSpeed] = useState(1);
+  const [robotPosition, setRobotPosition] = useState({ x: 0, y: 0.5, z: 0 });
+  const [robotRotation, setRobotRotation] = useState(0);
+  const [telemetryData, setTelemetryData] = useState<any>({
+    position: '(0.0, 0.5, 0.0)',
+    velocity: '0.0 m/s',
+    battery: '100%',
+  });
+  const commandQueueRef = useRef<RobotCommand[]>([]);
+
+  const handleMove = useCallback((x: number, y: number, z: number) => {
+    commandQueueRef.current.push({ type: 'move', data: { x, y, z } });
+    setRobotPosition({ x, y, z });
+    setTelemetryData((prev: any) => ({
+      ...prev,
+      position: `(${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`,
+    }));
+  }, []);
+
+  const handleRotate = useCallback((angle: number) => {
+    commandQueueRef.current.push({ type: 'rotate', data: { angle } });
+    setRobotRotation(angle);
+  }, []);
+
+  const handleSpeedChange = useCallback((speed: number) => {
+    commandQueueRef.current.push({ type: 'speed', data: { speed } });
+    setTelemetryData((prev: any) => ({
+      ...prev,
+      velocity: `${speed.toFixed(1)} m/s`,
+    }));
+  }, []);
+
+  const handleTelemetry = useCallback((data: any) => {
+    console.log('[Telemetry]:', data);
+  }, []);
+
+  const { executeCode } = useRobotAPI(
+    handleMove,
+    handleRotate,
+    handleSpeedChange,
+    handleTelemetry
+  );
+
+  const handleRunCode = useCallback(
+    async (code: string) => {
+      setIsPlaying(true);
+      const result = await executeCode(code);
+      if (!result.success) {
+        console.error('Code execution failed:', result.error);
+      }
+      setTimeout(() => setIsPlaying(false), 100);
+    },
+    [executeCode]
+  );
 
   const handlePlay = () => setIsPlaying(true);
   const handlePause = () => setIsPlaying(false);
   const handleReset = () => {
     setIsPlaying(false);
-    // Reset simulation state
+    setRobotPosition({ x: 0, y: 0.5, z: 0 });
+    setRobotRotation(0);
+    commandQueueRef.current = [];
+    setTelemetryData({
+      position: '(0.0, 0.5, 0.0)',
+      velocity: '0.0 m/s',
+      battery: '100%',
+    });
   };
 
   return (
@@ -90,10 +157,14 @@ const VirtualStudioPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Center - 3D Viewport */}
+        {/* Center - 3D Viewport & Code Editor */}
         <div className="flex-1 flex flex-col bg-gray-100 dark:bg-gray-900">
           <div className="flex-1 relative">
-            <RobotCanvas3D isPlaying={isPlaying} />
+            <RobotCanvas3D
+              isPlaying={isPlaying}
+              position={robotPosition}
+              rotation={robotRotation}
+            />
           </div>
 
           {/* Simulation Controls Bar */}
@@ -102,6 +173,11 @@ const VirtualStudioPage: React.FC = () => {
             simulationSpeed={simulationSpeed}
             onSpeedChange={setSimulationSpeed}
           />
+
+          {/* Code Editor Section */}
+          <div className="h-80">
+            <CodeEditor onRunCode={handleRunCode} isPlaying={isPlaying} />
+          </div>
         </div>
 
         {/* Right Sidebar - Telemetry */}
@@ -117,7 +193,7 @@ const VirtualStudioPage: React.FC = () => {
                     Position
                   </span>
                   <span className="text-sm font-mono text-gray-900 dark:text-white">
-                    (0.0, 0.0, 0.0)
+                    {telemetryData.position}
                   </span>
                 </div>
               </div>
@@ -127,7 +203,7 @@ const VirtualStudioPage: React.FC = () => {
                     Velocity
                   </span>
                   <span className="text-sm font-mono text-gray-900 dark:text-white">
-                    0.0 m/s
+                    {telemetryData.velocity}
                   </span>
                 </div>
               </div>
@@ -137,7 +213,7 @@ const VirtualStudioPage: React.FC = () => {
                     Battery
                   </span>
                   <span className="text-sm font-mono text-green-600 dark:text-green-400">
-                    100%
+                    {telemetryData.battery}
                   </span>
                 </div>
               </div>

@@ -5,27 +5,38 @@ import * as THREE from 'three';
 
 interface RobotCanvas3DProps {
   isPlaying: boolean;
+  position?: { x: number; y: number; z: number };
+  rotation?: number;
 }
 
 // Simple robot component - a box with a sphere on top
-const SimpleRobot: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
+const SimpleRobot: React.FC<{
+  isPlaying: boolean;
+  position?: { x: number; y: number; z: number };
+  rotation?: number;
+}> = ({ isPlaying, position: targetPosition, rotation: targetRotation }) => {
   const robotRef = useRef<THREE.Group>(null);
-  const [position, setPosition] = useState<[number, number, number]>([0, 0.5, 0]);
 
   useFrame((state, delta) => {
-    if (isPlaying && robotRef.current) {
-      // Simple animation - move forward
-      robotRef.current.position.z -= delta * 0.5;
+    if (robotRef.current && targetPosition) {
+      // Smoothly interpolate to target position
+      robotRef.current.position.x +=
+        (targetPosition.x - robotRef.current.position.x) * delta * 5;
+      robotRef.current.position.y +=
+        (targetPosition.y - robotRef.current.position.y) * delta * 5;
+      robotRef.current.position.z +=
+        (targetPosition.z - robotRef.current.position.z) * delta * 5;
 
-      // Reset if too far
-      if (robotRef.current.position.z < -10) {
-        robotRef.current.position.z = 10;
+      if (targetRotation !== undefined) {
+        const targetRad = (targetRotation * Math.PI) / 180;
+        robotRef.current.rotation.y +=
+          (targetRad - robotRef.current.rotation.y) * delta * 5;
       }
     }
   });
 
   return (
-    <group ref={robotRef} position={position}>
+    <group ref={robotRef} position={[0, 0.5, 0]}>
       {/* Robot body */}
       <Box args={[1, 0.5, 1.5]} position={[0, 0, 0]}>
         <meshStandardMaterial color="#3b82f6" />
@@ -53,7 +64,11 @@ const SimpleRobot: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
   );
 };
 
-const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({ isPlaying }) => {
+const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
+  isPlaying,
+  position,
+  rotation,
+}) => {
   return (
     <div className="w-full h-full">
       <Canvas
@@ -88,7 +103,7 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({ isPlaying }) => {
         />
 
         {/* Robot */}
-        <SimpleRobot isPlaying={isPlaying} />
+        <SimpleRobot isPlaying={isPlaying} position={position} rotation={rotation} />
 
         {/* Environment obstacles */}
         <Box args={[1, 2, 1]} position={[3, 1, -3]}>

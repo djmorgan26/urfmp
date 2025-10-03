@@ -26,6 +26,7 @@
     "quality": "npm run typecheck && npm run lint && npm run test && npm run reality-check"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@tanstack/react-query": "^4.24.6",
@@ -36,6 +37,7 @@
     "date-fns": "^2.29.3",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.263.1",
+    "monaco-editor": "^0.52.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
