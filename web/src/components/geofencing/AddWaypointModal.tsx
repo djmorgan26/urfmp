@@ -224,276 +224,274 @@ export function AddWaypointModal({ isOpen, onClose, onSuccess }: AddWaypointModa
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] p-4">
+      <div className="fixed inset-0" onClick={onClose} />
 
-        <div
-          className={cn(
-            'relative w-full max-w-2xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          )}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Add Waypoint</h2>
-            </div>
-            <button
-              onClick={onClose}
-              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
-            >
-              <X className="h-4 w-4" />
-            </button>
+      <div
+        className={cn(
+          'relative w-full max-w-2xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        )}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Add Waypoint</h2>
           </div>
+          <button
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Basic Information</h3>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Basic Information</h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">Waypoint Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={getInputClassName('name')}
-                    placeholder="e.g., Assembly Station A"
-                  />
-                  {renderFieldError('name')}
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Waypoint Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={getInputClassName('name')}
+                  placeholder="e.g., Assembly Station A"
+                />
+                {renderFieldError('name')}
+              </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={getInputClassName('description')}
-                    placeholder="Describe the purpose of this waypoint..."
-                    rows={2}
-                  />
-                </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className={getInputClassName('description')}
+                  placeholder="Describe the purpose of this waypoint..."
+                  rows={2}
+                />
               </div>
             </div>
+          </div>
 
-            {/* Waypoint Type */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Waypoint Type</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {waypointTypes.map((type) => (
-                  <div
-                    key={type.id}
-                    className={cn(
-                      'p-3 rounded-lg border cursor-pointer transition-colors',
-                      formData.type === type.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:bg-muted'
-                    )}
-                    onClick={() => handleInputChange('type', type.id)}
-                  >
-                    <div className="text-center">
-                      <div
-                        className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${type.color}`}
+          {/* Waypoint Type */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Waypoint Type</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {waypointTypes.map((type) => (
+                <div
+                  key={type.id}
+                  className={cn(
+                    'p-3 rounded-lg border cursor-pointer transition-colors',
+                    formData.type === type.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:bg-muted'
+                  )}
+                  onClick={() => handleInputChange('type', type.id)}
+                >
+                  <div className="text-center">
+                    <div
+                      className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${type.color}`}
+                    >
+                      {type.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{type.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Coordinates */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Location</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Latitude *</label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={formData.coordinates.latitude}
+                  onChange={(e) =>
+                    handleInputChange('coordinates.latitude', parseFloat(e.target.value) || 0)
+                  }
+                  className={getInputClassName('latitude')}
+                  placeholder="40.7589"
+                />
+                {renderFieldError('latitude')}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Longitude *</label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={formData.coordinates.longitude}
+                  onChange={(e) =>
+                    handleInputChange('coordinates.longitude', parseFloat(e.target.value) || 0)
+                  }
+                  className={getInputClassName('longitude')}
+                  placeholder="-73.9851"
+                />
+                {renderFieldError('longitude')}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Altitude (m)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.coordinates.altitude}
+                  onChange={(e) =>
+                    handleInputChange('coordinates.altitude', parseFloat(e.target.value) || 0)
+                  }
+                  className={getInputClassName('altitude')}
+                  placeholder="10.5"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Radius (m) *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value={formData.radius}
+                  onChange={(e) => handleInputChange('radius', parseInt(e.target.value) || 1)}
+                  className={getInputClassName('radius')}
+                  placeholder="5"
+                />
+                {renderFieldError('radius')}
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Waypoint Actions</h3>
+              <button
+                type="button"
+                onClick={addAction}
+                className="flex items-center space-x-1 px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add Action</span>
+              </button>
+            </div>
+
+            {formData.actions.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No actions configured</p>
+                <p className="text-xs">
+                  Add actions to define what happens when robots reach this waypoint
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {formData.actions.map((action, index) => (
+                  <div key={action.id} className="p-3 border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-medium text-sm">Action {index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAction(action.id)}
+                        className="p-1 hover:bg-muted rounded text-red-500"
                       >
-                        {type.name}
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Action Type</label>
+                        <select
+                          value={action.type}
+                          onChange={(e) => updateAction(action.id, 'type', e.target.value)}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                          {actionTypes.map((type) => (
+                            <option key={type.id} value={type.id}>
+                              {type.name} - {type.description}
+                            </option>
+                          ))}
+                        </select>
                       </div>
-                      <div className="text-xs text-muted-foreground">{type.description}</div>
+
+                      {(action.type === 'pause' || action.type === 'wait') && (
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Duration (seconds)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={action.duration || 0}
+                            onChange={(e) =>
+                              updateAction(action.id, 'duration', parseInt(e.target.value) || 0)
+                            }
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            placeholder="10"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Settings */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Settings</h3>
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="isActive"
+                checked={formData.isActive}
+                onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                className="rounded"
+              />
+              <label htmlFor="isActive" className="text-sm font-medium">
+                Activate waypoint immediately
+              </label>
             </div>
+          </div>
 
-            {/* Coordinates */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Location</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Latitude *</label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={formData.coordinates.latitude}
-                    onChange={(e) =>
-                      handleInputChange('coordinates.latitude', parseFloat(e.target.value) || 0)
-                    }
-                    className={getInputClassName('latitude')}
-                    placeholder="40.7589"
-                  />
-                  {renderFieldError('latitude')}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Longitude *</label>
-                  <input
-                    type="number"
-                    step="0.000001"
-                    value={formData.coordinates.longitude}
-                    onChange={(e) =>
-                      handleInputChange('coordinates.longitude', parseFloat(e.target.value) || 0)
-                    }
-                    className={getInputClassName('longitude')}
-                    placeholder="-73.9851"
-                  />
-                  {renderFieldError('longitude')}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Altitude (m)</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={formData.coordinates.altitude}
-                    onChange={(e) =>
-                      handleInputChange('coordinates.altitude', parseFloat(e.target.value) || 0)
-                    }
-                    className={getInputClassName('altitude')}
-                    placeholder="10.5"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Radius (m) *</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="1000"
-                    value={formData.radius}
-                    onChange={(e) => handleInputChange('radius', parseInt(e.target.value) || 1)}
-                    className={getInputClassName('radius')}
-                    placeholder="5"
-                  />
-                  {renderFieldError('radius')}
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">Waypoint Actions</h3>
-                <button
-                  type="button"
-                  onClick={addAction}
-                  className="flex items-center space-x-1 px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Action</span>
-                </button>
-              </div>
-
-              {formData.actions.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground">
-                  <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No actions configured</p>
-                  <p className="text-xs">
-                    Add actions to define what happens when robots reach this waypoint
-                  </p>
-                </div>
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  <span>Creating...</span>
+                </>
               ) : (
-                <div className="space-y-3">
-                  {formData.actions.map((action, index) => (
-                    <div key={action.id} className="p-3 border border-border rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="font-medium text-sm">Action {index + 1}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeAction(action.id)}
-                          className="p-1 hover:bg-muted rounded text-red-500"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Action Type</label>
-                          <select
-                            value={action.type}
-                            onChange={(e) => updateAction(action.id, 'type', e.target.value)}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                          >
-                            {actionTypes.map((type) => (
-                              <option key={type.id} value={type.id}>
-                                {type.name} - {type.description}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {(action.type === 'pause' || action.type === 'wait') && (
-                          <div>
-                            <label className="block text-sm font-medium mb-1">
-                              Duration (seconds)
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              value={action.duration || 0}
-                              onChange={(e) =>
-                                updateAction(action.id, 'duration', parseInt(e.target.value) || 0)
-                              }
-                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                              placeholder="10"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <MapPin className="h-4 w-4" />
+                  <span>Create Waypoint</span>
+                </>
               )}
-            </div>
-
-            {/* Settings */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Settings</h3>
-              <div className="flex items-center space-x-3">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                  className="rounded"
-                />
-                <label htmlFor="isActive" className="text-sm font-medium">
-                  Activate waypoint immediately
-                </label>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="h-4 w-4" />
-                    <span>Create Waypoint</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

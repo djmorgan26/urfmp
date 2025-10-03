@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { X, GitBranch, Plus, Trash2, Navigation, Zap } from 'lucide-react'
+import { useState, useEffect, DragEvent } from 'react'
+import { X, GitBranch, Plus, Trash2, Navigation, Zap, GripVertical } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useGeofencing } from '../../hooks/useGeofencing'
@@ -72,6 +72,7 @@ export function EditPathModal({ isOpen, onClose, onSuccess, path }: EditPathModa
   const { waypoints } = useGeofencing()
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [formData, setFormData] = useState<PathFormData>({
     name: '',
     description: '',
@@ -148,6 +149,28 @@ export function EditPathModal({ isOpen, onClose, onSuccess, path }: EditPathModa
     setFormData((prev) => ({ ...prev, waypoints: newWaypoints }))
   }
 
+  const handleDragStart = (e: DragEvent<HTMLDivElement>, index: number) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDragEnter = (e: DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      moveWaypoint(draggedIndex, index)
+      setDraggedIndex(index)
+    }
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+  }
+
   const optimizePath = () => {
     // Simple optimization: sort waypoints by name for demo
     const optimizedOrder = [...formData.waypoints].sort((a, b) => {
@@ -220,183 +243,133 @@ export function EditPathModal({ isOpen, onClose, onSuccess, path }: EditPathModa
   if (!isOpen || !path) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] p-4">
+      <div className="fixed inset-0" onClick={onClose} />
 
-        <div
-          className={cn(
-            'relative w-full max-w-4xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          )}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-2">
-              <GitBranch className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Edit Path</h2>
+      <div
+        className={cn(
+          'relative w-full max-w-4xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        )}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <GitBranch className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Edit Path</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Basic Information</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Path Name *</label>
+                <input
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={getInputClassName('name')}
+                  placeholder="e.g., Morning Delivery Route"
+                />
+                {renderFieldError('name')}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Robot Assignment</label>
+                <select
+                  value={formData.robotId || ''}
+                  onChange={(e) => handleInputChange('robotId', e.target.value)}
+                  className={getInputClassName('robotId')}
+                >
+                  <option value="">Any available robot</option>
+                  <option value="robot-1">Robot Alpha</option>
+                  <option value="robot-2">Robot Beta</option>
+                  <option value="robot-3">Robot Gamma</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className={getInputClassName('description')}
+                  placeholder="Describe the purpose and details of this path..."
+                  rows={2}
+                />
+              </div>
             </div>
-            <button
-              onClick={onClose}
-              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Basic Information</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Path Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={getInputClassName('name')}
-                    placeholder="e.g., Morning Delivery Route"
-                  />
-                  {renderFieldError('name')}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Robot Assignment</label>
-                  <select
-                    value={formData.robotId || ''}
-                    onChange={(e) => handleInputChange('robotId', e.target.value)}
-                    className={getInputClassName('robotId')}
-                  >
-                    <option value="">Any available robot</option>
-                    <option value="robot-1">Robot Alpha</option>
-                    <option value="robot-2">Robot Beta</option>
-                    <option value="robot-3">Robot Gamma</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={formData.description || ''}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={getInputClassName('description')}
-                    placeholder="Describe the purpose and details of this path..."
-                    rows={2}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Path Status */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Path Status</h3>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {pathStatuses.map((status) => (
-                  <div
-                    key={status.id}
-                    className={cn(
-                      'p-3 rounded-lg border cursor-pointer transition-colors',
-                      formData.status === status.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:bg-muted'
-                    )}
-                    onClick={() => handleInputChange('status', status.id)}
-                  >
-                    <div className="text-center">
-                      <div
-                        className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${status.color}`}
-                      >
-                        {status.name}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{status.description}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Waypoint Selection */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">Waypoints Selection *</h3>
-                <div className="flex items-center space-x-2">
-                  {formData.waypoints.length >= 2 && (
-                    <button
-                      type="button"
-                      onClick={optimizePath}
-                      className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                    >
-                      <Zap className="h-4 w-4" />
-                      <span>Optimize</span>
-                    </button>
+          {/* Path Status */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Path Status</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {pathStatuses.map((status) => (
+                <div
+                  key={status.id}
+                  className={cn(
+                    'p-3 rounded-lg border cursor-pointer transition-colors',
+                    formData.status === status.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:bg-muted'
                   )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Available Waypoints */}
-                <div>
-                  <h4 className="text-sm font-medium mb-3">Available Waypoints</h4>
-                  <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
-                    {availableWaypoints
-                      .filter((wp) => !formData.waypoints.includes(wp.id))
-                      .map((waypoint) => (
-                        <div
-                          key={waypoint.id}
-                          className="flex items-center justify-between p-2 border border-border rounded-lg hover:bg-muted cursor-pointer"
-                          onClick={() => addWaypoint(waypoint.id)}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className={cn(
-                                'w-2 h-2 rounded-full',
-                                waypoint.type === 'pickup'
-                                  ? 'bg-blue-600'
-                                  : waypoint.type === 'dropoff'
-                                    ? 'bg-green-600'
-                                    : waypoint.type === 'charging'
-                                      ? 'bg-yellow-600'
-                                      : waypoint.type === 'maintenance'
-                                        ? 'bg-red-600'
-                                        : 'bg-gray-600'
-                              )}
-                            />
-                            <div>
-                              <p className="text-sm font-medium">{waypoint.name}</p>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {waypoint.type}
-                              </p>
-                            </div>
-                          </div>
-                          <Plus className="h-4 w-4 text-green-600" />
-                        </div>
-                      ))}
-                    {availableWaypoints.filter((wp) => !formData.waypoints.includes(wp.id))
-                      .length === 0 && (
-                      <div className="text-center py-4 text-muted-foreground">
-                        <Navigation className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">All waypoints added to path</p>
-                      </div>
-                    )}
+                  onClick={() => handleInputChange('status', status.id)}
+                >
+                  <div className="text-center">
+                    <div
+                      className={`inline-block px-2 py-1 rounded text-xs font-medium mb-2 ${status.color}`}
+                    >
+                      {status.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{status.description}</div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                {/* Selected Waypoints (Path Order) */}
-                <div>
-                  <h4 className="text-sm font-medium mb-3">
-                    Path Sequence ({formData.waypoints.length} waypoints)
-                  </h4>
-                  <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
-                    {selectedWaypoints.map((waypoint, index) => (
+          {/* Waypoint Selection */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Waypoints Selection *</h3>
+              <div className="flex items-center space-x-2">
+                {formData.waypoints.length >= 2 && (
+                  <button
+                    type="button"
+                    onClick={optimizePath}
+                    className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>Optimize</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Available Waypoints */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Available Waypoints</h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
+                  {availableWaypoints
+                    .filter((wp) => !formData.waypoints.includes(wp.id))
+                    .map((waypoint) => (
                       <div
                         key={waypoint.id}
-                        className="flex items-center justify-between p-2 border border-border rounded-lg"
+                        className="flex items-center justify-between p-2 border border-border rounded-lg hover:bg-muted cursor-pointer"
+                        onClick={() => addWaypoint(waypoint.id)}
                       >
-                        <div className="flex items-center space-x-3">
-                          <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
-                            {index + 1}
-                          </span>
+                        <div className="flex items-center space-x-2">
                           <div
                             className={cn(
                               'w-2 h-2 rounded-full',
@@ -418,105 +391,179 @@ export function EditPathModal({ isOpen, onClose, onSuccess, path }: EditPathModa
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => moveWaypoint(index, index - 1)}
-                              className="p-1 hover:bg-muted rounded text-xs"
-                            >
-                              ↑
-                            </button>
-                          )}
-                          {index < selectedWaypoints.length - 1 && (
-                            <button
-                              type="button"
-                              onClick={() => moveWaypoint(index, index + 1)}
-                              className="p-1 hover:bg-muted rounded text-xs"
-                            >
-                              ↓
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => removeWaypoint(waypoint.id)}
-                            className="p-1 hover:bg-muted rounded text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <Plus className="h-4 w-4 text-green-600" />
                       </div>
                     ))}
-                    {formData.waypoints.length === 0 && (
-                      <div className="text-center py-4 text-muted-foreground">
-                        <GitBranch className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No waypoints selected</p>
-                        <p className="text-xs">Add waypoints to create a path</p>
-                      </div>
-                    )}
-                  </div>
-                  {renderFieldError('waypoints')}
+                  {availableWaypoints.filter((wp) => !formData.waypoints.includes(wp.id)).length ===
+                    0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <Navigation className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">All waypoints added to path</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {/* Path Summary */}
-              {formData.waypoints.length > 0 && (
-                <div className="bg-muted rounded-lg p-4">
-                  <h4 className="text-sm font-medium mb-2">Path Summary</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground block">Waypoints</span>
-                      <span className="font-medium">{formData.waypoints.length}</span>
+              {/* Selected Waypoints (Path Order) */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">
+                  Path Sequence ({formData.waypoints.length} waypoints)
+                </h4>
+                <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
+                  {selectedWaypoints.map((waypoint, index) => (
+                    <div
+                      key={waypoint.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={handleDragOver}
+                      onDragEnter={(e) => handleDragEnter(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={cn(
+                        'flex items-center justify-between p-2 border border-border rounded-lg cursor-move transition-all',
+                        draggedIndex === index
+                          ? 'opacity-50 scale-95'
+                          : 'hover:bg-muted hover:shadow-md'
+                      )}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <GripVertical className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
+                          {index + 1}
+                        </span>
+                        <div
+                          className={cn(
+                            'w-2 h-2 rounded-full flex-shrink-0',
+                            waypoint.type === 'pickup'
+                              ? 'bg-blue-600 dark:bg-blue-700'
+                              : waypoint.type === 'dropoff'
+                                ? 'bg-green-600 dark:bg-green-700'
+                                : waypoint.type === 'charging'
+                                  ? 'bg-yellow-600 dark:bg-yellow-700'
+                                  : waypoint.type === 'maintenance'
+                                    ? 'bg-red-600 dark:bg-red-700'
+                                    : 'bg-gray-600 dark:bg-gray-700'
+                          )}
+                        />
+                        <div>
+                          <p className="text-sm font-medium">{waypoint.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">
+                            {waypoint.type}
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        className="flex items-center space-x-1"
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              moveWaypoint(index, index - 1)
+                            }}
+                            className="p-1 hover:bg-muted rounded text-xs min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            title="Move up"
+                          >
+                            ↑
+                          </button>
+                        )}
+                        {index < selectedWaypoints.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              moveWaypoint(index, index + 1)
+                            }}
+                            className="p-1 hover:bg-muted rounded text-xs min-h-[32px] min-w-[32px] flex items-center justify-center"
+                            title="Move down"
+                          >
+                            ↓
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            removeWaypoint(waypoint.id)
+                          }}
+                          className="p-1 hover:bg-muted rounded text-red-600 dark:text-red-400 min-h-[32px] min-w-[32px] flex items-center justify-center"
+                          title="Remove waypoint"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground block">Est. Distance</span>
-                      <span className="font-medium">{calculateEstimatedDistance()}m</span>
+                  ))}
+                  {formData.waypoints.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <GitBranch className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No waypoints selected</p>
+                      <p className="text-xs">Add waypoints to create a path</p>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground block">Est. Duration</span>
-                      <span className="font-medium">
-                        {Math.round(calculateEstimatedDuration() / 60)}min
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground block">Optimized</span>
-                      <span className="font-medium">{path?.isOptimized ? 'Yes' : 'No'}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              )}
+                {renderFieldError('waypoints')}
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                    <span>Updating...</span>
-                  </>
-                ) : (
-                  <>
-                    <GitBranch className="h-4 w-4" />
-                    <span>Update Path</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
+            {/* Path Summary */}
+            {formData.waypoints.length > 0 && (
+              <div className="bg-muted rounded-lg p-4">
+                <h4 className="text-sm font-medium mb-2">Path Summary</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground block">Waypoints</span>
+                    <span className="font-medium">{formData.waypoints.length}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block">Est. Distance</span>
+                    <span className="font-medium">{calculateEstimatedDistance()}m</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block">Est. Duration</span>
+                    <span className="font-medium">
+                      {Math.round(calculateEstimatedDuration() / 60)}min
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block">Optimized</span>
+                    <span className="font-medium">{path?.isOptimized ? 'Yes' : 'No'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <GitBranch className="h-4 w-4" />
+                  <span>Update Path</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

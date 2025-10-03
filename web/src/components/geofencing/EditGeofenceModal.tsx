@@ -366,470 +366,464 @@ export function EditGeofenceModal({
   if (!isOpen || !geofence) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[90] p-4">
+      <div className="fixed inset-0" onClick={onClose} />
 
-        <div
-          className={cn(
-            'relative w-full max-w-5xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
-            isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
-          )}
-        >
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Edit Geofence</h2>
+      <div
+        className={cn(
+          'relative w-full max-w-5xl rounded-lg p-6 shadow-lg max-h-[90vh] overflow-y-auto',
+          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        )}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-2">
+            <Shield className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">Edit Geofence</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Basic Information</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Geofence Name *</label>
+                <input
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className={getInputClassName('name')}
+                  placeholder="e.g., Restricted Zone Alpha"
+                />
+                {renderFieldError('name')}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Status</label>
+                <select
+                  value={formData.isActive ? 'active' : 'inactive'}
+                  onChange={(e) => handleInputChange('isActive', e.target.value === 'active')}
+                  className={getInputClassName('isActive')}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  className={getInputClassName('description')}
+                  placeholder="Describe the purpose and restrictions of this geofence..."
+                  rows={2}
+                />
+              </div>
             </div>
-            <button
-              onClick={onClose}
-              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Basic Information</h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Geofence Name *</label>
-                  <input
-                    type="text"
-                    value={formData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={getInputClassName('name')}
-                    placeholder="e.g., Restricted Zone Alpha"
-                  />
-                  {renderFieldError('name')}
+          {/* Geofence Type */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Geofence Type</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {geofenceTypes.map((type) => (
+                <div
+                  key={type.id}
+                  className={cn(
+                    'p-4 rounded-lg border cursor-pointer transition-colors',
+                    formData.type === type.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border hover:bg-muted'
+                  )}
+                  onClick={() => {
+                    handleInputChange('type', type.id)
+                    // Reset coordinates when changing type
+                    if (type.id === 'circle') {
+                      setFormData((prev) => ({
+                        ...prev,
+                        coordinates: [
+                          prev.coordinates[0] || { latitude: 40.7589, longitude: -73.9851 },
+                        ],
+                      }))
+                    }
+                  }}
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-2">{type.icon}</div>
+                    <div className="font-medium text-sm">{type.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{type.description}</div>
+                  </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Status</label>
-                  <select
-                    value={formData.isActive ? 'active' : 'inactive'}
-                    onChange={(e) => handleInputChange('isActive', e.target.value === 'active')}
-                    className={getInputClassName('isActive')}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={formData.description || ''}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={getInputClassName('description')}
-                    placeholder="Describe the purpose and restrictions of this geofence..."
-                    rows={2}
-                  />
-                </div>
-              </div>
+              ))}
             </div>
+          </div>
 
-            {/* Geofence Type */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Geofence Type</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {geofenceTypes.map((type) => (
-                  <div
-                    key={type.id}
-                    className={cn(
-                      'p-4 rounded-lg border cursor-pointer transition-colors',
-                      formData.type === type.id
-                        ? 'border-primary bg-primary/10'
-                        : 'border-border hover:bg-muted'
-                    )}
-                    onClick={() => {
-                      handleInputChange('type', type.id)
-                      // Reset coordinates when changing type
-                      if (type.id === 'circle') {
-                        setFormData((prev) => ({
-                          ...prev,
-                          coordinates: [
-                            prev.coordinates[0] || { latitude: 40.7589, longitude: -73.9851 },
-                          ],
-                        }))
-                      }
-                    }}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">{type.icon}</div>
-                      <div className="font-medium text-sm">{type.name}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{type.description}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Coordinates & Shape */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">
-                  {formData.type === 'circle' ? 'Center Point' : 'Boundary Points'}
-                </h3>
-                {formData.type !== 'circle' && (
-                  <button
-                    type="button"
-                    onClick={addCoordinate}
-                    className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Add Point</span>
-                  </button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                {formData.coordinates.map((coord, index) => (
-                  <div key={index} className="p-4 border border-border rounded-lg">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-sm">
-                        {formData.type === 'circle' ? 'Center Point' : `Point ${index + 1}`}
-                      </span>
-                      {formData.type !== 'circle' && formData.coordinates.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeCoordinate(index)}
-                          className="p-1 hover:bg-muted rounded text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Latitude *</label>
-                        <input
-                          type="number"
-                          step="0.000001"
-                          value={coord.latitude || 0}
-                          onChange={(e) =>
-                            updateCoordinate(index, 'latitude', parseFloat(e.target.value) || 0)
-                          }
-                          className={getInputClassName(`coord_${index}_lat`)}
-                          placeholder="40.7589"
-                        />
-                        {renderFieldError(`coord_${index}_lat`)}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Longitude *</label>
-                        <input
-                          type="number"
-                          step="0.000001"
-                          value={coord.longitude || 0}
-                          onChange={(e) =>
-                            updateCoordinate(index, 'longitude', parseFloat(e.target.value) || 0)
-                          }
-                          className={getInputClassName(`coord_${index}_lng`)}
-                          placeholder="-73.9851"
-                        />
-                        {renderFieldError(`coord_${index}_lng`)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Radius for circle */}
-              {formData.type === 'circle' && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Radius (meters) *</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="5000"
-                      value={formData.radius || 50}
-                      onChange={(e) => handleInputChange('radius', parseInt(e.target.value) || 50)}
-                      className={getInputClassName('radius')}
-                      placeholder="50"
-                    />
-                    {renderFieldError('radius')}
-                  </div>
-                </div>
-              )}
-
-              {renderFieldError('coordinates')}
-            </div>
-
-            {/* Visual Settings */}
-            <div className="space-y-4">
-              <h3 className="font-medium">Visual Settings</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Border Color</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {predefinedColors.map((color) => (
-                      <button
-                        key={color}
-                        type="button"
-                        onClick={() => handleInputChange('color', color)}
-                        className={cn(
-                          'w-8 h-8 rounded-full border-2 transition-transform hover:scale-110',
-                          formData.color === color
-                            ? 'border-gray-800 dark:border-gray-200'
-                            : 'border-gray-300'
-                        )}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                  <input
-                    type="color"
-                    value={formData.color || '#3b82f6'}
-                    onChange={(e) => handleInputChange('color', e.target.value)}
-                    className="w-full h-10 rounded border border-input"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Border Width</label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={formData.strokeWidth || 2}
-                    onChange={(e) => handleInputChange('strokeWidth', parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {formData.strokeWidth || 2}px
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Fill Opacity</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={formData.fillOpacity || 0.2}
-                    onChange={(e) => handleInputChange('fillOpacity', parseFloat(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {Math.round((formData.fillOpacity || 0.2) * 100)}%
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Rules */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">Geofence Rules</h3>
+          {/* Coordinates & Shape */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">
+                {formData.type === 'circle' ? 'Center Point' : 'Boundary Points'}
+              </h3>
+              {formData.type !== 'circle' && (
                 <button
                   type="button"
-                  onClick={addRule}
+                  onClick={addCoordinate}
                   className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>Add Rule</span>
+                  <span>Add Point</span>
                 </button>
-              </div>
-
-              {formData.rules.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Settings className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm">No rules configured</p>
-                  <p className="text-xs">
-                    Add rules to define what happens when robots interact with this geofence
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {formData.rules.map((rule, ruleIndex) => (
-                    <div key={rule.id} className="p-4 border border-border rounded-lg">
-                      <div className="flex items-center justify-between mb-4">
-                        <span className="font-medium text-sm">Rule {ruleIndex + 1}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeRule(rule.id)}
-                          className="p-1 hover:bg-muted rounded text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Rule Name</label>
-                          <input
-                            type="text"
-                            value={rule.name || ''}
-                            onChange={(e) => updateRule(rule.id, 'name', e.target.value)}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                            placeholder="e.g., Entry Alert"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-1">Trigger</label>
-                          <select
-                            value={rule.trigger}
-                            onChange={(e) => updateRule(rule.id, 'trigger', e.target.value)}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                          >
-                            {triggerTypes.map((trigger) => (
-                              <option key={trigger.id} value={trigger.id}>
-                                {trigger.name} - {trigger.description}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        {/* Conditional fields based on trigger type */}
-                        {rule.trigger === 'dwell' && (
-                          <div>
-                            <label className="block text-sm font-medium mb-1">
-                              Min Duration (seconds)
-                            </label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={rule.condition?.minDuration || 60}
-                              onChange={(e) =>
-                                updateRule(rule.id, 'condition', {
-                                  ...rule.condition,
-                                  minDuration: parseInt(e.target.value) || 60,
-                                })
-                              }
-                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                              placeholder="60"
-                            />
-                          </div>
-                        )}
-
-                        {rule.trigger === 'speed_limit' && (
-                          <div>
-                            <label className="block text-sm font-medium mb-1">
-                              Max Speed (m/s)
-                            </label>
-                            <input
-                              type="number"
-                              min="0.1"
-                              step="0.1"
-                              value={rule.condition?.maxSpeed || 2.0}
-                              onChange={(e) =>
-                                updateRule(rule.id, 'condition', {
-                                  ...rule.condition,
-                                  maxSpeed: parseFloat(e.target.value) || 2.0,
-                                })
-                              }
-                              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                              placeholder="2.0"
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Rule Actions */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">
-                            Actions ({rule.actions.length})
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => addRuleAction(rule.id)}
-                            className="flex items-center space-x-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600"
-                          >
-                            <Plus className="h-3 w-3" />
-                            <span>Add Action</span>
-                          </button>
-                        </div>
-
-                        {rule.actions.map((action, actionIndex) => (
-                          <div key={action.id} className="p-3 bg-muted rounded-lg">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-medium">Action {actionIndex + 1}</span>
-                              <button
-                                type="button"
-                                onClick={() => removeRuleAction(rule.id, action.id)}
-                                className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-red-600"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                              <div>
-                                <select
-                                  value={action.type}
-                                  onChange={(e) =>
-                                    updateRuleAction(rule.id, action.id, 'type', e.target.value)
-                                  }
-                                  className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                                >
-                                  {actionTypes.map((type) => (
-                                    <option key={type.id} value={type.id}>
-                                      {type.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <div>
-                                <select
-                                  value={action.priority}
-                                  onChange={(e) =>
-                                    updateRuleAction(rule.id, action.id, 'priority', e.target.value)
-                                  }
-                                  className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
-                                >
-                                  {priorityLevels.map((priority) => (
-                                    <option key={priority.id} value={priority.id}>
-                                      {priority.name}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
               )}
             </div>
 
-            {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4 border-t">
+            <div className="grid grid-cols-1 gap-4">
+              {formData.coordinates.map((coord, index) => (
+                <div key={index} className="p-4 border border-border rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-medium text-sm">
+                      {formData.type === 'circle' ? 'Center Point' : `Point ${index + 1}`}
+                    </span>
+                    {formData.type !== 'circle' && formData.coordinates.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeCoordinate(index)}
+                        className="p-1 hover:bg-muted rounded text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Latitude *</label>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        value={coord.latitude || 0}
+                        onChange={(e) =>
+                          updateCoordinate(index, 'latitude', parseFloat(e.target.value) || 0)
+                        }
+                        className={getInputClassName(`coord_${index}_lat`)}
+                        placeholder="40.7589"
+                      />
+                      {renderFieldError(`coord_${index}_lat`)}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Longitude *</label>
+                      <input
+                        type="number"
+                        step="0.000001"
+                        value={coord.longitude || 0}
+                        onChange={(e) =>
+                          updateCoordinate(index, 'longitude', parseFloat(e.target.value) || 0)
+                        }
+                        className={getInputClassName(`coord_${index}_lng`)}
+                        placeholder="-73.9851"
+                      />
+                      {renderFieldError(`coord_${index}_lng`)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Radius for circle */}
+            {formData.type === 'circle' && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Radius (meters) *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="5000"
+                    value={formData.radius || 50}
+                    onChange={(e) => handleInputChange('radius', parseInt(e.target.value) || 50)}
+                    className={getInputClassName('radius')}
+                    placeholder="50"
+                  />
+                  {renderFieldError('radius')}
+                </div>
+              </div>
+            )}
+
+            {renderFieldError('coordinates')}
+          </div>
+
+          {/* Visual Settings */}
+          <div className="space-y-4">
+            <h3 className="font-medium">Visual Settings</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Border Color</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {predefinedColors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleInputChange('color', color)}
+                      className={cn(
+                        'w-8 h-8 rounded-full border-2 transition-transform hover:scale-110',
+                        formData.color === color
+                          ? 'border-gray-800 dark:border-gray-200'
+                          : 'border-gray-300'
+                      )}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+                <input
+                  type="color"
+                  value={formData.color || '#3b82f6'}
+                  onChange={(e) => handleInputChange('color', e.target.value)}
+                  className="w-full h-10 rounded border border-input"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Border Width</label>
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  value={formData.strokeWidth || 2}
+                  onChange={(e) => handleInputChange('strokeWidth', parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  {formData.strokeWidth || 2}px
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Fill Opacity</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={formData.fillOpacity || 0.2}
+                  onChange={(e) => handleInputChange('fillOpacity', parseFloat(e.target.value))}
+                  className="w-full"
+                />
+                <div className="text-xs text-muted-foreground mt-1">
+                  {Math.round((formData.fillOpacity || 0.2) * 100)}%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Rules */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium">Geofence Rules</h3>
               <button
                 type="button"
-                onClick={onClose}
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+                onClick={addRule}
+                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                    <span>Updating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Shield className="h-4 w-4" />
-                    <span>Update Geofence</span>
-                  </>
-                )}
+                <Plus className="h-4 w-4" />
+                <span>Add Rule</span>
               </button>
             </div>
-          </form>
-        </div>
+
+            {formData.rules.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Settings className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p className="text-sm">No rules configured</p>
+                <p className="text-xs">
+                  Add rules to define what happens when robots interact with this geofence
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {formData.rules.map((rule, ruleIndex) => (
+                  <div key={rule.id} className="p-4 border border-border rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="font-medium text-sm">Rule {ruleIndex + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeRule(rule.id)}
+                        className="p-1 hover:bg-muted rounded text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Rule Name</label>
+                        <input
+                          type="text"
+                          value={rule.name || ''}
+                          onChange={(e) => updateRule(rule.id, 'name', e.target.value)}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                          placeholder="e.g., Entry Alert"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Trigger</label>
+                        <select
+                          value={rule.trigger}
+                          onChange={(e) => updateRule(rule.id, 'trigger', e.target.value)}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                          {triggerTypes.map((trigger) => (
+                            <option key={trigger.id} value={trigger.id}>
+                              {trigger.name} - {trigger.description}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Conditional fields based on trigger type */}
+                      {rule.trigger === 'dwell' && (
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Min Duration (seconds)
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={rule.condition?.minDuration || 60}
+                            onChange={(e) =>
+                              updateRule(rule.id, 'condition', {
+                                ...rule.condition,
+                                minDuration: parseInt(e.target.value) || 60,
+                              })
+                            }
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            placeholder="60"
+                          />
+                        </div>
+                      )}
+
+                      {rule.trigger === 'speed_limit' && (
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Max Speed (m/s)</label>
+                          <input
+                            type="number"
+                            min="0.1"
+                            step="0.1"
+                            value={rule.condition?.maxSpeed || 2.0}
+                            onChange={(e) =>
+                              updateRule(rule.id, 'condition', {
+                                ...rule.condition,
+                                maxSpeed: parseFloat(e.target.value) || 2.0,
+                              })
+                            }
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                            placeholder="2.0"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Rule Actions */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">Actions ({rule.actions.length})</span>
+                        <button
+                          type="button"
+                          onClick={() => addRuleAction(rule.id)}
+                          className="flex items-center space-x-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs hover:bg-gray-200 dark:hover:bg-gray-600"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Add Action</span>
+                        </button>
+                      </div>
+
+                      {rule.actions.map((action, actionIndex) => (
+                        <div key={action.id} className="p-3 bg-muted rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-medium">Action {actionIndex + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeRuleAction(rule.id, action.id)}
+                              className="p-1 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-red-600"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                              <select
+                                value={action.type}
+                                onChange={(e) =>
+                                  updateRuleAction(rule.id, action.id, 'type', e.target.value)
+                                }
+                                className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                              >
+                                {actionTypes.map((type) => (
+                                  <option key={type.id} value={type.id}>
+                                    {type.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <select
+                                value={action.priority}
+                                onChange={(e) =>
+                                  updateRuleAction(rule.id, action.id, 'priority', e.target.value)
+                                }
+                                className="w-full rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                              >
+                                {priorityLevels.map((priority) => (
+                                  <option key={priority.id} value={priority.id}>
+                                    {priority.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center space-x-2"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="h-4 w-4" />
+                  <span>Update Geofence</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )
