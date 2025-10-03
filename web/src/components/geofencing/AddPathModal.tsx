@@ -209,7 +209,10 @@ export function AddPathModal({ isOpen, onClose, onSuccess }: AddPathModalProps) 
               <GitBranch className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">Create Path</h2>
             </div>
-            <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
+            <button
+              onClick={onClose}
+              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>

@@ -219,7 +219,10 @@ export function CreateMaintenanceModal({
               <Calendar className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">Schedule Maintenance</h2>
             </div>
-            <button onClick={onClose} className="p-2 rounded-md hover:bg-muted">
+            <button
+              onClick={onClose}
+              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -317,14 +320,14 @@ export function CreateMaintenanceModal({
 
               <div>
                 <label className="block text-sm font-medium mb-2">Priority Level</label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {priorityLevels.map((level) => (
                     <button
                       key={level.id}
                       type="button"
                       onClick={() => handleInputChange('priority', level.id)}
                       className={cn(
-                        'p-2 rounded-md text-sm font-medium transition-colors',
+                        'p-3 rounded-md text-sm font-medium transition-colors min-h-[44px]',
                         formData.priority === level.id ? level.color : 'bg-muted hover:bg-muted/80'
                       )}
                     >

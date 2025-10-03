@@ -178,7 +178,10 @@ export function InviteUserModal({ isOpen, onClose, onSuccess }: InviteUserModalP
             <UserPlus className="h-5 w-5 text-primary" />
             <h2 className="text-xl font-semibold">Invite Team Member</h2>
           </div>
-          <button onClick={handleClose} className="p-2 hover:bg-muted rounded-md transition-colors">
+          <button
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] p-2 hover:bg-muted rounded-md transition-colors"
+          >
             <X className="h-5 w-5" />
           </button>
         </div>

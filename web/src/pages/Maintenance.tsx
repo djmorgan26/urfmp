@@ -422,47 +422,51 @@ export function Maintenance() {
           </div>
 
           {/* Maintenance Calendar View */}
-          <div className="bg-card rounded-lg border border-border p-6">
+          <div className="bg-card rounded-lg border border-border p-4 sm:p-6">
             <h3 className="text-lg font-semibold mb-4">Maintenance Calendar</h3>
 
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                <div
-                  key={day}
-                  className="text-center text-sm font-medium text-muted-foreground py-2"
-                >
-                  {day}
+            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <div className="min-w-[600px]">
+                <div className="grid grid-cols-7 gap-2 mb-4">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div
+                      key={day}
+                      className="text-center text-sm font-medium text-muted-foreground py-2"
+                    >
+                      {day}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="grid grid-cols-7 gap-2">
-              {Array.from({ length: 35 }, (_, i) => {
-                const date = new Date()
-                date.setDate(date.getDate() - date.getDay() + i)
-                const hasTask = mockMaintenanceTasks.some(
-                  (task) =>
-                    format(
-                      typeof task.scheduledDate === 'string'
-                        ? parseISO(task.scheduledDate)
-                        : task.scheduledDate,
-                      'yyyy-MM-dd'
-                    ) === format(date, 'yyyy-MM-dd')
-                )
+                <div className="grid grid-cols-7 gap-2">
+                  {Array.from({ length: 35 }, (_, i) => {
+                    const date = new Date()
+                    date.setDate(date.getDate() - date.getDay() + i)
+                    const hasTask = mockMaintenanceTasks.some(
+                      (task) =>
+                        format(
+                          typeof task.scheduledDate === 'string'
+                            ? parseISO(task.scheduledDate)
+                            : task.scheduledDate,
+                          'yyyy-MM-dd'
+                        ) === format(date, 'yyyy-MM-dd')
+                    )
 
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      'h-12 rounded-md border border-border flex items-center justify-center text-sm cursor-pointer hover:bg-muted',
-                      hasTask && 'bg-blue-100 border-blue-300'
-                    )}
-                  >
-                    {date.getDate()}
-                    {hasTask && <div className="w-2 h-2 bg-blue-600 rounded-full ml-1" />}
-                  </div>
-                )
-              })}
+                    return (
+                      <div
+                        key={i}
+                        className={cn(
+                          'h-12 rounded-md border border-border flex items-center justify-center text-sm cursor-pointer hover:bg-muted',
+                          hasTask && 'bg-blue-100 border-blue-300'
+                        )}
+                      >
+                        {date.getDate()}
+                        {hasTask && <div className="w-2 h-2 bg-blue-600 rounded-full ml-1" />}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </>

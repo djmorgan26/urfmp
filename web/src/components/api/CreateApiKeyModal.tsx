@@ -124,7 +124,10 @@ export function CreateApiKeyModal({ isOpen, onClose }: CreateApiKeyModalProps) {
                 {step === 'form' ? 'Create API Key' : 'API Key Generated'}
               </h2>
             </div>
-            <button onClick={handleClose} className="p-2 rounded-md hover:bg-muted">
+            <button
+              onClick={onClose}
+              className="min-h-[44px] min-w-[44px] p-2 rounded-md hover:bg-muted"
+            >
               <X className="h-4 w-4" />
             </button>
           </div>
