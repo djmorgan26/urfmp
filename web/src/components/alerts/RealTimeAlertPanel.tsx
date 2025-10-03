@@ -143,10 +143,10 @@ export function RealTimeAlertPanel({
   return (
     <div className={cn('bg-card rounded-lg border border-border', className)}>
       {/* Header */}
-      <div className="p-3 sm:p-4 border-b border-border">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="relative flex-shrink-0">
+      <div className="p-4 sm:p-4 border-b border-border">
+        <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="relative flex-shrink-0 mt-0.5">
               <Bell className="h-5 w-5 text-foreground" />
               <div
                 className={cn(
@@ -158,18 +158,16 @@ export function RealTimeAlertPanel({
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm sm:text-base font-semibold">Real-time Alerts</h3>
-                {alertStats.unacknowledged > 0 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 whitespace-nowrap">
-                    {alertStats.unacknowledged} new
-                  </span>
-                )}
-              </div>
+              <h3 className="text-base sm:text-lg font-semibold mb-1">Real-time Alerts</h3>
+              {alertStats.unacknowledged > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400 whitespace-nowrap">
+                  {alertStats.unacknowledged} new
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {showFilters && (
               <button
                 onClick={() => setShowFiltersPanel(!showFiltersPanel)}

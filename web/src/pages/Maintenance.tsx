@@ -288,16 +288,16 @@ export function Maintenance() {
                     className="bg-card rounded-lg border border-border p-4 sm:p-6 hover:shadow-md transition-shadow"
                   >
                     {/* Mobile: Stack everything vertically */}
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <div className="flex flex-col gap-4">
                       <div className="flex-1 min-w-0">
                         {/* Title */}
-                        <h3 className="text-base sm:text-lg font-semibold mb-2">{task.title}</h3>
+                        <h3 className="text-base sm:text-lg font-semibold mb-3">{task.title}</h3>
 
-                        {/* Badges - wrap on mobile */}
-                        <div className="flex flex-wrap gap-2 mb-3">
+                        {/* Badges - wrap on mobile with more spacing */}
+                        <div className="flex flex-wrap gap-2 mb-4">
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
+                              'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               type.bg,
                               type.color
                             )}
@@ -307,7 +307,7 @@ export function Maintenance() {
 
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
+                              'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               priority.bg,
                               priority.color
                             )}
@@ -317,7 +317,7 @@ export function Maintenance() {
 
                           <span
                             className={cn(
-                              'px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap',
+                              'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap',
                               status.bg,
                               status.color
                             )}
@@ -326,10 +326,10 @@ export function Maintenance() {
                           </span>
                         </div>
 
-                        <p className="text-muted-foreground text-sm mb-3">{task.description}</p>
+                        <p className="text-muted-foreground text-sm mb-4">{task.description}</p>
 
                         {/* Info Grid - 1 col mobile, 2 col tablet, 4 col desktop */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm mb-4">
                           <div className="flex items-center space-x-2">
                             <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                             <span className="truncate">{task.robot}</span>
@@ -361,7 +361,7 @@ export function Maintenance() {
                         </div>
 
                         {task.notes && (
-                          <div className="mt-3 p-3 bg-muted rounded-md">
+                          <div className="p-3 bg-muted rounded-md">
                             <p className="text-sm">
                               <strong>Notes:</strong> {task.notes}
                             </p>
@@ -370,20 +370,23 @@ export function Maintenance() {
                       </div>
 
                       {/* Action Buttons - full width on mobile */}
-                      <div className="flex sm:flex-col items-center gap-2 sm:ml-4">
+                      <div className="flex items-center gap-2 pt-2 border-t border-border">
                         {task.status === 'scheduled' && (
-                          <button className="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 min-h-[44px] whitespace-nowrap">
+                          <button className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white text-sm rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 min-h-[44px] whitespace-nowrap font-medium">
                             Start
                           </button>
                         )}
 
                         {task.status === 'in_progress' && (
-                          <button className="flex-1 sm:flex-none px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 min-h-[44px] whitespace-nowrap">
+                          <button className="flex-1 px-4 py-2 bg-green-600 dark:bg-green-700 text-white text-sm rounded-md hover:bg-green-700 dark:hover:bg-green-600 min-h-[44px] whitespace-nowrap font-medium">
                             Complete
                           </button>
                         )}
 
-                        <button className="min-h-[44px] min-w-[44px] p-2 rounded-md border border-border hover:bg-muted">
+                        <button
+                          className="min-h-[44px] min-w-[44px] p-2 rounded-md border border-border hover:bg-muted"
+                          title="Edit task"
+                        >
                           <Wrench className="h-4 w-4" />
                         </button>
                       </div>
