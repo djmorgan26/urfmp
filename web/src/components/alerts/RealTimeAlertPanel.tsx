@@ -234,8 +234,8 @@ export function RealTimeAlertPanel({
                     className={cn(
                       'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px]',
                       filters.severity?.includes(severity)
-                        ? cn(severityConfig[severity].badgeColor, 'text-white')
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? cn(severityConfig[severity].badgeColor, 'text-white dark:text-white')
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                     )}
                   >
                     {severity.charAt(0).toUpperCase() + severity.slice(1)}
@@ -256,7 +256,7 @@ export function RealTimeAlertPanel({
                       'inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium transition-colors min-h-[32px]',
                       filters.type?.includes(type)
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                     )}
                   >
                     {typeLabels[type]}
@@ -330,11 +330,11 @@ export function RealTimeAlertPanel({
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <h4 className="text-sm font-medium text-foreground">{alert.title}</h4>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                               {typeLabels[alert.type]}
                             </span>
                             {alert.acknowledged && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400">
                                 Acknowledged
                               </span>
                             )}
@@ -365,7 +365,7 @@ export function RealTimeAlertPanel({
 
       {/* Connection Status */}
       {!isConnected && (
-        <div className="p-3 border-t border-border bg-red-50 text-red-700 text-sm">
+        <div className="p-3 border-t border-border bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-sm">
           <div className="flex items-center space-x-2">
             <AlertTriangle className="h-4 w-4" />
             <span>Disconnected from real-time updates. Attempting to reconnect...</span>

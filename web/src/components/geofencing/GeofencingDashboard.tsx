@@ -244,7 +244,7 @@ export function GeofencingDashboard() {
                   {!event.acknowledged && (
                     <button
                       onClick={() => acknowledgeEvent(event.id, 'System')}
-                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded hover:bg-blue-200"
+                      className="text-xs bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 px-2 py-1 rounded hover:bg-blue-200 dark:hover:bg-blue-900/40"
                     >
                       Acknowledge
                     </button>
@@ -270,7 +270,7 @@ export function GeofencingDashboard() {
             <h3 className="text-lg font-semibold">Waypoints Management</h3>
             <button
               onClick={() => setShowAddWaypointModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
             >
               <Plus className="h-4 w-4" />
               <span>Add Waypoint</span>
@@ -286,14 +286,14 @@ export function GeofencingDashboard() {
                       className={cn(
                         'w-3 h-3 rounded-full',
                         waypoint.type === 'pickup'
-                          ? 'bg-blue-600'
+                          ? 'bg-blue-600 dark:bg-blue-700'
                           : waypoint.type === 'dropoff'
-                            ? 'bg-green-600'
+                            ? 'bg-green-600 dark:bg-green-700'
                             : waypoint.type === 'charging'
-                              ? 'bg-yellow-600'
+                              ? 'bg-yellow-600 dark:bg-yellow-700'
                               : waypoint.type === 'maintenance'
-                                ? 'bg-red-600'
-                                : 'bg-gray-600'
+                                ? 'bg-red-600 dark:bg-red-700'
+                                : 'bg-gray-600 dark:bg-gray-700'
                       )}
                     />
                     <h4 className="font-medium">{waypoint.name}</h4>
@@ -357,7 +357,7 @@ export function GeofencingDashboard() {
             <h3 className="text-lg font-semibold">Geofences Management</h3>
             <button
               onClick={() => setShowAddGeofenceModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
             >
               <Plus className="h-4 w-4" />
               <span>Add Geofence</span>
@@ -379,8 +379,8 @@ export function GeofencingDashboard() {
                         className={cn(
                           'px-2 py-1 rounded-full text-xs',
                           geofence.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
                         )}
                       >
                         {geofence.isActive ? 'Active' : 'Inactive'}
@@ -433,7 +433,7 @@ export function GeofencingDashboard() {
                       >
                         <span className="text-sm">{rule.name}</span>
                         <div className="flex items-center space-x-2">
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          <span className="text-xs bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400 px-2 py-1 rounded">
                             {rule.trigger}
                           </span>
                           <span className="text-xs text-muted-foreground">
@@ -457,7 +457,7 @@ export function GeofencingDashboard() {
             <h3 className="text-lg font-semibold">Path Management</h3>
             <button
               onClick={() => setShowAddPathModal(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
             >
               <Plus className="h-4 w-4" />
               <span>Create Path</span>
@@ -476,12 +476,12 @@ export function GeofencingDashboard() {
                     className={cn(
                       'px-2 py-1 rounded-full text-xs',
                       path.status === 'active'
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-100 dark:bg-green-950/30 text-green-800 dark:text-green-400'
                         : path.status === 'completed'
-                          ? 'bg-blue-100 text-blue-800'
+                          ? 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400'
                           : path.status === 'paused'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
                     )}
                   >
                     {path.status}
@@ -522,7 +522,7 @@ export function GeofencingDashboard() {
                     Edit Path
                   </button>
                   {!path.isOptimized && (
-                    <button className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    <button className="flex items-center space-x-1 px-3 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded hover:bg-blue-700 dark:hover:bg-blue-600 text-sm">
                       <Zap className="h-4 w-4" />
                       <span>Optimize</span>
                     </button>
@@ -573,12 +573,12 @@ export function GeofencingDashboard() {
                           className={cn(
                             'px-2 py-1 rounded-full text-xs',
                             event.severity === 'critical'
-                              ? 'bg-red-100 text-red-800'
+                              ? 'bg-red-100 dark:bg-red-950/30 text-red-800 dark:text-red-400'
                               : event.severity === 'error'
-                                ? 'bg-red-50 text-red-700'
+                                ? 'bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400'
                                 : event.severity === 'warning'
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : 'bg-blue-100 text-blue-800'
+                                  ? 'bg-yellow-100 dark:bg-yellow-950/30 text-yellow-800 dark:text-yellow-400'
+                                  : 'bg-blue-100 dark:bg-blue-950/30 text-blue-800 dark:text-blue-400'
                           )}
                         >
                           {event.severity}
@@ -602,7 +602,7 @@ export function GeofencingDashboard() {
                     {!event.acknowledged ? (
                       <button
                         onClick={() => acknowledgeEvent(event.id, 'System')}
-                        className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                        className="px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded text-sm hover:bg-blue-700 dark:hover:bg-blue-600"
                       >
                         Acknowledge
                       </button>

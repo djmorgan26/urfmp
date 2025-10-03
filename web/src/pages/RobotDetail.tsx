@@ -41,19 +41,54 @@ const mockTelemetryData = [
 ]
 
 const statusConfig = {
-  online: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100', label: 'Online' },
-  running: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Running' },
-  idle: { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Idle' },
-  offline: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-100', label: 'Offline' },
-  error: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'Error' },
+  online: {
+    icon: CheckCircle,
+    color: 'text-green-600 dark:text-green-400',
+    bg: 'bg-green-100 dark:bg-green-950/30',
+    label: 'Online',
+  },
+  running: {
+    icon: Activity,
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-100 dark:bg-blue-950/30',
+    label: 'Running',
+  },
+  idle: {
+    icon: Clock,
+    color: 'text-gray-600 dark:text-gray-400',
+    bg: 'bg-gray-100 dark:bg-gray-800/50',
+    label: 'Idle',
+  },
+  offline: {
+    icon: XCircle,
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'Offline',
+  },
+  error: {
+    icon: AlertTriangle,
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'Error',
+  },
   maintenance: {
     icon: AlertTriangle,
-    color: 'text-yellow-600',
-    bg: 'bg-yellow-100',
+    color: 'text-yellow-600 dark:text-yellow-400',
+    bg: 'bg-yellow-100 dark:bg-yellow-950/30',
     label: 'Maintenance',
   },
-  stopped: { icon: Square, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Stopped' },
-  emergency_stop: { icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-100', label: 'E-Stop' },
+  stopped: {
+    icon: Square,
+    color: 'text-gray-600 dark:text-gray-400',
+    bg: 'bg-gray-100 dark:bg-gray-800/50',
+    label: 'Stopped',
+  },
+  emergency_stop: {
+    icon: AlertTriangle,
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-100 dark:bg-red-950/30',
+    label: 'E-Stop',
+  },
 }
 
 export function RobotDetail() {
@@ -530,8 +565,8 @@ export function RobotDetail() {
                       className={cn(
                         'h-8 w-8 rounded-full flex items-center justify-center',
                         cmd.status === 'success'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
+                          ? 'bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400'
+                          : 'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'
                       )}
                     >
                       {cmd.status === 'success' ? (
@@ -622,7 +657,7 @@ export function RobotDetail() {
                   timestamp: new Date(Date.now() - 180000),
                   user: 'Admin User',
                   icon: Activity,
-                  color: 'text-green-600 bg-green-100',
+                  color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30',
                 },
                 {
                   id: '2',
@@ -632,7 +667,7 @@ export function RobotDetail() {
                   timestamp: new Date(Date.now() - 3600000),
                   user: 'Admin User',
                   icon: Square,
-                  color: 'text-red-600 bg-red-100',
+                  color: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950/30',
                 },
                 {
                   id: '3',
@@ -642,7 +677,7 @@ export function RobotDetail() {
                   timestamp: new Date(Date.now() - 7200000),
                   user: 'Admin User',
                   icon: Settings,
-                  color: 'text-blue-600 bg-blue-100',
+                  color: 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-950/30',
                 },
                 {
                   id: '4',
@@ -652,7 +687,7 @@ export function RobotDetail() {
                   timestamp: new Date(Date.now() - 10800000),
                   user: 'System',
                   icon: CheckCircle,
-                  color: 'text-green-600 bg-green-100',
+                  color: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-950/30',
                 },
                 {
                   id: '5',
@@ -662,7 +697,7 @@ export function RobotDetail() {
                   timestamp: new Date(Date.now() - 14400000),
                   user: 'System',
                   icon: AlertTriangle,
-                  color: 'text-yellow-600 bg-yellow-100',
+                  color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-950/30',
                 },
               ].map((event, index, array) => (
                 <div key={event.id} className="relative flex gap-4">
