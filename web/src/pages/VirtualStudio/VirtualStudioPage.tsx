@@ -98,27 +98,11 @@ const VirtualStudioPage: React.FC = () => {
         </div>
         <div className="flex items-center space-x-2">
           <button
-            onClick={isPlaying ? handlePause : handlePlay}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
-          >
-            {isPlaying ? (
-              <>
-                <Pause size={16} />
-                <span>Pause</span>
-              </>
-            ) : (
-              <>
-                <Play size={16} />
-                <span>Run</span>
-              </>
-            )}
-          </button>
-          <button
             onClick={handleReset}
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg flex items-center space-x-2 transition-colors"
           >
             <RotateCcw size={16} />
-            <span>Reset</span>
+            <span>Reset Scene</span>
           </button>
         </div>
       </div>
