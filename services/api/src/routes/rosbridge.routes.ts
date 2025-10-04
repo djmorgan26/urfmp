@@ -6,18 +6,22 @@ import { SimulationCommand } from '@urfmp/types'
 const router = Router()
 
 // Simple validation middleware
-const validate = (req: Request, res: Response, next: NextFunction) => {
+const validate = (req: Request, res: Response, next: NextFunction): void => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() })
+    res.status(400).json({ success: false, errors: errors.array() })
+    return
   }
   next()
 }
 
 // Simple async handler
-const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
-  Promise.resolve(fn(req, res, next)).catch(next)
-}
+type AsyncRequestHandler = (req: Request, res: Response, next: NextFunction) => Promise<any>
+
+const asyncHandler =
+  (fn: AsyncRequestHandler) => (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next)
+  }
 
 /**
  * @route   GET /api/v1/rosbridge/connections
@@ -26,7 +30,7 @@ const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextF
  */
 router.get(
   '/connections',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const connections = rosbridgeServer.getAllConnections()
 
     res.json({
@@ -129,7 +133,7 @@ router.post(
  */
 router.get(
   '/health',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const health = rosbridgeServer.getHealth()
 
     res.json({
