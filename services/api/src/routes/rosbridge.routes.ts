@@ -1,11 +1,23 @@
-import { Router } from 'express'
-import { body, param } from 'express-validator'
+import { Router, Request, Response, NextFunction } from 'express'
+import { body, param, validationResult } from 'express-validator'
 import { rosbridgeServer } from '../services/rosbridgeServer'
-import { validate } from '../middleware/validation'
-import { asyncHandler } from '../middleware/asyncHandler'
 import { SimulationCommand } from '@urfmp/types'
 
 const router = Router()
+
+// Simple validation middleware
+const validate = (req: Request, res: Response, next: NextFunction) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() })
+  }
+  next()
+}
+
+// Simple async handler
+const asyncHandler = (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
+  Promise.resolve(fn(req, res, next)).catch(next)
+}
 
 /**
  * @route   GET /api/v1/rosbridge/connections
