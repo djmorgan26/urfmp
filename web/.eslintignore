@@ -1,0 +1,7 @@
+# Virtual Studio 3D components with React Three Fiber props
+src/pages/VirtualStudio/components/RobotCanvas3D.tsx
+src/pages/VirtualStudio/components/RobotModels.tsx
+src/pages/VirtualStudio/components/RobotSensors.tsx
+src/pages/VirtualStudio/components/PhysicsSimulator.tsx
+src/pages/VirtualStudio/components/EnvironmentSelector.tsx
+src/pages/VirtualStudio/components/BlocklyEditor.tsx
