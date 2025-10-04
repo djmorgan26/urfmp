@@ -45,6 +45,15 @@
   },
   "overrides": [
     {
+      "files": [
+        "web/src/pages/VirtualStudio/**/*.tsx",
+        "web/src/pages/VirtualStudio/**/*.ts"
+      ],
+      "rules": {
+        "react/no-unknown-property": "off"
+      }
+    },
+    {
       "files": ["web/**/*.test.ts", "web/**/*.test.tsx", "web/**/tests/**/*"],
       "parserOptions": {
         "project": ["web/tsconfig.test.json"]

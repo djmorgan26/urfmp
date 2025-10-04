@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import { Box, Sphere, Cylinder, Torus } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useRef } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { Box, Sphere, Cylinder, Torus } from '@react-three/drei'
+import * as THREE from 'three'
 
 interface RobotProps {
-  position?: { x: number; y: number; z: number };
-  rotation?: number;
+  position?: { x: number; y: number; z: number }
+  rotation?: number
 }
 
 // Simple wheeled robot
@@ -13,24 +13,20 @@ export const SimpleBot: React.FC<RobotProps> = ({
   position: targetPosition,
   rotation: targetRotation,
 }) => {
-  const robotRef = useRef<THREE.Group>(null);
+  const robotRef = useRef<THREE.Group>(null)
 
   useFrame((state, delta) => {
     if (robotRef.current && targetPosition) {
-      robotRef.current.position.x +=
-        (targetPosition.x - robotRef.current.position.x) * delta * 5;
-      robotRef.current.position.y +=
-        (targetPosition.y - robotRef.current.position.y) * delta * 5;
-      robotRef.current.position.z +=
-        (targetPosition.z - robotRef.current.position.z) * delta * 5;
+      robotRef.current.position.x += (targetPosition.x - robotRef.current.position.x) * delta * 5
+      robotRef.current.position.y += (targetPosition.y - robotRef.current.position.y) * delta * 5
+      robotRef.current.position.z += (targetPosition.z - robotRef.current.position.z) * delta * 5
 
       if (targetRotation !== undefined) {
-        const targetRad = (targetRotation * Math.PI) / 180;
-        robotRef.current.rotation.y +=
-          (targetRad - robotRef.current.rotation.y) * delta * 5;
+        const targetRad = (targetRotation * Math.PI) / 180
+        robotRef.current.rotation.y += (targetRad - robotRef.current.rotation.y) * delta * 5
       }
     }
-  });
+  })
 
   return (
     <group ref={robotRef} position={[0, 0.5, 0]}>
@@ -58,38 +54,36 @@ export const SimpleBot: React.FC<RobotProps> = ({
         <meshStandardMaterial color="#1f2937" />
       </Sphere>
     </group>
-  );
-};
+  )
+}
 
 // UR5 robotic arm
 export const UR5Arm: React.FC<RobotProps> = ({
   position: targetPosition,
   rotation: targetRotation,
 }) => {
-  const armRef = useRef<THREE.Group>(null);
-  const joint1Ref = useRef<THREE.Group>(null);
-  const joint2Ref = useRef<THREE.Group>(null);
-  const joint3Ref = useRef<THREE.Group>(null);
+  const armRef = useRef<THREE.Group>(null)
+  const joint1Ref = useRef<THREE.Group>(null)
+  const joint2Ref = useRef<THREE.Group>(null)
+  const joint3Ref = useRef<THREE.Group>(null)
 
   useFrame((state, delta) => {
     if (armRef.current && targetPosition) {
-      armRef.current.position.x +=
-        (targetPosition.x - armRef.current.position.x) * delta * 5;
-      armRef.current.position.z +=
-        (targetPosition.z - armRef.current.position.z) * delta * 5;
+      armRef.current.position.x += (targetPosition.x - armRef.current.position.x) * delta * 5
+      armRef.current.position.z += (targetPosition.z - armRef.current.position.z) * delta * 5
     }
 
     // Animate joints
     if (joint1Ref.current) {
-      joint1Ref.current.rotation.y = Math.sin(state.clock.elapsedTime) * 0.5;
+      joint1Ref.current.rotation.y = Math.sin(state.clock.elapsedTime) * 0.5
     }
     if (joint2Ref.current) {
-      joint2Ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.8) * 0.3;
+      joint2Ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.8) * 0.3
     }
     if (joint3Ref.current) {
-      joint3Ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.2) * 0.3;
+      joint3Ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.2) * 0.3
     }
-  });
+  })
 
   return (
     <group ref={armRef} position={[0, 0, 0]}>
@@ -124,47 +118,43 @@ export const UR5Arm: React.FC<RobotProps> = ({
         </group>
       </group>
     </group>
-  );
-};
+  )
+}
 
 // Quadcopter drone
 export const Drone: React.FC<RobotProps> = ({
   position: targetPosition,
   rotation: targetRotation,
 }) => {
-  const droneRef = useRef<THREE.Group>(null);
-  const propeller1Ref = useRef<THREE.Group>(null);
-  const propeller2Ref = useRef<THREE.Group>(null);
-  const propeller3Ref = useRef<THREE.Group>(null);
-  const propeller4Ref = useRef<THREE.Group>(null);
+  const droneRef = useRef<THREE.Group>(null)
+  const propeller1Ref = useRef<THREE.Group>(null)
+  const propeller2Ref = useRef<THREE.Group>(null)
+  const propeller3Ref = useRef<THREE.Group>(null)
+  const propeller4Ref = useRef<THREE.Group>(null)
 
   useFrame((state, delta) => {
     if (droneRef.current && targetPosition) {
-      droneRef.current.position.x +=
-        (targetPosition.x - droneRef.current.position.x) * delta * 5;
-      droneRef.current.position.y +=
-        (targetPosition.y - droneRef.current.position.y) * delta * 5;
-      droneRef.current.position.z +=
-        (targetPosition.z - droneRef.current.position.z) * delta * 5;
+      droneRef.current.position.x += (targetPosition.x - droneRef.current.position.x) * delta * 5
+      droneRef.current.position.y += (targetPosition.y - droneRef.current.position.y) * delta * 5
+      droneRef.current.position.z += (targetPosition.z - droneRef.current.position.z) * delta * 5
 
       if (targetRotation !== undefined) {
-        const targetRad = (targetRotation * Math.PI) / 180;
-        droneRef.current.rotation.y +=
-          (targetRad - droneRef.current.rotation.y) * delta * 5;
+        const targetRad = (targetRotation * Math.PI) / 180
+        droneRef.current.rotation.y += (targetRad - droneRef.current.rotation.y) * delta * 5
       }
 
       // Slight hovering animation
-      droneRef.current.position.y += Math.sin(state.clock.elapsedTime * 2) * 0.01;
+      droneRef.current.position.y += Math.sin(state.clock.elapsedTime * 2) * 0.01
     }
 
     // Spin propellers
-    const propellers = [propeller1Ref, propeller2Ref, propeller3Ref, propeller4Ref];
+    const propellers = [propeller1Ref, propeller2Ref, propeller3Ref, propeller4Ref]
     propellers.forEach((ref) => {
       if (ref.current) {
-        ref.current.rotation.y += delta * 20;
+        ref.current.rotation.y += delta * 20
       }
-    });
-  });
+    })
+  })
 
   return (
     <group ref={droneRef} position={[0, 2, 0]}>
@@ -177,7 +167,11 @@ export const Drone: React.FC<RobotProps> = ({
       <Cylinder args={[0.05, 0.05, 1.2, 8]} position={[0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
         <meshStandardMaterial color="#059669" />
       </Cylinder>
-      <Cylinder args={[0.05, 0.05, 1.2, 8]} position={[0, 0, 0]} rotation={[0, Math.PI / 2, Math.PI / 2]}>
+      <Cylinder
+        args={[0.05, 0.05, 1.2, 8]}
+        position={[0, 0, 0]}
+        rotation={[0, Math.PI / 2, Math.PI / 2]}
+      >
         <meshStandardMaterial color="#059669" />
       </Cylinder>
 
@@ -208,5 +202,5 @@ export const Drone: React.FC<RobotProps> = ({
         <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.5} />
       </Sphere>
     </group>
-  );
-};
+  )
+}
