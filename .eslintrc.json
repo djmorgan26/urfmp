@@ -50,7 +50,8 @@
         "web/src/pages/VirtualStudio/**/*.ts"
       ],
       "rules": {
-        "react/no-unknown-property": "off"
+        "react/no-unknown-property": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     },
     {
