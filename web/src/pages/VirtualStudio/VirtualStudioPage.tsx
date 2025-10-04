@@ -21,6 +21,13 @@ const VirtualStudioPage: React.FC = () => {
   const [selectedEnvironment, setSelectedEnvironment] = useState<EnvironmentType>('warehouse')
   const [robotPosition, setRobotPosition] = useState({ x: 0, y: 0.5, z: 0 })
   const [robotRotation, setRobotRotation] = useState(0)
+  const [enabledSensors, setEnabledSensors] = useState({
+    camera: true,
+    lidar: true,
+    imu: true,
+    distance: false,
+    gps: false,
+  })
   const [telemetryData, setTelemetryData] = useState<any>({
     position: '(0.0, 0.5, 0.0)',
     velocity: '0.0 m/s',
@@ -259,6 +266,7 @@ const VirtualStudioPage: React.FC = () => {
               rotation={robotRotation}
               robotType={selectedRobot}
               environment={selectedEnvironment}
+              enabledSensors={enabledSensors}
             />
           </div>
 
@@ -270,9 +278,9 @@ const VirtualStudioPage: React.FC = () => {
           />
         </div>
 
-        {/* Right Sidebar - Telemetry */}
-        <div className="w-48 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="p-3">
+        {/* Right Sidebar - Telemetry & Sensors */}
+        <div className="w-48 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+          <div className="p-3 flex-shrink-0">
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
               Live Telemetry
             </h2>
@@ -301,6 +309,70 @@ const VirtualStudioPage: React.FC = () => {
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Sensor Controls */}
+          <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
+              Sensors
+            </h2>
+            <div className="space-y-2">
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-gray-700 dark:text-gray-300">Camera</span>
+                <input
+                  type="checkbox"
+                  checked={enabledSensors.camera}
+                  onChange={(e) =>
+                    setEnabledSensors((prev) => ({ ...prev, camera: e.target.checked }))
+                  }
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-gray-700 dark:text-gray-300">LIDAR</span>
+                <input
+                  type="checkbox"
+                  checked={enabledSensors.lidar}
+                  onChange={(e) =>
+                    setEnabledSensors((prev) => ({ ...prev, lidar: e.target.checked }))
+                  }
+                  className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-gray-700 dark:text-gray-300">IMU</span>
+                <input
+                  type="checkbox"
+                  checked={enabledSensors.imu}
+                  onChange={(e) =>
+                    setEnabledSensors((prev) => ({ ...prev, imu: e.target.checked }))
+                  }
+                  className="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500"
+                />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-gray-700 dark:text-gray-300">Distance</span>
+                <input
+                  type="checkbox"
+                  checked={enabledSensors.distance}
+                  onChange={(e) =>
+                    setEnabledSensors((prev) => ({ ...prev, distance: e.target.checked }))
+                  }
+                  className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-xs text-gray-700 dark:text-gray-300">GPS</span>
+                <input
+                  type="checkbox"
+                  checked={enabledSensors.gps}
+                  onChange={(e) =>
+                    setEnabledSensors((prev) => ({ ...prev, gps: e.target.checked }))
+                  }
+                  className="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500"
+                />
+              </label>
             </div>
           </div>
         </div>

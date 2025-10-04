@@ -4,6 +4,7 @@ import { OrbitControls, Grid } from '@react-three/drei'
 import { SimpleBot, UR5Arm, Drone } from './RobotModels'
 import { RobotTrail } from './PhysicsSimulator'
 import { EnvironmentScene, environmentConfigs, type EnvironmentType } from './EnvironmentSelector'
+import { RobotSensorSuite } from './RobotSensors'
 
 type RobotType = 'simple' | 'ur5' | 'drone'
 
@@ -13,6 +14,13 @@ interface RobotCanvas3DProps {
   rotation?: number
   robotType?: RobotType
   environment?: EnvironmentType
+  enabledSensors?: {
+    camera?: boolean
+    lidar?: boolean
+    imu?: boolean
+    distance?: boolean
+    gps?: boolean
+  }
 }
 
 const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
@@ -21,6 +29,7 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
   rotation,
   robotType = 'simple',
   environment = 'warehouse',
+  enabledSensors = { camera: true, lidar: true, imu: true },
 }) => {
   const [robotTrail, setRobotTrail] = useState<Array<{ x: number; y: number; z: number }>>([])
   const [collidingObstacles, setCollidingObstacles] = useState<Set<number>>(new Set())
@@ -91,6 +100,15 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
 
         {/* Robot */}
         <RobotComponent position={position} rotation={rotation} />
+
+        {/* Robot sensors */}
+        {position && (
+          <RobotSensorSuite
+            robotPosition={position}
+            robotRotation={rotation || 0}
+            enabledSensors={enabledSensors}
+          />
+        )}
 
         {/* Robot movement trail */}
         {robotTrail.length > 1 && (
