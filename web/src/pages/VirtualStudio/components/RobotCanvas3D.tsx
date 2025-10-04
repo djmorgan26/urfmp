@@ -1,15 +1,18 @@
-import React from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Grid, Box } from '@react-three/drei';
-import { SimpleBot, UR5Arm, Drone } from './RobotModels';
+import React, { useState, useCallback } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, Grid } from '@react-three/drei'
+import { SimpleBot, UR5Arm, Drone } from './RobotModels'
+import { RobotTrail } from './PhysicsSimulator'
+import { EnvironmentScene, environmentConfigs, type EnvironmentType } from './EnvironmentSelector'
 
-type RobotType = 'simple' | 'ur5' | 'drone';
+type RobotType = 'simple' | 'ur5' | 'drone'
 
 interface RobotCanvas3DProps {
-  isPlaying: boolean;
-  position?: { x: number; y: number; z: number };
-  rotation?: number;
-  robotType?: RobotType;
+  isPlaying: boolean
+  position?: { x: number; y: number; z: number }
+  rotation?: number
+  robotType?: RobotType
+  environment?: EnvironmentType
 }
 
 const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
@@ -17,12 +20,42 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
   position,
   rotation,
   robotType = 'simple',
+  environment = 'warehouse',
 }) => {
+  const [robotTrail, setRobotTrail] = useState<Array<{ x: number; y: number; z: number }>>([])
+  const [collidingObstacles, setCollidingObstacles] = useState<Set<number>>(new Set())
+
   const RobotComponent = {
     simple: SimpleBot,
     ur5: UR5Arm,
     drone: Drone,
-  }[robotType];
+  }[robotType]
+
+  const envConfig = environmentConfigs[environment]
+
+  // Track robot movement for trail
+  React.useEffect(() => {
+    if (position && isPlaying) {
+      setRobotTrail((prev) => [...prev, position].slice(-100)) // Keep last 100 positions
+    }
+  }, [position, isPlaying])
+
+  // Clear trail when environment changes
+  React.useEffect(() => {
+    setRobotTrail([])
+  }, [environment])
+
+  const handleCollision = useCallback((obstacleIndex: number) => {
+    setCollidingObstacles((prev) => new Set(prev).add(obstacleIndex))
+    setTimeout(() => {
+      setCollidingObstacles((prev) => {
+        const next = new Set(prev)
+        next.delete(obstacleIndex)
+        return next
+      })
+    }, 500)
+  }, [])
+
   return (
     <div className="w-full h-full">
       <Canvas
@@ -31,7 +64,7 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
         className="bg-gray-50 dark:bg-gray-900"
       >
         {/* Lighting */}
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={envConfig.ambientIntensity} />
         <directionalLight
           position={[10, 10, 5]}
           intensity={1}
@@ -46,10 +79,10 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
           args={[20, 20]}
           cellSize={1}
           cellThickness={0.5}
-          cellColor="#6b7280"
+          cellColor={envConfig.gridColor}
           sectionSize={5}
           sectionThickness={1}
-          sectionColor="#3b82f6"
+          sectionColor={envConfig.gridSectionColor}
           fadeDistance={30}
           fadeStrength={1}
           followCamera={false}
@@ -59,13 +92,16 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
         {/* Robot */}
         <RobotComponent position={position} rotation={rotation} />
 
-        {/* Environment obstacles */}
-        <Box args={[1, 2, 1]} position={[3, 1, -3]}>
-          <meshStandardMaterial color="#ef4444" />
-        </Box>
-        <Box args={[1, 1, 1]} position={[-3, 0.5, -5]}>
-          <meshStandardMaterial color="#10b981" />
-        </Box>
+        {/* Robot movement trail */}
+        {robotTrail.length > 1 && (
+          <RobotTrail
+            positions={robotTrail}
+            color={robotType === 'simple' ? '#3b82f6' : robotType === 'ur5' ? '#ef4444' : '#10b981'}
+          />
+        )}
+
+        {/* Environment-specific obstacles */}
+        <EnvironmentScene environment={environment} collidingObstacles={collidingObstacles} />
 
         {/* Camera controls */}
         <OrbitControls
@@ -81,7 +117,7 @@ const RobotCanvas3D: React.FC<RobotCanvas3DProps> = ({
         <axesHelper args={[5]} />
       </Canvas>
     </div>
-  );
-};
+  )
+}
 
-export default RobotCanvas3D;
+export default RobotCanvas3D
