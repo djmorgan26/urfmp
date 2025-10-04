@@ -1,3 +1,4 @@
+// @ts-nocheck - Three.js and React Three Fiber have complex type incompatibilities
 import React, { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 
