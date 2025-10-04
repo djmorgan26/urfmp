@@ -21,6 +21,7 @@ import userRoutes from './routes/user.routes'
 import maintenanceRoutes from './routes/maintenance.routes'
 import healthRoutes from './routes/health.routes'
 import adminRoutes from './routes/admin.routes'
+import rosbridgeRoutes from './routes/rosbridge.routes'
 
 const app = express()
 
@@ -153,6 +154,7 @@ app.use('/api/v1/telemetry', requiredAuth, telemetryRoutes)
 app.use('/api/v1/organizations', requiredAuth, organizationRoutes)
 app.use('/api/v1/users', requiredAuth, userRoutes)
 app.use('/api/v1/maintenance', requiredAuth, maintenanceRoutes)
+app.use('/api/v1/rosbridge', requiredAuth, rosbridgeRoutes)
 
 // API root
 app.get('/', (_req, res) => {

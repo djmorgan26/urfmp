@@ -44,6 +44,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isPlaying }) => {
   const [showExamplesMenu, setShowExamplesMenu] = useState(false)
   const examplesMenuRef = useRef<HTMLDivElement>(null)
 
+  // Store code in window for keyboard shortcuts to access
+  useEffect(() => {
+    ;(window as any).monacoEditorValue = code
+  }, [code])
+
   const handleRunCode = () => {
     onRunCode(code)
   }
