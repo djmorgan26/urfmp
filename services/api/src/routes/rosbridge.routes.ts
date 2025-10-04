@@ -57,13 +57,14 @@ router.get(
     const connection = rosbridgeServer.getConnection(robotId)
 
     if (!connection) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: {
           code: 'CONNECTION_NOT_FOUND',
           message: `No ROSBridge connection found for robot ${robotId}`,
         },
       })
+      return
     }
 
     res.json({
@@ -106,13 +107,14 @@ router.post(
     const success = rosbridgeServer.sendCommand(robotId, command)
 
     if (!success) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: {
           code: 'COMMAND_FAILED',
           message: `Failed to send command to robot ${robotId}. Robot may not be connected.`,
         },
       })
+      return
     }
 
     res.json({

@@ -404,4 +404,10 @@ export const getWebSocketService = (): WebSocketService => {
   return webSocketService
 }
 
+export const publishToChannel = (channel: string, data: any): void => {
+  if (webSocketService) {
+    webSocketService.broadcastToChannel(channel, data)
+  }
+}
+
 export default WebSocketService

@@ -13,17 +13,22 @@ export interface ROSMessage {
   op:
     | 'publish'
     | 'subscribe'
+    | 'unsubscribe'
     | 'call_service'
     | 'advertise'
     | 'unadvertise'
     | 'advertise_service'
     | 'unadvertise_service'
+    | 'service_response'
+    | 'set_level'
   topic?: string
   type?: string
   msg?: any
   service?: string
   args?: any
+  values?: any
   id?: string
+  level?: string
 }
 
 export interface ROSBridgeConnection {

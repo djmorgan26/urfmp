@@ -7,8 +7,8 @@ import {
   SimulationCommand,
   BridgeEvent,
 } from '@urfmp/types'
-import { logger } from '../utils/logger'
-import { publishToChannel } from './websocketService'
+import { logger } from '../config/logger'
+import { publishToChannel } from './websocket.service'
 
 interface ROSBridgeClient {
   ws: WebSocket
@@ -37,7 +37,7 @@ class ROSBridgeServer {
     logger.info('ROSBridge WebSocket server initialized on /rosbridge')
   }
 
-  private handleConnection(ws: WebSocket, req: any) {
+  private handleConnection(ws: WebSocket, _req: any) {
     const clientId = this.generateClientId()
 
     logger.info(`New ROSBridge connection: ${clientId}`)
@@ -392,8 +392,8 @@ class ROSBridgeServer {
           op: 'publish',
           topic: '/joint_trajectory',
           msg: {
-            joint_names: command.joints?.map((j) => j.name) || [],
-            points: command.joints?.map((j) => ({ positions: [j.position] })) || [],
+            joint_names: command.joints?.map((j: any) => j.name) || [],
+            points: command.joints?.map((j: any) => ({ positions: [j.position] })) || [],
           },
         }
 
