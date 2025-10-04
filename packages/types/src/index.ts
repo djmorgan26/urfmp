@@ -74,3 +74,16 @@ export * from './maintenance'
 // Brand configuration
 export type { BrandConfig } from './config/brand'
 export { defaultBrandConfig, getBrandConfig } from './config/brand'
+
+// Simulation bridge types
+export * from './simulation'
+export type {
+  SimulationBridgeConfig,
+  ROSMessage,
+  ROSBridgeConnection,
+  SimulationRobotState,
+  SimulationCommand,
+  BridgeEvent,
+  SimulationBridgeMetrics,
+} from './simulation'
+export { ROS_TOPIC_MAPPINGS, ROS_MESSAGE_TYPES } from './simulation'

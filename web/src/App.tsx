@@ -23,6 +23,9 @@ const Maintenance = lazy(() =>
   import('./pages/Maintenance').then((m) => ({ default: m.Maintenance }))
 )
 const Geofencing = lazy(() => import('./pages/Geofencing').then((m) => ({ default: m.Geofencing })))
+const VirtualStudioPage = lazy(() =>
+  import('./pages/VirtualStudio/VirtualStudioPage').then((m) => ({ default: m.default }))
+)
 const Settings = lazy(() => import('./pages/Settings').then((m) => ({ default: m.Settings })))
 const Profile = lazy(() => import('./pages/Profile').then((m) => ({ default: m.Profile })))
 
@@ -60,6 +63,7 @@ function App() {
                         <Route path="/analytics" element={<Analytics />} />
                         <Route path="/maintenance" element={<Maintenance />} />
                         <Route path="/geofencing" element={<Geofencing />} />
+                        <Route path="/studio" element={<VirtualStudioPage />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/profile" element={<Profile />} />
                       </Routes>
