@@ -306,9 +306,9 @@ jobs:
           echo "Build output structure:"
           find dist -type f -name "*.js" -o -name "*.css" -o -name "*.html" | head -10
 
-          # Check bundle size (should be under 8MB)
+          # Check bundle size (should be under 15MB - includes Virtual Studio 3D libraries)
           size=$(du -sm dist/ | cut -f1)
-          if [ $size -gt 8 ]; then
+          if [ $size -gt 15 ]; then
             echo "❌ Bundle size too large: ${size}MB"
             exit 1
           fi
