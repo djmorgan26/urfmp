@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Editor from '@monaco-editor/react'
-import { Play, Code, LayoutGrid } from 'lucide-react'
+import { Play, Code, LayoutGrid, BookOpen, ChevronDown } from 'lucide-react'
 import BlocklyEditor from './BlocklyEditor'
+import { codeExamples, exampleCategories, getExampleById } from '../data/codeExamples'
 
 interface CodeEditorProps {
   onRunCode: (code: string) => void
@@ -40,10 +41,37 @@ main();
 const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isPlaying }) => {
   const [code, setCode] = useState(defaultCode)
   const [editorMode, setEditorMode] = useState<'code' | 'visual'>('code')
+  const [showExamplesMenu, setShowExamplesMenu] = useState(false)
+  const examplesMenuRef = useRef<HTMLDivElement>(null)
 
   const handleRunCode = () => {
     onRunCode(code)
   }
+
+  const loadExample = (exampleId: string) => {
+    const example = getExampleById(exampleId)
+    if (example) {
+      setCode(example.code)
+      setShowExamplesMenu(false)
+    }
+  }
+
+  // Close examples menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (examplesMenuRef.current && !examplesMenuRef.current.contains(event.target as Node)) {
+        setShowExamplesMenu(false)
+      }
+    }
+
+    if (showExamplesMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showExamplesMenu])
 
   return (
     <div className="flex flex-col h-full bg-gray-900 dark:bg-gray-950 border-t border-gray-200 dark:border-gray-700">
@@ -74,18 +102,65 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRunCode, isPlaying }) => {
           </button>
         </div>
 
-        <button
-          onClick={handleRunCode}
-          disabled={isPlaying}
-          className={`px-3 py-1 rounded-md text-xs flex items-center space-x-1.5 transition-colors ${
-            isPlaying
-              ? 'bg-gray-700 dark:bg-gray-800 text-gray-500 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
-          }`}
-        >
-          <Play size={14} />
-          <span>Run Code</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          {/* Code Examples Dropdown */}
+          <div className="relative" ref={examplesMenuRef}>
+            <button
+              onClick={() => setShowExamplesMenu(!showExamplesMenu)}
+              className="px-2.5 py-1 rounded-md text-xs flex items-center space-x-1.5 transition-colors text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-700 dark:hover:bg-gray-800"
+            >
+              <BookOpen size={14} />
+              <span>Examples</span>
+              <ChevronDown size={12} />
+            </button>
+
+            {/* Examples Menu */}
+            {showExamplesMenu && (
+              <div className="absolute top-full right-0 mt-1 w-72 bg-gray-800 border border-gray-700 rounded-md shadow-xl z-50 max-h-96 overflow-y-auto">
+                {exampleCategories.map((category) => {
+                  const examples = codeExamples.filter((ex) => ex.category === category.id)
+                  if (examples.length === 0) return null
+
+                  return (
+                    <div key={category.id} className="border-b border-gray-700 last:border-b-0">
+                      <div className="px-3 py-2 bg-gray-750 text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                        {category.icon} {category.label}
+                      </div>
+                      {examples.map((example) => (
+                        <button
+                          key={example.id}
+                          onClick={() => loadExample(example.id)}
+                          className="w-full px-3 py-2 text-left hover:bg-gray-700 transition-colors"
+                        >
+                          <div className="text-xs font-medium text-white">{example.title}</div>
+                          <div className="text-xs text-gray-400 mt-0.5">{example.description}</div>
+                          {example.robotType && example.robotType !== 'any' && (
+                            <div className="text-xs text-blue-400 mt-0.5">
+                              {example.robotType.toUpperCase()} robot
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={handleRunCode}
+            disabled={isPlaying}
+            className={`px-3 py-1 rounded-md text-xs flex items-center space-x-1.5 transition-colors ${
+              isPlaying
+                ? 'bg-gray-700 dark:bg-gray-800 text-gray-500 cursor-not-allowed'
+                : 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
+            }`}
+          >
+            <Play size={14} />
+            <span>Run Code</span>
+          </button>
+        </div>
       </div>
 
       {/* Monaco Editor */}

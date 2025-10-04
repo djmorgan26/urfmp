@@ -1,11 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { Play, Pause, RotateCcw } from 'lucide-react'
+import { Play, Pause, RotateCcw, Users } from 'lucide-react'
 import RobotCanvas3D from './components/RobotCanvas3D'
 import SimulationControls from './components/SimulationControls'
 import CodeEditor from './components/CodeEditor'
 import { EnvironmentSelectorUI, type EnvironmentType } from './components/EnvironmentSelector'
+import RobotManagerPanel from './components/RobotManagerPanel'
 import { useRobotAPI } from './hooks/useRobotAPI'
 import { useVirtualRobotTelemetry } from './hooks/useVirtualRobotTelemetry'
+import { useMultiRobotManager } from './hooks/useMultiRobotManager'
 
 interface RobotCommand {
   type: 'move' | 'rotate' | 'speed'
@@ -17,6 +19,7 @@ type RobotType = 'simple' | 'ur5' | 'drone'
 const VirtualStudioPage: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [simulationSpeed, setSimulationSpeed] = useState(1)
+  const [multiRobotMode, setMultiRobotMode] = useState(false)
   const [selectedRobot, setSelectedRobot] = useState<RobotType>('simple')
   const [selectedEnvironment, setSelectedEnvironment] = useState<EnvironmentType>('warehouse')
   const [robotPosition, setRobotPosition] = useState({ x: 0, y: 0.5, z: 0 })
@@ -28,6 +31,19 @@ const VirtualStudioPage: React.FC = () => {
     distance: false,
     gps: false,
   })
+
+  // Multi-robot manager
+  const {
+    robots,
+    activeRobotId,
+    addRobot,
+    removeRobot,
+    updateRobotPosition,
+    updateRobotRotation,
+    setActiveRobot,
+    getActiveRobot,
+    resetAllRobots,
+  } = useMultiRobotManager()
   const [telemetryData, setTelemetryData] = useState<any>({
     position: '(0.0, 0.5, 0.0)',
     velocity: '0.0 m/s',
@@ -45,7 +61,13 @@ const VirtualStudioPage: React.FC = () => {
   const handleMove = useCallback(
     (x: number, y: number, z: number) => {
       commandQueueRef.current.push({ type: 'move', data: { x, y, z } })
-      setRobotPosition({ x, y, z })
+
+      if (multiRobotMode) {
+        updateRobotPosition(activeRobotId, { x, y, z })
+      } else {
+        setRobotPosition({ x, y, z })
+      }
+
       setTelemetryData((prev: any) => ({
         ...prev,
         position: `(${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`,
@@ -57,13 +79,18 @@ const VirtualStudioPage: React.FC = () => {
         status: 'moving',
       })
     },
-    [updateRobotState]
+    [updateRobotState, multiRobotMode, activeRobotId, updateRobotPosition]
   )
 
   const handleRotate = useCallback(
     (angle: number) => {
       commandQueueRef.current.push({ type: 'rotate', data: { angle } })
-      setRobotRotation(angle)
+
+      if (multiRobotMode) {
+        updateRobotRotation(activeRobotId, angle)
+      } else {
+        setRobotRotation(angle)
+      }
 
       // Send telemetry update
       updateRobotState({
@@ -71,7 +98,7 @@ const VirtualStudioPage: React.FC = () => {
         status: 'moving',
       })
     },
-    [updateRobotState]
+    [updateRobotState, multiRobotMode, activeRobotId, updateRobotRotation]
   )
 
   const handleSpeedChange = useCallback(
@@ -179,71 +206,100 @@ const VirtualStudioPage: React.FC = () => {
             Design, code, and test robots in real-time 3D simulation
           </p>
         </div>
-        <button
-          onClick={handleReset}
-          className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md flex items-center space-x-1.5 transition-colors"
-        >
-          <RotateCcw size={13} />
-          <span>Reset Scene</span>
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setMultiRobotMode(!multiRobotMode)}
+            className={`px-2.5 py-1 text-xs rounded-md flex items-center space-x-1.5 transition-colors ${
+              multiRobotMode
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <Users size={13} />
+            <span>Multi-Robot</span>
+          </button>
+          <button
+            onClick={multiRobotMode ? resetAllRobots : handleReset}
+            className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md flex items-center space-x-1.5 transition-colors"
+          >
+            <RotateCcw size={13} />
+            <span>Reset {multiRobotMode ? 'All' : 'Scene'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content - Top Section */}
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Left Sidebar - Robot Library & Environments */}
         <div className="w-40 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-          <div className="p-3 flex-shrink-0">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
-              Robot Models
-            </h2>
-            <div className="space-y-1.5">
-              <div
-                onClick={() => setSelectedRobot('simple')}
-                className={`p-2.5 rounded-md cursor-pointer transition-all ${
-                  selectedRobot === 'simple'
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <h3 className="text-sm font-medium">Simple Bot</h3>
-                <p
-                  className={`text-xs mt-0.5 ${selectedRobot === 'simple' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+          {/* Multi-Robot Manager or Single Robot Selector */}
+          {multiRobotMode ? (
+            <div className="p-3 flex-shrink-0">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
+                Fleet Manager
+              </h2>
+              <RobotManagerPanel
+                robots={robots}
+                activeRobotId={activeRobotId}
+                onAddRobot={addRobot}
+                onRemoveRobot={removeRobot}
+                onSetActiveRobot={setActiveRobot}
+              />
+            </div>
+          ) : (
+            <div className="p-3 flex-shrink-0">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 uppercase tracking-wide">
+                Robot Models
+              </h2>
+              <div className="space-y-1.5">
+                <div
+                  onClick={() => setSelectedRobot('simple')}
+                  className={`p-2.5 rounded-md cursor-pointer transition-all ${
+                    selectedRobot === 'simple'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
                 >
-                  Wheeled robot
-                </p>
-              </div>
-              <div
-                onClick={() => setSelectedRobot('ur5')}
-                className={`p-2.5 rounded-md cursor-pointer transition-all ${
-                  selectedRobot === 'ur5'
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <h3 className="text-sm font-medium">UR5 Arm</h3>
-                <p
-                  className={`text-xs mt-0.5 ${selectedRobot === 'ur5' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+                  <h3 className="text-sm font-medium">Simple Bot</h3>
+                  <p
+                    className={`text-xs mt-0.5 ${selectedRobot === 'simple' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+                  >
+                    Wheeled robot
+                  </p>
+                </div>
+                <div
+                  onClick={() => setSelectedRobot('ur5')}
+                  className={`p-2.5 rounded-md cursor-pointer transition-all ${
+                    selectedRobot === 'ur5'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
                 >
-                  6-DOF articulated arm
-                </p>
-              </div>
-              <div
-                onClick={() => setSelectedRobot('drone')}
-                className={`p-2.5 rounded-md cursor-pointer transition-all ${
-                  selectedRobot === 'drone'
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <h3 className="text-sm font-medium">Drone</h3>
-                <p
-                  className={`text-xs mt-0.5 ${selectedRobot === 'drone' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+                  <h3 className="text-sm font-medium">UR5 Arm</h3>
+                  <p
+                    className={`text-xs mt-0.5 ${selectedRobot === 'ur5' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+                  >
+                    6-DOF articulated arm
+                  </p>
+                </div>
+                <div
+                  onClick={() => setSelectedRobot('drone')}
+                  className={`p-2.5 rounded-md cursor-pointer transition-all ${
+                    selectedRobot === 'drone'
+                      ? 'bg-blue-500 text-white shadow-sm'
+                      : 'bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
                 >
-                  Quadcopter UAV
-                </p>
+                  <h3 className="text-sm font-medium">Drone</h3>
+                  <p
+                    className={`text-xs mt-0.5 ${selectedRobot === 'drone' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}
+                  >
+                    Quadcopter UAV
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Environment Selector */}
           <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -262,9 +318,11 @@ const VirtualStudioPage: React.FC = () => {
           <div className="flex-1 relative">
             <RobotCanvas3D
               isPlaying={isPlaying}
-              position={robotPosition}
-              rotation={robotRotation}
-              robotType={selectedRobot}
+              robots={multiRobotMode ? robots : undefined}
+              activeRobotId={multiRobotMode ? activeRobotId : undefined}
+              position={!multiRobotMode ? robotPosition : undefined}
+              rotation={!multiRobotMode ? robotRotation : undefined}
+              robotType={!multiRobotMode ? selectedRobot : undefined}
               environment={selectedEnvironment}
               enabledSensors={enabledSensors}
             />
