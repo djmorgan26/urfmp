@@ -1,9 +1,10 @@
 import { useState, FormEvent, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Zap, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Zap, Eye, EyeOff, Loader2, PlayCircle } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { validateEmail } from '../lib/auth'
+import { enableDemoMode } from '../lib/demo'
 
 export function Login() {
   const navigate = useNavigate()
@@ -67,6 +68,12 @@ export function Login() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleViewDemo = () => {
+    enableDemoMode()
+    // Hard navigation so demo mode is picked up cleanly on first render.
+    window.location.assign('/?demo')
   }
 
   if (authLoading) {
@@ -213,6 +220,27 @@ export function Login() {
               )}
             </button>
           </form>
+
+          {/* Demo entry — no login required */}
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={handleViewDemo}
+              className={cn(
+                'w-full py-3 px-4 rounded-lg font-medium',
+                'border border-primary/40 bg-primary/5 text-primary',
+                'hover:bg-primary/10 active:scale-[0.98]',
+                'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
+                'transition-all duration-200 flex items-center justify-center gap-2'
+              )}
+            >
+              <PlayCircle className="h-5 w-5" />
+              View live demo
+            </button>
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Explore a simulated fleet — no account needed
+            </p>
+          </div>
 
           {/* Divider */}
           <div className="relative my-6">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { isDemoMode } from '../lib/demo'
 import { useURFMP } from './useURFMP'
 import { usePredictiveMaintenance } from './usePredictiveMaintenance'
 
@@ -64,9 +65,7 @@ export function useDashboard(): DashboardData {
     }
 
     // Check if we're in demo mode
-    const isDemo =
-      import.meta.env.VITE_DEMO_MODE === 'true' ||
-      (!import.meta.env.VITE_URFMP_API_URL && window.location.hostname !== 'localhost')
+    const isDemo = isDemoMode()
 
     // In demo mode, we don't need urfmp instance, just use mock data
     if (!isDemo && !urfmp) {

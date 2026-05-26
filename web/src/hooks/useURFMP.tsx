@@ -1,92 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { URFMP } from '@urfmp/sdk'
 import { Robot, RobotTelemetry } from '@urfmp/types'
-import type { RobotVendor } from '@urfmp/types'
 import { toast } from 'sonner'
 import { useAuth } from '../contexts/AuthContext'
 import { getAccessToken } from '../lib/auth'
+import { isDemoMode } from '../lib/demo'
+import { generateDemoRobots, generateDemoTelemetry } from '../lib/demoFixtures'
 
-// Mock data for demo mode
-const generateMockRobots = (): Robot[] => [
-  {
-    id: 'demo-robot-1',
-    name: 'UR5e Production Line Alpha',
-    model: 'UR5e',
-    serialNumber: 'UR5E-2024-001',
-    vendor: 'Universal Robots' as RobotVendor,
-    status: 'online' as any,
-    location: {
-      facility: 'Demo Factory',
-      area: 'Production Floor',
-      cell: 'Assembly Line A',
-      coordinates: { x: 125.5, y: 245.8, z: 300.2 },
-    },
-    configuration: {
-      axes: 6,
-      payload: 5.0,
-      reach: 850,
-      capabilities: [],
-      customSettings: {},
-    },
-    organizationId: 'demo-org',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date(),
-    lastSeen: new Date(),
-    firmwareVersion: '5.15.0',
-  },
-  {
-    id: 'demo-robot-2',
-    name: 'UR10e Packaging Station',
-    model: 'UR10e',
-    serialNumber: 'UR10E-2024-002',
-    vendor: 'Universal Robots' as RobotVendor,
-    status: 'idle' as any,
-    location: {
-      facility: 'Demo Factory',
-      area: 'Production Floor',
-      cell: 'Packaging Line B',
-      coordinates: { x: 200.1, y: 180.5, z: 285.0 },
-    },
-    configuration: {
-      axes: 6,
-      payload: 10.0,
-      reach: 1300,
-      capabilities: [],
-      customSettings: {},
-    },
-    organizationId: 'demo-org',
-    createdAt: new Date('2024-02-20'),
-    updatedAt: new Date(),
-    lastSeen: new Date(),
-    firmwareVersion: '5.15.0',
-  },
-  {
-    id: 'demo-robot-3',
-    name: 'UR16e Heavy Lifting Unit',
-    model: 'UR16e',
-    serialNumber: 'UR16E-2024-003',
-    vendor: 'Universal Robots' as RobotVendor,
-    status: 'maintenance' as any,
-    location: {
-      facility: 'Demo Factory',
-      area: 'Production Floor',
-      cell: 'Heavy Assembly C',
-      coordinates: { x: 75.2, y: 320.1, z: 250.5 },
-    },
-    configuration: {
-      axes: 6,
-      payload: 16.0,
-      reach: 900,
-      capabilities: [],
-      customSettings: {},
-    },
-    organizationId: 'demo-org',
-    createdAt: new Date('2024-03-10'),
-    updatedAt: new Date(),
-    lastSeen: new Date(Date.now() - 300000), // 5 minutes ago
-    firmwareVersion: '5.14.2',
-  },
-]
+// Backwards-compatible alias: demo fleet now lives in lib/demoFixtures.ts.
+const generateMockRobots = generateDemoRobots
 
 interface URFMPContextType {
   urfmp: URFMP | null
@@ -135,10 +57,52 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
     }
   }, [tokens?.accessToken, urfmp])
 
+  // Demo mode: simulate "live" telemetry by drifting each robot's position
+  // and lastSeen on an interval, so the UI feels real-time without a backend.
+  const demoTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+  useEffect(() => {
+    if (!isDemoMode()) return
+
+    demoTimer.current = setInterval(() => {
+      setRobots((prev) =>
+        prev.map((robot) => {
+          const isDown = robot.status === 'maintenance' || robot.status === 'error'
+          const sample = generateDemoTelemetry(robot.id)
+          return {
+            ...robot,
+            location: robot.location
+              ? {
+                  ...robot.location,
+                  coordinates: isDown ? robot.location.coordinates : sample.data.position,
+                }
+              : robot.location,
+            lastSeen: isDown ? robot.lastSeen : new Date(),
+            updatedAt: new Date(),
+          }
+        })
+      )
+    }, 3000)
+
+    return () => {
+      if (demoTimer.current) clearInterval(demoTimer.current)
+    }
+  }, [])
+
   const initializeURFMP = async () => {
     try {
       setIsLoading(true)
       setError(null)
+
+      // Demo mode: render entirely from in-memory fixtures. No backend, no
+      // WebSocket, no auth tokens. This runs before any network/token logic.
+      if (isDemoMode()) {
+        console.log('🎭 Running in demo mode - using simulated fleet data')
+        setUrfmp(null)
+        setIsConnected(true)
+        setRobots(generateMockRobots())
+        setIsLoading(false)
+        return
+      }
 
       // Get access token from auth
       const accessToken = getAccessToken()
@@ -247,25 +211,13 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
   const refreshRobots = async (client?: URFMP, force = false) => {
     try {
-      // CRITICAL DEBUG: Log raw env var
-      console.log(
-        '🔍 RAW ENV VAR:',
-        import.meta.env.VITE_DEMO_MODE,
-        'TYPE:',
-        typeof import.meta.env.VITE_DEMO_MODE
-      )
-
-      // Handle demo mode - MUST be explicitly set to "true"
-      const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
-      console.log('🔍 refreshRobots - Demo mode check:', {
-        VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
-        isDemo,
-        force,
-      })
+      // Handle demo mode. The live-telemetry interval keeps the fleet fresh,
+      // so a manual refresh just re-seeds it once (and never hits the network).
+      const isDemo = isDemoMode()
 
       if (isDemo) {
-        console.log('🎭 Demo mode: using mock robots')
-        setRobots(generateMockRobots())
+        console.log('🎭 Demo mode: using simulated fleet (no API call)')
+        setRobots((prev) => (prev.length > 0 ? prev : generateMockRobots()))
         return
       }
 
@@ -340,8 +292,8 @@ export function URFMPProvider({ children }: URFMPProviderProps) {
 
   const sendCommand = async (robotId: string, command: any) => {
     try {
-      // Handle demo mode
-      if (import.meta.env.VITE_DEMO_MODE === 'true') {
+      // Handle demo mode — acknowledge locally, never hit the API.
+      if (isDemoMode()) {
         toast.success(`Demo: Command sent to ${robotId}: ${command.type}`)
         return
       }

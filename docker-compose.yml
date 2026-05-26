@@ -148,8 +148,12 @@ services:
       - '3001:3001'
     environment:
       NODE_ENV: development
-      VITE_API_URL: http://localhost:3000
-      VITE_URFMP_API_KEY: urfmp_dev_9f8e7d6c5b4a3910efabcdef12345678
+      # The dashboard reads VITE_URFMP_API_URL / VITE_URFMP_WS_URL. The API
+      # container publishes port 3000 to the host, so the browser reaches it at
+      # localhost:3000.
+      VITE_URFMP_API_URL: http://localhost:3000
+      VITE_URFMP_WS_URL: ws://localhost:3000
+      VITE_DEMO_MODE: 'false'
       VITE_COMPANY_NAME: ${VITE_COMPANY_NAME:-URFMP}
       VITE_PRODUCT_NAME: ${VITE_PRODUCT_NAME:-URFMP}
       VITE_COMPANY_NAME_SHORT: ${VITE_COMPANY_NAME_SHORT:-URFMP}

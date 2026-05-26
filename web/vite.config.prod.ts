@@ -3,8 +3,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 
+// The production/Vercel build is a standalone, no-backend demo: it resolves
+// the SDK and types to local stubs and defaults VITE_DEMO_MODE to "true" so the
+// dashboard runs entirely on simulated fixtures with zero environment config.
 export default defineConfig({
   plugins: [react()],
+  define: {
+    'import.meta.env.VITE_DEMO_MODE': JSON.stringify(process.env.VITE_DEMO_MODE ?? 'true'),
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),

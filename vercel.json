@@ -1,25 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "npm ci && npm run build --workspace=@urfmp/web",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build:vercel --workspace=@urfmp/web",
   "outputDirectory": "web/dist",
-  "installCommand": "echo 'Dependencies installed in buildCommand'",
   "framework": null,
+  "build": {
+    "env": {
+      "VITE_DEMO_MODE": "true"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "build": {
-    "env": {
-      "VITE_COMPANY_NAME": "@VITE_COMPANY_NAME",
-      "VITE_PRODUCT_NAME": "@VITE_PRODUCT_NAME",
-      "VITE_PRODUCT_FULL_NAME": "@VITE_PRODUCT_FULL_NAME",
-      "VITE_TAGLINE": "@VITE_TAGLINE",
-      "VITE_DESCRIPTION": "@VITE_DESCRIPTION",
-      "VITE_DEMO_MODE": "@VITE_DEMO_MODE",
-      "VITE_URFMP_API_URL": "@VITE_URFMP_API_URL",
-      "VITE_URFMP_WS_URL": "@VITE_URFMP_WS_URL"
-    }
-  }
+  ]
 }

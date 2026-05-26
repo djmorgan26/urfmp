@@ -1,160 +1,141 @@
-# URFMP - Universal Robot Fleet Management Platform
+# URFMP — Universal Robot Fleet Management Platform
 
-> The Stripe of Robotics - Developer-first platform for managing robot fleets across any vendor, any industry.
+> The Stripe of Robotics — a developer-first platform for monitoring and managing robot fleets across any vendor, any industry.
 
-## 🚀 Quick Start
+URFMP is a TypeScript monorepo: a real-time React dashboard, an Express API gateway with JWT auth, PostgreSQL + TimescaleDB telemetry storage, Redis and RabbitMQ for caching and messaging, a Python ML service for predictive maintenance, vendor adapters (Universal Robots, ABB, FANUC), and first-class TypeScript and Python SDKs.
+
+## Quick start
+
+### Option A — full stack with Docker (recommended)
+
+Brings up the database, message broker, API, and dashboard together.
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development environment
-npm run docker:up   # Start PostgreSQL, Redis, RabbitMQ
-npm run db:migrate  # Setup database
-npm run dev         # Start API and web dashboard
+npm run docker:up      # Start Postgres + TimescaleDB, Redis, RabbitMQ, API, web
+npm run migrate        # Create the schema and load the seed fleet + admin user
 ```
 
-Your platform is now running:
+> The migrations include a seed dataset (admin user and a sample fleet), so a
+> fresh `npm run migrate` leaves you with data to explore right away.
 
-- 🌐 Dashboard: http://localhost:3000
-- 🔌 API: http://localhost:3001
-- 📚 API Docs: http://localhost:3001/docs
-- 🔴 WebSocket: ws://localhost:3001
+Once it's up:
 
-## 🏗️ Architecture
+- Dashboard: http://localhost:3001
+- API: http://localhost:3000
+- API health check: http://localhost:3000/health
+- Database admin (Adminer): http://localhost:8080
+
+Stop everything with `npm run docker:down`.
+
+### Option B — dashboard only, no backend (demo mode)
+
+The dashboard can run standalone against an in-memory simulated fleet — no
+database, no API, no login, no environment variables. This is what the hosted
+demo uses.
+
+```bash
+npm install
+npm run dev --workspace=@urfmp/web   # http://localhost:3001
+```
+
+Then open the dashboard and click **View live demo**, or append `?demo` to the
+URL. To make demo mode the default for a build, set `VITE_DEMO_MODE=true`.
+
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) for hosting the static demo on
+Vercel and for full-stack production deployment.
+
+## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Web Dashboard                      │
-│                 (React + WebSocket)                  │
-└────────────────────────┬─────────────────────────────┘
+┌───────────────────────────────────────────────────────┐
+│                    Web Dashboard                       │
+│                 (React + Vite + WebSocket)             │
+└────────────────────────┬──────────────────────────────┘
                          │
-┌────────────────────────┴─────────────────────────────┐
-│                   API Gateway                        │
-│                (Express + Auth)                      │
-└────────────────────────┬─────────────────────────────┘
+┌────────────────────────┴──────────────────────────────┐
+│                    API Gateway                         │
+│                 (Express + JWT auth)                   │
+└────────────────────────┬──────────────────────────────┘
                          │
         ┌────────────────┼────────────────┐
         │                │                │
-┌───────▼──────┐ ┌───────▼──────┐ ┌──────▼───────┐
-│ Core Service │ │  ML Service   │ │Alert Service │
-│  (Node.js)   │ │   (Python)    │ │  (Node.js)   │
-└───────┬──────┘ └───────┬──────┘ └──────┬───────┘
-        │                │                │
-┌───────▼────────────────▼────────────────▼───────┐
-│         PostgreSQL + TimescaleDB                 │
-└───────────────────────────────────────────────────┘
+┌───────▼──────┐ ┌───────▼──────┐ ┌────────▼──────┐
+│  API / Core  │ │  ML Service  │ │   Adapters    │
+│  (Node.js)   │ │   (Python)   │ │ (UR/ABB/FANUC)│
+└───────┬──────┘ └───────┬──────┘ └───────────────┘
+        │                │
+┌───────▼────────────────▼──────────────────────────────┐
+│  PostgreSQL + TimescaleDB  ·  Redis  ·  RabbitMQ       │
+└────────────────────────────────────────────────────────┘
 ```
 
-## 📦 Project Structure
+## Project structure
 
 ```
 urfmp/
-├── packages/           # Shared packages
-│   ├── sdk/           # TypeScript SDK
-│   └── types/         # Shared types
-├── services/          # Microservices
-│   ├── api/          # Core API (Node.js)
-│   ├── core/         # Core business logic
-│   ├── alerts/       # Alert processing
-│   └── ml/           # ML service (Python)
-├── web/              # React dashboard
-├── adapters/         # Vendor adapters
-│   ├── universal-robots/
-│   ├── abb/
-│   └── fanuc/
-├── infrastructure/   # Terraform/IaC
-└── docs/            # Documentation
+├── packages/
+│   ├── sdk/            # TypeScript SDK
+│   └── types/          # Shared TypeScript types
+├── services/
+│   └── api/            # Express API gateway (JWT, WebSocket)
+├── web/                # React + Vite dashboard
+├── adapters/           # Vendor adapters (Universal Robots, ABB, FANUC)
+├── sdks/
+│   └── python/         # Python SDK
+├── scripts/            # Build, CI, and deploy helper scripts
+└── docs/               # Documentation
 ```
 
-## 🔌 SDK Usage - 7 Lines to Production
+## SDK usage
 
-```javascript
-const URFMP = require('@urfmp/sdk')
-const fleet = new URFMP.Fleet('YOUR_API_KEY')
+```ts
+import { URFMP } from '@urfmp/sdk'
 
-// Connect and monitor a robot in 7 lines
-fleet.on('robot.error', (robot) => {
-  console.log(`Robot ${robot.id} needs attention`)
+const urfmp = new URFMP({ apiKey: 'YOUR_API_KEY' })
+
+// Monitor a robot and react to telemetry in real time
+urfmp.on('robot:alert', (alert) => {
+  console.log(`Robot ${alert.robotId} needs attention: ${alert.message}`)
 })
 
-await fleet.monitor({
-  vendor: 'universal-robots',
-  ip: '192.168.1.100',
-})
+await urfmp.connectWebSocket()
+const robots = await urfmp.getRobots()
 ```
 
-## 🚦 Development Workflow
+See the [SDK reference](./packages/sdk/README.md) for the full API.
 
-### Adding a New Vendor Adapter
+## Development
 
 ```bash
-npm run create:adapter -- --vendor=kuka
-# Implements IRobotVendorAdapter interface automatically
+npm run dev:web        # Dashboard only (Vite, port 3001)
+npm run dev:api        # API only (requires the Docker services running)
+npm test               # Run workspace tests
+npm run lint           # Lint
+npm run typecheck      # Type-check all workspaces
 ```
 
-### Running Tests
+Database migrations:
 
 ```bash
-npm test              # Run all tests
-npm run test:unit     # Unit tests only
-npm run test:e2e      # E2E tests
-npm run test:adapters # Adapter integration tests
+npm run migrate        # Apply migrations (includes the seed dataset)
 ```
 
-### Database Migrations
+## Documentation
 
-```bash
-npm run db:migrate:create -- add_telemetry_table
-npm run db:migrate       # Run migrations
-npm run db:rollback      # Rollback last migration
-```
+- [Architecture](./docs/ARCHITECTURE.md)
+- [API reference](./docs/API_REFERENCE.md)
+- [Database schema](./docs/DATABASE_SCHEMA.md)
+- [Components](./docs/COMPONENTS.md)
+- [Development workflow](./docs/DEVELOPMENT_WORKFLOW.md)
+- [Deployment](./docs/DEPLOYMENT.md)
+- [Security](./SECURITY.md)
 
-## 📊 Key Metrics
+## Security
 
-- ⏱️ **Time to First Value**: < 5 minutes
-- 🎯 **API Response Time**: < 200ms (p95)
-- 📈 **Telemetry Ingestion**: 10K+ events/sec
-- 🔒 **Uptime SLA**: 99.99%
-- 🚀 **Deploy Frequency**: Daily
+URFMP uses JWT-based authentication with scoped permissions and per-org rate
+limiting. To report a vulnerability, see [SECURITY.md](./SECURITY.md).
 
-## 🔒 Security
+## License
 
-- JWT-based authentication with scopes
-- Zero-trust architecture
-- End-to-end telemetry encryption (optional)
-- SOC 2 Type II compliance ready
-- Rate limiting per org/tier
-
-## 🧪 Testing
-
-```bash
-# Run adapter tests against mock fixtures
-npm run test:adapters
-
-# Run chaos engineering tests
-npm run test:chaos
-
-# Performance benchmarks
-npm run benchmark
-```
-
-## 📚 Documentation
-
-- [API Documentation](./docs/api.md)
-- [SDK Reference](./packages/sdk/README.md)
-- [Adapter Development](./docs/adapter-guide.md)
-- [Security & Compliance](./docs/security.md)
-- [Deployment Guide](./docs/deployment.md)
-
-## 🤝 Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
-
-## 📄 License
-
-Proprietary - See [LICENSE](./LICENSE)
-
----
-
-**Remember**: We're not building a monitoring tool. We're building the operating system for all deployed robots.
+See the repository for license details.

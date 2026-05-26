@@ -11,6 +11,7 @@ import {
   getRefreshToken,
   updateAccessToken,
 } from '../lib/auth'
+import { isDemoMode, DEMO_USER, DEMO_ORGANIZATION, DEMO_TOKENS } from '../lib/demo'
 
 interface AuthContextType {
   user: AuthUser | null
@@ -51,6 +52,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initAuth = async () => {
       try {
+        // Demo mode: authenticate a synthetic user with no backend calls.
+        if (isDemoMode()) {
+          setUser(DEMO_USER as unknown as AuthUser)
+          setOrganization(DEMO_ORGANIZATION as unknown as AuthOrganization)
+          setTokens(DEMO_TOKENS as unknown as AuthToken)
+          setIsLoading(false)
+          return
+        }
+
         const authData = getAuthData()
 
         if (!authData) {

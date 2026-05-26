@@ -28,6 +28,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { cn } from '../../lib/utils'
 import { AlertNotifications } from '../alerts/AlertNotifications'
 import { RealTimeAlertPanel } from '../alerts/RealTimeAlertPanel'
+import { DemoBanner } from './DemoBanner'
 
 interface LayoutProps {
   children: ReactNode
@@ -196,6 +197,9 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Demo mode banner */}
+      <DemoBanner />
+
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 relative z-50">
         <div className="flex h-16 items-center px-4 lg:px-6">
